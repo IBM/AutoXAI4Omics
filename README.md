@@ -8,10 +8,15 @@ Key features include:
 * Wrapping of Keras and TensorFlow models to make them compatible with sklearn models
 
 ## Quick Get Started
-The general python requirements have been listed below. To install on MacOSX, use the following command:
+
+The general python requirements have been listed below. 
+
+***To install on MacOSX, use the following command***:
 ```
 conda env create -f microbiome_osx.yml
 ```
+
+***To install on Windows 10, see Windows_installation_instructions***:
 
 Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the ***USER GUIDE***.
 
