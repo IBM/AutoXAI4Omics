@@ -1,0 +1,44 @@
+{
+    "name": "microbiome_smoking",
+    "data_type": "microbiome",
+    "file_path": "data/skin_closed_reference.biom",
+    "metadata_file": "data/metadata_skin_microbiome.txt",
+    "target": "SMOKER",
+    "seed_num": 42,
+    "test_size": 0.2,
+    "problem_type": "classification",
+    "hyper_tuning": "random",
+    "hyper_budget": 100,
+    "scorer_list": [
+        "f1"
+    ],
+    "fit_scorer": "f1",
+    "model_list": [
+        "rf",
+        "xgboost",
+        "adaboost",
+        "svm",
+        "knn"
+    ],
+      "plot_method": [
+        "conf_matrix",
+        "boxplot_scorer",
+        "barplot_scorer",
+        "shap_plots",
+        "permut_imp_alldata"
+      ],
+    "top_feats_permImp": 10,
+    "top_feats_shap": 10,
+    "explanations_data": "test",
+    "collapse_tax": "genus",
+    "remove_classes": null,
+    "merge_classes": null,
+    "encoding": null,
+    "filter_samples": [
+        {
+            "COUNTRY": [
+                "UK"
+            ]
+        }
+    ]
+}
