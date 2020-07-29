@@ -11,7 +11,7 @@ Key features include:
 
 The general python requirements have been listed below. 
 
-***To install on MacOSX*** you can install the python requirements listed below using conda or pip or you can use the following command***:
+***To install on MacOSX*** you can install the python requirements listed below using conda or pip or you can use the following command:
 ```
 conda env create -f microbiome_osx.yml
 ```
