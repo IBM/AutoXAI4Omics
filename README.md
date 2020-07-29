@@ -11,13 +11,25 @@ Key features include:
 
 The general python requirements have been listed below. 
 
-***To install on MacOSX, use the following command***:
+***To install on MacOSX*** you can install the python requirements listed below using conda or pip or you can use the following command***:
 ```
 conda env create -f microbiome_osx.yml
 ```
 
-***To install on Windows 10, see Windows_installation_instructions***:
+***To install on Windows 10*** see Windows_installation_instructions.docs:
 
+## Requirements
+* Python 3.6+
+* Calour (which needs scikit-bio)
+* Numpy, Scipy, Pandas, Scikit-learn
+* Tensorflow 1.12 (at least <2.0), Keras
+* Matplotlib, Seaborn
+* XGBoost
+* SHAP, ELI5
+* UMAP (for dimensionality reduction)
+
+
+## User guide
 Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the ***USER GUIDE***.
 
 The main way to run the pipeline (to train and hypertune the models) is:
@@ -32,15 +44,4 @@ python plotting.py -c example_config.json
 
 The results are saved in the results/ folder in the subdirectory specified by the `name` field in the JSON config file.
 
-## Requirements
-* Python 3.6+
-* Calour (which needs scikit-bio)
-* Numpy, Scipy, Pandas, Scikit-learn
-* Tensorflow 1.12 (at least <2.0), Keras
-* Matplotlib, Seaborn
-* XGBoost
-* SHAP, ELI5
-* UMAP (for dimensionality reduction)
-
-## User Guide
 For an explanation of the config file, and more detailed information about the framework and how to extend it, see the ***USER GUIDE***
