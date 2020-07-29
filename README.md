@@ -1,6 +1,6 @@
-# EAU
+# Explainable AI framework for omics 
 
-The aim of the framework is to easily allow phenotype prediction from omics data or clinical (e.g., gene expression; microbiome datat (currently setup for _biom_ data, handled through `calour`); clinical or any tabular data), using a range of ML models, and various plots (including explainability and feature importance through SHAP and ELI5). 
+The aim of the framework is to easily allow phenotype prediction from omics data (e.g., gene expression; microbiome datat (currently setup for _biom_ data, handled through `calour`); or any tabular data), using a range of ML models, and various plots (including explainability and feature importance through SHAP and ELI5). 
 
 Key features include:
 
@@ -13,7 +13,7 @@ The general python requirements have been listed below. To install on MacOSX, us
 conda env create -f microbiome_osx.yml
 ```
 
-Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the XXX.
+Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the ***USER GUIDE***.
 
 The main way to run the pipeline (to train and hypertune the models) is:
 ```
