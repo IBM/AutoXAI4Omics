@@ -1,0 +1,15 @@
+# keep the packages in this order! do not delete!
+numpy
+scipy
+pandas
+matplotlib
+scikit-learn
+seaborn
+xgboost
+eli5
+shap
+cython
+calour
+tensorflow==1.13.1
+keras==2.2.4
+# keep the packages in this order! do not delete!
