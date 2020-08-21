@@ -282,7 +282,7 @@ def create_experiment_folders(config_dict, config_path):
     Create the folder for the given config and the relevant subdirectories
     '''
     # Create the folder for this experiment
-    experiment_folder = Path.cwd() / "results" / config_dict["name"]
+    experiment_folder = Path(config_dict["save_path"]) / "results" / config_dict["name"]
     # Provide a warning if the folder already exists
     if experiment_folder.is_dir():
         print(f"{experiment_folder} exists - results may be overwritten!")

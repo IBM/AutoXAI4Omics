@@ -6,5 +6,6 @@ docker run \
   -ti \
   -v ${PWD}/configs:/configs \
   -v ${PWD}/data:/data \
+  -v ${PWD}/experiments:/experiments \
   ${NAME}:${VERSION} \
-    python train_models.py -c /configs/L1000_exp.json
+    python train_models.py -c /configs/"$1"
