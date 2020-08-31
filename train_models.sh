@@ -4,8 +4,8 @@
 docker run \
   --rm \
   -ti \
-  -v ${PWD}/configs:/configs \
-  -v ${PWD}/data:/data \
-  -v ${PWD}/experiments:/experiments \
+  -v "${PWD}"/configs:/configs \
+  -v "${PWD}"/data:/data \
+  -v "${PWD}"/experiments:/experiments \
   ${NAME}:${VERSION} \
     python train_models.py -c /configs/"$1"

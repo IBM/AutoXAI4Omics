@@ -17,6 +17,11 @@
         "med_ae"
     ],
     "model_list": [
+        "rf",
+        "xgboost",
+        "adaboost",
+        "svm",
+        "knn"
     ],
     "plot_method": [
         "shap_plots"
