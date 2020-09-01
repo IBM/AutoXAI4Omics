@@ -7,6 +7,12 @@ Key features include:
 * Json Config file allows specification of preprocessing, ML models, hyperparameter tuning, plots and results produced
 * Wrapping of Keras and TensorFlow models to make them compatible with sklearn models
 
+## Docker instructions:
+
+* ./build.sh -- installs required packages
+* create a folder called experiments
+* ./train_models.sh parameters.json -- trains models using the file with parameters: configs/parameters.json
+
 ## Quick Get Started
 
 The general python requirements have been listed below. 
