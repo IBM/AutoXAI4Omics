@@ -4,8 +4,7 @@
 docker run \
   --rm \
   -ti \
-  -u aotuser \
-  -m 8000000000 \
+  -u ${USER_ID}:${GROUP_ID} \
   -v "${PWD}"/configs:/configs \
   -v "${PWD}"/data:/data \
   -v "${PWD}"/experiments:/experiments \
