@@ -3,18 +3,23 @@ FROM python:3.7
 RUN \
     apt update && \
     apt install -y r-base && \
-    apt upgrade -y
+    apt upgrade -y && \
+    groupadd -r aotuser && useradd -m -s /bin/bash -g aotuser aotuser
 
-WORKDIR /aot_eai_omics
+USER aotuser
 
-COPY requirements.txt .
+WORKDIR /home/aotuser
+
+ENV PATH "/home/aotuser/.local/bin:${PATH}"
+
+COPY --chown=aotuser:aotuser requirements.txt .
 
 RUN \
      python -m pip install --upgrade pip && \
-     while read requirement; do pip install ${requirement}; done < requirements.txt
+     cat requirements.txt | grep -v ^# | xargs -n 1 pip install
 
-COPY *.py *.R ./
+COPY --chown=aotuser:aotuser *.py *.R ./
 
-ENV PYTHONPATH "/aot_eai_omics:${PYTHONPATH}"
+ENV PYTHONPATH "/home/aotuser:${PYTHONPATH}"
 
 CMD ["$@"]

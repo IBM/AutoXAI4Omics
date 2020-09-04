@@ -1,0 +1,33 @@
+{
+    "name": "microbiome_gut_age",
+    "data_type": "microbiome",
+    "file_path": "/data/gut_4434.biom",
+    "save_path": "/experiments",
+    "metadata_file": "/data/gut_4434_map.txt",
+    "target": "age",
+    "seed_num": 42,
+    "test_size": 0.2,
+    "problem_type": "regression",
+    "hyper_tuning": "random",
+    "hyper_budget": 100,
+    "fit_scorer": "mean_ae",
+    "scorer_list": [
+        "rmse",
+        "mean_ae",
+        "med_ae"
+    ],
+    "model_list": [
+        "rf"
+    ],
+    "plot_method": [
+        "shap_plots"
+    ],
+    "top_feats_permImp": 10,
+    "top_feats_shap": 10,
+    "explanations_data": "test",
+    "collapse_tax": null,
+    "remove_classes": null,
+    "merge_classes": null,
+    "encoding": null,
+    "filter_samples": null
+}

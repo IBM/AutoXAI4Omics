@@ -9,7 +9,7 @@ fi
 docker run \
   --rm \
   -ti \
-  -u ${USER_ID} \
+  -u aotuser \
   -v "${PWD}"/configs:/configs \
   -v "${PWD}"/data:/data \
   -v "${PWD}"/experiments:/experiments \

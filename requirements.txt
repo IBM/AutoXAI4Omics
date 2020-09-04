@@ -9,6 +9,13 @@ xgboost
 eli5
 shap
 cython
+pandas
+jupyter
+statsmodels
+h5py
+biom-format
+scikit-bio
+docrep
 calour
 tensorflow==1.13.1
 keras==2.2.4
