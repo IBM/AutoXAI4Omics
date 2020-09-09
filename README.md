@@ -9,9 +9,9 @@ Key features include:
 
 ## Docker instructions:
 
-* ./build.sh -- installs required packages
+* `./build.sh -r` -- installs required packages
 * create a new folder whose name matches the `save_path`, e.g. "experiments"
-* ./train_models.sh parameters.json -- trains models using parameter file "configs/parameters.json"
+* `./train_models.sh parameters.json` -- trains models using parameter file "configs/parameters.json"
 
 ## Quick Get Started
 
