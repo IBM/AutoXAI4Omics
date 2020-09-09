@@ -9,7 +9,7 @@ fi
 docker run \
   --rm \
   -ti \
-  -u ${USER_ID}:${GROUP_ID} \
+  -u ${USER_ID} \
   -v "${PWD}"/configs:/configs \
   -v "${PWD}"/data:/data \
   -v "${PWD}"/experiments:/experiments \

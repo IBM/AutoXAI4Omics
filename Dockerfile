@@ -1,14 +1,12 @@
 FROM python:3.7
 
 ARG USER_ID=${USER_ID}
-ARG GROUP_ID=${GROUP_ID}
 
 RUN \
     apt update && \
     apt install -y r-base && \
     apt upgrade -y && \
-    (grep aotuser /etc/group || groupadd -g ${GROUP_ID} aotuser) && \
-    (grep aotuser /etc/passwd || useradd -l -m -s /bin/bash -u ${USER_ID} -g aotuser aotuser) && \
+    useradd -l -m -s /bin/bash -u ${USER_ID} aotuser && \
     python -m pip install --upgrade pip
 
 USER aotuser
