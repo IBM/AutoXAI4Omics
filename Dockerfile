@@ -7,8 +7,8 @@ RUN \
     apt update && \
     apt install -y r-base && \
     apt upgrade -y && \
-    (groupadd -g ${GROUP_ID} aotuser || true) && \
-    useradd -l -m -s /bin/bash -u ${USER_ID} -G ${GROUP_ID} aotuser && \
+    (grep aotuser /etc/group || groupadd -g ${GROUP_ID} aotuser) && \
+    (grep aotuser /etc/passwd || useradd -l -m -s /bin/bash -u ${USER_ID} -g aotuser aotuser) && \
     python -m pip install --upgrade pip
 
 USER aotuser
