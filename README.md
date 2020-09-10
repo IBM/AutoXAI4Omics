@@ -12,7 +12,7 @@ Key features include:
 * make sure `docker` is running -- e.g. run `docker version` to get version information
 * `./build.sh -r` -- installs required packages
 * create a new folder whose name matches the `save_path`, e.g. "experiments"
-* `./train_models.sh parameters.json` -- trains models using parameter file "configs/parameters.json"
+* `./train_models.sh parameters.json` -- trains models and plots results, using parameter file "configs/parameters.json"
 * `./plotting.sh parameters.json` -- plots the already trained models that are listed in "configs/parameters.json"
 
 ## Quick Get Started
