@@ -14,4 +14,4 @@ docker run \
   -v "${PWD}"/data:/data \
   -v "${PWD}"/experiments:/experiments \
   ${NAME}:${VERSION} \
-    python AoT_gene_expression_pre_processing.py --expressionfile /data/"$1" --expressiontype OTHER --Filtersamples 100 --Filtergenes 0 1 --output Processed_GE_L1000_discrete_drug_perturbation_blood_urea_nitrogen.csv
+    python AoT_gene_expression_pre_processing.py --expressionfile /data/"$1" --expressiontype OTHER --Filtersamples 100 --Filtergenes 0 0 --output /data/Processed_GE_L1000_discrete_drug_perturbation_blood_urea_nitrogen.csv

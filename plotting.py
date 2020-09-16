@@ -1244,12 +1244,16 @@ if __name__ == "__main__":
     np.random.seed(config_dict["seed_num"])
 
     # Get the data
-    if (config_dict["data_type"] == "clinical" or config_dict["data_type"] == "gene_expression"):
-        # At the moment with clinical and gene expression we have not implemented preprocessing
-        x, y, features_names = train_models.get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
-
-    elif(config_dict["data_type"]  == "microbiome"):
+    if (config_dict["data_type"] == "microbiome"):
+        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
         x, y, features_names = train_models.get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+    elif (config_dict["data_type"] == "gene_expression"):
+        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
+        x, y, features_names = train_models.get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"],
+                                                        config_dict)
+    else:
+        # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
+        x, y, features_names = train_models.get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
 
     # Split the data
     x_train, x_test, y_train, y_test = models.split_data(
