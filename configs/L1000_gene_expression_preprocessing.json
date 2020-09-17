@@ -20,7 +20,7 @@
         "rf"
     ],
     "plot_method": [
-        "barplot_scorer"
+        "boxplot_scorer"
     ],
     "top_feats_permImp": 30,
     "top_feats_shap": 30,

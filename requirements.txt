@@ -4,7 +4,7 @@ scipy
 pandas
 matplotlib
 scikit-learn
-seaborn
+seaborn==0.10.0
 xgboost
 eli5
 shap

@@ -29,7 +29,7 @@ def get_data(path_file, target, metadata_path):
     # Check if the target is in a separate file or in the same data
     if(metadata_path == ""):
         y = data[target].values
-        data_notarget = data.iloc[:, :-1]
+        data_notarget = data.drop(target, axis=1)
 
     else: # it assumes the data does not contain the target column
         # Read the metadata file

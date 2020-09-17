@@ -223,8 +223,7 @@ def pretty_names(name, name_type):
         new_name = score_dict[name]
     return new_name
 
-
-def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_labels, nsplits=5, save=True):
+def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_labels, nsplits=3, save=True):
     '''
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
 
@@ -297,34 +296,38 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
             num_testsamples_list.append(num_testsamples)
 
             # Clear keras and TF sessions/graphs etc.
-            utils.tidy_tf()
+            #utils.tidy_tf()
 
         # Maintain the total list
         all_scores.append(scores)
         # Save CV results
         d = {'Scores CV': scores, 'Dim test': num_testsamples_list}
-        fname = f"{experiment_folder / 'results' / 'scores_5CV'}_{model_name}_{num_fold}"
+        fname = f"{experiment_folder / 'results' / 'scores_10CV'}_{model_name}_{num_fold}"
         df = pd.DataFrame(d)
         df.to_csv(fname + '.csv')
 
     pretty_model_names = [pretty_names(name, "model") for name in config_dict["model_list"]]
+
+    #Make a dataframe
+    """
+    df_cv_scores = pd.DataFrame(all_scores, columns=pretty_model_names)
+    fname_all_cv = f"{experiment_folder / 'results' / 'scores_CV_allmodels'}"
+    df_cv_scores.to_csv(fname_all_cv+".csv")
+    print(df_cv_scores)
+    """
+
     # Make the boxplot
     sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
     # Format the graph
-    # ax.set_xticklabels(pretty_names(config_dict["model_list"], "score"))
-    ax.set_ylabel(pretty_names(config_dict["fit_scorer"], "score"))
-    ax.set_xlabel("Model")
-    ax.set_title(f"Performance on all data with {nsplits}-fold CV")
+    #ax.set_xticklabels(pretty_names(config_dict["model_list"], "score"))
+    ax.set_xlabel("ML Methods")
 
     fig = plt.gcf()
     # Save the graph
     if save:
         fname = f"{experiment_folder / 'graphs' / 'boxplot'}_{config_dict['fit_scorer']}"
         save_fig(fig, fname)
-    plt.draw()
-    plt.tight_layout()
-    plt.pause(0.001)
-    time.sleep(2)
+
     # Close the figure to ensure we start anew
     plt.clf()
     plt.close()
