@@ -79,7 +79,7 @@ The JSON config file is at the centre of the framework - it controls everything 
 
 ### Gene expression data pre-processing parameters
 * `expression_type`:
-* `filter_sample`: -- FIX to  merge or separate from `filter_samples` above
+* `filter_sample`: -- FIX this to  merge or separate from `filter_samples` above (@Anna Paola / @Laura)
 * `filter_genes`:
 * `output_file_ge`: ???
 
@@ -96,6 +96,11 @@ This section will briefly outline the steps needed to extend the framework. This
 ​
 There are a few parts of this framework that are hard-coded, and will need to be modified when adding new plots, models, or scorers.
 ​
+### Adding a new data type
+A new `data_type` option can be added to the code.
+Note that the `gene_expression` type can be used with any numeric input matrix, for example metabolomic data. 
+<--- does it need to be non-negative?? (@Anna Paola)
+
 ### Adding a new plot
 In `plotting.py`, the `define_plots()` function at the top specifies which plotting functions are available for regression and classification problems. Some plots are applicable to both, so add the alias (which is used in the config file) and the function object itself to the relevant dictionary (or -ies).
 ​
