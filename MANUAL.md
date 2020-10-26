@@ -37,26 +37,38 @@ The JSON config file is at the centre of the framework - it controls everything 
     "plot_method": ["conf_matrix", "barplot_scorer", "shap_summary"]
 }
 ```
-### Config Parameters
+### General config parameters
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
-* `biom_file`: The name of the relevant .biom file to be loaded in for `calour` (must be in "data" folder)
-* `metadata_file`: The name of the metadata file to be loaded in for `calour` (must be in "data" folder)
-* `collapse_tax`: Allows collapsing the taxonomy to the e.g. genus level. Uses the `calour.collapse_taxonomy` function (which collapses the entire taxonomic classification up to the level desired, so even if the genus is the same for two samples, if they have different e.g. order, they will be separate).
+
+
+## Machine learning config parameters
 * `class_name`: The name of the column/feature to use as the target (either regression or classification).
-* `remove_classes`: A list of values (class labels) that will be removed from the dataset. Uses the column defined in `class_name`. Only relevant for classification.
-* `filter_samples`: This can either be a list of dictionaries, or a dictionary, which have different behaviour/use-cases. In both, the dictionary key is the column, and the value is a list of values which will be used to filter the samples. If a single dictionary is provided, then each key:value pair is taken in isolation, and for a given column all samples that match any of the values are removed. A list of dictionaries is used when there are one or more multi-column criteria for samples to be removed. Each dictionary in the list is treated in isolation. In the example shown in the config, we want to remove samples where they have "Value1" in "Column2" and either "Value1" or "Value2" in "Column5", then we also want to do the same but for "Value2" in "Column2" with either "Value1" or "Value3" in "Column5".
+* `problem_type`: The type of problem, either "classification" or "regression".
 * `merge_classes`: This is a dictionary where the key is the new class and the value is a list of values that will be converted into the key. So `{"X": ["A", "B"]}` will convert all "A" and "B" labels into "X" labels. Uses the column defined in `class_name`. Only relevant for classification.
+* `encoding`: The type of encoding to be used for the class. Accepts `null` to allow sklearn to deal with it as it needs, or can specify "label" (for label encoding) or "onehot" (for one-hot encoding). Note that the neural network models always use one-hot encoding, so if not specified they will handle this themselves. This is rarely used.
 * `seed_num`: Provide the seed number to be used. This is given to everything that has a `random_state` argument, as well as being used as the general seed (for `numpy` and `tensorflow`).
 * `test_size`: The size of the test data (given to scikit-learn's `train_test_split`).
-* `encoding`: The type of encoding to be used for the class. Accepts `null` to allow sklearn to deal with it as it needs, or can specify "label" (for label encoding) or "onehot" (for one-hot encoding). Note that the neural network models always use one-hot encoding, so if not specified they will handle this themselves. This is rarely used.
-* `problem_type`: The type of problem, either "classification" or "regression".
 * `hyper_tuning`: The type of hyperparameter tuning to be used, one of: "grid", "random", "boaas", or `null` (which means training with just one set of parameters). The parameters are defined in `model_params.py` for each method. Currently, the _CustomModels_ are not integrated with grid or random search, which rely on `scikit-learn`.
 * `hyper_budget`: The number of parameter sets to try. Not applicable to "grid" search.
 * `model_list`: Specify the models to be used in the analysis (the models are defined in the `model_params.py` file).
 * `scorer_list`: Specify the scoring measures to be used to analyse the models. These are defined in `models.py`. The performance of all models on the train and test sets according to these measures are saved in the "results/" subfolder of the experiment directory.
 * `fit_scorer`: The measure that will be used to select the "best" model from the hyperparameter search. Also used as the scoring method for plots.
+
+### Config Parameters for microbiome data pre-processing
+* `biom_file`: The name of the relevant .biom file to be loaded in for `calour` (must be in "data" folder)
+* `metadata_file`: The name of the metadata file to be loaded in for `calour` (must be in "data" folder)
+* `collapse_tax`: Allows collapsing the taxonomy to the e.g. genus level. Uses the `calour.collapse_taxonomy` function (which collapses the entire taxonomic classification up to the level desired, so even if the genus is the same for two samples, if they have different e.g. order, they will be separate).
+
+* `remove_classes`: A list of values (class labels) that will be removed from the dataset. Uses the column defined in `class_name`. Only relevant for classification.
+* `filter_samples`: This can either be a list of dictionaries, or a dictionary, which have different behaviour/use-cases. In both, the dictionary key is the column, and the value is a list of values which will be used to filter the samples. If a single dictionary is provided, then each key:value pair is taken in isolation, and for a given column all samples that match any of the values are removed. A list of dictionaries is used when there are one or more multi-column criteria for samples to be removed. Each dictionary in the list is treated in isolation. In the example shown in the config, we want to remove samples where they have "Value1" in "Column2" and either "Value1" or "Value2" in "Column5", then we also want to do the same but for "Value2" in "Column2" with either "Value1" or "Value3" in "Column5".
+
+### Config Parameters for gene expression data pre-processing
+* ...
+* ...
+
+### Plotting config parameters
 * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file.
-​
+
 ## Extending the Framework
 This section will briefly outline the steps needed to extend the framework. This is mainly aimed at pointing the user towards the relevant dictionaries when a new model or plot is to be added.
 ​
