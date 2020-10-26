@@ -41,7 +41,7 @@ The JSON config file is at the centre of the framework - it controls everything 
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
 
 
-## Machine learning config parameters
+### Machine learning config parameters
 * `class_name`: The name of the column/feature to use as the target (either regression or classification).
 * `problem_type`: The type of problem, either "classification" or "regression".
 * `merge_classes`: This is a dictionary where the key is the new class and the value is a list of values that will be converted into the key. So `{"X": ["A", "B"]}` will convert all "A" and "B" labels into "X" labels. Uses the column defined in `class_name`. Only relevant for classification.
