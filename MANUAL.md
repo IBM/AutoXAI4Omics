@@ -76,16 +76,17 @@ The JSON config file is at the centre of the framework - it controls everything 
 * `collapse_tax`: Allows collapsing the taxonomy to the e.g. genus level. Uses the `calour.collapse_taxonomy` function (which collapses the entire taxonomic classification up to the level desired, so even if the genus is the same for two samples, if they have different e.g. order, they will be separate).
 * `remove_classes`: A list of values (class labels) that will be removed from the dataset. Uses the column defined in `class_name`. Only relevant for classification.
 * `filter_samples`: This can either be a list of dictionaries, or a dictionary, which have different behaviour/use-cases. In both, the dictionary key is the column, and the value is a list of values which will be used to filter the samples. If a single dictionary is provided, then each key:value pair is taken in isolation, and for a given column all samples that match any of the values are removed. A list of dictionaries is used when there are one or more multi-column criteria for samples to be removed. Each dictionary in the list is treated in isolation. In the example shown in the config, we want to remove samples where they have "Value1" in "Column2" and either "Value1" or "Value2" in "Column5", then we also want to do the same but for "Value2" in "Column2" with either "Value1" or "Value3" in "Column5".
-* `filter sample`: ... FIX this to merge with above... for gene expression data
 
 ### Gene expression data pre-processing parameters
-* ...
-* ...
+* `expression_type`:
+* `filter_sample`: -- FIX to  merge or separate from `filter_samples` above
+* `filter_genes`:
+* `output_file_ge`: ???
 
 ### Explainability config parameters
 * `top_feats_permImp`: ....
 * `top_feats_shap`: ....
-* `explanations_data`: "...
+* `explanations_data`: ???
 
 ### Plotting config parameters
  * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file.
