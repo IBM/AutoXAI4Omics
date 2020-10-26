@@ -50,7 +50,7 @@ The JSON config file is at the centre of the framework - it controls everything 
 ```
 ### General remarks
 * If a value is not provided, the value should be provided as `null` or ""
-* 
+* Note that the .json file needs to be in the directory called `configs` 
 
 ### General parameters
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
@@ -73,12 +73,10 @@ The JSON config file is at the centre of the framework - it controls everything 
 * `fit_scorer`: The measure that will be used to select the "best" model from the hyperparameter search. Also used as the scoring method for plots.
 
 ### Microbiome data pre-processing parameters
-* `biom_file`: The name of the relevant .biom file to be loaded in for `calour` (must be in "data" folder)
-* `metadata_file`: The name of the metadata file to be loaded in for `calour` (must be in "data" folder)
 * `collapse_tax`: Allows collapsing the taxonomy to the e.g. genus level. Uses the `calour.collapse_taxonomy` function (which collapses the entire taxonomic classification up to the level desired, so even if the genus is the same for two samples, if they have different e.g. order, they will be separate).
-
 * `remove_classes`: A list of values (class labels) that will be removed from the dataset. Uses the column defined in `class_name`. Only relevant for classification.
 * `filter_samples`: This can either be a list of dictionaries, or a dictionary, which have different behaviour/use-cases. In both, the dictionary key is the column, and the value is a list of values which will be used to filter the samples. If a single dictionary is provided, then each key:value pair is taken in isolation, and for a given column all samples that match any of the values are removed. A list of dictionaries is used when there are one or more multi-column criteria for samples to be removed. Each dictionary in the list is treated in isolation. In the example shown in the config, we want to remove samples where they have "Value1" in "Column2" and either "Value1" or "Value2" in "Column5", then we also want to do the same but for "Value2" in "Column2" with either "Value1" or "Value3" in "Column5".
+* `filter sample`: ... FIX this to merge with above... for gene expression data
 
 ### Gene expression data pre-processing parameters
 * ...
