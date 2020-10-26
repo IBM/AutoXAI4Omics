@@ -78,10 +78,10 @@ The JSON config file is at the centre of the framework - it controls everything 
 * `filter_samples`: This can either be a list of dictionaries, or a dictionary, which have different behaviour/use-cases. In both, the dictionary key is the column, and the value is a list of values which will be used to filter the samples. If a single dictionary is provided, then each key:value pair is taken in isolation, and for a given column all samples that match any of the values are removed. A list of dictionaries is used when there are one or more multi-column criteria for samples to be removed. Each dictionary in the list is treated in isolation. In the example shown in the config, we want to remove samples where they have "Value1" in "Column2" and either "Value1" or "Value2" in "Column5", then we also want to do the same but for "Value2" in "Column2" with either "Value1" or "Value3" in "Column5".
 
 ### Gene expression data pre-processing parameters
-* `expression_type`:
-* `filter_sample`: -- FIX this to  merge or separate from `filter_samples` above (@Anna Paola / @Laura)
-* `filter_genes`:
-* `output_file_ge`: ???
+* `expression_type`: Format of gene expression data, choices are 'FPKM', 'RPKM', 'TMM', 'TPM', 'Log2FC', 'COUNTS', 'OTHER' 
+* `filter_sample`: Remove samples if no of genes with coverage is >X std from the mean across all samples, default X=1000000 <-- @Laura can we change this variable name as it is similar to `filter_samples`?
+* `filter_genes`: Remove genes unless they have a gene expression value over X in Y or more samples (default X=0,Y=1) <-- @Laura is this the latest or is it a fraction now?
+* `output_file_ge`: Processed output file name (it will be in .csv format)
 
 ### Explainability config parameters
 * `top_feats_permImp`: ....
