@@ -89,7 +89,12 @@ The JSON config file is at the centre of the framework - it controls everything 
 * `explanations_data`: ???
 
 ### Plotting config parameters
- * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file.
+ * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. Currently possible options are listed below:
+    -   "conf_matrix": Confidence matric
+    -    "boxplot_scorer": Boxplots of ....
+    -    "barplot_scorer": Barplots of ...
+    -    "shap_plots": SHAP explainability plots
+    -    "permut_imp_alldata": Permutation importance plots
 
 ## Extending the Framework
 This section will briefly outline the steps needed to extend the framework. This is mainly aimed at pointing the user towards the relevant dictionaries when a new model or plot is to be added.
