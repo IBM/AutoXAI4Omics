@@ -60,7 +60,6 @@ The JSON config file is at the centre of the framework - it controls everything 
  * `target`:  within the `medatata_file`, the name of the column with the value to be predicted, e.g. "Age"
 
 ### Machine learning parameters
-* `class_name`: The name of the column/feature to use as the target (either regression or classification).
 * `problem_type`: The type of problem, either "classification" or "regression".
 * `merge_classes`: This is a dictionary where the key is the new class and the value is a list of values that will be converted into the key. So `{"X": ["A", "B"]}` will convert all "A" and "B" labels into "X" labels. Uses the column defined in `class_name`. Only relevant for classification.
 * `encoding`: The type of encoding to be used for the class. Accepts `null` to allow sklearn to deal with it as it needs, or can specify "label" (for label encoding) or "onehot" (for one-hot encoding). Note that the neural network models always use one-hot encoding, so if not specified they will handle this themselves. This is rarely used.
