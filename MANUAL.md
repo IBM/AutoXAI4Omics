@@ -80,13 +80,13 @@ The JSON config file is at the centre of the framework - it controls everything 
 ### Gene expression data pre-processing parameters
 * `expression_type`: Format of gene expression data, choices are 'FPKM', 'RPKM', 'TMM', 'TPM', 'Log2FC', 'COUNTS', 'OTHER' 
 * `filter_sample`: Remove samples if no of genes with coverage is >X std from the mean across all samples, default X=1000000 <-- @Laura can we change this variable name as it is similar to `filter_samples`?
-* `filter_genes`: Remove genes unless they have a gene expression value over X in Y or more samples (default X=0,Y=1) <-- @Laura is this the latest or is it a fraction now?
+* `filter_genes`: Remove genes unless they have a gene expression value over X in Y or more samples (default X=0,Y=1)
 * `output_file_ge`: Processed output file name (it will be in .csv format)
 
 ### Explainability config parameters
 * `top_feats_permImp`: ....
 * `top_feats_shap`: ....
-* `explanations_data`: ???
+* `explanations_data`: ...
 
 ### Plotting config parameters
  * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. Currently possible options are listed below:
@@ -102,9 +102,7 @@ This section will briefly outline the steps needed to extend the framework. This
 There are a few parts of this framework that are hard-coded, and will need to be modified when adding new plots, models, or scorers.
 ​
 ### Adding a new data type
-A new `data_type` option can be added to the code.
-Note that the `gene_expression` type can be used with any numeric input matrix, for example metabolomic data. 
-<--- does it need to be non-negative?? (@Anna Paola)
+A new `data_type` option can be added to the code, with associated specific pre-procrssing steps.
 
 ### Adding a new plot
 In `plotting.py`, the `define_plots()` function at the top specifies which plotting functions are available for regression and classification problems. Some plots are applicable to both, so add the alias (which is used in the config file) and the function object itself to the relevant dictionary (or -ies).
