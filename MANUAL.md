@@ -51,10 +51,11 @@ The JSON config file is at the centre of the framework - it controls everything 
 ### General remarks
 * If a value is not provided, the value should be provided as `null` or ""
 * Note that the .json file needs to be in the directory called `configs` 
+* There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`}. The `data_type` can have any other value but those will not invoke any special pre-processing (e.g. "metabolomic", "tabular", etc.)
 
 ### General parameters
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
-* `data_type`: "microbiome" or "gene_expression"
+* `data_type`: "microbiome" or "gene_expression" or anything else e.g. "metabolomic, but the latter does not currently invoke any specific pre-processing
 * `file_path`: name of input data file, e.g. "data/skin_closed_reference.biom"
 * `metadata_file`: name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt"
  * `target`:  within the `medatata_file`, the name of the column with the value to be predicted, e.g. "Age"
