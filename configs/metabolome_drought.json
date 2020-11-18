@@ -1,0 +1,37 @@
+{
+    "name": "drought",
+    "data_type": "metabolites",
+    "file_path": "/data/metabolites_drought.csv",
+    "save_path": "/experiments",
+    "target": "Drought",
+    "metadata_file": "",
+    "seed_num": 42,
+    "test_size": 0.2,
+    "problem_type": "classification",
+    "hyper_tuning": "random",
+    "hyper_budget": 50,
+    "fit_scorer": "f1",
+    "scorer_list": [
+	"acc",
+        "f1"
+    ],
+    "model_list": [
+	"rf",
+	"xgboost",
+	"adaboost",
+	"svm",
+	"knn"
+    ],
+    "plot_method": [
+        "boxplot_scorer"
+    ],
+    "top_feats_permImp": 15,
+    "top_feats_shap": 15,
+    "explanations_data": "test",
+
+    "collapse_tax": "",
+    "remove_classes": null,
+    "merge_classes": null,
+    "encoding": null,
+    "filter_samples": null
+}

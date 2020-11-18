@@ -7,6 +7,7 @@ import utils
 from sklearn.preprocessing import StandardScaler
 import scipy.sparse
 import plotting
+import subprocess
 
 """ Standardize the input X using Standard Scaler"""
 def standardize_data(data):
@@ -23,10 +24,12 @@ def get_data(path_file, target, metadata_path):
 
     # Read the data
     data = pd.read_csv(path_file, index_col=0)
+    print("Data dimension: "+str(data.shape))
+
     # Check if the target is in a separate file or in the same data
     if(metadata_path == ""):
         y = data[target].values
-        data_notarget = data.iloc[:, :-1]
+        data_notarget = data.drop(target, axis=1)
 
     else: # it assumes the data does not contain the target column
         # Read the metadata file
@@ -35,7 +38,6 @@ def get_data(path_file, target, metadata_path):
         data_notarget = data
 
     features_names = data_notarget.columns
-
     x = data_notarget.values
 
     # Scale x
@@ -108,6 +110,59 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
 
     return  x, y, features_names
 
+def get_data_gene_expression(path_file, metadata_path, config_dict):
+    '''
+    Load and process the data
+    '''
+
+    # Use calour to create an experiment
+    print("Path file: " +path_file)
+    print("Metadata file: " +metadata_path)
+
+    print("")
+    print("")
+    print("")
+    print("***** Preprocessing gene expression data *******")
+
+    # add the input file parameter
+    strcommand = "--expressionfile "+ path_file + " "
+
+    # add the expression type parameter that is required
+    if config_dict["expression_type"] is not None:
+        expression_type = config_dict["expression_type"]
+        print(expression_type)
+    else:
+        expression_type = "OTHERS"
+    strcommand = strcommand+"--expressiontype "+expression_type+ " "
+
+    # add the filter_samples parameter that is optional
+    if config_dict["filter_sample"] is not None:
+        filter_samples = config_dict["filter_sample"]
+        print(filter_samples)
+        strcommand = strcommand + "--Filtersamples " + str(filter_samples) + " "
+
+    # add the filter_genes parameter that is optional
+    if config_dict["filter_genes"] is not None:
+        filter_genes = config_dict["filter_genes"][0] +" "+config_dict["filter_genes"][1]
+        print(filter_genes)
+        strcommand = strcommand+"--Filtergenes "+filter_genes+" "
+
+    # add the output file name that is required
+    if config_dict["output_file_ge"] is not None:
+        output_file = config_dict["output_file_ge"]
+        print(output_file)
+    else:
+        output_file = "processed_gene_expression_data"
+    strcommand = strcommand+"--output "+output_file
+    print(strcommand)
+
+    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
+    print(python_command)
+    subprocess.call(python_command, shell=True)
+    x,y, feature_names = get_data(config_dict["output_file_ge"], config_dict["target"], metadata_path)
+
+    return x,y, feature_names
+
 '''
     Central function to tie together preprocessing, running the models, and plotting
 '''
@@ -116,14 +171,15 @@ def main(config_dict, config_path):
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
 
-    # Get the data
-    if(config_dict["data_type"]=="clinical" or config_dict["data_type"]=="gene_expression"):
-        # At the moment with clinical and gene expression we have not implemented preprocessing except for standardisation
-        x,y,features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
-
-    elif(config_dict["data_type"]=="microbiome"):
+    if(config_dict["data_type"]=="microbiome"):
         # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
         x,y,features_names = get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+    elif(config_dict["data_type"] == "gene_expression"):
+        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
+        x, y, features_names = get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+    else:
+        # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
+        x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
 
     # Split the data in train and test
     x_train, x_test, y_train, y_test = models.split_data(

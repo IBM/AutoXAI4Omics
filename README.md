@@ -37,8 +37,8 @@ conda env create -f microbiome_osx.yml
 * UMAP (for dimensionality reduction)
 
 
-## User guide
-Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the ***USER GUIDE***.
+## User manual
+Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the ***MANUAL***.
 
 The main way to run the pipeline (to train and hypertune the models) is:
 ```
@@ -52,4 +52,4 @@ python plotting.py -c example_config.json
 
 The results are saved in the results/ folder in the subdirectory specified by the `name` field in the JSON config file.
 
-For an explanation of the config file, and more detailed information about the framework and how to extend it, see the ***USER GUIDE***
+For an explanation of the config file, and more detailed information about the framework and how to extend it, see the ***MANUAL***
