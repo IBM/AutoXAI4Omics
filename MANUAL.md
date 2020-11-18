@@ -99,22 +99,29 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 * `output_file_ge`: Processed output file name (it will be in .csv format)
 
 ### Plotting config parameters
- * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. Currently possible options are listed below:
+ * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. All the generated plots will be saved in the sub-folder `/graphs`. For each  model in the model List, the tool will generate graphs and/or .csv files summarising the results and named as `<plot name_<model name>.png` or `<results type>_<model name>.csv`
+ 
+ Currently possible options are listed below:
 
 * Plots available for classification and regression tasks:
-    * "barplot_scorer": Barplots of ...
-    * "boxplot_scorer": Boxplots of ....
-    * "shap_plots": SHAP explainability plots ...
-    * "permut_imp_all_data_cv": permut_importance ...
+    * "barplot_scorer": Barplot showing a comparison in the performance of the models listed in `model_list` on the test set, or unseen samples. In the sub-folder `results/` one .csv file will be saved, `results/scores__performance_results.csv`, containing the scores specified in `scorer_list`(e.g., MAE and MSE) on the test and training datasets for each model in `model_list`.
+    * "boxplot_scorer": Boxplot showing a comparison in performances of the models listed in `model_list` resulting from 5 fold cross validation on the entire dataset. 
+    * "shap_plots": SHAP explainability plots, i.e., shap summary bar plot and shap summary dot plot for each model in `model_list`, `graphs/top_features_AbsMeanSHAP_Abundance_<data>_<model>.csv`
+    * "permut_imp_all_data_cv": Permutation importance plot showing the list of the top feautures ranked by importance as computed by eli5 while performing 5 cross validation using the entire dataset. For each model the scores of 5CV are saved in `results/<scores_5CV_<model>.csv>`
+
+* Options for explainability and feature importance plots:
+    * "top_feats_permImp": Number of top ranked features to be visualised in the permutation importance plots, e.g., 10. 
+    * "top_feats_shap": Number of top ranked features to be visualised in the SHAP plots, e.g., 20.
+    * "explanations_data": Data for which SHAP explanation are required. Options available are "test" for the samples in test set, "exemplars" for the examplar samples in the test set and "all" for all the samples in the dataset. 
     
 * Plot avaliable for classification tasks only:
-    * "conf_matrix": conf_matrix_plot .....
+    * "conf_matrix": The confusion matrix computed on the test set, after the model has being trained and tuned. This plot is generated for each model in `model_list`.
     
-* Plots available for regression tasks only: 
-    "hist_overlapped": histograms,
-    "joint": joint_plot,
-    "joint_dens": joint_plot,
-    "corr": correlation_plot
+* Plots available for regression tasks only. These plots are generated for each model `in model_list`: 
+    "hist_overlapped": Histograms showing the overlap between the distributions of true values and predicted values by a given model. This plot is generated for each model in `model_list`. 
+    "joint": joint_plot: Scatter plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
+    "joint_dens": joint_plot: Joint density plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
+    "corr": correlation_plot: Simple correlation plot between true values and predicted values by a given model. Similar to "joint". 
     
 ### Explainability config parameters
 If 'shap_plots'is in `plot_method` list, the following parameters can be specified:
