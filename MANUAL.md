@@ -100,11 +100,21 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 
 ### Plotting config parameters
  * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. Currently possible options are listed below:
--    "barplot_scorer": Barplots of ...
--    "boxplot_scorer": Boxplots of ....
--    "shap_plots": SHAP explainability plots
--    "permut_imp_alldata": Permutation importance plots
--    "conf_matrix": Confusion matrix
+
+* Plots available for classification and regression tasks:
+    * "barplot_scorer": Barplots of ...
+    * "boxplot_scorer": Boxplots of ....
+    * "shap_plots": SHAP explainability plots ...
+    * "permut_imp_all_data_cv": permut_importance ...
+    
+* Plot avaliable for classification tasks only:
+    * "conf_matrix": conf_matrix_plot .....
+    
+* Plots available for regression tasks only: 
+    "hist_overlapped": histograms,
+    "joint": joint_plot,
+    "joint_dens": joint_plot,
+    "corr": correlation_plot
     
 ### Explainability config parameters
 If 'shap_plots'is in `plot_method` list, the following parameters can be specified:
