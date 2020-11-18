@@ -17,7 +17,7 @@ import pandas as pd
 import shap
 import models
 import plotting
-from custom_model import CustomModel, MLPEnsemble, MLPKeras
+from custom_model import CustomModel, MLPKeras, TabAuto
 import calour as ca
 
 
@@ -358,7 +358,7 @@ def compute_exemplars_SHAPvalues_withCrossValidation(experiment_folder, config_d
     # Regression
     else:
         # Handle Shap saves differently the values for Keras when it's regression
-        if (model_name == 'mlp_keras'):
+        if model_name == 'mlp_keras':
             exemplars_selected = exemplar_shap_values[0]
         else:
             exemplars_selected = exemplar_shap_values
@@ -620,7 +620,7 @@ def save_explainer(experiment_folder, model_name, explainer):
 
 def tidy_tf():
     K.clear_session()
-    tf.reset_default_graph()
+    # tf.reset_default_graph()
 
 
 def create_parser():
@@ -633,6 +633,10 @@ def create_parser():
     return parser
 
 
+def all_subclasses(cls):
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+
 def initial_setup(args):
     # Construct the config path
     config_path = Path.cwd() / "configs" / args.config
@@ -642,7 +646,8 @@ def initial_setup(args):
     # Validate the provided config
     check_config(config_dict)
     # Setup the CustomModel
-    CustomModel.custom_aliases = {k.nickname: k for k in CustomModel.__subclasses__()}
+    # CustomModel.custom_aliases = {k.nickname: k for k in CustomModel.__subclasses__()}
+    CustomModel.custom_aliases = {k.nickname: k for k in all_subclasses(CustomModel)}
     return config_path, config_dict
 
 def create_microbiome_calourexp(fpath_biom, fpath_meta, norm_reads=1000, min_reads=1000):

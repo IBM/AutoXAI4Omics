@@ -27,7 +27,9 @@ from xgboost import XGBClassifier, XGBRegressor
 
 import model_params
 
-from custom_model import CustomModel, MLPEnsemble, MLPKeras
+from custom_model import CustomModel, MLPKeras
+from custom_model import FixedKeras, AutoKeras, AutoSKLearn, AutoLGBM, AutoXGBoost, AutoGluon
+
 
 def load_params_json(fpath):
     '''
@@ -118,8 +120,8 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
             'Recall_PerClass_Train': recall_score(y_train, pred_train, average=None),
             'Recall_PerClass_Test': recall_score(y_test, pred_test, average=None),
             'Conf_matrix_Train': confusion_matrix(y_train, pred_train),
-            'Conf_matrix_Test': confusion_matrix(y_test, pred_test),
-           # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='f1_weighted', cv=5)
+            'Conf_matrix_Test': confusion_matrix(y_test, pred_test)
+            # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='f1_weighted', cv=5)
         }
     else:
         score_dict = {
@@ -128,12 +130,13 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
             'Mean_AE_Train': skm.mean_absolute_error(y_train, pred_train),
             'Mean_AE_Test': skm.mean_absolute_error(y_test, pred_test),
             'Med_ae_Train': skm.median_absolute_error(y_train, pred_train),
-            'Med_ae_Test': skm.median_absolute_error(y_test, pred_test),
-           # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='mean_ae', cv=5)
+            'Med_ae_Test': skm.median_absolute_error(y_test, pred_test)
+            # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='mean_ae', cv=5)
         }
 
 
     return score_dict
+
 
 def eval_scores(problem_type, scorer_dict, model, data, true_labels):
     scores_dict = {}
@@ -145,8 +148,10 @@ def eval_scores(problem_type, scorer_dict, model, data, true_labels):
 
     return scores_dict
 
+
 def rmse(y_true, y_pred):
     return np.sqrt(skm.mean_squared_error(y_true, y_pred))
+
 
 def define_scorers(problem_type):
     '''
@@ -156,12 +161,12 @@ def define_scorers(problem_type):
         scorer_dict = {
             'acc': skm.make_scorer(skm.accuracy_score),
             'f1': skm.make_scorer(skm.f1_score, average='weighted'),
-            #'f1_class': accuracy_score(true_labels, pred_labels), #just added
+            # 'f1_class': accuracy_score(true_labels, pred_labels), #just added
             'prec': skm.make_scorer(skm.precision_score, average='weighted'),
-            #'prec_class': skm.make_scorer(skm.precision_score, average=None),
-            'recall': skm.make_scorer(skm.recall_score, average='weighted'),
-            #'recall_class': skm.make_scorer(skm.recall_score, average=None)
-           # 'cv_f1': skm.make_scorer(cross_val_score, scoring='f1_weighted', cv=5)
+            # 'prec_class': skm.make_scorer(skm.precision_score, average=None),
+            'recall': skm.make_scorer(skm.recall_score, average='weighted')
+            # 'recall_class': skm.make_scorer(skm.recall_score, average=None)
+            # 'cv_f1': skm.make_scorer(cross_val_score, scoring='f1_weighted', cv=5)
         }
     elif problem_type == "regression":
         scorer_dict = {
@@ -173,6 +178,7 @@ def define_scorers(problem_type):
     else:
         raise ValueError(f"{problem_type} is not recognised, must be either 'regression' or 'classification'")
     return scorer_dict
+
 
 def save_results(results_folder, df, score_dict, model_name, fname, suffix=None, save_pkl=False, save_csv=True):
     '''
@@ -191,6 +197,7 @@ def save_results(results_folder, df, score_dict, model_name, fname, suffix=None,
         df.to_pickle(fname+".pkl")
     return df, fname
 
+
 def save_model(experiment_folder, model, model_name):
     '''
     Save a given model to the model folder
@@ -202,6 +209,11 @@ def save_model(experiment_folder, model, model_name):
         save_name = model_folder / f"{model_name}_best.pkl"
         with open(save_name, 'wb') as f:
             joblib.dump(model, f)
+    else:  # hat: added this 
+        # print(f"Saving {model_name} model")
+        # save_name = model_folder / f"{model_name}_best.pkl"
+        model.save_model()
+
 
 def random_search(model, model_name, param_ranges, budget, x_train, y_train, seed_num, scorer_dict, fit_scorer):
     '''
@@ -241,6 +253,7 @@ def random_search(model, model_name, param_ranges, budget, x_train, y_train, see
     print(random_search.best_estimator_)
     return random_search.best_estimator_
 
+
 def grid_search(model, model_name, param_ranges, x_train, y_train, seed_num, scorer_dict, fit_scorer):
     '''
     Wrapper for using sklearn's GridSearchCV
@@ -266,6 +279,7 @@ def grid_search(model, model_name, param_ranges, x_train, y_train, seed_num, sco
     # Return the best estimator found
     print(grid_search.best_estimator_)
     return grid_search.best_estimator_
+
 
 def single_model(model, param_ranges, x_train, y_train, seed_num):
     '''
@@ -294,6 +308,7 @@ def select_model_dict(hyper_tuning):
     else:
         raise ValueError(f"{hyper_tuning} is not a valid option")
     return ref_model_dict
+
 
 def define_models(problem_type, hyper_tuning):
     '''
@@ -339,10 +354,23 @@ def define_models(problem_type, hyper_tuning):
     try:
         model_dict["mlp_ens"] = (MLPEnsemble, ref_model_dict['mlp_ens'])
         model_dict["mlp_keras"] = (MLPKeras, ref_model_dict['mlp_keras'])
+        model_dict["fixedkeras"] = (FixedKeras, ref_model_dict['fixedkeras'])
+        model_dict["autokeras"] = (AutoKeras, ref_model_dict['autokeras'])
+        model_dict["autolgbm"] = (AutoLGBM, ref_model_dict['autolgbm'])
+        model_dict["autoxgboost"] = (AutoXGBoost, ref_model_dict['autoxgboost'])
+        model_dict["autosklearn"] = (AutoSKLearn, ref_model_dict['autosklearn'])
+        model_dict["autogluon"] = (AutoGluon, ref_model_dict['autogluon'])
     except KeyError:
         model_dict["mlp_ens"] = (MLPEnsemble, model_params.single_model['mlp_ens'])
         model_dict["mlp_keras"] = (MLPKeras, model_params.single_model['mlp_keras'])
+        model_dict["fixedkeras"] = (FixedKeras, model_params.single_model['fixedkeras'])
+        model_dict["autokeras"] = (AutoKeras, model_params.single_model['autokeras'])
+        model_dict["autolgbm"] = (AutoLGBM, model_params.single_model['autolgbm'])
+        model_dict["autoxgboost"] = (AutoXGBoost, model_params.single_model['autoxgboost'])
+        model_dict["autosklearn"] = (AutoSKLearn, model_params.single_model['autosklearn'])
+        model_dict["autogluon"] = (AutoGluon, model_params.single_model['autogluon'])
     return model_dict
+
 
 def split_data(x, y, test_size, seed_num, problem_type):
     '''
@@ -370,6 +398,7 @@ def split_data(x, y, test_size, seed_num, problem_type):
             raise
 
     return x_train, x_test, y_train, y_test
+
 
 def predict_model(model, x_train, y_train, x_test=None):
     '''

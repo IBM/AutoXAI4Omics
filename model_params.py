@@ -116,14 +116,6 @@ single_model = {
         "learning_rate": 0.10,
         "n_estimators": 100
     },
-    "mlp_ens": {
-        "n_estimators": 50,
-        "n_epochs": 20,
-        "batch_size": 10,
-        "lr": 0.001,
-        "layer_sizes": [20, 20],
-        "verbose": False
-    },
     "mlp_keras": {
         "n_epochs": 200,
         "batch_size": 80,
@@ -131,9 +123,29 @@ single_model = {
         "layer_dict": None,
         "verbose": True,
         "n_blocks": 4,
-        "dropout": 0.4 
+        "dropout": 0.4
+    },
+    "fixedkeras": {
+        "n_epochs": 10,
+        "batch_size": 80,
+        "lr": 0.001,
+        "layer_dict": None,
+        "verbose": True,
+        "n_blocks": 4,
+        "dropout": 0.4
+    },
+    "autokeras": {
+    },
+    "autolgbm": {
+    },
+    "autoxgboost": {
+    },
+    "autosklearn": {
+    },
+    "autogluon": {
     }
 }
+
 
 boaas_dict = {
     "rf": {
