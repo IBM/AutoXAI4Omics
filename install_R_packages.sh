@@ -2,7 +2,7 @@
 
 R --no-save --silent <<-EOF
   if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-	BiocManager::install(version = "3.11")
-	BiocManager::install("edgeR")
+    install.packages("BiocManager", ask = FALSE)
+	BiocManager::install(version = "3.11", ask = FALSE)
+	BiocManager::install("edgeR", ask = FALSE)
 EOF
