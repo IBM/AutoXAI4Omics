@@ -1,0 +1,76 @@
+{
+    "name": "drought",
+    "data_type": "metabolites",
+    "file_path": "/data/metabolites_drought.csv",
+    "save_path": "/experiments",
+    "target": "Drought",
+    "metadata_file": "",
+    "seed_num": 42,
+    "test_size": 0.2,
+    "problem_type": "classification",
+    "hyper_tuning": "random",
+    "hyper_budget": 5,
+    "fit_scorer": "f1",
+    "scorer_list": [
+        "acc",
+        "f1"
+    ],
+    "model_list0": [
+        "autoxgboost",
+        "rf"
+    ],
+    "model_list": [
+        "autokeras",
+        "autolgbm",
+        "autoxgboost",
+        "autosklearn",
+        "autogluon"
+    ],
+    "autokeras_config": {
+        "n_epochs": 100,
+        "batch_size": 32,
+        "verbose": true,
+        "n_blocks": 3,
+        "dropout": 0.3,
+        "use_batchnorm": true,
+        "n_trials": 4,
+        "tuner": "bayesian"
+    },
+    "autosklearn_config": {
+        "verbose": true,
+        "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"],
+        "time_left_for_this_task": 120,
+        "per_run_time_limit": 60,
+        "ml_memory_limit": 4096,
+        "n_jobs": 1,
+        "ensemble_size": 1,
+        "cv_folds": 0
+    },
+    "autolgbm_config": {
+        "verbose": true,
+        "n_trials": 5,
+        "timeout": 60
+    },
+    "autoxgboost_config": {
+        "verbose": true,
+        "n_trials": 5,
+        "timeout": 60
+    },
+    "autogluon_config": {
+        "verbose": true,
+        "auto_stack": false,
+        "time_limits": 120
+    },
+    "plot_method": [
+        "barplot_scorer"
+    ],
+    "top_feats_permImp": 15,
+    "top_feats_shap": 15,
+    "explanations_data": "test",
+
+    "collapse_tax": "",
+    "remove_classes": null,
+    "merge_classes": null,
+    "encoding": null,
+    "filter_samples": null
+}
