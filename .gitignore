@@ -2,4 +2,10 @@
 .DS_Store
 __pycache__
 experiments
+*.pyc
+*~
 venv
+*.save
+*.h5
+dask-worker-space
+results
