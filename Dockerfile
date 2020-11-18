@@ -30,9 +30,13 @@ ENV R_LIBS_USER=/home/aotuser/.local/R
 
 COPY --chown=aotuser:aotuser install_R_packages.sh .
 
-RUN \
-	mkdir -p ${R_LIBS_USER} && \
-	./install_R_packages.sh
+RUN mkdir -p ${R_LIBS_USER}
+
+USER root
+
+RUN ./install_R_packages.sh
+
+USER aotuser
 
 COPY --chown=aotuser:aotuser *.py *.R ./
 
