@@ -52,6 +52,7 @@ The JSON config file is at the centre of the framework - it controls everything 
 * Note that the .json file needs to be in the directory called `configs`.
 * If a value for a parameter in the json file is not provided, the value should `null` or "".
 * There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`}. The `data_type` can have any other value or be an empty string (e.g. "metabolomic", "tabular", "", etc.),  but those will not invoke any special pre-processing
+* Input files are expected to be .csv or .biom for microbiome data
 
 ### General parameters
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
