@@ -53,13 +53,13 @@ The JSON config file is at the centre of the framework - it controls everything 
 * If a value for a parameter in the json file is not provided, the value should `null` or "".
 * There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`}. The `data_type` can have any other value or be an empty string (e.g. "metabolomic", "tabular", "", etc.),  but those will not invoke any special pre-processing
 * Input files are expected to be .csv or .biom for microbiome data
-* Input files for pre-processing of gene expression data are expected as .csv files with genes and their associated expression measurements in rows and tested samples in columns. The cell in column 1, row 1 requires the header "gene" and the rest of this column 1 holds the labels for gene names. Similarly, the remainder of row 1 will contain sample names.
+* Input files for pre-processing of gene expression data are expected as .csv files with genes and their associated expression measurements in rows and tested samples in columns. Column 1 holds the labels for gene names. Similarly, row 1 will contain sample names.
 
 ### General parameters
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
 * `data_type`: "microbiome" or "gene_expression" or anything else e.g. "metabolomic, but the latter does not currently invoke any specific pre-processing.
 * `file_path`: Name of input data file, e.g. "data/skin_closed_reference.biom" if microbiome data, or "tabular_data.csv" if any tabular data, e.g., gene expression data, in a csv file. 
-* `metadata_file`: Name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt".
+* `metadata_file`: Name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt". For pre-processing this file should have as column 1: header "Sample" with associated sample names that correspond to the sample names in `file_path`
  * `target`: Name of the target to predict, e.g. "Age", that is either a column within the `medatata_file` or if `metadata_file` is not provided, e.g. `metadata_file`= "", `target` is the name of a column in the data file specified in `file_path`.
 
 ### Machine learning parameters 
