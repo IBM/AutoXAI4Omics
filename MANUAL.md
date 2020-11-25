@@ -53,6 +53,7 @@ The JSON config file is at the centre of the framework - it controls everything 
 * If a value for a parameter in the json file is not provided, the value should `null` or "".
 * There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`}. The `data_type` can have any other value or be an empty string (e.g. "metabolomic", "tabular", "", etc.),  but those will not invoke any special pre-processing
 * Input files are expected to be .csv or .biom for microbiome data
+* Input files for pre-processing of gene expression data are expected as .csv files with genes and their associated expression measurements in rows and tested samples in columns. The cell in column 1, row 1 requires the header "gene" and the rest of this column 1 holds the labels for gene names. Similarly, the remainder of row 1 will contain sample names.
 
 ### General parameters
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
@@ -91,7 +92,7 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 * `merge_classes`: This is a dictionary where the key is the new class and the value is a list of values that will be converted into the key. So `{"X": ["A", "B"]}` will convert all "A" and "B" labels into "X" labels. Uses the column defined in `target`. Only relevant for classification.
 
 ### Gene expression data pre-processing parameters
-Examples of usage of these parameters is available in gene_exp_regression.json:
+Examples of usage of these parameters is available in file: gene_exp_regression.json
 * `expression_type`: Format of gene expression data, choices are 'FPKM', 'RPKM', 'TMM', 'TPM', 'Log2FC', 'COUNTS', 'OTHER'. Note that the different gene expression data types are all filtered as per the selected rules below, however, they have different pre-filtering steps;
     * if you specify “COUNTS” then we convert count data to TMM values before filtering
     * if you specify “FPKM”, “RPKM”, “TPM” or “TMM” these go directly into filtering 
