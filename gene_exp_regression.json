@@ -35,6 +35,12 @@
     "top_feats_permImp": 10,
     "top_feats_shap": 10,
     "explanations_data": "test",
+    
+    "expression_type": "OTHER",
+    "filter_sample": "1000000000",
+    "filter_genes": ["0","0"],
+    "output_file_ge": "data/tmp.csv",
+    
     "collapse_tax": "",
     "remove_classes": null,
     "merge_classes": null,
