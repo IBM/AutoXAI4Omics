@@ -91,12 +91,13 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 * `merge_classes`: This is a dictionary where the key is the new class and the value is a list of values that will be converted into the key. So `{"X": ["A", "B"]}` will convert all "A" and "B" labels into "X" labels. Uses the column defined in `target`. Only relevant for classification.
 
 ### Gene expression data pre-processing parameters
+Examples of usage of these parameters is available in gene_exp_regression.json:
 * `expression_type`: Format of gene expression data, choices are 'FPKM', 'RPKM', 'TMM', 'TPM', 'Log2FC', 'COUNTS', 'OTHER'. Note that the different gene expression data types are all filtered as per the selected rules below, however, they have different pre-filtering steps;
     * if you specify “COUNTS” then we convert count data to TMM values before filtering
     * if you specify “FPKM”, “RPKM”, “TPM” or “TMM” these go directly into filtering 
     * if you select “Log2FC” or “OTHER” these go directly into filtering but here we expect distributions of values that may include both positive and negative values. 
-* `filter_sample`: Remove samples if no of genes with coverage is >X std from the mean across all samples, default X=1000000 
-* `filter_genes`: Remove genes unless they have a gene expression value over X in Y or more samples (default X=0,Y=1)
+* `filter_sample`: Remove samples if no of genes with coverage is >X std from the mean across all samples, default numerical X=1000000 
+* `filter_genes`: Remove genes unless they have a gene expression value over X in Y or more samples (default X=0,Y=1 would be specified in the following format in the json file: ["0","1"])
 * `output_file_ge`: Processed output file name (it will be in .csv format)
 
 ### Plotting config parameters
