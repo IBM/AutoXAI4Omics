@@ -51,15 +51,16 @@ The JSON config file is at the centre of the framework - it controls everything 
 ### General remarks
 * Note that the .json file needs to be in the directory called `configs`.
 * If a value for a parameter in the json file is not provided, the value should `null` or "".
-* There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`}. The `data_type` can have any other value or be an empty string (e.g. "metabolomic", "tabular", "", etc.),  but those will not invoke any special pre-processing
+* There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`, `metabolomic`, `tabular`}. The `data_type` can have any other value or be an empty string (e.g. "proteomic", "", etc.),  but those will not invoke any special pre-processing
 * Input files are expected to be .csv or .biom for microbiome data
 * Input files for pre-processing of gene expression data are expected as .csv files with genes and their associated expression measurements in rows and tested samples in columns. Column 1 holds the labels for gene names. Similarly, row 1 will contain sample names.
+* Input files for pre-processing of metabolomic and tabular data are expected as .csv files with measurements in rows and tested samples in columns. Column 1 holds the labels for measurement names e.g. metabolites. Similarly, row 1 will contain sample names.
 
 ### General parameters
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
-* `data_type`: "microbiome" or "gene_expression" or anything else e.g. "metabolomic, but the latter does not currently invoke any specific pre-processing.
+* `data_type`: "microbiome" or "gene_expression" or "metabolomic" or "tabular" or anything else e.g. "proteomic", but the latter does not currently invoke any specific pre-processing.
 * `file_path`: Name of input data file, e.g. "data/skin_closed_reference.biom" if microbiome data, or "tabular_data.csv" if any tabular data, e.g., gene expression data, in a csv file. 
-* `metadata_file`: Name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt". For pre-processing this file should have as column 1: header "Sample" with associated sample names that correspond to the sample names in `file_path`
+* `metadata_file`: Name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt". For pre-processing (gene expression, metabolomic, tabular) this file should have as column 1: header "Sample" with associated sample names that correspond to the sample names in `file_path`
  * `target`: Name of the target to predict, e.g. "Age", that is either a column within the `medatata_file` or if `metadata_file` is not provided, e.g. `metadata_file`= "", `target` is the name of a column in the data file specified in `file_path`.
 
 ### Machine learning parameters 
@@ -92,14 +93,29 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 * `merge_classes`: This is a dictionary where the key is the new class and the value is a list of values that will be converted into the key. So `{"X": ["A", "B"]}` will convert all "A" and "B" labels into "X" labels. Uses the column defined in `target`. Only relevant for classification.
 
 ### Gene expression data pre-processing parameters
-Examples of usage of these parameters is available in file: gene_exp_regression.json
+These parameters need to specified only if `data_type`= "gene_expression".
 * `expression_type`: Format of gene expression data, choices are 'FPKM', 'RPKM', 'TMM', 'TPM', 'Log2FC', 'COUNTS', 'OTHER'. Note that the different gene expression data types are all filtered as per the selected rules below, however, they have different pre-filtering steps;
     * if you specify “COUNTS” then we convert count data to TMM values before filtering
     * if you specify “FPKM”, “RPKM”, “TPM” or “TMM” these go directly into filtering 
     * if you select “Log2FC” or “OTHER” these go directly into filtering but here we expect distributions of values that may include both positive and negative values. 
-* `filter_sample`: Remove samples if no of genes with coverage is >X std from the mean across all samples, default numerical X=1000000 
+* `filter_sample`: Remove samples if no of genes with coverage is >X std from the mean across all samples (default numerical X=1000000)
 * `filter_genes`: Remove genes unless they have a gene expression value over X in Y or more samples (default X=0,Y=1 would be specified in the following format in the json file: ["0","1"])
 * `output_file_ge`: Processed output file name (it will be in .csv format)
+* `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
+
+### Metabolomic data pre-processing parameters
+These parameters need to specified only if `data_type`= "metabolomic".
+* `filter_metabolomic_sample`: Remove samples if no of metabolites with measurements is >X std from the mean across all samples (default numerical X=1000000)
+* `filter_measurements`: Remove metabolites unless they have a value over X in Y or more samples (default X=0,Y=1 would be specified in the following format in the json file: ["0","1"])
+* `output_file_met`: Processed output file name (it will be in .csv format)
+* `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
+
+### General tabular data pre-processing parameters
+These parameters need to specified only if `data_type`= "tabular".
+* `filter_tabular_sample`: Remove samples if no of measures with measurements is >X std from the mean across all samples (default numerical X=1000000)
+* `filter_tabular_measurements`: Remove measures unless they have a value over X in Y or more samples (default X=0,Y=1 would be specified in the following format in the json file: ["0","1"])
+* `output_file_tab`: Processed output file name (it will be in .csv format)
+* `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
 
 ### Plotting config parameters
  * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. All the generated plots will be saved in the sub-folder `/graphs`. For each  model in the model List, the tool will generate graphs and/or .csv files summarising the results and named as `<plot name_<model name>.png` or `<results type>_<model name>.csv`
