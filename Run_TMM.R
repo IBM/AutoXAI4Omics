@@ -7,7 +7,7 @@ library(edgeR)
 args <- commandArgs()
 
 #Read in inout file
-x <- read.csv(args[5], row.names="gene", header= T,sep = ",")
+x <- read.csv(args[5], row.names=1, header= T,sep = ",")
 print("Gene number:")
 dim(x)
 
