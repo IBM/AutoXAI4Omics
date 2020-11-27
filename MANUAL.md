@@ -52,9 +52,12 @@ The JSON config file is at the centre of the framework - it controls everything 
 * Note that the .json file needs to be in the directory called `configs`.
 * If a value for a parameter in the json file is not provided, the value should `null` or "".
 * There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`, `metabolomic`, `tabular`}. The `data_type` can have any other value or be an empty string (e.g. "proteomic", "", etc.),  but those will not invoke any special pre-processing
-* Input files are expected to be .csv or .biom for microbiome data
-* Input files for pre-processing of gene expression data are expected as .csv files with genes and their associated expression measurements in rows and tested samples in columns. Column 1 holds the labels for gene names. Similarly, row 1 will contain sample names.
-* Input files for pre-processing of metabolomic and tabular data are expected as .csv files with measurements in rows and tested samples in columns. Column 1 holds the labels for measurement names e.g. metabolites. Similarly, row 1 will contain sample names.
+
+We refer to two types of input files; Input data files hold your dataset e.g. microbiome/gene expression/metabolomic/tabular data and metadata files hold the target you are trying to predict from the input data
+* Input data files for microbiome data are expected to be in the format .biom 
+* Input data files for pre-processing of gene expression data are expected as .csv files with genes and their associated expression measurements in rows and tested samples in columns. Column 1 holds the labels for gene names. Similarly, row 1 will contain sample names.
+* Input data files for pre-processing of metabolomic and tabular data are expected as .csv files with measurements in rows and tested samples in columns. Column 1 holds the labels for measurement names e.g. metabolites. Similarly, row 1 will contain sample names.
+* All other input data files are expected as .csv files that wil pass directly into the ML workflow with no pre-processing. As such they are required to have samples in rows and measurements (or features) in columns. Column 1 holds the labels for sample names. Similarly, row 1 will contain measurement (or feature) names.
 
 ### General parameters
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
