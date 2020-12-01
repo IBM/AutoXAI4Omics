@@ -2,7 +2,7 @@
     "name": "drought2",
     "data_type": "gene_expression",
     "file_path": "/data/metabolites_drought_transposed.csv",
-    "save_path": "",
+    "save_path": "/results/",
     "target": "Drought",
     "metadata_file": "/data/Drought_metadata.csv",
     "seed_num": 42,
