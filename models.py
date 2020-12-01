@@ -352,7 +352,6 @@ def define_models(problem_type, hyper_tuning):
     # The CustomModels handle classification and regression themselves so put outside
     # For mixing tuning types, default to using the single model for mlp_ens
     try:
-        model_dict["mlp_ens"] = (MLPEnsemble, ref_model_dict['mlp_ens'])
         model_dict["mlp_keras"] = (MLPKeras, ref_model_dict['mlp_keras'])
         model_dict["fixedkeras"] = (FixedKeras, ref_model_dict['fixedkeras'])
         model_dict["autokeras"] = (AutoKeras, ref_model_dict['autokeras'])
@@ -361,7 +360,6 @@ def define_models(problem_type, hyper_tuning):
         model_dict["autosklearn"] = (AutoSKLearn, ref_model_dict['autosklearn'])
         model_dict["autogluon"] = (AutoGluon, ref_model_dict['autogluon'])
     except KeyError:
-        model_dict["mlp_ens"] = (MLPEnsemble, model_params.single_model['mlp_ens'])
         model_dict["mlp_keras"] = (MLPKeras, model_params.single_model['mlp_keras'])
         model_dict["fixedkeras"] = (FixedKeras, model_params.single_model['fixedkeras'])
         model_dict["autokeras"] = (AutoKeras, model_params.single_model['autokeras'])

@@ -24,13 +24,13 @@
         "rf"
     ],
     "model_list1": [
+        "autosklearn",
         "autosklearn"
     ],
     "model_list": [
         "autoxgboost",
         "autolgbm",
         "autokeras",
-        "autosklearn",
         "autogluon"
     ],
     "plot_method": [

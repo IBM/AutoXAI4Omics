@@ -35,6 +35,7 @@ RUN \
 	./install_R_packages.sh
 
 COPY --chown=aotuser:aotuser *.py *.R ./
+ADD tabauto ./tabauto
 
 ENV PYTHONPATH "/home/aotuser:${PYTHONPATH}"
 

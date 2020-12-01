@@ -9,7 +9,7 @@
     "test_size": 0.2,
     "problem_type": "regression",
     "hyper_tuning": "random",
-    "hyper_budget": 200,
+    "hyper_budget": 10,
     "fit_scorer": "mean_ae",
     "scorer_list": [
         "rmse",

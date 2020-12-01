@@ -23,8 +23,10 @@
         "autokeras",
         "autolgbm",
         "autoxgboost",
-        "autosklearn",
         "autogluon"
+    ],
+    "model_list2": [
+        "autosklearn"
     ],
     "autokeras_config": {
         "n_epochs": 100,
