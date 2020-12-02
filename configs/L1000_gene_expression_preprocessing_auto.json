@@ -1,32 +1,23 @@
 {
     "name": "bloodUreaNitrogen",
     "data_type": "gene_expression",
-    "file_path": "/data/gene_expression_L1000_drug_perturbation_blood_urea_nitrogen.csv",
+    "file_path": "/data/Pre-process_GE_L1000_discrete_drug_perturbation_blood_urea_nitrogen.csv",
     "save_path": "/experiments",
     "target": "blood_urea_nitrogen(mg/dl)",
-    "metadata_file": "",
+    "metadata_file": "/data/metadata_L1000.csv",
     "seed_num": 42,
     "test_size": 0.2,
     "problem_type": "regression",
     "hyper_tuning": "random",
-    "hyper_budget": 10,
+    "hyper_budget": 50,
     "fit_scorer": "mean_ae",
-    "expression_type": "OTHER",
     "scorer_list": [
         "rmse",
         "mean_ae",
         "med_ae"
     ],
-    "model_list_obsolete": [
-        "mlp_keras",
-        "fixedkeras"
-    ],
     "model_list0": [
         "rf"
-    ],
-    "model_list1": [
-        "autosklearn",
-        "autosklearn"
     ],
     "model_list": [
         "autoxgboost",
@@ -34,19 +25,6 @@
         "autokeras",
         "autogluon"
     ],
-    "plot_method": [
-        "barplot_scorer"
-    ],
-    "autokeras_config": {
-        "n_epochs": 50,
-        "batch_size": 32,
-        "verbose": true,
-        "n_blocks": 3,
-        "dropout": 0.3,
-        "use_batchnorm": true,
-        "n_trials": 3,
-        "tuner": "bayesian"
-    },
     "autosklearn_config": {
         "verbose": true,
         "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"],
@@ -72,12 +50,24 @@
         "auto_stack": false,
         "time_limits": 60
     },
+    "plot_method": [
+        "barplot_scorer"
+    ],
     "top_feats_permImp": 30,
     "top_feats_shap": 30,
     "explanations_data": "test",
+
+    "expression_type": "OTHER",
+    "filter_sample": 100,
+    "filter_genes": ["0", "0"],
+    "output_file_ge": "/data/processed_gene_expression_L1000_drug_perturbation_blood_urea_nitrogen.csv",
+
+    "output_metadata": null,
+
     "collapse_tax": "",
     "remove_classes": null,
     "merge_classes": null,
     "encoding": null,
     "filter_samples": null
+
 }
