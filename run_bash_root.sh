@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-. ./common_old.sh &&
+. ./common.sh &&
 docker run \
   --rm \
   -ti \
