@@ -132,7 +132,7 @@ def get_data_gene_expression(path_file, metadata_path, config_dict):
         expression_type = config_dict["expression_type"]
         print(expression_type)
     else:
-        expression_type = "OTHERS"
+        expression_type = "OTHER"
     strcommand = strcommand+"--expressiontype "+expression_type+ " "
 
     # add the filter_samples parameter that is optional
@@ -153,15 +153,144 @@ def get_data_gene_expression(path_file, metadata_path, config_dict):
         print(output_file)
     else:
         output_file = "processed_gene_expression_data"
-    strcommand = strcommand+"--output "+output_file
+    strcommand = strcommand+"--output "+output_file+" "
+        
+    # add the metadata for filtering 
+    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
+
+    #add metadata output file that is required 
+    if config_dict["output_metadata"] is not None:
+        metout_file = config_dict["output_metadata"]
+        print(metout_file)
+        strcommand = strcommand+"--outputmetadata "+metout_file
+
     print(strcommand)
 
     python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
     print(python_command)
     subprocess.call(python_command, shell=True)
-    x,y, feature_names = get_data(config_dict["output_file_ge"], config_dict["target"], metadata_path)
+    x,y, feature_names = get_data(config_dict["output_file_ge"], config_dict["target"], metout_file)
 
     return x,y, feature_names
+
+
+
+def get_data_metabolomic(path_file, metadata_path, config_dict):
+    '''
+    Load and process the data
+    '''
+
+    # Use calour to create an experiment
+    print("Path file: " +path_file)
+    print("Metadata file: " +metadata_path)
+
+    print("")
+    print("")
+    print("")
+    print("***** Preprocessing metabolomic data *******")
+
+    # add the input file parameter
+    strcommand = "--expressionfile "+ path_file + " "
+
+    # add the expression type parameter that is required
+    expression_type = "MET"
+    strcommand = strcommand+"--expressiontype "+expression_type+ " "
+
+    # add the filter_samples parameter that is optional
+    if config_dict["filter_metabolomic_sample"] is not None:
+        filter_met_samples = config_dict["filter_metabolomic_sample"]
+        print(filter_met_samples)
+        strcommand = strcommand + "--Filtersamples " + str(filter_met_samples) + " "
+
+    # add the filter_genes parameter to filter measurements that is optional
+    if config_dict["filter_measurements"] is not None:
+        filter_measurements = config_dict["filter_measurements"][0] +" "+config_dict["filter_measurements"][1]
+        print(filter_measurements)
+        strcommand = strcommand+"--Filtergenes "+filter_measurements+" "
+
+    # add the output file name that is required
+    if config_dict["output_file_met"] is not None:
+        output_file_met = config_dict["output_file_met"]
+        print(output_file_met)
+        strcommand = strcommand+"--output "+output_file_met+" "
+
+    # add the metadata for filtering 
+    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
+
+    #add metadata output file that is required
+    if config_dict["output_metadata"] is not None:
+        metout_file = config_dict["output_metadata"]
+        print(metout_file)
+        strcommand = strcommand+"--outputmetadata "+metout_file
+
+    print(strcommand)
+
+    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
+    print(python_command)
+    subprocess.call(python_command, shell=True)
+    x,y, feature_names = get_data(config_dict["output_file_met"], config_dict["target"], metout_file)
+
+    return x,y, feature_names
+
+
+def get_data_tabular(path_file, metadata_path, config_dict):
+    '''
+    Load and process the data
+    '''
+
+    # Use calour to create an experiment
+    print("Path file: " +path_file)
+    print("Metadata file: " +metadata_path)
+
+    print("")
+    print("")
+    print("")
+    print("***** Preprocessing tabular data *******")
+
+    # add the input file parameter
+    strcommand = "--expressionfile "+ path_file + " "
+
+    # add the expression type parameter that is required
+    expression_type = "TAB"
+    strcommand = strcommand+"--expressiontype "+expression_type+ " "
+
+    # add the filter_samples parameter that is optional
+    if config_dict["filter_tabular_sample"] is not None:
+        filter_tabular_samples = config_dict["filter_tabular_sample"]
+        print(filter_tabular_samples)
+        strcommand = strcommand + "--Filtersamples " + str(filter_tabular_samples) + " "
+
+    # add the filter_genes parameter to filter measurements that is optional
+    if config_dict["filter_tabular_measurements"] is not None:
+        filter_measurements = config_dict["filter_tabular_measurements"][0] +" "+config_dict["filter_tabular_measurements"][1]
+        print(filter_measurements)
+        strcommand = strcommand+"--Filtergenes "+filter_measurements+" "
+
+    # add the output file name that is required
+    if config_dict["output_file_tab"] is not None:
+        output_file_tab = config_dict["output_file_tab"]
+        print(output_file_tab)
+        strcommand = strcommand+"--output "+output_file_tab+" "
+
+    # add the metadata for filtering
+    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
+    
+    #add metadata output file that is required
+    if config_dict["output_metadata"] is not None:
+        metout_file = config_dict["output_metadata"]
+        print(metout_file)
+        strcommand = strcommand+"--outputmetadata "+metout_file+" " 
+    
+    print(strcommand)
+
+    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
+    print(python_command)
+    subprocess.call(python_command, shell=True)
+    x,y, feature_names = get_data(config_dict["output_file_tab"], config_dict["target"], metout_file)
+
+    return x,y, feature_names
+
+
 
 '''
     Central function to tie together preprocessing, running the models, and plotting
@@ -177,6 +306,10 @@ def main(config_dict, config_path):
     elif(config_dict["data_type"] == "gene_expression"):
         # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
         x, y, features_names = get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+    elif(config_dict["data_type"] == "metabolomic"):
+        x, y, features_names = get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+    elif(config_dict["data_type"] == "tabular"):
+        x, y, features_names = get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
     else:
         # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
         x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
