@@ -17,7 +17,8 @@
         "med_ae"
     ],
     "model_list0": [
-        "rf"
+        "rf",
+        "autosklearn"
     ],
     "model_list": [
         "autoxgboost",
@@ -25,6 +26,16 @@
         "autokeras",
         "autogluon"
     ],
+    "autokeras_config": {
+        "n_epochs": 50,
+        "batch_size": 32,
+        "verbose": true,
+        "n_blocks": 3,
+        "dropout": 0.3,
+        "use_batchnorm": true,
+        "n_trials": 3,
+        "tuner": "bayesian"
+    },
     "autosklearn_config": {
         "verbose": true,
         "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"],
@@ -61,8 +72,7 @@
     "filter_sample": 100,
     "filter_genes": ["0", "0"],
     "output_file_ge": "/data/processed_gene_expression_L1000_drug_perturbation_blood_urea_nitrogen.csv",
-
-    "output_metadata": null,
+    "output_metadata": "/data/processed_gene_expression_L1000_drug_perturbation_blood_urea_nitrogen_filter.csv",
 
     "collapse_tax": "",
     "remove_classes": null,

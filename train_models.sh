@@ -5,6 +5,9 @@ if test -z "$1"; then
   exit 1
 fi
 
+pathname=`dirname "$1"`
+configname=`basename "$1"`
+
 . ./common.sh &&
 docker run \
   --rm \
@@ -14,4 +17,4 @@ docker run \
   -v "${PWD}"/data:/data \
   -v "${PWD}"/experiments:/experiments \
   ${NAME}:${VERSION} \
-    python train_models.py -c /configs/"$1"
+    python train_models.py -c /configs/"$configname"
