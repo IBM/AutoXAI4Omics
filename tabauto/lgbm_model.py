@@ -39,12 +39,34 @@ class LGBMObjective(object):
         }
 
         if self.dataset_type == 'classification':
+            """
             bst = lgb_core.LGBMClassifier(**param)
             print("train_y=", train_y)
             bst.fit(train_x, train_y)
+            print("valid_x=", valid_x)
             preds = bst.predict(valid_x)
+            print("preds=", preds)
             pred_labels = np.rint(preds)
             score = accuracy_score(valid_y, pred_labels)
+            """
+
+            from sklearn.metrics import mean_absolute_error
+            from sklearn.model_selection import KFold
+
+            kf = KFold(n_splits=5, shuffle=True, random_state=55)
+            scores = []
+            for train_index, test_index in kf.split(train_x):
+
+                lgb_model = lgb_core.LGBMClassifier(**param)
+                lgb_model.fit(train_x[train_index], train_y[train_index])
+                predictions = lgb_model.predict(train_x[test_index])
+                predictions = np.rint(predictions)
+                actuals = train_y[test_index]
+                s = accuracy_score(actuals, predictions)
+                print(s)
+                scores.append(s)
+
+            score = sum(scores)/len(scores)
         else:
             """
             param["objective"] = "regression"
