@@ -50,12 +50,22 @@ class XGBoostObjective(object):
             param["skip_drop"] = trial.suggest_float("skip_drop", 1e-8, 1.0, log=True)
 
         if self.dataset_type == 'classification':
-            bst = xgb.XGBClassifier()
-            bst.set_params(**param)
-            bst.fit(train_x, train_y)
-            preds = bst.predict(valid_x)
-            pred_labels = np.rint(preds)
-            score = accuracy_score(valid_y, pred_labels)
+            from sklearn.model_selection import KFold
+
+            kf = KFold(n_splits=5, shuffle=True, random_state=55)
+            scores = []
+            for train_index, test_index in kf.split(train_x):
+                xgb_model = xgb.XGBClassifier()
+                xgb_model.set_params(**param)
+                xgb_model.fit(train_x[train_index], train_y[train_index])
+                predictions = xgb_model.predict(train_x[test_index])
+                predictions = np.rint(predictions)
+                actuals = train_y[test_index]
+                s = accuracy_score(actuals, predictions)
+                print(s)
+                scores.append(s)
+            score = sum(scores)/len(scores)
+
         else:  # 'regression'
             from sklearn.metrics import mean_absolute_error
             from sklearn.model_selection import KFold
