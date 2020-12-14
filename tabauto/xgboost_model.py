@@ -13,13 +13,14 @@ def to_matrix(data, n):
 
 # (https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args).
 class XGBoostObjective(object):
-    def __init__(self, dataset_type, train_x, train_y, test_x=None, test_y=None):
+    def __init__(self, dataset_type, train_x, train_y, test_x=None, test_y=None, num_class=0):
         # Hold this implementation specific arguments as the fields of the class.
         self.dataset_type = dataset_type
         self.train_x = train_x
         self.train_y = train_y
         self.test_x = test_x
         self.test_y = test_y
+        self.num_class = num_class
 
     def __call__(self, trial):
         # Calculate an objective value by using the extra arguments.
@@ -31,8 +32,8 @@ class XGBoostObjective(object):
         param = {
             "verbosity": 1,
             # "silent": 1,
-            # "objective": "binary:logistic",
-            "booster": trial.suggest_categorical("booster", ["gbtree", "gblinear"]),  # , "dart"]),
+            # "booster": trial.suggest_categorical("booster", ["gbtree", "gblinear"]),  # , "dart"]),
+            "booster": trial.suggest_categorical("booster", ["gbtree"]),
             "lambda": trial.suggest_float("lambda", 1e-8, 1.0, log=True),
             "alpha": trial.suggest_float("alpha", 1e-8, 1.0, log=True),
             "n_estimators": trial.suggest_int('n_estimators', 0, 100)
@@ -55,7 +56,7 @@ class XGBoostObjective(object):
             kf = KFold(n_splits=5, shuffle=True, random_state=55)
             scores = []
             for train_index, test_index in kf.split(train_x):
-                xgb_model = xgb.XGBClassifier()
+                xgb_model = xgb.XGBClassifier(objective='multi:softmax', num_class=self.num_class)
                 xgb_model.set_params(**param)
                 xgb_model.fit(train_x[train_index], train_y[train_index])
                 predictions = xgb_model.predict(train_x[test_index])
@@ -150,35 +151,38 @@ class XGBoostModel(BaseModel):
         self.timeout = self.config.get('timeout', None)
         print("AutoXGB: n_trials={} timeout={}".format(self.n_trials, self.timeout))
 
+        self.output_dim = output_dim
         self.model = model
 
     def fit_data_fx(self, trainX, trainY, testX=None, testY=None):
         print("training XGBoost model...")
 
         if self.dataset_type == "classification":
-            classes = trainY.shape[1]
+            n_classes = trainY.shape[1]
             trainY = np.argmax(trainY, axis=-1)
             params = self.model.get_params()
-            params['num_class'] = len(classes)
+            params['num_class'] = n_classes
             self.model.set_params(**params)
 
         self.model.fit(trainX, trainY)
 
     def fit_data_optuna(self, trainX, trainY, testX, testY):
+
         if self.dataset_type == "classification":
+            n_classes = trainY.shape[1]
             trainY = np.argmax(trainY, axis=-1)
             if testY is not None:
                 testY = np.argmax(testY, axis=-1)
 
         study = optuna.create_study(direction="minimize")
-        objective = XGBoostObjective(self.dataset_type, trainX, trainY, testX, testY)
+        objective = XGBoostObjective(self.dataset_type, trainX, trainY, testX, testY, num_class=self.output_dim)
 
         study.optimize(objective, n_trials=self.n_trials, timeout=self.timeout)
         print('best_trial=', study.best_trial)
         print('best_params=', study.best_params)
 
         if self.dataset_type == 'classification':
-            self.model = xgb.XGBClassifier(**study.best_params)
+            self.model = xgb.XGBClassifier(objective='multi:softmax', num_class=self.output_dim, **study.best_params)
         else:
             self.model = xgb.XGBRegressor(objective='reg:squarederror', **study.best_params)
 

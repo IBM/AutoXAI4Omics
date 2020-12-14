@@ -306,7 +306,7 @@ def select_explainer(model, model_name, df_train, problem_type):
         explainer = shap.TreeExplainer(model)
     elif model_name in ["mlp_keras"]:
         explainer = shap.DeepExplainer(model.model, df_train.values)
-    elif model_name in ["autolgbm"]:
+    elif model_name in ["autolgbm", "autoxgboost"]:
         explainer = shap.TreeExplainer(model.model.model)
     else:
         # KernelExplainer can be very slow, so use their KMeans to speed it up
