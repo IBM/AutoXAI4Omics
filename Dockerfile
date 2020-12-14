@@ -26,6 +26,10 @@ RUN \
 	grep -v ^# | \
 	xargs -n 1 pip install
 
+COPY --chown=aotuser:aotuser install_Python_packages.sh .
+
+RUN ./install_Python_packages.sh
+
 ENV R_LIBS_USER=/home/aotuser/.local/R
 
 COPY --chown=aotuser:aotuser install_R_packages.sh .
@@ -39,7 +43,7 @@ RUN ./install_R_packages.sh
 USER aotuser
 
 COPY --chown=aotuser:aotuser *.py *.R ./
-ADD tabauto ./tabauto
+ADD --chown=aotuser:aotuser tabauto ./tabauto
 
 ENV PYTHONPATH "/home/aotuser:${PYTHONPATH}"
 

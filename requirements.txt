@@ -6,7 +6,6 @@ matplotlib
 scikit-learn
 seaborn==0.10.0
 pymc
-# smcpy
 eli5
 shap
 cython
@@ -18,16 +17,15 @@ biom-format
 scikit-bio
 docrep
 calour
-# auto-sklearn
 git+https://github.com/keras-team/keras-tuner.git@1.0.2rc4
 autokeras
 xgboost
 lightgbm
 optuna
 mxnet
-autogluon
-# absl-py==0.10.0
-#ConfigSpace==0.4.16
+# the following two packages are installed later
+# autogluon
+# auto-sklearn
 # keep the packages in this order! do not delete!
 
 
