@@ -8,7 +8,6 @@ from pathlib import Path
 import json
 import argparse
 import numpy as np
-import tensorflow as tf
 from tensorflow.keras import backend as K
 import scipy.sparse
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
@@ -307,6 +306,8 @@ def select_explainer(model, model_name, df_train, problem_type):
         explainer = shap.TreeExplainer(model)
     elif model_name in ["mlp_keras"]:
         explainer = shap.DeepExplainer(model.model, df_train.values)
+    elif model_name in ["autolgbm"]:
+        explainer = shap.TreeExplainer(model.model.model)
     else:
         # KernelExplainer can be very slow, so use their KMeans to speed it up
         # Results are approximate
@@ -620,7 +621,6 @@ def save_explainer(experiment_folder, model_name, explainer):
 
 def tidy_tf():
     K.clear_session()
-    # tf.reset_default_graph()
 
 
 def create_parser():
