@@ -68,7 +68,7 @@ class SKLearnModel(BaseModel):
                 estimators_to_use = self.config.get("estimators", ["random_forest"])
                 time_left_for_this_task = self.config.get("time_left_for_this_task", 120)
                 per_run_time_limit = self.config.get("per_run_time_limit", 30)
-                ml_memory_limit = self.config.get("ml_memory_limit", 65536)
+                memory_limit = self.config.get("memory_limit", 65536)
                 n_jobs = self.config.get("n_jobs", 1)
                 ensemble_size = self.config.get("ensemble_size", 1)
                 cv_folds = self.config.get("cv_folds")
@@ -88,7 +88,7 @@ class SKLearnModel(BaseModel):
                 base_model = autosklearn.classification.AutoSklearnClassifier(
                     time_left_for_this_task=time_left_for_this_task,
                     per_run_time_limit=per_run_time_limit,
-                    ml_memory_limit=ml_memory_limit,
+                    memory_limit=memory_limit,
                     n_jobs=n_jobs,
                     include_estimators=estimators_to_use,
                     include_preprocessors=preprocessing_to_use,
@@ -128,7 +128,7 @@ class SKLearnModel(BaseModel):
                 estimators_to_use = self.config.get("estimators", ["random_forest"])
                 time_left_for_this_task = self.config.get("time_left_for_this_task", 120)
                 per_run_time_limit = self.config.get("per_run_time_limit", 30)
-                ml_memory_limit = self.config.get("ml_memory_limit", 65536)
+                memory_limit = self.config.get("memory_limit", 65536)
                 n_jobs = self.config.get("n_jobs", 1)
                 ensemble_size = self.config.get("ensemble_size", 1)
                 cv_folds = self.config.get("cv_folds")
@@ -148,7 +148,7 @@ class SKLearnModel(BaseModel):
                 base_model = autosklearn.regression.AutoSklearnRegressor(
                     time_left_for_this_task=time_left_for_this_task,
                     per_run_time_limit=per_run_time_limit,
-                    ml_memory_limit=ml_memory_limit,
+                    memory_limit=memory_limit,
                     n_jobs=n_jobs,
                     include_estimators=estimators_to_use,
                     # exclude_estimators=estimators_to_exclude,
