@@ -63,10 +63,9 @@ class LGBMObjective(object):
                 predictions = np.rint(predictions)
                 actuals = train_y[test_index]
                 s = accuracy_score(actuals, predictions)
-                print(s)
+                # print(s)
                 scores.append(s)
 
-            score = sum(scores)/len(scores)
         else:
             """
             param["objective"] = "regression"
@@ -94,7 +93,16 @@ class LGBMObjective(object):
                 s = mean_absolute_error(actuals, predictions)
                 print(s)
                 scores.append(s)
-            score = sum(scores)/len(scores)
+
+        print("Autolgbm (trial={}): cv scores = {}".format(trial.number, scores))
+        min_score = np.min(scores)
+        max_score = np.max(scores)
+        avg_score = np.average(scores)
+        std_score = np.std(scores)
+        print("Autolgbm (trial={}): cv stats: min:{} max:{} avg:{} std:{}".format(trial.number, min_score, max_score, avg_score, std_score))
+        cv_stats = dict(scores=scores, min_score=min_score, max_score=max_score, avg_score=avg_score, std_score=std_score)
+        trial.set_user_attr("cv_stats", cv_stats)
+        score = avg_score
 
         return score
 
@@ -163,12 +171,14 @@ class LGBMModel(BaseModel):
         else:
             direction = "minimize"
 
+        optuna.logging.set_verbosity(optuna.logging.ERROR)
         study = optuna.create_study(direction=direction)
         objective = LGBMObjective(self.dataset_type, trainX, trainY, testX, testY)
 
         study.optimize(objective, n_trials=self.n_trials, timeout=self.timeout)
         print('best_trial=', study.best_trial)
         print('best_params=', study.best_params)
+        cv_stats = study.best_trial.user_attrs["cv_stats"]
 
         if self.dataset_type == 'classification':
             self.model = lgb_core.LGBMClassifier(**study.best_params)
@@ -178,6 +188,12 @@ class LGBMModel(BaseModel):
             param["metric"] = "l1"
             self.model = lgb_core.LGBMRegressor(**param)
         self.model.fit(trainX, trainY)
+        print("="*50)
+        print("Autolgb: best model=", self.model)
+        for key in cv_stats.keys():
+            print("Autolgb: cv_stats[\"{}\"]={}".format(key, cv_stats[key]))
+        print("="*50)
+
 
     def fit_data(self, trainX, trainY, testX=None, testY=None, input_list=None):
         if self.method == 'train_ml_lgbm':
