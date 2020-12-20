@@ -56,7 +56,7 @@ class XGBoostObjective(object):
             kf = KFold(n_splits=5, shuffle=True, random_state=55)
             scores = []
             for train_index, test_index in kf.split(train_x):
-                xgb_model = xgb.XGBClassifier(objective='multi:softmax', num_class=self.num_class)
+                xgb_model = xgb.XGBClassifier(objective='multi:softmax', num_class=self.num_class, n_jobs=-1)
                 xgb_model.set_params(**param)
                 xgb_model.fit(train_x[train_index], train_y[train_index])
                 predictions = xgb_model.predict(train_x[test_index])
@@ -74,7 +74,7 @@ class XGBoostObjective(object):
             kf = KFold(n_splits=5, shuffle=True, random_state=55)
             scores = []
             for train_index, test_index in kf.split(train_x):
-                xgb_model = xgb.XGBRegressor(objective='reg:squarederror')
+                xgb_model = xgb.XGBRegressor(objective='reg:squarederror', n_jobs=-1)
                 xgb_model.set_params(**param)
                 xgb_model.fit(train_x[train_index], train_y[train_index])
                 predictions = xgb_model.predict(train_x[test_index])
@@ -174,7 +174,12 @@ class XGBoostModel(BaseModel):
             if testY is not None:
                 testY = np.argmax(testY, axis=-1)
 
-        study = optuna.create_study(direction="minimize")
+        if self.dataset_type == 'classification':
+            direction = "maximize"
+        else:
+            direction = "minimize"
+
+        study = optuna.create_study(direction=direction)
         objective = XGBoostObjective(self.dataset_type, trainX, trainY, testX, testY, num_class=self.output_dim)
 
         study.optimize(objective, n_trials=self.n_trials, timeout=self.timeout)
