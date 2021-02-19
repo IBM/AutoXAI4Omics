@@ -29,8 +29,7 @@
         "barplot_scorer",
         "boxplot_scorer",
         "conf_matrix",
-        "shap_plots",
-        "permut_imp_test"
+        "shap_plots"
     ],
     "top_feats_permImp": 15,
     "top_feats_shap": 15,
