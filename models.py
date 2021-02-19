@@ -458,6 +458,9 @@ def run_models(
             print("Using random search")
             # Do a random search to find the best parameters
             trained_model = random_search(model, model_name, param_ranges, hyper_budget, x_train, y_train, seed_num, scorer_dict, fit_scorer)
+            print("=================== Best model from random search: " + model_name + " ====================")
+            print(trained_model)
+            print("==================================================================")
 
         # No hyperparameter tuning (and/or the MLPEnsemble is to be run once)
         elif hyper_tuning is None or single_model_flag:
@@ -472,6 +475,9 @@ def run_models(
             if hyper_budget is not None:
                 print(f"Hyperparameter tuning budget ({hyper_budget}) is not used in a grid search")
             trained_model = grid_search(model, model_name, param_ranges, x_train, y_train, seed_num, scorer_dict, fit_scorer)
+            print("=================== Best model from grid search: " + model_name + " ====================")
+            print(trained_model)
+            print("==================================================================")
 
         # Save the best model found
         save_model(experiment_folder, trained_model, model_name)

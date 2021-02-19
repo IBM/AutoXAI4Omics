@@ -44,10 +44,7 @@ def define_plots(problem_type):
             "conf_matrix": conf_matrix_plot,
             "shap_plots": shap_plots,
             "shap_force_plots": shap_force_plots,
-            "permut_imp_all_data_cv": permut_importance,
-            "permut_imp_alldata": permut_importance,
-            "permut_imp_test": permut_importance,
-            "permut_imp_train": permut_importance,
+            "permut_imp_test": permut_importance
         }
     elif problem_type == "regression":
         plot_dict = {
@@ -60,10 +57,7 @@ def define_plots(problem_type):
             "hist_overlapped": histograms,
             "joint": joint_plot,
             "joint_dens": joint_plot,
-            "permut_imp_5cv": permut_importance,
-            "permut_imp_alldata": permut_importance,
-            "permut_imp_test": permut_importance,
-            "permut_imp_train": permut_importance
+            "permut_imp_test": permut_importance
         }
     return plot_dict
 
@@ -84,7 +78,7 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
         if plot_method == "barplot_scorer":
             plot_func(experiment_folder, config_dict, scorer_dict, x_test, y_test)
         elif plot_method == "boxplot_scorer":
-            plot_func(experiment_folder, config_dict, scorer_dict, x, y)
+            plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train)
         elif plot_method == "conf_matrix":
             plot_func(experiment_folder, config_dict, x_test, y_test, normalize=True)
         elif plot_method == "corr":
@@ -99,19 +93,20 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
             plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], kind="kde")
 
         #Permutation importance
-        elif plot_method == "permut_imp_alldata":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict["top_feats_permImp"], cv='prefit')
         elif plot_method == "permut_imp_test":
             plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_test, y_test, config_dict["top_feats_permImp"], cv='prefit')
-        elif plot_method == "permut_imp_train":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train, config_dict["top_feats_permImp"], cv='prefit')
-        elif plot_method == "permut_imp_5cv":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict["top_feats_permImp"], cv=5)
         elif plot_method == "shap_plots":
             plot_func(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, config_dict["top_feats_shap"])
         elif plot_method == "shap_force_plots":
             plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations="all",
                              top_exemplars=0.4, save=True)
+        """elif plot_method == "permut_imp_alldata":
+            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict["top_feats_permImp"], cv='prefit')
+        elif plot_method == "permut_imp_train":
+            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train, config_dict["top_feats_permImp"], cv='prefit')
+        elif plot_method == "permut_imp_5cv":
+            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict["top_feats_permImp"], cv=5)"""
+
 
     # Clear everything
     plt.clf()
@@ -229,7 +224,7 @@ def pretty_names(name, name_type):
         new_name = score_dict[name]
     return new_name
 
-def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_labels, nsplits=3, save=True):
+def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_labels, nsplits=5, save=True):
     '''
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
 
@@ -308,7 +303,7 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
         all_scores.append(scores)
         # Save CV results
         d = {'Scores CV': scores, 'Dim test': num_testsamples_list}
-        fname = f"{experiment_folder / 'results' / 'scores_10CV'}_{model_name}_{num_fold}"
+        fname = f"{experiment_folder / 'results' / 'scores_CV'}_{model_name}_{num_fold}"
         df = pd.DataFrame(d)
         df.to_csv(fname + '.csv')
 
@@ -448,7 +443,7 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
         utils.tidy_tf()
 
 
-def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=True, save=True):
+def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=False, save=True):
     '''
     Creates a confusion matrix for each model. Saves them in separate files.
     '''
@@ -820,7 +815,7 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
         # These indicate that shuffling the feature actually improves performance
         # Save the plot
         if save:
-            fname = f"{experiment_folder / 'graphs' / 'permutimp'}_{model_name}_cv-{cv}"
+            fname = f"{experiment_folder / 'graphs' / 'permutimp'}_{model_name}"
             save_fig(fig, fname)
 
         plt.draw()
@@ -837,11 +832,11 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
 def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, num_top_features,
                          pcAgreementLevel=10, save=True):
 
-    if(config_dict["explanations_data"]=="all" or "test" or "exemplars"):
+    if(config_dict["explanations_data"]=="all" or "test" or "train" or "exemplars"):
         data_forexplanations=config_dict["explanations_data"]
     #assume test set
     else:
-        data_forexplanations="test"
+        data_forexplanations="train"
 
     if(len(feature_names) <= num_top_features):
         num_top=len(feature_names)
@@ -883,16 +878,19 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
         if(data_forexplanations=="all"):
             shap_values = explainer.shap_values(x)
             data = x
+        elif(data_forexplanations == "train"):
+            shap_values = explainer.shap_values(x_train)
+            data = x_train
         elif(data_forexplanations=="test"):
             shap_values = explainer.shap_values(x_test)
             data = x_test
         elif(data_forexplanations=="exemplars"):
             shap_values = explainer.shap_values(exemplar_X_test)
             data = exemplar_X_test
-        #otherwise assume test set
+        #otherwise assume train set
         else:
-            shap_values = explainer.shap_values(x_test)
-            data = x_test
+            shap_values = explainer.shap_values(x_train)
+            data = x_train
 
         # Handle regression and classification differently and store the shap_values in shap_values_selected
 
@@ -1252,7 +1250,6 @@ if __name__ == "__main__":
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
 
-    # Get the data
     if (config_dict["data_type"] == "microbiome"):
         # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
         x, y, features_names = train_models.get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
@@ -1260,6 +1257,10 @@ if __name__ == "__main__":
         # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
         x, y, features_names = train_models.get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"],
                                                         config_dict)
+    elif (config_dict["data_type"] == "metabolomic"):
+        x, y, features_names = train_models.get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+    elif (config_dict["data_type"] == "tabular"):
+        x, y, features_names = train_models.get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
     else:
         # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
         x, y, features_names = train_models.get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
