@@ -20,17 +20,21 @@ The JSON config file is at the centre of the framework - it controls everything 
     "fit_scorer": "f1",
     "model_list": [
         "rf",
-        "xgboost",
         "adaboost",
         "svm",
-        "knn"
+        "knn",
+        "autoxgboost",
+        "autolgbm"
+        "autokeras"
+        "autosklearn"
+        "autogluon"
     ],
       "plot_method": [
         "conf_matrix",
         "boxplot_scorer",
         "barplot_scorer",
         "shap_plots",
-        "permut_imp_alldata"
+        "permut_imp_test"
       ],
     "top_feats_permImp": 10,
     "top_feats_shap": 10,
@@ -73,7 +77,7 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 * `hyper_tuning`: The type of hyperparameter tuning to be used, either random search "random" or grid "grid" or `null`. In case of `null` the models will be trained with just one set of parameters. The parameters are defined in `model_params.py` for each method. Grid or random search rely on `scikit-learn` implementations. 
 * `hyper_budget`: The number of random parameter sets to try if `hyper_tuning` is set to "random". This field is not applicable to "grid" search, therefore can be set to "".
 * `model_list`: Specify the models to be used in the analysis (the models are defined in the `model_params.py` file). The current models available for both regression and classification task are the following:
-    * "xgboost", XGBoost
+    * "autoxgboost", XGBoost with Hyper Parameter Optimization implemented 
     * "rf", RandomForest
     * "svm", Support Vector Machines
     * "knn", K-Nearest Neighbors
@@ -129,8 +133,8 @@ These parameters need to specified only if `data_type`= "tabular".
     * "barplot_scorer": Barplot showing a comparison in the performance of the models listed in `model_list` on the test set, or unseen samples. In the sub-folder `results/` one .csv file will be saved, `results/scores__performance_results.csv`, containing the scores specified in `scorer_list`(e.g., MAE and MSE) on the test and training datasets for each model in `model_list`.
     * "boxplot_scorer": Boxplot showing a comparison in performances of the models listed in `model_list` resulting from 5 fold cross validation on the entire dataset. 
     * "shap_plots": SHAP explainability plots, i.e., shap summary bar plot and shap summary dot plot for each model in `model_list`, `graphs/top_features_AbsMeanSHAP_Abundance_<data>_<model>.csv`
-    * "permut_imp_all_data_cv": Permutation importance plot showing the list of the top feautures ranked by importance as computed by eli5 while performing 5 cross validation using the entire dataset. For each model the scores of 5CV are saved in `results/<scores_5CV_<model>.csv>`
-
+    * "permut_imp_test": Permutation importance plot showing the list of the top feautures ranked by importance as computed by eli5 permutation importance algorithm using the test dataset. Note that the model has already been fit.
+    
 * Options for explainability and feature importance plots:
     * "top_feats_permImp": Number of top ranked features to be visualised in the permutation importance plots, e.g., 10. 
     * "top_feats_shap": Number of top ranked features to be visualised in the SHAP plots, e.g., 20.
