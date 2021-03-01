@@ -621,7 +621,7 @@ def save_explainer(experiment_folder, model_name, explainer):
 
 def tidy_tf():
     # K.clear_session()
-
+    pass
 
 def create_parser():
     parser = argparse.ArgumentParser(description="Microbiome ML Framework")
