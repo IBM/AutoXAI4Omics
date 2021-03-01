@@ -8,7 +8,7 @@ from pathlib import Path
 import json
 import argparse
 import numpy as np
-from tensorflow.keras import backend as K
+# from tensorflow.keras import backend as K
 import scipy.sparse
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 import joblib
@@ -620,7 +620,7 @@ def save_explainer(experiment_folder, model_name, explainer):
 
 
 def tidy_tf():
-    K.clear_session()
+    # K.clear_session()
 
 
 def create_parser():

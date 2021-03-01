@@ -6,11 +6,11 @@
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
-import tensorflow.keras.layers
-import tensorflow.keras.models
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
+# import tensorflow as tf
+# import tensorflow.keras.layers
+# import tensorflow.keras.models
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
@@ -173,6 +173,8 @@ class MLPKeras(CustomModel):
         """
         Fit to provided data and labels
         """
+
+        """
         # Setup some of the attributes from the data
         self.data = data
         self.labels = labels
@@ -245,11 +247,14 @@ class MLPKeras(CustomModel):
         if self.verbose:
             print("Model Summary:")
             print(self.model.summary())
+        """
         return self
    
     def _define_model(self):
         """
         Architecture created by Sean
+        """
+
         """
         model = Sequential()
         model.add(Dense(self.n_dims, input_dim=self.n_dims, kernel_initializer='uniform'))
@@ -277,6 +282,7 @@ class MLPKeras(CustomModel):
             ))
         # Assign the model
         self.model = model
+        """
 
     def predict(self, data):
         if self.config_dict["problem_type"] == "classification":
@@ -329,6 +335,7 @@ class MLPKeras(CustomModel):
 
     @classmethod
     def load_model(cls, model_path):
+        """
         model_path = str(model_path)
         # Load the pickled instance
         with open(model_path+".pkl", 'rb') as f:
@@ -336,10 +343,12 @@ class MLPKeras(CustomModel):
         # Load the model with Keras and set this to the relevant attribute
         model.model = tensorflow.keras.models.load_model(model_path+".model")
         return model
+        """
 
     def _onehot_encode(self):
         """
         Our network requires one-hot encoded class labels, so do that if it isn't done already
+        """
         """
         # Check if the labels are already one-hot encoded
         if len(self.labels.shape) == 1 or self.labels.shape[1] > 1:
@@ -353,8 +362,10 @@ class MLPKeras(CustomModel):
             # Transform the test labels if we have them
             if self.labels_test is not None:
                 self.labels_test = self.onehot_encode_obj.transform(self.labels_test.reshape(-1, 1))
+        """
 
     def _preparation(self):
+        """
         # Convert the labels if a DataFrame/Series
         if isinstance(self.labels, (pd.DataFrame, pd.Series)):
             self.labels = self.labels.values
@@ -369,6 +380,7 @@ class MLPKeras(CustomModel):
             self.labels = self.labels.reshape(-1, 1)
             if self.labels_test is not None:
                 self.labels_test = self.labels_test.reshape(-1, 1)
+        """
 
 
 class TabAuto(CustomModel):
@@ -584,6 +596,7 @@ class FixedKeras(TabAuto):
 
     @classmethod
     def load_model(cls, model_path):
+        import tensorflow        
         model_path = str(model_path)
         # Load the pickled instance
         with open(model_path+".pkl", 'rb') as f:
@@ -689,6 +702,7 @@ class AutoKeras(TabAuto):
 
     @classmethod
     def load_model(cls, model_path):
+        import tensorflow
         model_path = str(model_path)
         # Load the pickled instance
         with open(model_path+".pkl", 'rb') as f:
