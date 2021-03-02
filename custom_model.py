@@ -841,6 +841,17 @@ class AutoGluon(TabAuto):
         model.model = TabularPrediction.load(model_path+"_h5")
         return model
 
+    def predict_proba(self, data):
+        from autogluon import TabularPrediction
+
+        df_x = pd.DataFrame(data=data)
+        test_data = TabularPrediction.Dataset(data=df_x)
+
+        if self.config_dict["problem_type"] == "classification":
+            return self.model.predict_proba(test_data)
+        else:
+            raise NotImplementedError()
+
     def predict(self, data):
         """
         Function to predict labels or values
