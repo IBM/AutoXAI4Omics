@@ -15,19 +15,14 @@
         "acc",
         "f1"
     ],
-    "model_list0": [
-        "autoxgboost",
-        "rf",
-        "autokeras",
+    "model_list": [
+        "autosklearn",
+        "autogluon",
         "autolgbm",
         "autoxgboost",
-        "autogluon"
-    ],
-    "model_list": [
-        "autolgbm"
-    ],
-    "model_list2": [
-        "autosklearn"
+        "autogluon",
+        "autokeras",
+        "rf"
     ],
     "autokeras_config": {
         "n_epochs": 100,
@@ -65,7 +60,8 @@
         "time_limits": 120
     },
     "plot_method": [
-        "shap_plots"
+        "shap_plots",
+        "barplot_scorer"
     ],
     "top_feats_permImp": 15,
     "top_feats_shap": 15,

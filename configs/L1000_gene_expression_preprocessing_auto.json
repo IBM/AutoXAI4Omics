@@ -16,16 +16,13 @@
         "mean_ae",
         "med_ae"
     ],
-    "model_list0": [
+    "model_list": [
         "rf",
         "autosklearn",
-        "autolgbm",
-        "autokeras",
         "autogluon",
+        "autokeras",
+        "autolgbm",
         "autoxgboost"
-    ],
-    "model_list": [
-        "autosklearn"
     ],
     "autokeras_config": {
         "n_epochs": 50,
@@ -63,7 +60,7 @@
         "time_limits": 60
     },
     "plot_method": [
-        "barplot_scorer"
+        "shap_plots"
     ],
     "top_feats_permImp": 30,
     "top_feats_shap": 30,
