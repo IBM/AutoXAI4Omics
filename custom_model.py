@@ -326,10 +326,7 @@ class FixedKeras(TabAuto):
 
     def predict(self, data):
         if self.config_dict["problem_type"] == "classification":
-            # pred_inds = np.argmax(self.model.predict(data), axis=1)
             yp = self.model.predict(data)
-            # yp = self.model.predict(data)
-            print("yp=", yp)
             pred_inds = np.argmax(yp, axis=1)
             preds = self.onehot_encode_obj.categories_[0][pred_inds]
         elif self.config_dict["problem_type"] == "regression":
@@ -433,6 +430,12 @@ class AutoKeras(TabAuto):
         # Assign the model
         self.model = model
 
+    def predict_proba(self, data):
+        if self.config_dict["problem_type"] == "classification":
+            return self.model.predict(data)
+        else:
+            raise NotImplementedError()
+
     def predict(self, data):
         if self.config_dict["problem_type"] == "classification":
             pred_inds = np.argmax(self.model.predict(data), axis=1)
@@ -457,8 +460,9 @@ class AutoKeras(TabAuto):
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
         print("loading:", model_path+".h5")
-        custom_objects = {"cast_to_float32": autokeras.keras_layers.CastToFloat32}
-        model.model = tensorflow.keras.models.load_model(model_path+".h5", custom_objects=custom_objects)
+        # custom_objects = {"cast_to_float32": autokeras.keras_layers.CastToFloat32}
+        # model.model = tensorflow.keras.models.load_model(model_path+".h5", custom_objects=custom_objects)
+        model.model = tensorflow.keras.models.load_model(model_path+".h5")
         return model
 
 
