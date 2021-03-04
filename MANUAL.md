@@ -77,14 +77,14 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 * `hyper_tuning`: The type of hyperparameter tuning to be used, either random search "random" or grid "grid" or `null`. In case of `null` the models will be trained with just one set of parameters. The parameters are defined in `model_params.py` for each method. Grid or random search rely on `scikit-learn` implementations. 
 * `hyper_budget`: The number of random parameter sets to try if `hyper_tuning` is set to "random". This field is not applicable to "grid" search, therefore can be set to "".
 * `model_list`: Specify the models to be used in the analysis (the models are defined in the `model_params.py` file). The current models available for both regression and classification task are the following:
-    * "autoxgboost", XGBoost with Hyper Parameter Optimization implemented 
-    * "rf", RandomForest
+    * "rf", Random Forest
     * "svm", Support Vector Machines
     * "knn", K-Nearest Neighbors
     * "adaboost", Adaboost
-    * "mlp_keras" a Multi Layer Perceptron (MLP) implemented in Keras and defined in custom_models.py
-    * "mlp_ens" an ensemble MLP implemented in tensor flow and defined in custom_models.py
-Note that `mlp_keras`,  and `mlp_ens`  are not integrated with grid or random search, which rely on scikit-learn. @TODO: to be updated after integration with Panos autoAI models.
+    * "autoxgboost", XGBoost with Hyper Parameter Optimization implemented 
+    * "autokeras", ............
+    * "autosklearn", .........
+    * "autogluon", .........
 * `scorer_list`: Specify the scoring measures to be used to analyse the models(these are defined in `models.py`). 
     * For classification tasks: "acc" (accuracy), "f1" (f1-score), "prec" (precision), "recall"
     * For regression tasks: "mse" (mean squared error), "mean_ae" (mean absolute error), "med_ae" (median absolute error), "rmse" (root mean square error) 
