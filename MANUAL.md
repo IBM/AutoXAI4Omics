@@ -24,9 +24,9 @@ The JSON config file is at the centre of the framework - it controls everything 
         "svm",
         "knn",
         "autoxgboost",
-        "autolgbm"
-        "autokeras"
-        "autosklearn"
+        "autolgbm",
+        "autokeras",
+        "autosklearn",
         "autogluon"
     ],
       "plot_method": [
