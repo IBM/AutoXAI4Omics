@@ -6,15 +6,12 @@
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
-import tensorflow.keras.layers
-import tensorflow.keras.models
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation
+import tensorflow
+import autokeras
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
-
+import sys
 
 class CustomModel:
     """
@@ -134,241 +131,6 @@ class CustomModel:
 
     def __repr__(self):
         return f"{self.__class__.__name__} model with params:{ {k:v for k,v in self.__dict__.items() if 'data' not in k if 'label' not in k} }"
-
-
-class MLPKeras(CustomModel):
-    nickname = "mlp_keras"
-    # Attributes from the config
-    config_dict = None
-
-    def __init__(self, n_epochs=None, batch_size=None, lr=None, layer_dict=None,
-                 verbose=None, random_state=None, n_blocks=None, dropout=None,
-                 scorer_func=None, data=None, data_test=None, labels=None, labels_test=None,
-                 n_classes=None, n_examples=None, n_dims=None, onehot_encode_obj=None,
-                 classes_=None, model=None):
-        # Param attributes
-        self.n_epochs = n_epochs
-        self.batch_size = batch_size
-        self.lr = lr  # Learning rate
-        self.layer_dict = layer_dict
-        self.verbose = verbose
-        self.random_state = random_state
-        self.n_blocks = n_blocks
-        self.dropout = dropout
-        self.scorer_func = scorer_func
-        # Attributes for the model
-        self.data = data
-        self.data_test = data_test  # To track performance over epochs
-        self.labels = labels
-        self.labels_test = labels_test
-        self.n_classes = n_classes
-        self.n_examples = n_examples
-        self.n_dims = n_dims
-        self.onehot_encode_obj = onehot_encode_obj
-        self.classes_ = classes_
-        # Keras attributes
-        self.model = model
-
-    def fit(self, data, labels, save_best=True):
-        """
-        Fit to provided data and labels
-        """
-        # Setup some of the attributes from the data
-        self.data = data
-        self.labels = labels
-        self.n_examples = data.shape[0]
-        self.n_dims = data.shape[1]
-        # Set up the needed things for training now we have access to the data and labels
-        self._preparation()
-        # Determine the number of classes
-        if self.config_dict["problem_type"] == "classification":
-            # One-hot encoding has already been done, so take the info from there
-            self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == "regression":
-            self.n_classes = 1
-        # Define the model
-        self._define_model()
-        # Define the optimizer
-        '''This is Cameron's optimizer
-            adam_opt = tensorflow.keras.optimizers.Adam(
-            lr=self.lr,
-            beta_1=0.9,
-            beta_2=0.999,
-            epsilon=None,
-            decay=0.0,
-            amsgrad=False
-        )'''
-        # Sean's optimizer
-        rmsprop = tensorflow.keras.optimizers.RMSprop(lr=self.lr, rho=0.9, epsilon=0.1, decay=0.000001) 
-        # Compile the model
-        if self.config_dict["problem_type"] == "classification":
-            self.model.compile(
-                optimizer=rmsprop,
-                loss='categorical_crossentropy'
-            )
-        elif self.config_dict["problem_type"] == "regression":
-            self.model.compile(
-                optimizer=rmsprop,
-                loss='mae'
-            )
-        # Set the verbosity level
-        if self.verbose:
-            verbose = 1
-        else:
-            verbose = 0
-        best_score = -np.inf
-        # Loop over the epochs so we can do some inspection after each
-        for i in range(int(self.n_epochs)):
-            if self.verbose:
-                print(f"Epoch: {i}")
-            # Fit the model
-            self.model.fit(self.data, self.labels, epochs=1, batch_size=self.batch_size, verbose=verbose)
-            
-            # # If test data is provided, see how the performance is
-            # if self.data_test is not None and self.labels_test is not None:
-            #     # print("Evaluating on test data")
-            #     score = self.model.evaluate(self.data_test, self.labels_test, batch_size=self.batch_size, verbose=verbose)
-            
-            if save_best:
-                # Access the attributes of the scorer_func so that we can call the underlying scoring function
-                # This avoids having to pass an estimator into the scorer
-                score = self.scorer_func._score_func(
-                    labels,
-                    self.predict(self.data),
-                    **self.scorer_func._kwargs  # Extract the kwargs and pass them in
-                ) * self.scorer_func._sign  # Multiply by the sign so that greater is better is maintained
-                # Save the best score
-                if score > best_score:
-                    print(f"Found new best score ({self.scorer_func._score_func.__name__}) with {np.abs(score)}")
-                    best_score = score
-                    self.save_model()
-        if self.verbose:
-            print("Model Summary:")
-            print(self.model.summary())
-        return self
-   
-    def _define_model(self):
-        """
-        Architecture created by Sean
-        """
-        model = Sequential()
-        model.add(Dense(self.n_dims, input_dim=self.n_dims, kernel_initializer='uniform'))
-        model.add(BatchNormalization())
-        model.add(Activation('relu'))
-        # Add multiple blocks of this format
-        for i in range(int(self.n_blocks)):
-            model.add(BatchNormalization())
-            model.add(Dense(100, kernel_initializer='uniform'))
-            model.add(Activation('relu'))
-        # Add some dropout at the end
-        model.add(Dropout(self.dropout))
-        # Define the output layer differently for the problem type
-        if self.config_dict["problem_type"] == "classification":
-            model.add(Dense(
-                self.n_classes,
-                kernel_initializer=tensorflow.keras.initializers.glorot_normal(seed=self.config_dict["seed_num"])
-            ))
-            model.add(Activation(tf.nn.softmax))  # The tensorflow softmax?
-        elif self.config_dict["problem_type"] == "regression":
-            model.add(Dense(
-                self.n_classes,
-                kernel_initializer=tensorflow.keras.initializers.glorot_normal(seed=self.config_dict["seed_num"]),
-                activation='linear'
-            ))
-        # Assign the model
-        self.model = model
-
-    def predict(self, data):
-        if self.config_dict["problem_type"] == "classification":
-            pred_inds = np.argmax(self.model.predict(data), axis=1)
-            preds = self.onehot_encode_obj.categories_[0][pred_inds]
-        elif self.config_dict["problem_type"] == "regression":
-            preds = self.model.predict(data)
-        else:
-            raise NotImplementedError()
-        return preds.flatten()
-
-    def predict_proba(self, data):
-        if self.config_dict["problem_type"] == "classification":
-            return self.model.predict(data)
-        else:
-            raise NotImplementedError()
-
-    def set_params(self, **params):
-        """"
-        Required function (in sklearn BaseEstimator) used for setting parameters in both a tuning and single model setting
-        """
-        for key, value in params.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                print(f"{key} is not a valid attribute of {self}")
-        return self
-
-    def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'mlp_keras_best'}"
-        self.model.save(fname+".model")
-        self._pickle_member(fname)
-
-    def _pickle_member(self, fname):
-        """
-        Custom function to pickle an instance.
-        """
-        # Create a temp container
-        temp_params = {}
-        # Loop over the TF attributes to set to None for pickle
-        for attr in ["model"]:
-            temp_params[attr] = getattr(self, attr)
-            setattr(self, attr, None)
-        # Pickle the now TF-free object
-        with open(fname+".pkl", 'wb') as f:
-            joblib.dump(self, f)
-        # Restore attributes
-        for attr, value in temp_params.items():
-            setattr(self, attr, value)
-
-    @classmethod
-    def load_model(cls, model_path):
-        model_path = str(model_path)
-        # Load the pickled instance
-        with open(model_path+".pkl", 'rb') as f:
-            model = joblib.load(f)
-        # Load the model with Keras and set this to the relevant attribute
-        model.model = tensorflow.keras.models.load_model(model_path+".model")
-        return model
-
-    def _onehot_encode(self):
-        """
-        Our network requires one-hot encoded class labels, so do that if it isn't done already
-        """
-        # Check if the labels are already one-hot encoded
-        if len(self.labels.shape) == 1 or self.labels.shape[1] > 1:
-            # Create the encode object
-            self.onehot_encode_obj = OneHotEncoder(categories='auto', sparse=False)
-            # Fit transform the labels that we have
-            # Reshape the labels just in case (if they are, it has no effect)
-            self.labels = self.onehot_encode_obj.fit_transform(self.labels.reshape(-1, 1))
-            # Set the classes for the model (useful for the plotting e.g. confusion matrix)
-            self.classes_ = self.onehot_encode_obj.categories_[0]
-            # Transform the test labels if we have them
-            if self.labels_test is not None:
-                self.labels_test = self.onehot_encode_obj.transform(self.labels_test.reshape(-1, 1))
-
-    def _preparation(self):
-        # Convert the labels if a DataFrame/Series
-        if isinstance(self.labels, (pd.DataFrame, pd.Series)):
-            self.labels = self.labels.values
-        # Same for the test labels
-        if self.labels_test is not None:
-            if isinstance(self.labels_test, (pd.DataFrame, pd.Series)):
-                self.labels_test = self.labels_test.values
-        # Check if we need to one-hot encode
-        if self.config_dict["problem_type"] == "classification":
-            self._onehot_encode()
-        elif self.config_dict["problem_type"] == "regression":
-            self.labels = self.labels.reshape(-1, 1)
-            if self.labels_test is not None:
-                self.labels_test = self.labels_test.reshape(-1, 1)
 
 
 class TabAuto(CustomModel):
@@ -564,10 +326,7 @@ class FixedKeras(TabAuto):
 
     def predict(self, data):
         if self.config_dict["problem_type"] == "classification":
-            # pred_inds = np.argmax(self.model.predict(data), axis=1)
             yp = self.model.predict(data)
-            # yp = self.model.predict(data)
-            print("yp=", yp)
             pred_inds = np.argmax(yp, axis=1)
             preds = self.onehot_encode_obj.categories_[0][pred_inds]
         elif self.config_dict["problem_type"] == "regression":
@@ -671,6 +430,12 @@ class AutoKeras(TabAuto):
         # Assign the model
         self.model = model
 
+    def predict_proba(self, data):
+        if self.config_dict["problem_type"] == "classification":
+            return self.model.predict(data)
+        else:
+            raise NotImplementedError()
+
     def predict(self, data):
         if self.config_dict["problem_type"] == "classification":
             pred_inds = np.argmax(self.model.predict(data), axis=1)
@@ -694,6 +459,9 @@ class AutoKeras(TabAuto):
         with open(model_path+".pkl", 'rb') as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
+        print("loading:", model_path+".h5")
+        # custom_objects = {"cast_to_float32": autokeras.keras_layers.CastToFloat32}
+        # model.model = tensorflow.keras.models.load_model(model_path+".h5", custom_objects=custom_objects)
         model.model = tensorflow.keras.models.load_model(model_path+".h5")
         return model
 
@@ -1072,6 +840,17 @@ class AutoGluon(TabAuto):
         print("loading: {}_h5".format(model_path))
         model.model = TabularPrediction.load(model_path+"_h5")
         return model
+
+    def predict_proba(self, data):
+        from autogluon import TabularPrediction
+
+        df_x = pd.DataFrame(data=data)
+        test_data = TabularPrediction.Dataset(data=df_x)
+
+        if self.config_dict["problem_type"] == "classification":
+            return self.model.predict_proba(test_data)
+        else:
+            raise NotImplementedError()
 
     def predict(self, data):
         """

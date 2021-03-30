@@ -16,7 +16,7 @@ import pandas as pd
 import shap
 import models
 import plotting
-from custom_model import CustomModel, MLPKeras, TabAuto
+from custom_model import CustomModel, TabAuto
 import calour as ca
 
 
@@ -216,10 +216,6 @@ def load_model(model_name, model_path):
         except:
             print("The trained model " + model_name + " is not present")
             exit()
-        # if model_name == "mlp_ens":
-        #     model = MLPEnsemble.load_model(model_path)
-        # elif model_name == "mlp_keras":
-        #     model = MLPKeras.load_model(model_path)
     else:
         # Load a previously saved model (using joblib's pickle)
         with open(model_path, 'rb') as f:
