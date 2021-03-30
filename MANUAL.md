@@ -53,7 +53,6 @@ The JSON config file is at the centre of the framework - it controls everything 
 }
 ```
 ### General remarks
-#* Note that the .json file needs to be in the directory called `configs`.
 * If a value for a parameter in the json file is not provided, the value should `null` or "".
 * There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`, `metabolomic`, `tabular`}. The `data_type` can have any other value or be an empty string (e.g. "proteomic", "", etc.),  but those will not invoke any special pre-processing
 * For categorical data, phenotypes are listed in alphabetical order in the results
