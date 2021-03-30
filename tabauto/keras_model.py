@@ -29,14 +29,14 @@ class KerasModel(BaseModel):
             self.__init_ak__(input_dim, output_dim, dataset_type)
 
     def __init_ak__(self, input_dim, output_dim, dataset_type):
-        self.epochs = self.config.get("n_epochs", 10)
+        self.epochs = self.config.get("n_epochs", 200)
         self.batch_size = self.config.get("batch_size", 32)
         self.lr = self.config.get("lr", 0.001)
         self.verbose = self.config.get("verbose", False)
         self.num_layers = self.config.get("n_blocks", 4)
         self.dropout = self.config.get("dropout", 0.3)
         self.use_batchnorm = self.config.get("use_batchnorm", True)
-        self.max_trials = self.config.get("n_trials", 10)
+        self.max_trials = self.config.get("n_trials", 20)
         self.tuner = self.config.get("tuner", "greedy")
 
         print("self.config=", self.config)

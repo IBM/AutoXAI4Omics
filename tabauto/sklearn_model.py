@@ -71,7 +71,7 @@ class SKLearnModel(BaseModel):
                 memory_limit = self.config.get("memory_limit", 65536)
                 n_jobs = self.config.get("n_jobs", 1)
                 ensemble_size = self.config.get("ensemble_size", 1)
-                cv_folds = self.config.get("cv_folds")
+                cv_folds = self.config.get("cv_folds", 0)
 
                 if cv_folds > 1:
                     kwargs = {'ensemble_size': ensemble_size,
@@ -131,7 +131,7 @@ class SKLearnModel(BaseModel):
                 memory_limit = self.config.get("memory_limit", 65536)
                 n_jobs = self.config.get("n_jobs", 1)
                 ensemble_size = self.config.get("ensemble_size", 1)
-                cv_folds = self.config.get("cv_folds")
+                cv_folds = self.config.get("cv_folds", 0)
 
                 if cv_folds > 1:
                     kwargs = {'ensemble_size': ensemble_size,

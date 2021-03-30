@@ -41,8 +41,7 @@
         "per_run_time_limit": 60,
         "memory_limit": 65536,
         "n_jobs": 1,
-        "ensemble_size": 1,
-        "cv_folds": 0
+        "ensemble_size": 1
     },
     "autolgbm_config": {
         "verbose": true,

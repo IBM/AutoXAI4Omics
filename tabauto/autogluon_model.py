@@ -44,7 +44,7 @@ class AutogluonModel(BaseModel):
         savedir = 'ag_models_{}/'.format(os.getpid())  # where to save trained models
         self.savedir = savedir
 
-        auto_stack = self.config.get("auto_stack", True)
+        auto_stack = self.config.get("auto_stack", False)
         time_limits = self.config.get("time_limits", 120)
         if self.dataset_type == "classification":
             self.model = Task.fit(train_data=train_data, label=label_column, output_directory=savedir,
