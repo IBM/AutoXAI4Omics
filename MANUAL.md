@@ -39,6 +39,7 @@ The JSON config file is at the centre of the framework - it controls everything 
     "top_feats_permImp": 10,
     "top_feats_shap": 10,
     "explanations_data": "test",
+    
     "collapse_tax": "genus",
     "remove_classes": null,
     "merge_classes": null,
@@ -49,7 +50,49 @@ The JSON config file is at the centre of the framework - it controls everything 
                 "UK"
             ]
         }
-    ]
+    ],
+    
+    "expression_type": "OTHER",
+    "filter_sample": 100,
+    "filter_genes": ["0", "0"],
+    "output_file_ge": "/output_file_name.csv",
+    "output_metadata": "/data/output_metadata_file_name.csv",
+     
+    "autokeras_config": {
+        "n_epochs": 50,
+        "batch_size": 32,
+        "verbose": true,
+        "n_blocks": 3,
+        "dropout": 0.3,
+        "use_batchnorm": true,
+        "n_trials": 3,
+        "tuner": "bayesian"
+    },
+    "autosklearn_config": {
+        "verbose": true,
+        "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"],
+        "time_left_for_this_task": 120,
+        "per_run_time_limit": 60,
+        "memory_limit": 65536,
+        "n_jobs": 1,
+        "ensemble_size": 1,
+        "cv_folds": 0
+    },
+    "autolgbm_config": {
+        "verbose": true,
+        "n_trials": 5,
+        "timeout": 60
+    },
+    "autoxgboost_config": {
+        "verbose": true,
+        "n_trials": 5,
+        "timeout": 60
+    },
+    "autogluon_config": {
+        "verbose": true,
+        "auto_stack": false,
+        "time_limits": 60
+    }
 }
 ```
 ### General remarks
@@ -78,13 +121,13 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 * `hyper_budget`: The number of random parameter sets to try if `hyper_tuning` is set to "random". This field is not applicable to "grid" search, therefore can be set to "".
 * `model_list`: Specify the models to be used in the analysis (the models are defined in the `model_params.py` file). The current models available for both regression and classification task are the following:
     * "rf", Random Forest
-    * "svm", Support Vector Machines
     * "knn", K-Nearest Neighbors
     * "adaboost", Adaboost
-    * "autoxgboost", XGBoost with Hyper Parameter Optimization implemented 
-    * "autokeras", ............
-    * "autosklearn", .........
-    * "autogluon", .........
+    * "autoxgboost", XGBoost with automatic Hyper Parameter Optimization implemented. User can change the default settings in the example config file at `autoxgboost_config`. "Timeout" is in minutes. 
+    * "autolgbm", LightGBM with automatic Hyper Parameter Optimization implemented. User can change the default settings in the example config file at `autolgbm_config`. "Timeout" is in minutes. 
+    * "autokeras",  An AutoML system based on Keras for automatic tuning of neural networks available at https://autokeras.com. User can change the default settings in the example config file at `autokeras_config`. "time_left_for_this_task" and "per_run_time_limit" are in minutes.
+    * "autosklearn", An automated machine learning toolkit for algorithm selection and hyperparameter tuning. It leverages recent advantages in Bayesian optimization, meta-learning and ensemble construction. Available at https://automl.github.io/auto-sklearn/master/. User can change the default settings in the example config file at `autosklearn_config`. 
+    * "autogluon", AutoGluon automates machine learning tasks enabling you to easily achieve strong predictive performance, similar to autosklearn. User can change the default settings in the example config file at `autogloun_config`. Time limits is in minutes. 
 * `scorer_list`: Specify the scoring measures to be used to analyse the models(these are defined in `models.py`). 
     * For classification tasks: "acc" (accuracy), "f1" (f1-score), "prec" (precision), "recall"
     * For regression tasks: "mse" (mean squared error), "mean_ae" (mean absolute error), "med_ae" (median absolute error), "rmse" (root mean square error) 
