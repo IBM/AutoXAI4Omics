@@ -59,7 +59,8 @@
         "time_limits": 60
     },
     "plot_method": [
-        "shap_plots"
+        "shap_plots",
+        "boxplot_scorer"
     ],
     "top_feats_permImp": 30,
     "top_feats_shap": 30,
