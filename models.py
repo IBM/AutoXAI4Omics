@@ -487,7 +487,7 @@ def run_models(
         df_performance_results, fname_perfResults = save_results(
             results_folder, df_performance_results, performance_results_dict,
             model_name, fname,
-            suffix="_performance_results", save_pkl=False, save_csv=True)
+            suffix="_performance_results_testset", save_pkl=False, save_csv=True)
 
         print(f"{model_name} complete! Results saved at {Path(fname_perfResults).parents[0]}")
 

@@ -80,7 +80,7 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
         elif plot_method == "boxplot_scorer":
             plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train)
         elif plot_method == "conf_matrix":
-            plot_func(experiment_folder, config_dict, x_test, y_test, normalize=True)
+            plot_func(experiment_folder, config_dict, x_test, y_test, normalize=False)
         elif plot_method == "corr":
             plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"])
         elif plot_method == "hist":
@@ -91,16 +91,15 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
             plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"])
         elif plot_method == "joint_dens":
             plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], kind="kde")
-
-        #Permutation importance
         elif plot_method == "permut_imp_test":
             plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_test, y_test, config_dict["top_feats_permImp"], cv='prefit')
         elif plot_method == "shap_plots":
             plot_func(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, config_dict["top_feats_shap"])
-        elif plot_method == "shap_force_plots":
+
+        """elif plot_method == "shap_force_plots":
             plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations="all",
                              top_exemplars=0.4, save=True)
-        """elif plot_method == "permut_imp_alldata":
+        elif plot_method == "permut_imp_alldata":
             plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict["top_feats_permImp"], cv='prefit')
         elif plot_method == "permut_imp_train":
             plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train, config_dict["top_feats_permImp"], cv='prefit')
