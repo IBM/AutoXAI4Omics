@@ -7,6 +7,10 @@ Key features include:
 * Json Config file allows specification of preprocessing, ML models, hyperparameter tuning, plots and results produced
 * Wrapping of Keras and TensorFlow models to make them compatible with sklearn models
 
+## Citation:
+For general use of the tool please cite this article:
+* Carrieri, A.P., Haiminen, N., Maudsley-Barton, S. et al. Explainable AI reveals changes in skin microbiome composition linked to phenotypic differences. Sci Rep 11, 4565 (2021). https://doi.org/10.1038/s41598-021-83922-6
+
 ## Docker instructions:
 
 * make sure `docker` is running -- e.g. run `docker version` to get version information
