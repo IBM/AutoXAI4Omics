@@ -19,7 +19,7 @@ import matplotlib.cm as cmx
 import matplotlib.ticker as ticker
 import matplotlib.image as mp_img
 import seaborn as sns
-from sklearn.model_selection import cross_val_score, KFold, StratifiedKFold
+from sklearn.model_selection import cross_val_score, KFold, StratifiedKFold, GroupKFold
 from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 import shap
@@ -29,6 +29,10 @@ import models
 import train_models
 import utils
 from custom_model import CustomModel
+from sklearn.model_selection import GroupShuffleSplit
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, make_scorer
+import sklearn.metrics as skm
+#import imblearn
 
 
 def define_plots(problem_type):
@@ -41,6 +45,7 @@ def define_plots(problem_type):
         plot_dict = {
             "barplot_scorer": barplot_scorer,
             "boxplot_scorer": boxplot_scorer_cv,
+            "boxplot_scorer_cv_groupby": boxplot_scorer_cv_groupby,
             "conf_matrix": conf_matrix_plot,
             "shap_plots": shap_plots,
             "shap_force_plots": shap_force_plots,
@@ -50,6 +55,7 @@ def define_plots(problem_type):
         plot_dict = {
             "barplot_scorer": barplot_scorer,
             "boxplot_scorer": boxplot_scorer_cv,
+            "boxplot_scorer_cv_groupby": boxplot_scorer_cv_groupby,
             "shap_plots": shap_plots,
             "shap_force_plots":shap_force_plots,
             "corr": correlation_plot,
@@ -79,6 +85,8 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
             plot_func(experiment_folder, config_dict, scorer_dict, x_test, y_test)
         elif plot_method == "boxplot_scorer":
             plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train)
+        elif plot_method == "boxplot_scorer_cv_groupby":
+            plot_func(experiment_folder, config_dict, scorer_dict, x, y)
         elif plot_method == "conf_matrix":
             plot_func(experiment_folder, config_dict, x_test, y_test, normalize=False)
         elif plot_method == "corr":
@@ -161,6 +169,13 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
                 feature_names=feature_names,
                 show=False
             )
+            my_cmap = plt.get_cmap('viridis')
+
+            # Change the colormap of the artists
+            for fc in plt.gcf().get_children():
+                for fcc in fc.get_children():
+                    if hasattr(fcc, "set_cmap"):
+                        fcc.set_cmap(my_cmap)
             fig = plt.gcf()
             save_fig(fig, fname)
             plt.draw()
@@ -326,6 +341,118 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
     # Save the graph
     if save:
         fname = f"{experiment_folder / 'graphs' / 'boxplot'}_{config_dict['fit_scorer']}"
+        save_fig(fig, fname)
+
+    # Close the figure to ensure we start anew
+    plt.clf()
+    plt.close()
+
+def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True):
+    '''
+    Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
+    '''
+    # Create the plot objects
+    fig, ax = plt.subplots()
+    # Container for the scores
+    all_scores = []
+    print(f"Size of data for boxplot: {data.shape}")
+
+    #GroupBy Subject ID -- TO FINISH CODING
+    metadata = pd.read_csv(config_dict["metadata_file"], index_col=0)
+    le = LabelEncoder()
+    groups=le.fit_transform(metadata[config_dict["groups"]])
+
+    fold_obj = GroupShuffleSplit(n_splits=5, test_size=config_dict["test_size"],random_state=config_dict["seed_num"])
+
+    #fold_obj = GroupKFold(n_splits=5)
+
+    # Loop over the models
+    for model_name in config_dict["model_list"]:
+        # Load the model if trained
+        try:
+            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
+        except IndexError:
+            print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
+            exit()
+
+        print(f"Plotting boxplot for {model_name} using {config_dict['fit_scorer']} - Grouped By "+config_dict["groups"])
+        # Select the scorer
+        scorer_func = scorer_dict[config_dict['fit_scorer']]
+        # Container for scores for this cross-val for this model
+        scores = []
+        num_testsamples_list = []
+        num_fold = 0
+
+        for train_idx, test_idx in fold_obj.split(data, true_labels, groups):
+            print(f"{model_name}, fold {num_fold}")
+            num_fold += 1
+            # Load the model
+            model = utils.load_model(model_name, model_path)
+            # Handle the custom model
+            if isinstance(model, tuple(CustomModel.__subclasses__())):
+                # Remove the test data to avoid any saving
+                if model.data_test is not None:
+                    model.data_test = None
+                if model.labels_test is not None:
+                    model.labels_test = None
+            """
+            # Option of oversampling of the training dataset for classification
+            if (config_dict["problem_type"] == "classification"):
+                if (config_dict["oversampling"] == "Y"):
+                    # define oversampling strategy
+                    oversample = imblearn.over_sampling.RandomOverSampler(sampling_strategy='minority')
+                    # fit and apply the transform
+                    x_train, y_train = oversample.fit_resample(x_train, y_train)
+                    print(f"X train data after oversampling shape: {x_train.shape}")
+                    print(f"y train data after oversampling shape: {y_train.shape}")
+            
+            """
+            """
+            if model_name in CustomModel.custom_aliases:
+                if (model_name == "autolgbm"):
+                    print("It's autolgbm don't do anything")
+                else:
+                    model.fit(data[train_idx], true_labels[train_idx], save_best=False)
+                # Otherwise fit the model as normal
+            else:
+                model.fit(data[train_idx], true_labels[train_idx])
+            """
+
+            model.fit(data[train_idx], true_labels[train_idx])
+
+            # Calculate the score
+            # Need to take the absolute value because of the make_scorer sklearn convention
+            score = np.abs(scorer_func(
+                model,
+                data[test_idx],
+                true_labels[test_idx]
+            ))
+            num_testsamples = len(true_labels[test_idx])
+            # Add the scores
+            scores.append(score)
+            num_testsamples_list.append(num_testsamples)
+
+        # Maintain the total list
+        all_scores.append(scores)
+        # Save CV results
+        d = {'Scores CV': scores, 'Dim test': num_testsamples_list}
+        fname = f"{experiment_folder / 'results' / 'GroupShuffleSplit_CV'}_{model_name}_{num_fold}"
+        df = pd.DataFrame(d)
+        df.to_csv(fname + '.csv')
+
+    pretty_model_names = [pretty_names(name, "model") for name in config_dict["model_list"]]
+
+
+    # Make the boxplot
+    sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
+    # Format the graph
+    #ax.set_xticklabels(pretty_names(config_dict["model_list"], "score"))
+    ax.set_xlabel("ML Methods")
+
+    fig = plt.gcf()
+    # Save the graph
+    if save:
+        fname = f"{experiment_folder / 'graphs' / 'boxplot_GroupShuffleSplit_CV'}_{config_dict['fit_scorer']}"
         save_fig(fig, fname)
 
     # Close the figure to ensure we start anew
@@ -915,6 +1042,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                     data,
                     plot_type='bar',
                     max_display=num_top,
+                    color=plt.get_cmap("Set3"),
                     feature_names=feature_names,
                     show=False,
                     class_names=class_names
@@ -948,7 +1076,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
 
                 # Save the plot for multi-class classification
                 if save:
-                    fname = f"{experiment_folder / 'graphs' / 'shap_dot_plot'}_{data_forexplanations}_{model_name}"
+                    fname = f"{experiment_folder / 'graphs' / 'shap_bar_plot'}_{data_forexplanations}_{model_name}"
                     save_fig(fig, fname)
                 plt.draw()
                 plt.tight_layout()
@@ -1232,6 +1360,7 @@ def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_nam
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
+
 if __name__ == "__main__":
     '''
     Running this script by itself enables for the plots to be made separately from the creation of the models
@@ -1264,11 +1393,34 @@ if __name__ == "__main__":
         # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
         x, y, features_names = train_models.get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
 
-    # Split the data
-    x_train, x_test, y_train, y_test = models.split_data(
-        x, y, config_dict["test_size"], config_dict["seed_num"],
-        config_dict["problem_type"]
-    )
+    # Split the data in train and test
+    if config_dict["stratify_by_groups"] == "Y":
+
+        gss = GroupShuffleSplit(n_splits=1, test_size=config_dict["test_size"], random_state=config_dict["seed_num"])
+        #gss=GroupKFold(n_splits=5)
+
+        metadata = pd.read_csv(config_dict["metadata_file"], index_col=0, sep='\t')
+        le = LabelEncoder()
+        groups = le.fit_transform(metadata[config_dict["groups"]])
+        for train_idx, test_idx in gss.split(x, y, groups):
+            x_train, x_test, y_train, y_test = x[train_idx], x[test_idx], y[train_idx], y[test_idx]
+
+    else:
+        x_train, x_test, y_train, y_test = models.split_data(
+            x, y, config_dict["test_size"], config_dict["seed_num"],
+            config_dict["problem_type"]
+        )
+    """
+    if (config_dict["problem_type"] == "classification"):
+        if (config_dict["oversampling"] == "Y"):
+            # define oversampling strategy
+            oversample = imblearn.over_sampling.RandomOverSampler(sampling_strategy='minority')
+            # fit and apply the transform
+            x_train, y_train = oversample.fit_resample(x_train, y_train)
+            print(f"X train data after oversampling shape: {x_train.shape}")
+            print(f"y train data after oversampling shape: {y_train.shape}")
+    """
+
     # Create the folders needed
     experiment_folder = utils.create_experiment_folders(config_dict, config_path)
     # Select only the scorers that we want
@@ -1287,6 +1439,7 @@ if __name__ == "__main__":
 
     # Central func to define the args for the plots
     plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict)
+
 
 
 

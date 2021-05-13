@@ -8,6 +8,10 @@ from sklearn.preprocessing import StandardScaler
 import scipy.sparse
 import plotting
 import subprocess
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import GroupShuffleSplit
+from sklearn.model_selection import GroupKFold
+#import imblearn
 
 """ Standardize the input X using Standard Scaler"""
 def standardize_data(data):
@@ -56,8 +60,11 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     # Use calour to create an experiment
     print("Path file: " +path_file)
     print("Metadata file: " +metadata_path)
-    amp_exp = utils.create_microbiome_calourexp(path_file, metadata_path)
-
+    if(config_dict["norm_reads"] == "None" and config_dict["min_reads"] == "None"):
+        amp_exp = utils.create_microbiome_calourexp(path_file, metadata_path, None, None)
+    else:
+        amp_exp = utils.create_microbiome_calourexp(path_file, metadata_path, config_dict["norm_reads"],
+                                                    config_dict["min_reads"])
     print("")
     print("")
     print("")
@@ -84,7 +91,7 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     print(f"After filtering samples: {amp_exp.data.shape}")
 
     print("Save experiment after filtering with name exp_filtered")
-    amp_exp.save('exp_filtered')
+    amp_exp.save('biom_data_filtered'+config_dict["name"])
     print("****************************************************")
     print("")
     print("")
@@ -92,6 +99,10 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
 
     # Prepare data (load and normalize)
     x = utils.prepare_data(amp_exp)
+    print(x.shape)
+    #print(amp_exp.sample_metadata.shape)
+    #print(amp_exp.sample_metadata.columns)
+
     try:
         # Select the labels
         y = utils.select_class_col(
@@ -104,7 +115,6 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
 
     features_names = utils.get_feature_names_calourexp(amp_exp, config_dict)
 
-    # print(f"Class col:\n{y}")
     # Check the data and labels are the right size
     assert len(x) == len(y)
 
@@ -315,14 +325,40 @@ def main(config_dict, config_path):
         x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
 
     # Split the data in train and test
-    x_train, x_test, y_train, y_test = models.split_data(
-        x, y, config_dict["test_size"], config_dict["seed_num"],
-        config_dict["problem_type"]
-    )
+    if config_dict["stratify_by_groups"] == "Y":
+
+        gss = GroupShuffleSplit(n_splits=1, test_size=config_dict["test_size"], random_state=config_dict["seed_num"])
+        #gss = GroupKFold(n_splits=7)
+        metadata = pd.read_csv(config_dict["metadata_file"], index_col=0)
+        le = LabelEncoder()
+        groups = le.fit_transform(metadata[config_dict["groups"]])
+
+        for train_idx, test_idx in gss.split(x, y, groups):
+            x_train, x_test, y_train, y_test = x[train_idx], x[test_idx], y[train_idx], y[test_idx]
+    else:
+        x_train, x_test, y_train, y_test = models.split_data(
+            x, y, config_dict["test_size"], config_dict["seed_num"],
+            config_dict["problem_type"]
+        )
+    """
+    if (config_dict["problem_type"] == "classification"):
+        if (config_dict["oversampling"] == "Y"):
+            # define oversampling strategy
+            oversample = imblearn.over_sampling.RandomOverSampler(sampling_strategy='minority')
+            # fit and apply the transform
+            x_train, y_train = oversample.fit_resample(x_train, y_train)
+            print(f"X train data after oversampling shape: {x_train.shape}")
+            print(f"y train data after oversampling shape: {y_train.shape}")
+    """
+
 
     print("----------------------------------------------------------")
     print(f"X data shape: {x.shape}")
     print(f"y data shape: {y.shape}")
+    print("Dim train:")
+    print(x_train.shape)
+    print("Dim test:")
+    print(x_test.shape)
     print(f"Number of unique values of target y: {len(np.unique(y))}")
     print("----------------------------------------------------------")
 
