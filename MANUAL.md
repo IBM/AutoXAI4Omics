@@ -5,6 +5,7 @@ This is a user manual for the framework, where the fields of the config file are
 The JSON config file is at the centre of the framework - it controls everything to be run. The `microbiome_example_config.json` to run the analysis on microbiome data including the pre-processing, looks like:
 ```{
     "name": "microbiome_smoking",
+    "save_path": "/experiments/",
     "data_type": "microbiome",
     "file_path": "data/skin_closed_reference.biom",
     "metadata_file": "data/metadata_skin_microbiome.txt",
@@ -115,7 +116,7 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 * All other input data files are expected as .csv files that wil pass directly into the ML workflow with no pre-processing. As such they are required to have samples in rows and measurements (or features) in columns. Column 1 holds the labels for sample names. Similarly, row 1 will contain measurement (or feature) names.
 
 ### General parameters
-* `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder in the main directory. The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
+* `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder under the `"save_path"` (e.g. `"/experiments/results/"`). The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
 * `data_type`: "microbiome" or "gene_expression" or "metabolomic" or "tabular" or anything else e.g. "proteomic", but the latter does not currently invoke any specific pre-processing.
 * `file_path`: Name of input data file, e.g. "data/skin_closed_reference.biom" if microbiome data, or "tabular_data.csv" if any tabular data, e.g., gene expression data, in a csv file. 
 * `metadata_file`: Name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt". For pre-processing (gene expression, metabolomic, tabular) this file should have as column 1: header "Sample" with associated sample names that correspond to the sample names in `file_path`
