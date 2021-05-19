@@ -10,6 +10,9 @@
     "problem_type": "classification",
     "hyper_tuning": "random",
     "hyper_budget": 50,
+    "stratify_by_groups": "N",
+    "groups": "",
+    "oversampling": "N",
     "fit_scorer": "f1",
     "scorer_list": [
 	    "acc",
@@ -43,10 +46,13 @@
     "output_file_tab": "/data/processed_diet_prromenade_filter.csv",
     "output_metadata": "/data/processed_diet_prromenade_metadata_filter.csv",
 
-    "collapse_tax": "",
+    "norm_reads": "None",
+    "min_reads": "None",
+    "filter_abundance": null,
+    "filter_prevalence": null,
+    "collapse_tax": null,
     "remove_classes": null,
     "merge_classes": null,
-    "encoding": null,
     "filter_samples": null,
 
   "autosklearn_config": {
@@ -86,4 +92,3 @@
     }
 
 }
-
