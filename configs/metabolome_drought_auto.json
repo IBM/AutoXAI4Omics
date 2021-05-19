@@ -9,6 +9,9 @@
     "test_size": 0.2,
     "problem_type": "classification",
     "stratify_by_groups": "N",
+    "groups": "",
+    "oversampling": "N",
+
     "hyper_tuning": "random",
     "hyper_budget": 5,
     "fit_scorer": "f1",
@@ -70,5 +73,10 @@
     "remove_classes": null,
     "merge_classes": null,
     "encoding": null,
-    "filter_samples": null
+    "filter_samples": null,
+    
+    "norm_reads": "None",
+    "min_reads": "None",
+    "filter_abundance": null,
+    "filter_prevalence": null
 }
