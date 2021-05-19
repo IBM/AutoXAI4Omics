@@ -8,6 +8,7 @@
     "seed_num": 42,
     "test_size": 0.2,
     "problem_type": "regression",
+    "stratify_by_groups": "N",
     "hyper_tuning": "random",
     "hyper_budget": 50,
     "fit_scorer": "mean_ae",
