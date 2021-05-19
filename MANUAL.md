@@ -12,6 +12,7 @@ The JSON config file is at the centre of the framework - it controls everything 
     "seed_num": 42,
     "test_size": 0.2,
     "problem_type": "classification",
+    "stratify_by_groups": "N",
     "hyper_tuning": "random",
     "hyper_budget": 100,
     "scorer_list": [
@@ -115,6 +116,7 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 
 ### Machine learning parameters 
 * `problem_type`: The type of problem, either "classification" or "regression".
+* `stratify_by_groups`: --- TO DO: Anna Paola to fill in
 * `seed_num`: Provide the seed number to be used. This is given to everything that has a `random_state` argument, as well as being used as the general seed (for `numpy` and `tensorflow`).
 * `test_size`: The size of the test data (given to scikit-learn's `train_test_split`), e.g., 0.2 if 20% of the dataset is selected as test set and set aside.
 * `hyper_tuning`: The type of hyperparameter tuning to be used, either random search "random" or grid "grid" or `null`. In case of `null` the models will be trained with just one set of parameters. The parameters are defined in `model_params.py` for each method. Grid or random search rely on `scikit-learn` implementations. 
