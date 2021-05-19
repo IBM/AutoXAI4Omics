@@ -15,7 +15,7 @@ For general use of the tool please cite this article:
 
 * make sure `docker` is running -- e.g. run `docker version` to get version information
 * `./build.sh -r` -- installs required packages
-* create a new folder whose name matches the `save_path`, e.g. "experiments"
+* create a new folder whose name matches the `save_path` in configuration files, e.g. "experiments" [NOTE: if training is run by mistake without first creating this directory, and the directory is created while training, the directory needs to be removed and then created again before running training (has to do with access permissions)]
 * `./train_models.sh parameters.json` -- trains models and plots results, using parameter file "configs/parameters.json"
 * `./plotting.sh parameters.json` -- plots the already trained models that are listed in "configs/parameters.json"
 
