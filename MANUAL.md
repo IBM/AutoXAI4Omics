@@ -205,10 +205,10 @@ These parameters need to specified only if `data_type`= "tabular".
     * "conf_matrix": The confusion matrix computed on the test set, after the model has being trained and tuned. This plot is generated for each model in `model_list`.
     
 * Plots available for regression tasks only. These plots are generated for each model `in model_list`: 
-    "hist_overlapped": Histograms showing the overlap between the distributions of true values and predicted values by a given model. This plot is generated for each model in `model_list`. 
-    "joint": joint_plot: Scatter plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
-    "joint_dens": joint_plot: Joint density plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
-    "corr": correlation_plot: Simple correlation plot between true values and predicted values by a given model. Similar to "joint". 
+    * "hist_overlapped": Histograms showing the overlap between the distributions of true values and predicted values by a given model. This plot is generated for each model in `model_list`. 
+    * "joint": joint_plot: Scatter plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
+    * "joint_dens": joint_plot: Joint density plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
+    * "corr": correlation_plot: Simple correlation plot between true values and predicted values by a given model. Similar to "joint". 
     
 ### Explainability config parameters
 If 'shap_plots'is in `plot_method` list, the following parameters can be specified:
