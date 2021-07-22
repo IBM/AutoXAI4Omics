@@ -3,7 +3,7 @@
     "data_type": "microbiome",
     "file_path": "/data/gut_4434.biom",
     "save_path": "/experiments/",
-    "target": "Diet.group",
+    "target": "age",
     "metadata_file": "/data/gut_4434_map.txt",
     "seed_num": 42,
     "test_size": 0.2,
