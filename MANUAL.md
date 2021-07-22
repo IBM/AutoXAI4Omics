@@ -124,9 +124,9 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 
 ### Machine learning parameters 
 * `problem_type`: The type of problem, either "classification" or "regression".
-* `stratify_by_groups`: --- TO DO: Anna Paola to fill in
-* `groups`: --- TO DO: Anna Paola to fill in
-* `oversampling`: --- TO DO: Anna Paola to fill in
+* `stratify_by_groups`: "Y" or "N" (default "N"). This allows the user to perform the ML analysis stratifying the samples by groups as specified in the `groups` parameter below. If "Y", samples in the same group will not appear in both training and test datasets. 
+* `groups`: this is the name of a column in the metadata that represent the groups for the stratification of the samples. For instance, if there are time series samples from the same subjects, `groups` could be "Subject_ID".
+* `oversampling`: "Y", or "N" (default "N") if the user choses to perform oversampling of the training data. This functionality work only for classification tasks and makes sense if there the categories/classes are significantilly unbalanced.
 * `seed_num`: Provide the seed number to be used. This is given to everything that has a `random_state` argument, as well as being used as the general seed (for `numpy` and `tensorflow`).
 * `test_size`: The size of the test data (given to scikit-learn's `train_test_split`), e.g., 0.2 if 20% of the dataset is selected as test set and set aside.
 * `hyper_tuning`: The type of hyperparameter tuning to be used, either random search "random" or grid "grid" or `null`. In case of `null` the models will be trained with just one set of parameters. The parameters are defined in `model_params.py` for each method. Grid or random search rely on `scikit-learn` implementations. 
@@ -152,8 +152,8 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 * `collapse_tax`: Allows collapsing the taxonomy to the e.g. genus level "g" or species level "s". Uses the `calour.collapse_taxonomy` function (which collapses the entire taxonomic classification up to the level desired, so even if the genus is the same for two samples, if they have different e.g. order, they will be separate).
 * `min_reads` : samples with fewer than this many reads will be removed (default 1000)
 * `norm_reads` : samples are rescaled to this many total reads (default 1000, see below)
-* `filter_abundance`: --- TO DO Anna Paola to fill in
-* `filter_prevalence`: --- TO DO Anna Paola to fill in
+* `filter_abundance`: low-abundance features are removed, e.g., OTUs with total count less than X across all samples (default 10, see below)
+* `filter_prevalence`: OTUs with low prevalence are removed. The default value is 0.01 which means that features occurring in < 1% of the samples (see below)
 * `filter_microbiome_samples`: This can either be a list of dictionaries, or a dictionary, which have different behaviour/use-cases. In both, the dictionary key is the column, and the value is a list of values which will be used to filter the samples. If a single dictionary is provided, then each key:value pair is taken in isolation, and for a given column all samples that match any of the values are removed. A list of dictionaries is used when there are one or more multi-column criteria for samples to be removed. Each dictionary in the list is treated in isolation. In the example shown in the config, we want to remove samples where they have "Value1" in "Column2" and either "Value1" or "Value2" in "Column5", then we also want to do the same but for "Value2" in "Column2" with either "Value1" or "Value3" in "Column5". Uses the `calour.filtering.filter_by_metadata`. For example, as specified in "microbiome_example_config.json", all the samples that value "UK" for the metadata "COUNTRY" will be removed from the analysis. 
 * `remove_classes`: A list of values (class labels) that will be removed from the dataset. Uses the column defined in `target`. Only relevant for classification.
 * `merge_classes`: This is a dictionary where the key is the new class and the value is a list of values that will be converted into the key. So `{"X": ["A", "B"]}` will convert all "A" and "B" labels into "X" labels. Uses the column defined in `target`. Only relevant for classification.
