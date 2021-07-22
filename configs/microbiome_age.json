@@ -46,6 +46,7 @@
     "remove_classes": null,
     "merge_classes": null,
     "filter_samples": null,
+    "encoding": null,
 
     "expression_type": "",
     "filter_sample": null,
