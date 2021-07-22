@@ -38,8 +38,8 @@
     "top_feats_shap": 20,
     "explanations_data": "test",
 
-    "norm_reads": "1000",
-    "min_reads": "1000",
+    "norm_reads": 1000,
+    "min_reads": 1000,
     "filter_abundance": 10,
     "filter_prevalence": 0.01,
     "collapse_tax": "genus",
