@@ -110,7 +110,7 @@ The JSON config file is at the centre of the framework - it controls everything 
 * For categorical data, phenotypes are listed in alphabetical order in the results
 
 We refer to two types of input files; Input data files hold your dataset e.g. microbiome/gene expression/metabolomic/tabular data and metadata files hold the target you are trying to predict from the input data
-* Input data files for microbiome data are expected to be in the format .biom 
+* Input data files for microbiome data are expected to be in the format .biom and the corresponding metadata in format .txt
 * Input data files for pre-processing of gene expression data are expected as .csv files with genes and their associated expression measurements in rows and tested samples in columns. Column 1 holds the labels for gene names. Similarly, row 1 will contain sample names.
 * Input data files for pre-processing of metabolomic and tabular data are expected as .csv files with measurements in rows and tested samples in columns. Column 1 holds the labels for measurement names e.g. metabolites. Similarly, row 1 will contain sample names.
 * All other input data files are expected as .csv files that wil pass directly into the ML workflow with no pre-processing. As such they are required to have samples in rows and measurements (or features) in columns. Column 1 holds the labels for sample names. Similarly, row 1 will contain measurement (or feature) names.
