@@ -3,105 +3,101 @@ This is a user manual for the framework, where the fields of the config file are
 ​
 ## Config File Explanation
 The JSON config file is at the centre of the framework - it controls everything to be run. The `microbiome_example_config.json` to run the analysis on microbiome data including the pre-processing, looks like:
-```{
-    "name": "microbiome_smoking",
-    "save_path": "/experiments/",
+```
+{
+    "name": "age",
     "data_type": "microbiome",
-    "file_path": "/data/skin_closed_reference.biom",
-    "metadata_file": "/data/metadata_skin_microbiome.txt",
-    "target": "SMOKER",
+    "file_path": "/data/gut_4434.biom",
+    "save_path": "/experiments/",
+    "target": "age",
+    "metadata_file": "/data/gut_4434_map.txt",
     "seed_num": 42,
     "test_size": 0.2,
-    "problem_type": "classification",
+    "problem_type": "regression",
+    "hyper_tuning": "random",
+    "hyper_budget": 50,
     "stratify_by_groups": "N",
     "groups": "",
     "oversampling": "N",
-    "hyper_tuning": "random",
-    "hyper_budget": 100,
+    "fit_scorer": "mean_ae",
     "scorer_list": [
-        "f1"
+	    "mean_ae",
+        "med_ae",
+        "rmse"
     ],
-    "fit_scorer": "f1",
     "model_list": [
-        "rf",
-        "adaboost",
-        "svm",
-        "knn",
-        "autoxgboost",
-        "autolgbm",
-        "autokeras",
-        "autosklearn",
-        "autogluon"
+      "rf",
+      "adaboost",
+      "knn",
+      "autoxgboost",
+      "autolgbm",
+      "autosklearn",
+      "autokeras"
     ],
-      "plot_method": [
-        "conf_matrix",
-        "boxplot_scorer",
+    "plot_method": [
         "barplot_scorer",
-        "shap_plots",
-        "permut_imp_test"
-      ],
-    "top_feats_permImp": 10,
-    "top_feats_shap": 10,
+        "boxplot_scorer",
+        "hist_overlapped",
+        "joint"
+    ],
+    "top_feats_permImp": 20,
+    "top_feats_shap": 20,
     "explanations_data": "test",
-    
+
+    "norm_reads": 1000,
+    "min_reads": 1000,
+    "filter_abundance": 10,
+    "filter_prevalence": 0.01,
     "collapse_tax": "genus",
     "remove_classes": null,
     "merge_classes": null,
+    "filter_samples": null,
     "encoding": null,
-    "filter_samples": [
-        {
-            "COUNTRY": [
-                "UK"
-            ]
-        }
-    ],
-    
-    "norm_reads": "None",
-    "min_reads": "None",
-    "filter_abundance": null,
-    "filter_prevalence": null,
-    
-    "expression_type": "OTHER",
-    "filter_sample": 100,
-    "filter_genes": ["0", "0"],
-    "output_file_ge": "/output_file_name.csv",
-    "output_metadata": "/data/output_metadata_file_name.csv",
-     
+
+    "expression_type": "",
+    "filter_sample": null,
+    "filter_genes": null,
+    "filter_tabular_sample": null,
+    "filter_tabular_measurements": ["0", "0"],
+    "output_file_tab": "",
+    "output_metadata": "",
+
+  "autosklearn_config": {
+        "verbose": true,
+        "estimators": [ "adaboost", "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd" ],
+        "time_left_for_this_task": 200,
+        "per_run_time_limit": 1000,
+        "memory_limit": 65536,
+        "n_jobs": 1,
+        "ensemble_size": 1
+    },
+
     "autokeras_config": {
-        "n_epochs": 50,
+        "n_epochs": 100,
         "batch_size": 32,
         "verbose": true,
         "n_blocks": 3,
         "dropout": 0.3,
         "use_batchnorm": true,
-        "n_trials": 3,
+        "n_trials": 4,
         "tuner": "bayesian"
-    },
-    "autosklearn_config": {
-        "verbose": true,
-        "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"],
-        "time_left_for_this_task": 120,
-        "per_run_time_limit": 60,
-        "memory_limit": 65536,
-        "n_jobs": 1,
-        "ensemble_size": 1,
-        "cv_folds": 0
     },
     "autolgbm_config": {
         "verbose": true,
-        "n_trials": 5,
-        "timeout": 60
+        "n_trials": 10,
+        "timeout": 1000
     },
     "autoxgboost_config": {
         "verbose": true,
-        "n_trials": 5,
-        "timeout": 60
+        "n_trials": 10,
+        "timeout": 1000
     },
     "autogluon_config": {
         "verbose": true,
         "auto_stack": false,
-        "time_limits": 60
+        "time_limits": 1000
     }
+
 }
 ```
 ### General remarks
