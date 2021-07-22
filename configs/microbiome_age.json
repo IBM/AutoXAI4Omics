@@ -17,7 +17,7 @@
     "scorer_list": [
 	    "mean_ae",
         "med_ae",
-        "rsme"
+        "rmse"
     ],
     "model_list": [
       "rf",
