@@ -103,15 +103,15 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     #print(amp_exp.sample_metadata.shape)
     #print(amp_exp.sample_metadata.columns)
 
-    try:
-        # Select the labels
-        y = utils.select_class_col(
-            amp_exp,
-            encoding=config_dict["encoding"], #from Cameron
-            name=config_dict["target"]
-        )
-    except:
-        print("!!! ERROR: PLEASE SELECT TARGET TO PREDICT FROM METADATA FILE !!!")
+    #try:
+    # Select the labels
+    y = utils.select_class_col(
+        amp_exp,
+        encoding=config_dict["encoding"], #from Cameron
+        name=config_dict["target"]
+    )
+    #except:
+    #   print("!!! ERROR: PLEASE SELECT TARGET TO PREDICT FROM METADATA FILE !!!")
 
     features_names = utils.get_feature_names_calourexp(amp_exp, config_dict)
 
