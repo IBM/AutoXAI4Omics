@@ -4,7 +4,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Dense, Flatten, Conv1D
 from tensorflow.keras import optimizers, losses
-from tensorflow.keras.callbacks import LearningRateScheduler, EarlyStopping, ModelCheckpoint
+from tensorflow.keras.callbacks import LearningRateScheduler, EarlyStopping, ModelCheckpoint, TerminateOnNaN
+
 import autokeras as ak
 from .base_model import BaseModel
 from .batch_generator_seq_array import BatchGeneratorSeqArray
@@ -157,6 +158,7 @@ class KerasModel(BaseModel):
         print("training AutoKeras model...")
         # lr_scheduler = LearningRateScheduler(self._lr_schedule)
         callbacks = []  # lr_scheduler]
+        callbacks.append(TerminateOnNaN())
 
         # train the model
         # choose number of epochs and batch_size
