@@ -52,7 +52,7 @@ class AutogluonModel(BaseModel):
                                   path=savedir,
                                   problem_type='multiclass'
                                   ).fit(train_data=train_data,
-                                    excluded_model_types=['NN', 'CAT', 'FASTAI'],
+                                    excluded_model_types=['NN', 'CAT', 'FASTAI', 'GBM', 'XGB'],
                                     auto_stack=auto_stack, 
                                     time_limit=time_limits,
                                     keep_only_best=True)
@@ -69,7 +69,7 @@ class AutogluonModel(BaseModel):
                                   problem_type='regression', 
                                   eval_metric='mean_absolute_error'
                                   ).fit(train_data=train_data,
-                                    excluded_model_types=['NN', 'CAT', 'FASTAI'],
+                                    excluded_model_types=['NN', 'CAT', 'FASTAI', 'GBM', 'XGB'],
                                     auto_stack=auto_stack, 
                                     time_limit=time_limits,
                                     keep_only_best=True)

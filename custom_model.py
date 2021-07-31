@@ -848,7 +848,10 @@ class AutoGluon(TabAuto):
         test_data = TabularDataset(data=df_x)
 
         if self.config_dict["problem_type"] == "classification":
-            return self.model.predict_proba(test_data)
+            preds = self.model.predict_proba(test_data)
+            if isinstance(preds, (pd.DataFrame, pd.Series)):
+                preds = preds.values
+            return preds
         else:
             raise NotImplementedError()
 
@@ -862,10 +865,16 @@ class AutoGluon(TabAuto):
         test_data = TabularDataset(data=df_x)
 
         if self.config_dict["problem_type"] == "classification":
-            pred_inds = np.argmax(self.model.predict_proba(test_data), axis=1)
+            # pred_inds = np.argmax(self.model.predict_proba(test_data), axis=1)
+            preds = self.model.predict_proba(test_data)
+            if isinstance(preds, (pd.DataFrame, pd.Series)):
+                preds = preds.values
+            pred_inds = np.argmax(preds, axis=1)
             preds = self.onehot_encode_obj.categories_[0][pred_inds]
         elif self.config_dict["problem_type"] == "regression":
             preds = self.model.predict(test_data)
+            if isinstance(preds, (pd.DataFrame, pd.Series)):
+                preds = preds.values
         else:
             raise NotImplementedError()
         return preds.flatten()

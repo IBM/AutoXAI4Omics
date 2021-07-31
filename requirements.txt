@@ -2,10 +2,6 @@
 numpy==1.19.5
 scipy==1.6.0
 pandas
-#Cython
-#pybind11
-#pythran
-#importlib-metadata
 matplotlib
 scikit-learn
 seaborn==0.10.0
@@ -29,7 +25,7 @@ optuna==2.5.0
 mxnet
 autogluon==0.2.0
 auto-sklearn==0.12.0
-scikit-opt
+scikit-optimize
 emcee
 pyDOE
 # keep the packages in this order! do not delete!
