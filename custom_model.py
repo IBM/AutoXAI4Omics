@@ -830,7 +830,7 @@ class AutoGluon(TabAuto):
 
     @classmethod
     def load_model(cls, model_path):
-        from autogluon import TabularPrediction
+        from autogluon.tabular import TabularPredictor
 
         model_path = str(model_path)
         # Load the pickled instance
@@ -838,14 +838,14 @@ class AutoGluon(TabAuto):
             model = joblib.load(f)
         # Load the model and set this to the relevant attribute
         print("loading: {}_h5".format(model_path))
-        model.model = TabularPrediction.load(model_path+"_h5")
+        model.model = TabularPredictor.load(model_path+"_h5")
         return model
 
     def predict_proba(self, data):
-        from autogluon import TabularPrediction
+        from autogluon.tabular import TabularDataset
 
         df_x = pd.DataFrame(data=data)
-        test_data = TabularPrediction.Dataset(data=df_x)
+        test_data = TabularDataset(data=df_x)
 
         if self.config_dict["problem_type"] == "classification":
             return self.model.predict_proba(test_data)
@@ -856,10 +856,10 @@ class AutoGluon(TabAuto):
         """
         Function to predict labels or values
         """
-        from autogluon import TabularPrediction
+        from autogluon.tabular import TabularDataset
 
         df_x = pd.DataFrame(data=data)
-        test_data = TabularPrediction.Dataset(data=df_x)
+        test_data = TabularDataset(data=df_x)
 
         if self.config_dict["problem_type"] == "classification":
             pred_inds = np.argmax(self.model.predict_proba(test_data), axis=1)

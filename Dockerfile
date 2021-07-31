@@ -24,7 +24,7 @@ COPY --chown=omicsuser:omicsuser requirements.txt .
 RUN \
 	cat requirements.txt | \
 	grep -v ^# | \
-	xargs -n 1 pip install
+	xargs -n 1 pip install --no-build-isolation
 
 COPY --chown=omicsuser:omicsuser install_Python_packages.sh .
 
