@@ -74,7 +74,7 @@
         "dropout": 0.3,
         "use_batchnorm": true,
         "n_trials": 4,
-        "tuner": "bayesian"
+        "tuner": "hyperband"
     },
     "autolgbm_config": {
         "verbose": true,
