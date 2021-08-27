@@ -5,6 +5,7 @@ pandas
 matplotlib
 scikit-learn
 seaborn==0.10.0
+numba==0.53.1
 pymc
 eli5
 shap
