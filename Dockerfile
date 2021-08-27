@@ -1,17 +1,29 @@
-FROM python:3.7
+FROM tensorflow/tensorflow:2.4.0
 
+ENV DEBIAN_FRONTEND="noninteractive"
 ARG USER_ID=${USER_ID}
-
-WORKDIR /root
+ENV R_BASE_VERSION 4.1.0
 
 RUN \
-	echo "deb https://cloud.r-project.org/bin/linux/debian buster-cran40/" >> /etc/apt/sources.list && \
-	apt-key adv --keyserver keyserver.ubuntu.com --recv-key E19F5F87128899B192B1A2C2AD5F960A256A04AF && \
-	apt update && \
+	apt-get -y update && \
 	apt upgrade -y && \
-	apt install -y -t buster-cran40 fort77 r-base r-base-core r-recommended r-base-dev swig && \
-	useradd -l -m -s /bin/bash -u ${USER_ID} omicsuser && \
-	python -m pip install --upgrade pip
+	apt-get install -y software-properties-common && \
+	apt-get -y update && \
+	add-apt-repository universe
+
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+RUN add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/'
+RUN apt update
+
+RUN apt update
+RUN apt-get update
+RUN apt install -y fort77 r-base-core r-base r-base-dev r-recommended swig
+
+RUN apt-get -y install python3
+RUN apt-get -y install python3-pip
+RUN apt-get -y install git
+RUN python3 -m pip install --upgrade pip
+RUN useradd -l -m -s /bin/bash -u ${USER_ID} omicsuser
 
 USER omicsuser
 
@@ -28,7 +40,7 @@ RUN \
 
 COPY --chown=omicsuser:omicsuser install_Python_packages.sh .
 
-RUN ./install_Python_packages.sh
+# RUN ./install_Python_packages.sh
 
 ENV R_LIBS_USER=/home/omicsuser/.local/R
 
