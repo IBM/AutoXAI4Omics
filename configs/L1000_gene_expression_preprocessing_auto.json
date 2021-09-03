@@ -60,6 +60,8 @@
         "verbose": true,
         "auto_stack": false,
         "time_limits": 60
+        "auto_hpo": false,
+        "n_trials": 20
     },
     "plot_method": [
         "shap_plots",

@@ -45,16 +45,41 @@ class AutogluonModel(BaseModel):
         self.savedir = savedir
 
         auto_stack = self.config.get("auto_stack", False)
+        auto_hpo = self.config.get("auto_hpo", False)
         time_limits = self.config.get("time_limits", 120)
+
+        if auto_stack and auto_hpo:
+            auto_hpo = False
+
+        if auto_hpo:
+            num_trials = self.config.get("n_trials", 20)  # try at most ntrials different hyperparameter configurations for each type of model
+
+            hyperparameter_tune_kwargs = {  # HPO is not performed unless hyperparameter_tune_kwargs is specified
+                'num_trials': num_trials,
+                'scheduler' : 'local',
+                'searcher': 'auto',
+            }
+            hyperparameters = "default"
+
+        else:
+            hyperparameter_tune_kwargs = None
+            hyperparameters = None
+
+
+        excluded_model_types=['NN', 'CAT', 'FASTAI', 'GBM', 'XGB']
+        # excluded_model_types=['CAT', 'FASTAI', 'GBM', 'XGB']
+
         if self.dataset_type == "classification":
 
             self.model = TabularPredictor(label=label_column, 
                                   path=savedir,
                                   problem_type='multiclass'
                                   ).fit(train_data=train_data,
-                                    excluded_model_types=['NN', 'CAT', 'FASTAI', 'GBM', 'XGB'],
+                                    excluded_model_types=excluded_model_types,
                                     auto_stack=auto_stack, 
                                     time_limit=time_limits,
+                                    hyperparameters=hyperparameters,
+                                    hyperparameter_tune_kwargs=hyperparameter_tune_kwargs,
                                     keep_only_best=True)
 
 
@@ -67,11 +92,13 @@ class AutogluonModel(BaseModel):
             self.model = TabularPredictor(label=label_column, 
                                   path=savedir,
                                   problem_type='regression', 
-                                  eval_metric='mean_absolute_error'
+                                  eval_metric='mean_absolute_error',
                                   ).fit(train_data=train_data,
-                                    excluded_model_types=['NN', 'CAT', 'FASTAI', 'GBM', 'XGB'],
+                                    excluded_model_types=excluded_model_types,
                                     auto_stack=auto_stack, 
                                     time_limit=time_limits,
+                                    hyperparameters=hyperparameters,
+                                    hyperparameter_tune_kwargs=hyperparameter_tune_kwargs,
                                     keep_only_best=True)
 
             # nthreads_per_trial=1
