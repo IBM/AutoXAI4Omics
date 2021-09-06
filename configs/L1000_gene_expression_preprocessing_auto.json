@@ -59,7 +59,7 @@
     "autogluon_config": {
         "verbose": true,
         "auto_stack": false,
-        "time_limits": 60
+        "time_limits": 60,
         "auto_hpo": false,
         "n_trials": 20
     },
