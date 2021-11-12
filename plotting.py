@@ -591,7 +591,7 @@ def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=F
         # Calc the confusion matrix
         print(y_pred)
         print(y_test)
-        conf_matrix = confusion_matrix(y_pred, y_test)
+        conf_matrix = confusion_matrix(y_test, y_pred)
         # Normalize the confusion matrix
         if normalize:
             conf_matrix = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
