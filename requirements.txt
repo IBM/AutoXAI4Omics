@@ -1,6 +1,5 @@
 # keep the packages in this order! do not delete!
-numpy 
-#==1.19.5
+numpy==1.19.5
 scipy==1.5.4
 pandas
 matplotlib
@@ -31,6 +30,3 @@ scikit-optimize
 emcee
 pyDOE
 # keep the packages in this order! do not delete!
-
-
-
