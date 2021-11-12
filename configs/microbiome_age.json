@@ -26,7 +26,8 @@
       "autoxgboost",
       "autolgbm",
       "autosklearn",
-      "autokeras"
+      "autokeras",
+      "autogluon"
     ],
     "plot_method": [
         "barplot_scorer",

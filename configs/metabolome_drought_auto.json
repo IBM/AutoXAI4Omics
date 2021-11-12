@@ -62,7 +62,6 @@
         "time_limits": 120
     },
     "plot_method": [
-        "shap_plots",
         "barplot_scorer"
     ],
     "top_feats_permImp": 15,
