@@ -36,7 +36,7 @@ COPY --chown=omicsuser:omicsuser requirements.txt .
 RUN \
 	cat requirements.txt | \
 	grep -v ^# | \
-	xargs -n 1 pip install 
+	xargs -n 1 pip install --no-cache-dir
 
 # --no-build-isolation
 
