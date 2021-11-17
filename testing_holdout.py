@@ -1417,11 +1417,8 @@ if __name__ == "__main__":
         x_heldout, y_heldout, features_names = train_models.get_data_tabular(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
     else:
         # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
-        x, y, features_names = train_models.get_data(config_dict["file_path"], config_dict["metadata_file"],
-                                                             config_dict)
-        x_heldout, y_heldout, features_names = train_models.get_data(config_dict["file_path_holdout_data"],
-                                                                     config_dict["metadata_file_holdout_data"],
-                                                                     config_dict)
+        x, y, features_names = train_models.get_data(config_dict["file_path"], config_dict, config_dict["metadata_file"])                                                             
+        x_heldout, y_heldout, features_names = train_models.get_data(config_dict["file_path_holdout_data"], config_dict, config_dict["metadata_file_holdout_data"])                                                                     
 
     # Split the data in train and test
     if config_dict["stratify_by_groups"] == "Y":
