@@ -121,12 +121,12 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
     # Clear keras and TF sessions/graphs etc.
     utils.tidy_tf()
 
-def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top,exemplar_X_test, exemplars_selected):
+def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top,exemplar_X_test, exemplars_selected, data_forexplanations):
     if (model_name == 'xgboost' and len(class_names) == 2):
         print('Shape exemplars_selected: ' + str(exemplars_selected.shape))
         class_name = class_names[1]
         print('Class: ' + str(class_name))
-        fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}"
+        fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}"
 
         # Plot shap bar plot
         shap.summary_plot(
@@ -147,6 +147,11 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
         # Close the figure to ensure we start anew
         plt.clf()
         plt.close()
+        
+        fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
+        #saving the shapley values to dataframe
+        df_shapley_values = pd.DataFrame(data=exemplars_selected, columns=feature_names)
+        df_shapley_values.to_csv(fname+".csv")
 
     else:
         for i in range(len(class_names)):
@@ -156,8 +161,16 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
 
             print('Length exemplars_selected: ' + str(len(exemplars_selected)))
             print('Type exemplars_selected: ' + str(type(exemplars_selected)))
+            
+            
+            fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
+            #saving the shapley values to dataframe
+            df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names)
+            df_shapley_values.to_csv(fname_df+".csv")
+            
 
-            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{i}"
+            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
+            
 
             # Plot shap bar plot
             shap.summary_plot(
@@ -1095,7 +1108,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                                                                                                        shap_values_selected)
 
             summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names,
-                                         num_top, data, shap_values_selected)
+                                         num_top, data, shap_values_selected, data_forexplanations)
 
 
 
@@ -1114,6 +1127,11 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                 shap_values_selected = shap_values[0]
             else:
                 shap_values_selected = shap_values
+            
+            fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
+            #saving the shapley values to dataframe
+            df_shapley_values = pd.DataFrame(data=shap_values_selected, columns=feature_names)
+            df_shapley_values.to_csv(fname+".csv")
 
             # Plot shap bar plot
             shap.summary_plot(
