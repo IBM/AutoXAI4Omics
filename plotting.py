@@ -623,6 +623,7 @@ def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=F
             class_names = None
         # Setup the labels/ticks
         ax.set_xticks(np.arange(conf_matrix.shape[1]))
+        ax.tick_params(axis="x", rotation=50)
         ax.set_yticks(np.arange(conf_matrix.shape[0]))
         ax.set_xlabel('Predicted Class')
         ax.set_ylabel('True Class')
