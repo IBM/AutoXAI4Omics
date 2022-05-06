@@ -1,345 +1,50 @@
-
 import argparse
 import numpy as np
 import pandas as pd
 import models
 import utils
-from sklearn.preprocessing import StandardScaler
-import scipy.sparse
 import plotting
-import subprocess
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import GroupShuffleSplit
-from sklearn.model_selection import GroupKFold
-#import imblearn
 
-""" Standardize the input X using Standard Scaler"""
-def standardize_data(data):
+##########
+from data_processing import *
+##########
 
-    if scipy.sparse.issparse(data):
-        data = data.todense()
-    else:
-        data = data
-    data = StandardScaler().fit_transform(data)
-    return data
-
-""" Read the input files and return X, y (target) and the feature_names"""
-def get_data(path_file, target, metadata_path):
-
-    # Read the data
-    data = pd.read_csv(path_file, index_col=0)
-    print("Data dimension: "+str(data.shape))
-
-    # Check if the target is in a separate file or in the same data
-    if(metadata_path == ""):
-        y = data[target].values
-        data_notarget = data.drop(target, axis=1)
-
-    else: # it assumes the data does not contain the target column
-        # Read the metadata file
-        metadata = pd.read_csv(metadata_path, index_col=0)
-        y = metadata[target].values
-        data_notarget = data
-
-    features_names = data_notarget.columns
-    x = data_notarget.values
-
-    # Scale x
-    x = standardize_data(x)
-
-    # Check the data and labels are the right size
-    assert len(x) == len(y)
-
-    return x,y,features_names
-
-def get_data_microbiome(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
-    if(config_dict["norm_reads"] == "None" and config_dict["min_reads"] == "None"):
-        amp_exp = utils.create_microbiome_calourexp(path_file, metadata_path, None, None)
-    else:
-        amp_exp = utils.create_microbiome_calourexp(path_file, metadata_path, config_dict["norm_reads"],
-                                                    config_dict["min_reads"])
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing microbiome data *******")
-
-    print(f"Original data dimension: {amp_exp.data.shape}")
-    # Use calour to filter the data
-
-    amp_exp = utils.filter_biom(amp_exp, collapse_tax=config_dict["collapse_tax"])
-    print(f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}")
-
-    # Filter any data that needs it
-    if config_dict["filter_samples"] is not None:
-        amp_exp = utils.filter_samples(amp_exp, config_dict["filter_samples"])
-
-    # Modify the classes if need be
-    amp_exp = utils.modify_classes(
-        amp_exp,
-        config_dict["target"],
-        remove_class=config_dict["remove_classes"],
-        merge_by=config_dict["merge_classes"]
-    )
-
-    print(f"After filtering samples: {amp_exp.data.shape}")
-
-    print("Save experiment after filtering with name exp_filtered")
-    amp_exp.save('biom_data_filtered'+config_dict["name"])
-    print("****************************************************")
-    print("")
-    print("")
-    print("")
-
-    # Prepare data (load and normalize)
-    x = utils.prepare_data(amp_exp)
-    print(x.shape)
-    #print(amp_exp.sample_metadata.shape)
-    #print(amp_exp.sample_metadata.columns)
-
-    #try:
-    # Select the labels
-    y = utils.select_class_col(
-        amp_exp,
-        encoding=config_dict["encoding"], #from Cameron
-        name=config_dict["target"]
-    )
-    #except:
-    #   print("!!! ERROR: PLEASE SELECT TARGET TO PREDICT FROM METADATA FILE !!!")
-
-    features_names = utils.get_feature_names_calourexp(amp_exp, config_dict)
-
-    # Check the data and labels are the right size
-    assert len(x) == len(y)
-
-    return  x, y, features_names
-
-def get_data_gene_expression(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
-
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing gene expression data *******")
-
-    # add the input file parameter
-    strcommand = "--expressionfile "+ path_file + " "
-
-    # add the expression type parameter that is required
-    if config_dict["expression_type"] is not None:
-        expression_type = config_dict["expression_type"]
-        print(expression_type)
-    else:
-        expression_type = "OTHER"
-    strcommand = strcommand+"--expressiontype "+expression_type+ " "
-
-    # add the filter_samples parameter that is optional
-    if config_dict["filter_sample"] is not None:
-        filter_samples = config_dict["filter_sample"]
-        print(filter_samples)
-        strcommand = strcommand + "--Filtersamples " + str(filter_samples) + " "
-
-    # add the filter_genes parameter that is optional
-    if config_dict["filter_genes"] is not None:
-        filter_genes = config_dict["filter_genes"][0] +" "+config_dict["filter_genes"][1]
-        print(filter_genes)
-        strcommand = strcommand+"--Filtergenes "+filter_genes+" "
-
-    # add the output file name that is required
-    if config_dict["output_file_ge"] is not None:
-        output_file = config_dict["output_file_ge"]
-        print(output_file)
-    else:
-        output_file = "processed_gene_expression_data"
-    strcommand = strcommand+"--output "+output_file+" "
-        
-    # add the metadata for filtering 
-    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
-
-    #add metadata output file that is required 
-    if config_dict["output_metadata"] is not None:
-        metout_file = config_dict["output_metadata"]
-        print(metout_file)
-        strcommand = strcommand+"--outputmetadata "+metout_file
-
-    print(strcommand)
-
-    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
-    print(python_command)
-    subprocess.call(python_command, shell=True)
-    x,y, feature_names = get_data(config_dict["output_file_ge"], config_dict["target"], metout_file)
-
-    return x,y, feature_names
-
-
-
-def get_data_metabolomic(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
-
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing metabolomic data *******")
-
-    # add the input file parameter
-    strcommand = "--expressionfile "+ path_file + " "
-
-    # add the expression type parameter that is required
-    expression_type = "MET"
-    strcommand = strcommand+"--expressiontype "+expression_type+ " "
-
-    # add the filter_samples parameter that is optional
-    if config_dict["filter_metabolomic_sample"] is not None:
-        filter_met_samples = config_dict["filter_metabolomic_sample"]
-        print(filter_met_samples)
-        strcommand = strcommand + "--Filtersamples " + str(filter_met_samples) + " "
-
-    # add the filter_genes parameter to filter measurements that is optional
-    if config_dict["filter_measurements"] is not None:
-        filter_measurements = config_dict["filter_measurements"][0] +" "+config_dict["filter_measurements"][1]
-        print(filter_measurements)
-        strcommand = strcommand+"--Filtergenes "+filter_measurements+" "
-
-    # add the output file name that is required
-    if config_dict["output_file_met"] is not None:
-        output_file_met = config_dict["output_file_met"]
-        print(output_file_met)
-        strcommand = strcommand+"--output "+output_file_met+" "
-
-    # add the metadata for filtering 
-    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
-
-    #add metadata output file that is required
-    if config_dict["output_metadata"] is not None:
-        metout_file = config_dict["output_metadata"]
-        print(metout_file)
-        strcommand = strcommand+"--outputmetadata "+metout_file
-
-    print(strcommand)
-
-    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
-    print(python_command)
-    subprocess.call(python_command, shell=True)
-    x,y, feature_names = get_data(config_dict["output_file_met"], config_dict["target"], metout_file)
-
-    return x,y, feature_names
-
-
-def get_data_tabular(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
-
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing tabular data *******")
-
-    # add the input file parameter
-    strcommand = "--expressionfile "+ path_file + " "
-
-    # add the expression type parameter that is required
-    expression_type = "TAB"
-    strcommand = strcommand+"--expressiontype "+expression_type+ " "
-
-    # add the filter_samples parameter that is optional
-    if config_dict["filter_tabular_sample"] is not None:
-        filter_tabular_samples = config_dict["filter_tabular_sample"]
-        print(filter_tabular_samples)
-        strcommand = strcommand + "--Filtersamples " + str(filter_tabular_samples) + " "
-
-    # add the filter_genes parameter to filter measurements that is optional
-    if config_dict["filter_tabular_measurements"] is not None:
-        filter_measurements = config_dict["filter_tabular_measurements"][0] +" "+config_dict["filter_tabular_measurements"][1]
-        print(filter_measurements)
-        strcommand = strcommand+"--Filtergenes "+filter_measurements+" "
-
-    # add the output file name that is required
-    if config_dict["output_file_tab"] is not None:
-        output_file_tab = config_dict["output_file_tab"]
-        print(output_file_tab)
-        strcommand = strcommand+"--output "+output_file_tab+" "
-
-    # add the metadata for filtering
-    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
-    
-    #add metadata output file that is required
-    if config_dict["output_metadata"] is not None:
-        metout_file = config_dict["output_metadata"]
-        print(metout_file)
-        strcommand = strcommand+"--outputmetadata "+metout_file+" " 
-    
-    print(strcommand)
-
-    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
-    print(python_command)
-    subprocess.call(python_command, shell=True)
-    x,y, feature_names = get_data(config_dict["output_file_tab"], config_dict["target"], metout_file)
-
-    return x,y, feature_names
-
-
-
-'''
-    Central function to tie together preprocessing, running the models, and plotting
-'''
 def main(config_dict, config_path):
+    '''
+    Central function to tie together preprocessing, running the models, and plotting
+    '''
 
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
-
-    if(config_dict["data_type"]=="microbiome"):
-        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-        x,y,features_names = get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    elif(config_dict["data_type"] == "gene_expression"):
-        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-        x, y, features_names = get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    elif(config_dict["data_type"] == "metabolomic"):
-        x, y, features_names = get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    elif(config_dict["data_type"] == "tabular"):
-        x, y, features_names = get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    else:
-        # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
-        x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
-
+    
+    #read the data
+    x, y, features_names = load_data(config_dict)
+    
     # Split the data in train and test
-    if config_dict["stratify_by_groups"] == "Y":
-
-        gss = GroupShuffleSplit(n_splits=1, test_size=config_dict["test_size"], random_state=config_dict["seed_num"])
-        #gss = GroupKFold(n_splits=7)
-        metadata = pd.read_csv(config_dict["metadata_file"], index_col=0)
-        le = LabelEncoder()
-        groups = le.fit_transform(metadata[config_dict["groups"]])
-
-        for train_idx, test_idx in gss.split(x, y, groups):
-            x_train, x_test, y_train, y_test = x[train_idx], x[test_idx], y[train_idx], y[test_idx]
+    x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
+    
+    # standardise data
+    x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
+    x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
+    
+    #implement feature selection if desired
+    if config_dict['feature_selection'] is not None:
+        x_train, FS = feat_selection(x_train,y_train,config_dict["problem_type"],config_dict['feature_selection']['k'])
+        x_test = transform_data(x_test,FS)
+        features_names = features_names[FS.get_support(indices=True)]
     else:
-        x_train, x_test, y_train, y_test = models.split_data(
-            x, y, config_dict["test_size"], config_dict["seed_num"],
-            config_dict["problem_type"]
-        )
+        print("Skipping Feature selection.")
+        
+    # concatenate both test and train into test
+    x = np.concatenate((x_train,x_test))
+    y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
+    
+    
+    
+    ############ TODO: SAVE DATA TO FILE
+    ############ TODO: FEATURE SELECTION (optional: have ARG in conifg JSON)
+    
+    
     """
     if (config_dict["problem_type"] == "classification"):
         if (config_dict["oversampling"] == "Y"):
@@ -375,7 +80,6 @@ def main(config_dict, config_path):
     scorer_dict = {k: scorer_dict[k] for k in config_dict["scorer_list"]}
 
     # Create dataframes for results
-
     df_train = pd.DataFrame()
     df_test = pd.DataFrame()
 
@@ -404,8 +108,11 @@ def main(config_dict, config_path):
     if config_dict["plot_method"] is not None:
         # See what plots are defined
         plot_dict = plotting.define_plots(config_dict["problem_type"])
+        
         # Central func to define the args for the plots
         plotting.plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict)
+        
+    ######### TODO: SELECT BEST MODEL
 
 def activate(args):
     parser = argparse.ArgumentParser(description="Explainable AI framework for omics")
@@ -423,11 +130,15 @@ if __name__ == "__main__":
     import multiprocessing
 
     multiprocessing.set_start_method('spawn', force=True)
+    
     # Load the parser for command line (config files)
     parser = utils.create_parser()
+    
     # Get the args
     args = parser.parse_args()
+    
     # Do the initial setup
     config_path, config_dict = utils.initial_setup(args)
+    
     # Run the models
     main(config_dict, config_path)

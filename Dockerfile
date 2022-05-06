@@ -2,7 +2,7 @@ FROM tensorflow/tensorflow:2.4.0
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ARG USER_ID=${USER_ID}
-ENV R_BASE_VERSION 4.1.0
+ENV R_BASE_VERSION 4.2.0
 
 RUN \
 	apt-get -y update && \

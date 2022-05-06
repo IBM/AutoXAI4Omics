@@ -26,14 +26,16 @@ import shap
 import eli5
 import time
 import models
-import train_models
 import utils
 from custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, make_scorer
 import sklearn.metrics as skm
-#import imblearn
+# import imblearn
 
+##########
+from data_processing import *
+##########
 
 def define_plots(problem_type):
     '''
@@ -67,9 +69,7 @@ def define_plots(problem_type):
         }
     return plot_dict
 
-
-def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, x_train, y_train, x_test, y_test,
-                scorer_dict):
+def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict):
     '''
     Plot graphs as specified by the config. Each plot function is handled separately to be explicit (at the cost of length and maintenance).
     Here you can customize whether you want to graph on train or test based on what arguments are given for the data and labels.
@@ -86,7 +86,7 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
         elif plot_method == "boxplot_scorer":
             plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train)
         elif plot_method == "boxplot_scorer_cv_groupby":
-            plot_func(experiment_folder, config_dict, scorer_dict, x, y)
+            plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train)
         elif plot_method == "conf_matrix":
             plot_func(experiment_folder, config_dict, x_test, y_test, normalize=False)
         elif plot_method == "corr":
@@ -121,7 +121,7 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
     # Clear keras and TF sessions/graphs etc.
     utils.tidy_tf()
 
-def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top,exemplar_X_test, exemplars_selected, data_forexplanations):
+def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top, exemplar_X_test, exemplars_selected, data_forexplanations):
     if (model_name == 'xgboost' and len(class_names) == 2):
         print('Shape exemplars_selected: ' + str(exemplars_selected.shape))
         class_name = class_names[1]
@@ -212,14 +212,12 @@ def save_fig(fig, fname, dpi=200, fig_format="png"):
         transparent=False
     )
 
-
 def create_fig(nrows=1, ncols=1, figsize=None):
     '''
     Universal call to subplots to allow consistent specification of e.g. figsize
     '''
     fig, ax = plt.subplots(nrows, ncols, figsize=figsize)
     return fig, ax
-
 
 def pretty_names(name, name_type):
     model_dict = {
@@ -472,7 +470,6 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
     plt.clf()
     plt.close()
 
-
 def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True):
     '''
     Create a barplot for all models in the folder using the fit_scorer from the config.
@@ -516,7 +513,6 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
     # Close the figure to ensure we start anew
     plt.clf()
     plt.close()
-
 
 def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, shap_dict, save=True):
     '''
@@ -580,7 +576,6 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
 
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
-
 
 def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=False, save=True):
     '''
@@ -651,7 +646,6 @@ def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=F
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-
 def correlation_plot(experiment_folder, config_dict, x_test, y_test, class_name, fit_line=True, save=True):
     '''
     Creates a correlation plot with a 1D line of best fit.
@@ -701,7 +695,6 @@ def correlation_plot(experiment_folder, config_dict, x_test, y_test, class_name,
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-
 def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=True):
     '''
     Shows the histogram distribution of the true and predicted labels/values.
@@ -742,7 +735,6 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
 
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
-
 
 def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name, save=True):
     '''
@@ -790,7 +782,6 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
         plt.close()
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
-
 
 def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind="reg", save=True):
     '''
@@ -855,7 +846,6 @@ def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind=
         plt.close()
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
-
 
 def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names, data, labels, num_features, cv=None, save=True):
     '''
@@ -968,9 +958,7 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-
-def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, num_top_features,
-                         pcAgreementLevel=10, save=True):
+def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, num_top_features, pcAgreementLevel=10, save=True):
 
     if(config_dict["explanations_data"]=="all" or "test" or "train" or "exemplars"):
         data_forexplanations=config_dict["explanations_data"]
@@ -1237,8 +1225,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_names,  x, y, x_train, data_forexplanations,  class_col="?",
-                      top_exemplars=0.1, save=True):
+def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations, class_col="?", top_exemplars=0.1, save=True):
     '''
        Wrapper to create a SHAP force plot for the top exemplar of each class for each model.
        '''
@@ -1379,7 +1366,6 @@ def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_nam
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-
 if __name__ == "__main__":
     '''
     Running this script by itself enables for the plots to be made separately from the creation of the models
@@ -1388,47 +1374,36 @@ if __name__ == "__main__":
     '''
     # Load the parser
     parser = utils.create_parser()
+    
     # Get the args
     args = parser.parse_args()
+    
     # Do the initial setup
     config_path, config_dict = utils.initial_setup(args)
-
-
+    
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
-
-    if (config_dict["data_type"] == "microbiome"):
-        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-        x, y, features_names = train_models.get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    elif (config_dict["data_type"] == "gene_expression"):
-        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-        x, y, features_names = train_models.get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"],
-                                                        config_dict)
-    elif (config_dict["data_type"] == "metabolomic"):
-        x, y, features_names = train_models.get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    elif (config_dict["data_type"] == "tabular"):
-        x, y, features_names = train_models.get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    else:
-        # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
-        x, y, features_names = train_models.get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
+    
+    #read in the data
+    x, y, features_names = load_data(config_dict)
 
     # Split the data in train and test
-    if config_dict["stratify_by_groups"] == "Y":
-
-        gss = GroupShuffleSplit(n_splits=1, test_size=config_dict["test_size"], random_state=config_dict["seed_num"])
-        #gss=GroupKFold(n_splits=5)
-
-        metadata = pd.read_csv(config_dict["metadata_file"], index_col=0, sep='\t')
-        le = LabelEncoder()
-        groups = le.fit_transform(metadata[config_dict["groups"]])
-        for train_idx, test_idx in gss.split(x, y, groups):
-            x_train, x_test, y_train, y_test = x[train_idx], x[test_idx], y[train_idx], y[test_idx]
-
-    else:
-        x_train, x_test, y_train, y_test = models.split_data(
-            x, y, config_dict["test_size"], config_dict["seed_num"],
-            config_dict["problem_type"]
-        )
+    x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
+    
+    # standardise data
+    x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
+    x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
+    
+    #implement feature selection if desired
+    if config_dict['feature_selection'] is not None:
+        x_train, FS = feat_selection(x_train,y_train,config_dict["problem_type"],config_dict['feature_selection']['k'])
+        x_test = transform_data(x_test,FS)
+        features_names = features_names[FS.get_support(indices=True)]
+    
+    # concatenate both test and train into test
+    x = np.concatenate((x_train,x_test))
+    y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
+    
     """
     if (config_dict["problem_type"] == "classification"):
         if (config_dict["oversampling"] == "Y"):
@@ -1442,19 +1417,20 @@ if __name__ == "__main__":
 
     # Create the folders needed
     experiment_folder = utils.create_experiment_folders(config_dict, config_path)
+    
     # Select only the scorers that we want
     scorer_dict = models.define_scorers(config_dict["problem_type"])
     scorer_dict = {k: scorer_dict[k] for k in config_dict["scorer_list"]}
+    
     # See what plots are defined
     plot_dict = define_plots(config_dict["problem_type"])
+
     # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
     # So set that up here
     # Other option is to modify cls.__getstate__
     for model_name in config_dict["model_list"]:
         if model_name in CustomModel.custom_aliases:
             CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict, experiment_folder)
-
-
 
     # Central func to define the args for the plots
     plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict)

@@ -13,7 +13,7 @@ import warnings
 import numpy as np
 import scipy.sparse
 import pandas as pd
-from sklearn.model_selection import train_test_split, cross_val_score, RandomizedSearchCV, GridSearchCV, KFold, StratifiedKFold
+from sklearn.model_selection import cross_val_score, RandomizedSearchCV, GridSearchCV#, KFold, StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.svm import SVC, SVR
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
@@ -302,7 +302,7 @@ def select_model_dict(hyper_tuning):
     if hyper_tuning == "random":
         ref_model_dict = model_params.sk_random
     elif hyper_tuning == "grid":
-        ref_model_dict = model_params.sk_random
+        ref_model_dict = model_params.sk_grid
     elif hyper_tuning is None:
         ref_model_dict = model_params.single_model
     else:
@@ -366,34 +366,6 @@ def define_models(problem_type, hyper_tuning):
         model_dict["autosklearn"] = (AutoSKLearn, model_params.single_model['autosklearn'])
         model_dict["autogluon"] = (AutoGluon, model_params.single_model['autogluon'])
     return model_dict
-
-
-def split_data(x, y, test_size, seed_num, problem_type):
-    '''
-    Determine the type of train test split to use on the data.
-    '''
-    if problem_type == "classification":
-        try:
-                x_train, x_test, y_train, y_test = train_test_split(
-                    x, y, test_size=test_size,
-                    random_state=seed_num, stratify=y
-                )
-        except:
-            print('!!! ERROR: PLEASE SELECT VALID PREDICTION TASK AND TARGET !!!')
-            raise
-
-    # Don't stratify for regression (sklearn can't currently handle it with e.g. binning)
-    elif problem_type == "regression":
-        try:
-            x_train, x_test, y_train, y_test = train_test_split(
-                x, y, test_size=test_size,
-                random_state=seed_num
-            )
-        except:
-            print('!!! ERROR: PLEASE SELECT VALID PREDICTION TASK AND TARGET !!!')
-            raise
-
-    return x_train, x_test, y_train, y_test
 
 
 def predict_model(model, x_train, y_train, x_test=None):
