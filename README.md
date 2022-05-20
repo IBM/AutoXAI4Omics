@@ -1,6 +1,6 @@
-# Explainable AI framework for omics 
+# Auto-Omics: an Explainable Auto-AI framework for omics and tabular data
 
-The aim of the framework is to easily allow phenotype prediction from omics data (e.g., gene expression; microbiome datat (currently setup for _biom_ data, handled through `calour`); or any tabular data), using a range of ML models, and various plots (including explainability and feature importance through SHAP and ELI5). 
+The aim of the framework is to easily allow phenotype prediction from omics data (e.g., gene expression; microbiome data; or any tabular data), using a range of ML models, and various plots (including explainability and feature importance through SHAP and ELI5). 
 
 Key features include:
 
@@ -11,49 +11,35 @@ Key features include:
 For general use of the tool please cite this article:
 * Carrieri, A.P., Haiminen, N., Maudsley-Barton, S. et al. Explainable AI reveals changes in skin microbiome composition linked to phenotypic differences. Sci Rep 11, 4565 (2021). https://doi.org/10.1038/s41598-021-83922-6
 
-## Docker instructions:
-
+## How to install Auto-Omics
 * make sure `docker` is running -- e.g. run `docker version` to get version information
-* `./build.sh -r` -- installs required packages
-* create a new folder whose name matches the `save_path` in configuration files, e.g. "experiments" [NOTE: if training is run by mistake without first creating this directory, and the directory is created while training, the directory needs to be removed and then created again before running training (has to do with access permissions)]
-* `./train_models.sh parameters.json` -- trains models and plots results, using parameter file "configs/parameters.json"
-* `./plotting.sh parameters.json` -- plots the already trained models that are listed in "configs/parameters.json"
-
-## Quick Get Started
-
-The general python requirements have been listed below. 
-
-***To install on MacOSX*** you can install the python requirements listed below using conda or pip or you can use the following command:
-```
-conda env create -f microbiome_osx.yml
-```
-
-***To install on Windows 10*** see Windows_installation_instructions.docs:
+* `./build.sh -r` -- installs all required packages (python and R)
+* manually create a new folder whose name matches the `save_path` in configuration files, e.g. "experiments" [NOTE: if training is run by mistake without first creating this directory, and the directory is created while training, the directory needs to be removed and then created again before running training (has to do with access permissions)]
 
 ## Requirements
-* Python 3.6+
-* Calour (which needs scikit-bio)
-* Numpy, Scipy, Pandas, Scikit-learn
-* Tensorflow 1.12 (at least <2.0), Keras
-* Matplotlib, Seaborn
-* XGBoost
-* SHAP, ELI5
-* UMAP (for dimensionality reduction)
-
+* Docker
 
 ## User manual
-Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the ***MANUAL***.
+Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the [***MANUAL***](https://gitlab.stfc.ac.uk/hncdi-software/auto-omics/-/blob/main/MANUAL.md).
 
-The main way to run the pipeline (to train and hypertune the models) is:
-```
-python train_models.py -c example_config.json
-```
+There are three possible ways to run the workflow. 
 
-If the models have already been trained (and therefore saved), the plots and results can be generated in isolation by running:
+* Tune and train various machine learning models, generate plots and results
 ```
-python plotting.py -c example_config.json
+./train_models.sh example_config.json
 ```
 
-The results are saved in the results/ folder in the subdirectory specified by the `name` field in the JSON config file.
+* If the models have been tuned and trained (and therefore saved), the plots and results can be generated in isolation by running:
+```
+./plotting.sh example_config.json`
+```
 
-For an explanation of the config file, and more detailed information about the framework and how to extend it, see the ***MANUAL***
+* To test and evaluate the tuned and trained machine learning models on a completely different holdout dataset, run:
+```
+./testing_holdout.sh example_config.json
+```
+
+The results are saved in the results/folder in the subdirectory specified by the `name` field in the JSON config file.
+
+For an explanation of the config file, and more detailed information about the framework and how to extend it, see the [***MANUAL***](https://gitlab.stfc.ac.uk/hncdi-software/auto-omics/-/blob/main/MANUAL.md).
+

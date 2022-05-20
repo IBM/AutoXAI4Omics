@@ -97,6 +97,20 @@ The JSON config file is at the centre of the framework - it controls everything 
         "auto_stack": false,
         "time_limits": 1000
     }
+    "feature_selection": {
+        'k': 'auto',
+        'var_threshold': 0,
+        'auto': {
+            'min_features': 10, 
+            'interval': 1,
+            'eval_model': "RandomForestClassifier",
+            'eval_metric': "f1_score"
+            }
+         "method": {
+             "name": "SelectKBest", 
+             "metric": "f_classif"
+             }
+    }
 
 }
 ```
@@ -142,6 +156,18 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 The performance of all models on the train and test sets according to these measures are saved in the "results/" subfolder of the experiment directory.
 * `fit_scorer`: The measure that will be used to select the "best" model from the hyperparameter search. Also used as the scoring method for the plots to be generated. It needs to be one of the scores specified in `scorer_list`. 
 * `encoding`: For classification tasks, it is the type of encoding to be used for the class. It can be `null` to allow sklearn to deal with it as it needs, or it can be set to "label" (for label encoding) or "onehot" (for one-hot encoding). Note that the neural network models always use one-hot encoding, so if not specified they will handle this themselves. This parameter is rarely used and usually set to `null`. 
+* `feature_selection` : Define the feature selection to be run for the problem. If NO feature selection is desired remove all entries and set `feature_selection` to `null`.
+    * `k` : Valid entries are `"auto"` or and integer `x`. `"auto"` will select an optimum number of features to use, `x` will find the `x` best features.
+    * `var_threshold`: If the variance for the column is less than or equal the provided threshold, then the column is removed. Applied before any chosen feature selection method.
+    * `auto`: This is a dict containing the parameters for the automated feature selection process.
+        * `min_features` : This is the minimum number of features that we wish to be selected. 
+        * `interval` : The range for the number of features to be tested is generated on a logarithmic scale with the minimum being as defined in `min_features` and the max being the total number of columns. This entry defines the size of the lograthmic increment $10^{ -interval}$
+        * `eval_model` : This sets what sklearn estimator that shall be used to train a model to evaluate how good each set of chosen k for the feature selection is 
+        * `eval_metric` : This is the metric that is used to evaluate the trained evaluation model.
+    * `method`: This is a dict containing the parameters to define the feature selection method to be used
+        * `name` : This is a string equal to either `RFE` or `SelectKBest` which are the two methods available. Note that `SelectKBest` is significantly quicker.
+        * `metric`: This is only used if `SelectKBest` is being used and determins what metric is to be used in the method. valid options include: `f_regression`, `f_classif`, `mutual_info_regression` or `mutual_info_classif`
+        * `estimator`: This is only used if `RFE` is being used and determins what estimator is fitted at each stage during the `RFE` process.
 
 ### Microbiome data pre-processing parameters
 These parameters need to specified only if `data_type`= "microbiome", otherwise they can be set as empty strings ""

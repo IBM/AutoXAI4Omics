@@ -17,6 +17,9 @@ def main(config_dict, config_path):
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
     
+    # Create the folders needed
+    experiment_folder = utils.create_experiment_folders(config_dict, config_path)
+    
     #read the data
     x, y, features_names = load_data(config_dict)
     
@@ -29,9 +32,8 @@ def main(config_dict, config_path):
     
     #implement feature selection if desired
     if config_dict['feature_selection'] is not None:
-        x_train, FS = feat_selection(x_train,y_train,config_dict["problem_type"],config_dict['feature_selection']['k'])
-        x_test = transform_data(x_test,FS)
-        features_names = features_names[FS.get_support(indices=True)]
+        x_train, features_names, FS = feat_selection(experiment_folder,x_train, y_train, features_names, config_dict["problem_type"], config_dict['feature_selection'])
+        x_test = FS.transform(x_test)
     else:
         print("Skipping Feature selection.")
         
@@ -39,10 +41,7 @@ def main(config_dict, config_path):
     x = np.concatenate((x_train,x_test))
     y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
     
-    
-    
     ############ TODO: SAVE DATA TO FILE
-    ############ TODO: FEATURE SELECTION (optional: have ARG in conifg JSON)
     
     
     """
@@ -67,8 +66,6 @@ def main(config_dict, config_path):
     print(f"Number of unique values of target y: {len(np.unique(y))}")
     print("----------------------------------------------------------")
 
-    # Create the folders needed
-    experiment_folder = utils.create_experiment_folders(config_dict, config_path)
 
     # Load the models we have pre-defined
     model_dict = models.define_models(config_dict["problem_type"], config_dict["hyper_tuning"])

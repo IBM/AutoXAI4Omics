@@ -35,6 +35,7 @@ import sklearn.metrics as skm
 
 ##########
 from data_processing import *
+
 ##########
 
 def define_plots(problem_type):
@@ -69,7 +70,7 @@ def define_plots(problem_type):
         }
     return plot_dict
 
-def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict):
+def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict, holdout=False):
     '''
     Plot graphs as specified by the config. Each plot function is handled separately to be explicit (at the cost of length and maintenance).
     Here you can customize whether you want to graph on train or test based on what arguments are given for the data and labels.
@@ -82,27 +83,27 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
         # Hand-crafted passing the arguments in because over-engineering
         # Don't judge me (I'm not a big **kwargs fan)
         if plot_method == "barplot_scorer":
-            plot_func(experiment_folder, config_dict, scorer_dict, x_test, y_test)
+            plot_func(experiment_folder, config_dict, scorer_dict, x_test, y_test, holdout=holdout)
         elif plot_method == "boxplot_scorer":
-            plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train)
+            plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train, holdout=holdout)
         elif plot_method == "boxplot_scorer_cv_groupby":
-            plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train)
+            plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train, holdout=holdout)
         elif plot_method == "conf_matrix":
-            plot_func(experiment_folder, config_dict, x_test, y_test, normalize=False)
+            plot_func(experiment_folder, config_dict, x_test, y_test, normalize=False, holdout=holdout)
         elif plot_method == "corr":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"])
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], holdout=holdout)
         elif plot_method == "hist":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"])
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], holdout=holdout)
         elif plot_method == "hist_overlapped":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"])
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], holdout=holdout)
         elif plot_method == "joint":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"])
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], holdout=holdout)
         elif plot_method == "joint_dens":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], kind="kde")
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], kind="kde", holdout=holdout)
         elif plot_method == "permut_imp_test":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_test, y_test, config_dict["top_feats_permImp"], cv='prefit')
+            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_test, y_test, config_dict["top_feats_permImp"], cv='prefit', holdout=holdout)
         elif plot_method == "shap_plots":
-            plot_func(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, config_dict["top_feats_shap"])
+            plot_func(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, config_dict["top_feats_shap"], holdout=holdout)
 
         """elif plot_method == "shap_force_plots":
             plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations="all",
@@ -121,12 +122,15 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
     # Clear keras and TF sessions/graphs etc.
     utils.tidy_tf()
 
-def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top, exemplar_X_test, exemplars_selected, data_forexplanations):
+def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top, exemplar_X_test, exemplars_selected, data_forexplanations,holdout=False):
     if (model_name == 'xgboost' and len(class_names) == 2):
         print('Shape exemplars_selected: ' + str(exemplars_selected.shape))
         class_name = class_names[1]
         print('Class: ' + str(class_name))
-        fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}"
+        if holdout:
+             fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{'holdout'}"
+        else:
+            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}"
 
         # Plot shap bar plot
         shap.summary_plot(
@@ -148,10 +152,11 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
         plt.clf()
         plt.close()
         
-        fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
-        #saving the shapley values to dataframe
-        df_shapley_values = pd.DataFrame(data=exemplars_selected, columns=feature_names)
-        df_shapley_values.to_csv(fname+".csv")
+        if not holdout:
+            fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
+            #saving the shapley values to dataframe
+            df_shapley_values = pd.DataFrame(data=exemplars_selected, columns=feature_names)
+            df_shapley_values.to_csv(fname+".csv")
 
     else:
         for i in range(len(class_names)):
@@ -162,14 +167,16 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
             print('Length exemplars_selected: ' + str(len(exemplars_selected)))
             print('Type exemplars_selected: ' + str(type(exemplars_selected)))
             
+            if not holdout:
+                fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
+                #saving the shapley values to dataframe
+                df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names)
+                df_shapley_values.to_csv(fname_df+".csv")
             
-            fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
-            #saving the shapley values to dataframe
-            df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names)
-            df_shapley_values.to_csv(fname_df+".csv")
-            
-
-            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
+            if holdout:
+                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{'holdout'}_{i}"
+            else:
+                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
             
 
             # Plot shap bar plot
@@ -249,7 +256,7 @@ def pretty_names(name, name_type):
         new_name = score_dict[name]
     return new_name
 
-def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_labels, nsplits=5, save=True):
+def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_labels, nsplits=5, save=True, holdout=False):
     '''
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
 
@@ -329,6 +336,7 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
         # Save CV results
         d = {'Scores CV': scores, 'Dim test': num_testsamples_list}
         fname = f"{experiment_folder / 'results' / 'scores_CV'}_{model_name}_{num_fold}"
+        fname += '_holdout' if holdout else ""
         df = pd.DataFrame(d)
         df.to_csv(fname + '.csv')
 
@@ -352,13 +360,14 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
     # Save the graph
     if save:
         fname = f"{experiment_folder / 'graphs' / 'boxplot'}_{config_dict['fit_scorer']}"
+        fname += '_holdout' if holdout else ""
         save_fig(fig, fname)
 
     # Close the figure to ensure we start anew
     plt.clf()
     plt.close()
 
-def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True):
+def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True, holdout=False):
     '''
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
     '''
@@ -448,6 +457,7 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
         # Save CV results
         d = {'Scores CV': scores, 'Dim test': num_testsamples_list}
         fname = f"{experiment_folder / 'results' / 'GroupShuffleSplit_CV'}_{model_name}_{num_fold}"
+        fname += '_holdout' if holdout else ""
         df = pd.DataFrame(d)
         df.to_csv(fname + '.csv')
 
@@ -464,13 +474,14 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
     # Save the graph
     if save:
         fname = f"{experiment_folder / 'graphs' / 'boxplot_GroupShuffleSplit_CV'}_{config_dict['fit_scorer']}"
+        fname += '_holdout' if holdout else ""
         save_fig(fig, fname)
 
     # Close the figure to ensure we start anew
     plt.clf()
     plt.close()
 
-def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True):
+def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True, holdout=False):
     '''
     Create a barplot for all models in the folder using the fit_scorer from the config.
     '''
@@ -504,6 +515,7 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
     ax.set_title(f"Performance on test data")
     if save:
         fname = f"{experiment_folder / 'graphs' / 'barplot'}_{config_dict['fit_scorer']}"
+        fname += '_holdout' if holdout else ""
         save_fig(fig, fname)
 
     plt.draw()
@@ -514,7 +526,7 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
     plt.clf()
     plt.close()
 
-def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, shap_dict, save=True):
+def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, shap_dict, save=True, holdout=False):
     '''
     A wrapper to prepare the data and models for the SHAP summary plot
     '''
@@ -565,6 +577,7 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
         fig = plt.gcf()
         if save:
             fname = f"{experiment_folder / 'graphs' / 'shap_summary'}_{model_name}"
+            fname += '_holdout' if holdout else ""
             save_fig(fig, fname)
         plt.draw()
         plt.tight_layout()
@@ -577,7 +590,7 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=False, save=True):
+def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=False, save=True, holdout=False):
     '''
     Creates a confusion matrix for each model. Saves them in separate files.
     '''
@@ -635,6 +648,7 @@ def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=F
         # Save or show the plot
         if save:
             fname = f"{experiment_folder / 'graphs' / 'conf_matrix'}_{model_name}"
+            fname += '_holdout' if holdout else ""
             save_fig(fig, fname)
         plt.draw()
         plt.tight_layout()
@@ -646,7 +660,7 @@ def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=F
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def correlation_plot(experiment_folder, config_dict, x_test, y_test, class_name, fit_line=True, save=True):
+def correlation_plot(experiment_folder, config_dict, x_test, y_test, class_name, fit_line=True, save=True, holdout=False):
     '''
     Creates a correlation plot with a 1D line of best fit.
     '''
@@ -684,6 +698,7 @@ def correlation_plot(experiment_folder, config_dict, x_test, y_test, class_name,
         # Save or show the plot
         if save:
             fname = f"{experiment_folder / 'graphs' / 'corr_scatter'}_{model_name}"
+            fname += '_holdout' if holdout else ""
             save_fig(fig, fname)
         plt.draw()
         plt.tight_layout()
@@ -695,7 +710,7 @@ def correlation_plot(experiment_folder, config_dict, x_test, y_test, class_name,
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=True):
+def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=True, holdout=False):
     '''
     Shows the histogram distribution of the true and predicted labels/values.
 
@@ -724,6 +739,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
 
         if save:
             fname = f"{experiment_folder / 'graphs' / 'hist_overlap'}_{model_name}"
+            fname += '_holdout' if holdout else ""
             save_fig(fig, fname)
         plt.draw()
         plt.tight_layout()
@@ -736,7 +752,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name, save=True):
+def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name, save=True, holdout=False):
     '''
     Shows the histogram distribution of the true and predicted labels/values.
 
@@ -772,6 +788,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
         fig.legend(handles, labels, loc='right')
         if save:
             fname = f"{experiment_folder / 'graphs' / 'hist'}_{model_name}"
+            fname += '_holdout' if holdout else ""
             save_fig(fig, fname)
         plt.draw()
         plt.tight_layout()
@@ -783,7 +800,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind="reg", save=True):
+def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind="reg", save=True, holdout=False):
     '''
     Uses seaborn's jointplot to illustrate correlation and distribution.
     '''
@@ -836,6 +853,8 @@ def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind=
                 fname = f"{experiment_folder / 'graphs' / 'joint_kde'}_{model_name}"
             else:
                 fname = f"{experiment_folder / 'graphs' / 'joint'}_{model_name}"
+                
+            fname += '_holdout' if holdout else ""
             save_fig(plot, fname)
         plt.draw()
         plt.tight_layout()
@@ -847,7 +866,7 @@ def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind=
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names, data, labels, num_features, cv=None, save=True):
+def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names, data, labels, num_features, cv=None, save=True, holdout=False):
     '''
     Use ELI5's permutation importance to assess the importance of the features.
 
@@ -946,6 +965,8 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
         # Save the plot
         if save:
             fname = f"{experiment_folder / 'graphs' / 'permutimp'}_{model_name}"
+            fname += '_holdout' if holdout else ""
+            
             save_fig(fig, fname)
 
         plt.draw()
@@ -958,7 +979,7 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, num_top_features, pcAgreementLevel=10, save=True):
+def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, num_top_features, pcAgreementLevel=10, save=True,holdout=False):
 
     if(config_dict["explanations_data"]=="all" or "test" or "train" or "exemplars"):
         data_forexplanations=config_dict["explanations_data"]
@@ -1054,6 +1075,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                 # Save the plot for multi-class classification
                 if save:
                     fname = f"{experiment_folder / 'graphs' / 'shap_bar_plot'}_{data_forexplanations}_{model_name}"
+                    fname += '_holdout' if holdout else ""
                     save_fig(fig, fname)
                 plt.draw()
                 plt.tight_layout()
@@ -1079,6 +1101,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                 # Save the plot for multi-class classification
                 if save:
                     fname = f"{experiment_folder / 'graphs' / 'shap_bar_plot'}_{data_forexplanations}_{model_name}"
+                    fname += '_holdout' if holdout else ""
                     save_fig(fig, fname)
                 plt.draw()
                 plt.tight_layout()
@@ -1095,9 +1118,9 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                                                                                                        feature_names,
                                                                                                        data,
                                                                                                        shap_values_selected)
-
+            
             summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names,
-                                         num_top, data, shap_values_selected, data_forexplanations)
+                                         num_top, data, shap_values_selected, data_forexplanations,holdout)
 
 
 
@@ -1117,10 +1140,11 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
             else:
                 shap_values_selected = shap_values
             
-            fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
-            #saving the shapley values to dataframe
-            df_shapley_values = pd.DataFrame(data=shap_values_selected, columns=feature_names)
-            df_shapley_values.to_csv(fname+".csv")
+            if not holdout:
+                fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
+                #saving the shapley values to dataframe
+                df_shapley_values = pd.DataFrame(data=shap_values_selected, columns=feature_names)
+                df_shapley_values.to_csv(fname+".csv")
 
             # Plot shap bar plot
             shap.summary_plot(
@@ -1140,6 +1164,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
             # Save the plot
             if save:
                 fname = f"{experiment_folder / 'graphs' / 'shap_bar_plot'}_{data_forexplanations}_{model_name}"
+                fname += '_holdout' if holdout else ""
                 save_fig(fig, fname)
 
                 # img = mp_img.imread(fname+'.png')
@@ -1168,6 +1193,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
             # Save the plot
             if save:
                 fname = f"{experiment_folder / 'graphs' / 'shap_dot_plot'}_{data_forexplanations}_{model_name}"
+                fname += '_holdout' if holdout else ""
                 save_fig(fig, fname)
 
             plt.tight_layout()
@@ -1197,6 +1223,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
              'Average abundance': list(abundance)}
 
         fname = f"{experiment_folder / 'results' / 'top_features_AbsMeanSHAP_Abundance'}_{data_forexplanations}_{model_name}"
+        fname += '_holdout' if holdout else ""
         df = pd.DataFrame(d)
         df.to_csv(fname + '.csv')
 
@@ -1212,6 +1239,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
 
         if save:
             fname = f"{experiment_folder / 'graphs' / 'abundance_top_features_exemplars'}_{data_forexplanations}_{model_name}"
+            fname += '_holdout' if holdout else ""
             save_fig(fig, fname)
 
         plt.draw()
@@ -1225,7 +1253,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
-def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations, class_col="?", top_exemplars=0.1, save=True):
+def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations, class_col="?", top_exemplars=0.1, save=True, holdout=False):
     '''
        Wrapper to create a SHAP force plot for the top exemplar of each class for each model.
        '''
@@ -1299,6 +1327,7 @@ def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_nam
                 # Save the plot
                 if save:
                     fname = f"{experiment_folder / 'graphs' / 'shap_force_single'}_{model_name}_class{class_name}"
+                    fname += '_holdout' if holdout else ""
                     save_fig(fig, fname)
                 plt.draw()
                 plt.tight_layout()
@@ -1354,6 +1383,7 @@ def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_nam
                 # Save the plot
                 if save:
                     fname = f"{experiment_folder / 'graphs' / 'shap_force_single'}_{model_name}_{name}"
+                    fname += '_holdout' if holdout else ""
                     save_fig(fig, fname)
                 plt.draw()
                 plt.tight_layout()
@@ -1366,6 +1396,41 @@ def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_nam
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
 
+def feat_acc_plot(experiment_folder, acc, save=True):
+    """
+    Produces a graph showing the number of features vs. the performance of the model when that many features are trainined on it 
+    """
+    
+    ax = sns.lineplot(x=list(acc.keys()), y=list(acc.values()),marker='o')
+    ax.set_title("Feature selection model accuracy")
+    ax.set(xlabel='Number of selected features', ylabel='Model error')
+    ax.set(xscale='log')
+    
+    fig = plt.gcf()
+    if save:
+        fname = f"{experiment_folder / 'graphs' / 'feature_selection_accuracy'}"
+        save_fig(fig, fname)
+
+#TODO: NEEDS TO BE TESTED WITH A DATA SET THAT'S NOT MICROBIOME_DIET_FINAL
+def opt_k_plot(experiment_folder, sr_n, save=True):
+    """
+    Produces a scatter plot with each k plotted by their calibrated meand and std 
+    """
+    
+    ax = sns.scatterplot(x=sr_n['r_m'].tolist(), y=sr_n['r_std'].tolist(),hue=np.log10(sr_n.index))
+    ax.set_title('Performance of various k features')
+
+    m=round(abs(sr_n).max().max()*1.1,1)
+
+    ax.set(xlabel='Calibrated mean', ylabel='Calibrated std')
+    ax.axvline(0,-m,m)
+    ax.axhline(0,-m,m)
+    
+    fig = plt.gcf()
+    if save:
+        fname = f"{experiment_folder / 'graphs' / 'feature_selection_scatter'}"
+        save_fig(fig, fname)
+        
 if __name__ == "__main__":
     '''
     Running this script by itself enables for the plots to be made separately from the creation of the models
@@ -1384,6 +1449,9 @@ if __name__ == "__main__":
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
     
+    # Create the folders needed
+    experiment_folder = utils.create_experiment_folders(config_dict, config_path)
+    
     #read in the data
     x, y, features_names = load_data(config_dict)
 
@@ -1396,9 +1464,8 @@ if __name__ == "__main__":
     
     #implement feature selection if desired
     if config_dict['feature_selection'] is not None:
-        x_train, FS = feat_selection(x_train,y_train,config_dict["problem_type"],config_dict['feature_selection']['k'])
-        x_test = transform_data(x_test,FS)
-        features_names = features_names[FS.get_support(indices=True)]
+        x_train, features_names, FS = feat_selection(experiment_folder,x_train, y_train, features_names, config_dict["problem_type"], config_dict['feature_selection'])
+        x_test = FS.transform(x_test)
     
     # concatenate both test and train into test
     x = np.concatenate((x_train,x_test))
@@ -1415,8 +1482,6 @@ if __name__ == "__main__":
             print(f"y train data after oversampling shape: {y_train.shape}")
     """
 
-    # Create the folders needed
-    experiment_folder = utils.create_experiment_folders(config_dict, config_path)
     
     # Select only the scorers that we want
     scorer_dict = models.define_scorers(config_dict["problem_type"])
