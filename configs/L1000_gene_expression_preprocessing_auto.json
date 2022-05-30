@@ -22,7 +22,6 @@
     "model_list": [
         "rf",
         "autosklearn",
-        "autogluon",
         "autokeras",
         "autolgbm",
         "autoxgboost"
@@ -39,7 +38,7 @@
     },
     "autosklearn_config": {
         "verbose": true,
-        "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"],
+        "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "sgd"],
         "time_left_for_this_task": 120,
         "per_run_time_limit": 60,
         "memory_limit": 65536,
@@ -64,12 +63,13 @@
         "n_trials": 20
     },
     "plot_method": [
-        "shap_plots",
-        "boxplot_scorer"
+        "boxplot_scorer",
+        "barplot_scorer",
+        "shap_plots"
     ],
-    "top_feats_permImp": 30,
-    "top_feats_shap": 30,
-    "explanations_data": "test",
+    "top_feats_permImp": 15,
+    "top_feats_shap": 15,
+    "explanations_data": "all",
 
     "expression_type": "OTHER",
     "filter_sample": 100,
@@ -86,5 +86,13 @@
     "norm_reads": "None",
     "min_reads": "None",
     "filter_abundance": null,
-    "filter_prevalence": null
+    "filter_prevalence": null,
+    
+    "feature_selection": {
+	"k": "auto", 
+	"var_threshold": 0, 
+	"auto": {"min_features": 10, "interval": 1, "eval_model": "RandomForestClassifier", "eval_metric": "f1_score"}, 
+	"method": {"name": "SelectKBest", "metric": "f_classif"}
+    }
+    
 }
