@@ -91,7 +91,7 @@
         "verbose": true,
         "auto_stack": false,
         "time_limits": 60
-    }
+    },
     "feature_selection": {
 	"k": "auto", 
 	"var_threshold": 0, 
