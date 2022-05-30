@@ -21,7 +21,6 @@
     ],
     "model_list": [
         "autosklearn",
-        "autogluon",
         "autolgbm",
         "autoxgboost",
         "autokeras",
@@ -39,7 +38,7 @@
     },
     "autosklearn_config": {
         "verbose": true,
-        "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"],
+        "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "sgd"],
         "time_left_for_this_task": 120,
         "per_run_time_limit": 60,
         "memory_limit": 65536,
@@ -67,16 +66,34 @@
     ],
     "top_feats_permImp": 15,
     "top_feats_shap": 15,
-    "explanations_data": "test",
+    "explanations_data": "all",
 
     "collapse_tax": "",
     "remove_classes": null,
     "merge_classes": null,
     "encoding": null,
     "filter_samples": null,
-    
     "norm_reads": "None",
     "min_reads": "None",
     "filter_abundance": null,
-    "filter_prevalence": null
+    "filter_prevalence": null,
+    
+    "expression_type": "", 
+	"filter_sample": null, 
+	"filter_genes": null, 
+	"filter_tabular_sample": null, 
+	"filter_tabular_measurements": ["0", "0"], 
+	"output_file_tab": "/data/temp.csv", 
+	"output_metadata": "/data/temp.csv",
+    
+	"norm_reads": 1000,
+	"min_reads": 1000,
+	"filter_abundance": 10,
+	"filter_prevalence": 0.01,
+	"collapse_tax": "genus",
+	"remove_classes": null, 
+	"merge_classes": null, 
+	"filter_samples": null, 
+	
+	"feature_selection": null
 }
