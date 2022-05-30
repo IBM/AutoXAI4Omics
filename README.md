@@ -31,7 +31,7 @@ There are three possible ways to run the workflow.
 
 * If the models have been tuned and trained (and therefore saved), the plots and results can be generated in isolation by running:
 ```
-./plotting.sh example_config.json`
+./plotting.sh example_config.json
 ```
 
 * To test and evaluate the tuned and trained machine learning models on a completely different holdout dataset, run:
