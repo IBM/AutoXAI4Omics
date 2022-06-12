@@ -7,8 +7,11 @@ Key features include:
 * Json Config file allows specification of preprocessing, ML models, hyperparameter tuning, plots and results produced
 * Wrapping of Keras and TensorFlow models to make them compatible with sklearn models
 
+## Important note:
+This tool is for IBM internal use ONLY.
+
 ## Citation:
-For general use of the tool please cite this article:
+For general IBM internal use of the tool please cite this article:
 * Carrieri, A.P., Haiminen, N., Maudsley-Barton, S. et al. Explainable AI reveals changes in skin microbiome composition linked to phenotypic differences. Sci Rep 11, 4565 (2021). https://doi.org/10.1038/s41598-021-83922-6
 
 ## How to install Auto-Omics
