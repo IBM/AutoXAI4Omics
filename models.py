@@ -2,7 +2,6 @@
 ##### Change this to n_jobs = -1 for all-core processing (when we get that working)
 n_jobs = -1
 
-
 import json
 import pickle
 from json.decoder import JSONDecodeError
@@ -24,19 +23,23 @@ import sklearn.metrics as skm
 import joblib
 from xgboost import XGBClassifier, XGBRegressor
 
-
 import model_params
 
 from custom_model import CustomModel
 from custom_model import FixedKeras, AutoKeras, AutoSKLearn, AutoLGBM, AutoXGBoost, AutoGluon
 
+import logging
+omicLogger = logging.getLogger("OmicLogger")
 
+
+########## LOAD/DEFINE ##########
 def load_params_json(fpath):
     '''
     Function to load and process parameters for random search defined in a JSON
 
     N.B.: This has since been replaced by defining them in a separate Python script
     '''
+    omicLogger.debug('Load parameters from json (Redundant?)...')
     # First load the JSON file in as a dict
     print(fpath)
     try:
@@ -92,71 +95,12 @@ def load_params_json(fpath):
                 raise
     return param_ranges
 
-
-def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
-    '''
-    Calculate some different measures on the model
-    '''
-    '''
-       Define the different measures we can use
-       '''
-    pred_test = model.predict(x_test)
-    pred_train = model.predict(x_train)
-
-    if problem_type == "classification":
-        score_dict = {
-            'Accuracy_Train': accuracy_score(y_train, pred_train),
-            'Accuracy_Test': accuracy_score(y_test, pred_test),
-            'F1_score_Train': f1_score(y_train, pred_train, average='weighted'),
-            'F1_score_Test': f1_score(y_test, pred_test, average='weighted'),
-            'F1_score_PerClass_Train': f1_score(y_train, pred_train, average=None),
-            'F1_score_PerClass_Test': f1_score(y_test, pred_test, average=None),
-            'Precision_Train': precision_score(y_train, pred_train, average='weighted'),
-            'Precision_Test': precision_score(y_test, pred_test, average='weighted'),
-            'Precision_PerClass_Train': precision_score(y_train, pred_train, average=None),
-            'Precision_PerClass_Test': precision_score(y_test, pred_test, average=None),
-            'Recall_Train': recall_score(y_train, pred_train, average='weighted'),
-            'Recall_Test': recall_score(y_test, pred_test, average='weighted'),
-            'Recall_PerClass_Train': recall_score(y_train, pred_train, average=None),
-            'Recall_PerClass_Test': recall_score(y_test, pred_test, average=None),
-            'Conf_matrix_Train': confusion_matrix(y_train, pred_train),
-            'Conf_matrix_Test': confusion_matrix(y_test, pred_test)
-            # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='f1_weighted', cv=5)
-        }
-    else:
-        score_dict = {
-            'MSE_Train': skm.mean_squared_error(y_train, pred_train),
-            'MSE_Test': skm.mean_squared_error(y_test, pred_test),
-            'Mean_AE_Train': skm.mean_absolute_error(y_train, pred_train),
-            'Mean_AE_Test': skm.mean_absolute_error(y_test, pred_test),
-            'Med_ae_Train': skm.median_absolute_error(y_train, pred_train),
-            'Med_ae_Test': skm.median_absolute_error(y_test, pred_test)
-            # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='mean_ae', cv=5)
-        }
-
-
-    return score_dict
-
-
-def eval_scores(problem_type, scorer_dict, model, data, true_labels):
-    scores_dict = {}
-    for score_name, score_func in scorer_dict.items():
-        if problem_type == "regression":
-            scores_dict[score_name] = np.abs(score_func(model, data, true_labels))
-        else:
-            scores_dict[score_name] = score_func(model, data, true_labels)
-
-    return scores_dict
-
-
-def rmse(y_true, y_pred):
-    return np.sqrt(skm.mean_squared_error(y_true, y_pred))
-
-
 def define_scorers(problem_type):
     '''
     Define the different measures we can use
     '''
+    omicLogger.debug('Define scores to evaluate the models...')
+    
     if problem_type == "classification":
         scorer_dict = {
             'acc': skm.make_scorer(skm.accuracy_score),
@@ -179,126 +123,12 @@ def define_scorers(problem_type):
         raise ValueError(f"{problem_type} is not recognised, must be either 'regression' or 'classification'")
     return scorer_dict
 
-
-def save_results(results_folder, df, score_dict, model_name, fname, suffix=None, save_pkl=False, save_csv=True):
-    '''
-    Store the results of the latest model and save this to csv
-    '''
-    df = df.append(pd.Series(score_dict, name=model_name))
-    fname = str(results_folder / fname)
-    # Add a suffix to the filename if provided
-    if suffix is not None:
-        fname += suffix
-    # Save as a csv
-    if save_csv:
-        df.to_csv(fname+".csv", index_label="model")
-    # Pickle using pandas internal access to it
-    if save_pkl:
-        df.to_pickle(fname+".pkl")
-    return df, fname
-
-
-def save_model(experiment_folder, model, model_name):
-    '''
-    Save a given model to the model folder
-    '''
-    model_folder = experiment_folder / "models"
-    # THe CustomModels handle themselves
-    if model_name not in CustomModel.custom_aliases:
-        print(f"Saving {model_name} model")
-        save_name = model_folder / f"{model_name}_best.pkl"
-        with open(save_name, 'wb') as f:
-            joblib.dump(model, f)
-    else:  # hat: added this 
-        # print(f"Saving {model_name} model")
-        # save_name = model_folder / f"{model_name}_best.pkl"
-        model.save_model()
-
-
-def random_search(model, model_name, param_ranges, budget, x_train, y_train, seed_num, scorer_dict, fit_scorer):
-    '''
-    Wrapper for using sklearn's RandomizedSearchCV
-    '''
-    # If possible, set the random state for the model
-    try:
-        # Just a dummy to see if the model has a random state attribute
-        # Improvement would be if there is hasattr func but for arguments
-        _ = model(random_state=0)
-        param_ranges["random_state"] = [seed_num]
-    except TypeError:
-        pass
-    # Setup the random search with cross val
-    print("Setup the random search with cross val")
-    random_search = RandomizedSearchCV(
-        estimator=model(),
-        param_distributions=param_ranges,
-        n_iter=budget,
-        cv=5,
-        verbose=1,
-        n_jobs=n_jobs,
-        random_state=seed_num,
-        pre_dispatch="2*n_jobs",
-        scoring=scorer_dict,
-        refit=fit_scorer
-    )
-
-    # Fit the random search
-    print("Fit the random search")
-    try:
-        random_search.fit(x_train, y_train)
-    except ValueError:
-        print("!!! ERROR - PLEASE SELECT VALID TARGET AND PREDICTION TASK")
-        raise 
-    # Return the best estimator found
-    print(random_search.best_estimator_)
-    return random_search.best_estimator_
-
-
-def grid_search(model, model_name, param_ranges, x_train, y_train, seed_num, scorer_dict, fit_scorer):
-    '''
-    Wrapper for using sklearn's GridSearchCV
-    '''
-    try:
-        _ = model(random_state=0)
-        param_ranges["random_state"] = [seed_num]
-    except TypeError:
-        pass
-
-    grid_search = GridSearchCV(
-        estimator=model(),
-        param_grid=param_ranges,
-        cv=5,
-        verbose=1,
-        n_jobs=n_jobs,
-        pre_dispatch="2*n_jobs",
-        scoring=scorer_dict,
-        refit=fit_scorer
-    )
-    # Fit the random search
-    grid_search.fit(x_train, y_train)
-    # Return the best estimator found
-    print(grid_search.best_estimator_)
-    return grid_search.best_estimator_
-
-
-def single_model(model, param_ranges, x_train, y_train, seed_num):
-    '''
-    Wrapper for training and setting up a single model (i.e. no tuning).
-    '''
-    try:
-        _ = model(random_state=0)
-        param_ranges["random_state"] = seed_num
-    except TypeError:
-        pass
-    print(model().set_params(**param_ranges))
-    trained_model = model().set_params(**param_ranges).fit(x_train, y_train)
-    return trained_model
-
-
 def select_model_dict(hyper_tuning):
     '''
     Select what parameter range specific we are using based on the given hyper_tuning method.
     '''
+    omicLogger.debug('Get tunning settings...')
+    
     if hyper_tuning == "random":
         ref_model_dict = model_params.sk_random
     elif hyper_tuning == "grid":
@@ -309,13 +139,13 @@ def select_model_dict(hyper_tuning):
         raise ValueError(f"{hyper_tuning} is not a valid option")
     return ref_model_dict
 
-
 def define_models(problem_type, hyper_tuning):
     '''
     Define the models to be run.
 
     The name is the key, the value is a tuple with the model function, and defined params
     '''
+    omicLogger.debug('Defining the set of models...')
     ref_model_dict = select_model_dict(hyper_tuning)
 
     if problem_type == "classification":
@@ -368,10 +198,191 @@ def define_models(problem_type, hyper_tuning):
     return model_dict
 
 
+########## SAVE ##########
+def save_results(results_folder, df, score_dict, model_name, fname, suffix=None, save_pkl=False, save_csv=True):
+    '''
+    Store the results of the latest model and save this to csv
+    '''
+    omicLogger.debug('Save results to file...')
+    
+    df = df.append(pd.Series(score_dict, name=model_name))
+    fname = str(results_folder / fname)
+    # Add a suffix to the filename if provided
+    if suffix is not None:
+        fname += suffix
+    # Save as a csv
+    if save_csv:
+        df.to_csv(fname+".csv", index_label="model")
+    # Pickle using pandas internal access to it
+    if save_pkl:
+        df.to_pickle(fname+".pkl")
+    return df, fname
+
+def save_model(experiment_folder, model, model_name):
+    '''
+    Save a given model to the model folder
+    '''
+    omicLogger.debug('Saving model...')
+    model_folder = experiment_folder / "models"
+    # THe CustomModels handle themselves
+    if model_name not in CustomModel.custom_aliases:
+        print(f"Saving {model_name} model")
+        save_name = model_folder / f"{model_name}_best.pkl"
+        with open(save_name, 'wb') as f:
+            joblib.dump(model, f)
+    else:  # hat: added this 
+        # print(f"Saving {model_name} model")
+        # save_name = model_folder / f"{model_name}_best.pkl"
+        model.save_model()
+
+
+########## EVALUATE ##########
+def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
+    '''
+    Define the different measures we can use and Calculate some of them on the model
+    '''
+    omicLogger.debug('Evaluate the model...')
+    
+    pred_test = model.predict(x_test)
+    pred_train = model.predict(x_train)
+
+    if problem_type == "classification":
+        score_dict = {
+            'Accuracy_Train': accuracy_score(y_train, pred_train),
+            'Accuracy_Test': accuracy_score(y_test, pred_test),
+            'F1_score_Train': f1_score(y_train, pred_train, average='weighted'),
+            'F1_score_Test': f1_score(y_test, pred_test, average='weighted'),
+            'F1_score_PerClass_Train': f1_score(y_train, pred_train, average=None),
+            'F1_score_PerClass_Test': f1_score(y_test, pred_test, average=None),
+            'Precision_Train': precision_score(y_train, pred_train, average='weighted'),
+            'Precision_Test': precision_score(y_test, pred_test, average='weighted'),
+            'Precision_PerClass_Train': precision_score(y_train, pred_train, average=None),
+            'Precision_PerClass_Test': precision_score(y_test, pred_test, average=None),
+            'Recall_Train': recall_score(y_train, pred_train, average='weighted'),
+            'Recall_Test': recall_score(y_test, pred_test, average='weighted'),
+            'Recall_PerClass_Train': recall_score(y_train, pred_train, average=None),
+            'Recall_PerClass_Test': recall_score(y_test, pred_test, average=None),
+            'Conf_matrix_Train': confusion_matrix(y_train, pred_train),
+            'Conf_matrix_Test': confusion_matrix(y_test, pred_test)
+            # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='f1_weighted', cv=5)
+        }
+    else:
+        score_dict = {
+            'MSE_Train': skm.mean_squared_error(y_train, pred_train),
+            'MSE_Test': skm.mean_squared_error(y_test, pred_test),
+            'Mean_AE_Train': skm.mean_absolute_error(y_train, pred_train),
+            'Mean_AE_Test': skm.mean_absolute_error(y_test, pred_test),
+            'Med_ae_Train': skm.median_absolute_error(y_train, pred_train),
+            'Med_ae_Test': skm.median_absolute_error(y_test, pred_test)
+            # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='mean_ae', cv=5)
+        }
+
+
+    return score_dict
+
+def eval_scores(problem_type, scorer_dict, model, data, true_labels):
+    omicLogger.debug('Gathering evaluation scores...')
+    scores_dict = {}
+    for score_name, score_func in scorer_dict.items():
+        if problem_type == "regression":
+            scores_dict[score_name] = np.abs(score_func(model, data, true_labels))
+        else:
+            scores_dict[score_name] = score_func(model, data, true_labels)
+
+    return scores_dict
+
+def rmse(y_true, y_pred):
+    omicLogger.debug('calculating rmse...')
+    return np.sqrt(skm.mean_squared_error(y_true, y_pred))
+
+########## WRAPPERS ##########
+def random_search(model, model_name, param_ranges, budget, x_train, y_train, seed_num, scorer_dict, fit_scorer):
+    '''
+    Wrapper for using sklearn's RandomizedSearchCV
+    '''
+    omicLogger.debug('Training with a random search...')
+    # If possible, set the random state for the model
+    try:
+        # Just a dummy to see if the model has a random state attribute
+        # Improvement would be if there is hasattr func but for arguments
+        _ = model(random_state=0)
+        param_ranges["random_state"] = [seed_num]
+    except TypeError:
+        pass
+    # Setup the random search with cross val
+    print("Setup the random search with cross val")
+    random_search = RandomizedSearchCV(
+        estimator=model(),
+        param_distributions=param_ranges,
+        n_iter=budget,
+        cv=5,
+        verbose=1,
+        n_jobs=n_jobs,
+        random_state=seed_num,
+        pre_dispatch="2*n_jobs",
+        scoring=scorer_dict,
+        refit=fit_scorer
+    )
+
+    # Fit the random search
+    print("Fit the random search")
+    try:
+        random_search.fit(x_train, y_train)
+    except ValueError:
+        print("!!! ERROR - PLEASE SELECT VALID TARGET AND PREDICTION TASK")
+        raise 
+    # Return the best estimator found
+    print(random_search.best_estimator_)
+    return random_search.best_estimator_
+
+def grid_search(model, model_name, param_ranges, x_train, y_train, seed_num, scorer_dict, fit_scorer):
+    '''
+    Wrapper for using sklearn's GridSearchCV
+    '''
+    omicLogger.debug('Training with a grid search...')
+    try:
+        _ = model(random_state=0)
+        param_ranges["random_state"] = [seed_num]
+    except TypeError:
+        pass
+
+    grid_search = GridSearchCV(
+        estimator=model(),
+        param_grid=param_ranges,
+        cv=5,
+        verbose=1,
+        n_jobs=n_jobs,
+        pre_dispatch="2*n_jobs",
+        scoring=scorer_dict,
+        refit=fit_scorer
+    )
+    # Fit the random search
+    grid_search.fit(x_train, y_train)
+    # Return the best estimator found
+    print(grid_search.best_estimator_)
+    return grid_search.best_estimator_
+
+def single_model(model, param_ranges, x_train, y_train, seed_num):
+    '''
+    Wrapper for training and setting up a single model (i.e. no tuning).
+    '''
+    omicLogger.debug('Training as single model...')
+    try:
+        _ = model(random_state=0)
+        param_ranges["random_state"] = seed_num
+    except TypeError:
+        pass
+    print(model().set_params(**param_ranges))
+    trained_model = model().set_params(**param_ranges).fit(x_train, y_train)
+    return trained_model
+
+
+########## RUN MODELS ##########
 def predict_model(model, x_train, y_train, x_test=None):
     '''
     Generic function to fit a model and return predictions on train and test data (if given)
     '''
+    omicLogger.debug('Predicting with given model...')
     model.fit(x_train, y_train)
     train_preds = model.predict(x_train)
     if x_test is not None:
@@ -387,6 +398,8 @@ def run_models(
     '''
     Run (and tune if applicable) each of the models sequentially, saving the results and models.
     '''
+    omicLogger.debug('Initialised training & tuning of models...')
+    
     # Construct the filepath to save the results
     results_folder = experiment_folder / "results"
 
@@ -413,6 +426,7 @@ def run_models(
 
     # Run each model
     for model_name in model_list:
+        omicLogger.debug(f'Training model: {model_name}')
         print(f"Testing {model_name}")
         # Placeholder variable to handle mixed hyperparam tuning logic for MLPEnsemble
         single_model_flag = False

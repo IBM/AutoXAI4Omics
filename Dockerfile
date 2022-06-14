@@ -59,6 +59,10 @@ USER omicsuser
 COPY --chown=omicsuser:omicsuser *.py *.R ./
 ADD --chown=omicsuser:omicsuser tabauto ./tabauto
 
+COPY --chown=omicsuser:omicsuser logging.yml ./
+
 ENV PYTHONPATH "/home/omicsuser:${PYTHONPATH}"
+
+ENV TF_CPP_MIN_LOG_LEVEL '2'
 
 CMD ["$@"]

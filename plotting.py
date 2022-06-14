@@ -35,13 +35,15 @@ import sklearn.metrics as skm
 
 ##########
 from data_processing import *
-
+import logging
+omicLogger = logging.getLogger("OmicLogger")
 ##########
 
 def define_plots(problem_type):
     '''
     Define the plots for each problem type. This needs to be maintained manually.
     '''
+    omicLogger.debug('Define dict of plots...')
     # Some plots can only be done for a certain type of ML
     # Check here that the ones given are valid
     if problem_type == "classification":
@@ -75,6 +77,7 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
     Plot graphs as specified by the config. Each plot function is handled separately to be explicit (at the cost of length and maintenance).
     Here you can customize whether you want to graph on train or test based on what arguments are given for the data and labels.
     '''
+    omicLogger.debug('Begin plotting graphs...')
 
     # Loop over every plot method we're using
     for plot_method in config_dict["plot_method"]:
@@ -115,7 +118,7 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
         elif plot_method == "permut_imp_5cv":
             plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict["top_feats_permImp"], cv=5)"""
 
-
+    omicLogger.debug('Plotting completed')
     # Clear everything
     plt.clf()
     plt.close()
@@ -123,6 +126,8 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
     utils.tidy_tf()
 
 def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top, exemplar_X_test, exemplars_selected, data_forexplanations,holdout=False):
+    omicLogger.debug('Creating summary_SHAPdotplot_perclass...')
+    
     if (model_name == 'xgboost' and len(class_names) == 2):
         print('Shape exemplars_selected: ' + str(exemplars_selected.shape))
         class_name = class_names[1]
@@ -210,6 +215,7 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
     plt.close()
 
 def save_fig(fig, fname, dpi=200, fig_format="png"):
+    omicLogger.debug(f'Saving figure ({fname})to file...')
     print(f"Save location: {fname}.{fig_format}")
     fig.savefig(
         f"{fname}.{fig_format}",
@@ -223,10 +229,12 @@ def create_fig(nrows=1, ncols=1, figsize=None):
     '''
     Universal call to subplots to allow consistent specification of e.g. figsize
     '''
+    omicLogger.debug('Creating figure canvas...')
     fig, ax = plt.subplots(nrows, ncols, figsize=figsize)
     return fig, ax
 
 def pretty_names(name, name_type):
+    omicLogger.debug('Fetching pretty names...')
     model_dict = {
         "rf": "RF",
         "mlp_keras": "DeepNN",
@@ -263,6 +271,7 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
     By default this uses a 5-fold stratified cross validation. Also it saves the list of SHAP values for each of the exemplars of
     each fold
     '''
+    omicLogger.debug('Creating boxplot_scorer_cv...')
     # Create the plot objects
     fig, ax = plt.subplots()
     # Container for the scores
@@ -371,6 +380,7 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
     '''
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
     '''
+    omicLogger.debug('Creating boxplot_scorer_cv_groupby...')
     # Create the plot objects
     fig, ax = plt.subplots()
     # Container for the scores
@@ -485,6 +495,7 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
     '''
     Create a barplot for all models in the folder using the fit_scorer from the config.
     '''
+    omicLogger.debug('Creating barplot_scorer...')
     # Create the plot objects
     fig, ax = plt.subplots()
     # Container for the scores
@@ -530,6 +541,7 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
     '''
     A wrapper to prepare the data and models for the SHAP summary plot
     '''
+    omicLogger.debug('Creating shap_summary_plot...')
     # Convert the data into dataframes to ensure features are displayed
     df_test = pd.DataFrame(data=x_test, columns=feature_names)
     # Get the model paths
@@ -594,6 +606,7 @@ def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=F
     '''
     Creates a confusion matrix for each model. Saves them in separate files.
     '''
+    omicLogger.debug('Creating conf_matrix_plot...')
     # Loop over the defined models
     for model_name in config_dict["model_list"]:
         # Define the figure object
@@ -664,6 +677,7 @@ def correlation_plot(experiment_folder, config_dict, x_test, y_test, class_name,
     '''
     Creates a correlation plot with a 1D line of best fit.
     '''
+    omicLogger.debug('Creating correlation_plot...')
     # Loop over the defined models
     for model_name in config_dict["model_list"]:
         # Define the figure object
@@ -716,6 +730,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
 
     Provides two figures side-by-side for better illustration.
     '''
+    omicLogger.debug('Creating histograms...')
     # Loop over the defined models
     for model_name in config_dict["model_list"]:
 
@@ -758,6 +773,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
 
     Provides two figures side-by-side for better illustration.
     '''
+    omicLogger.debug('Creating distribution_hist...')
     # Loop over the defined models
     for model_name in config_dict["model_list"]:
         # Define the figure object
@@ -804,6 +820,7 @@ def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind=
     '''
     Uses seaborn's jointplot to illustrate correlation and distribution.
     '''
+    omicLogger.debug('Creating joint_plot...')
     # Loop over the defined models
     for model_name in config_dict["model_list"]:
         # Load the model
@@ -873,7 +890,7 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
     Note that in scikit-learn 0.21 there should be a version of this in the new model inspection module.
     This may be useful to use/watch for the future.
     '''
-
+    omicLogger.debug('Creating permut_importance...')
     print(feature_names)
     print(type(feature_names))
 
@@ -980,6 +997,7 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
         utils.tidy_tf()
 
 def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, num_top_features, pcAgreementLevel=10, save=True,holdout=False):
+    omicLogger.debug('Creating shap_plots...')
 
     if(config_dict["explanations_data"]=="all" or "test" or "train" or "exemplars"):
         data_forexplanations=config_dict["explanations_data"]
@@ -1255,8 +1273,9 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
 
 def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations, class_col="?", top_exemplars=0.1, save=True, holdout=False):
     '''
-       Wrapper to create a SHAP force plot for the top exemplar of each class for each model.
-       '''
+    Wrapper to create a SHAP force plot for the top exemplar of each class for each model.
+    '''
+    omicLogger.debug('Creating shap_force_plots...')
     # Convert the data into dataframes to ensure features are displayed
     if(data_forexplanations=="all"):
         data=x
@@ -1400,6 +1419,7 @@ def feat_acc_plot(experiment_folder, acc, save=True):
     """
     Produces a graph showing the number of features vs. the performance of the model when that many features are trainined on it 
     """
+    omicLogger.debug('Creating feat_acc_plot...')
     
     ax = sns.lineplot(x=list(acc.keys()), y=list(acc.values()),marker='o')
     ax.set_title("Feature selection model accuracy")
@@ -1411,11 +1431,11 @@ def feat_acc_plot(experiment_folder, acc, save=True):
         fname = f"{experiment_folder / 'graphs' / 'feature_selection_accuracy'}"
         save_fig(fig, fname)
 
-#TODO: NEEDS TO BE TESTED WITH A DATA SET THAT'S NOT MICROBIOME_DIET_FINAL
 def opt_k_plot(experiment_folder, sr_n, save=True):
     """
     Produces a scatter plot with each k plotted by their calibrated meand and std 
     """
+    omicLogger.debug('Creating opt_k_plot...')
     
     ax = sns.scatterplot(x=sr_n['r_m'].tolist(), y=sr_n['r_std'].tolist(),hue=np.log10(sr_n.index))
     ax.set_title('Performance of various k features')
@@ -1452,24 +1472,36 @@ if __name__ == "__main__":
     # Create the folders needed
     experiment_folder = utils.create_experiment_folders(config_dict, config_path)
     
+    # Set up process logger
+    omicLogger = utils.setup_logger(experiment_folder)
+    omicLogger.info('Loading data...')
+    
     #read in the data
     x, y, features_names = load_data(config_dict)
-
+    omicLogger.info('Data Loaded. Splitting data...')
+    
     # Split the data in train and test
     x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
+    omicLogger.info('Data splitted. Standardising...')
     
     # standardise data
     x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
     x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
+    omicLogger.info('Data standardised. Selecting features...')
     
     #implement feature selection if desired
     if config_dict['feature_selection'] is not None:
         x_train, features_names, FS = feat_selection(experiment_folder,x_train, y_train, features_names, config_dict["problem_type"], config_dict['feature_selection'])
         x_test = FS.transform(x_test)
-    
+        omicLogger.info('Features selected. Re-combining data...')
+    else:
+        print("Skipping Feature selection.")
+        omicLogger.info('Skipping feature selection. Re-combining data...')
+        
     # concatenate both test and train into test
     x = np.concatenate((x_train,x_test))
     y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
+    omicLogger.info('Data combined. Defining scorers...')
     
     """
     if (config_dict["problem_type"] == "classification"):
@@ -1486,6 +1518,7 @@ if __name__ == "__main__":
     # Select only the scorers that we want
     scorer_dict = models.define_scorers(config_dict["problem_type"])
     scorer_dict = {k: scorer_dict[k] for k in config_dict["scorer_list"]}
+    omicLogger.info('All scorers defined. Defining plots...')
     
     # See what plots are defined
     plot_dict = define_plots(config_dict["problem_type"])
@@ -1496,10 +1529,10 @@ if __name__ == "__main__":
     for model_name in config_dict["model_list"]:
         if model_name in CustomModel.custom_aliases:
             CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict, experiment_folder)
-
+    omicLogger.info('PLots defined. Begin creating plots...')
     # Central func to define the args for the plots
     plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict)
-
+    omicLogger.info('Process completed.')
 
 
 

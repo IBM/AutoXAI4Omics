@@ -4,43 +4,53 @@ import pandas as pd
 import models
 import utils
 import plotting
+from data_processing import *
 
 ##########
-from data_processing import *
+import logging
 ##########
 
 def main(config_dict, config_path):
     '''
     Central function to tie together preprocessing, running the models, and plotting
     '''
-
+    
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
     
     # Create the folders needed
     experiment_folder = utils.create_experiment_folders(config_dict, config_path)
     
+    # Set up process logger
+    omicLogger = utils.setup_logger(experiment_folder)
+    omicLogger.info('Loading data...')
+    
     #read the data
     x, y, features_names = load_data(config_dict)
+    omicLogger.info('Data Loaded. Splitting data...')
     
     # Split the data in train and test
     x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
+    omicLogger.info('Data splitted. Standardising...')
     
     # standardise data
     x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
     x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
+    omicLogger.info('Data standardised. Selecting features...')
     
     #implement feature selection if desired
     if config_dict['feature_selection'] is not None:
         x_train, features_names, FS = feat_selection(experiment_folder,x_train, y_train, features_names, config_dict["problem_type"], config_dict['feature_selection'])
         x_test = FS.transform(x_test)
+        omicLogger.info('Features selected. Re-combining data...')
     else:
         print("Skipping Feature selection.")
+        omicLogger.info('Skipping feature selection. Re-combining data...')
         
     # concatenate both test and train into test
     x = np.concatenate((x_train,x_test))
     y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
-    
+    omicLogger.info('Data combined. Defining models...')
     ############ TODO: SAVE DATA TO FILE
     
     
@@ -69,17 +79,21 @@ def main(config_dict, config_path):
 
     # Load the models we have pre-defined
     model_dict = models.define_models(config_dict["problem_type"], config_dict["hyper_tuning"])
-
+    omicLogger.info('Models defined. Defining all Scorers...')
+    
     #  Define all the scores
     scorer_dict = models.define_scorers(config_dict["problem_type"])
-
+    omicLogger.info('All scorers defined. Extracting chosen scorers...')
+    
     #  Select only the scores that you want
     scorer_dict = {k: scorer_dict[k] for k in config_dict["scorer_list"]}
-
+    omicLogger.info('Scorers extracted. Creating results df holder...')
+    
     # Create dataframes for results
     df_train = pd.DataFrame()
     df_test = pd.DataFrame()
-
+    omicLogger.info('Holders created. Begin running models...')
+    
     # Run the models
     print("Beginning to run the models")
     models.run_models(
@@ -100,14 +114,20 @@ def main(config_dict, config_path):
         collapse_tax = config_dict["collapse_tax"],  #this is specific to microbiome data
     )
     print("Finished running models!")
-
+    
+    omicLogger.info('Models trained. Beggining plotting process...')
     # Plot some graphs
     if config_dict["plot_method"] is not None:
         # See what plots are defined
         plot_dict = plotting.define_plots(config_dict["problem_type"])
         
+        omicLogger.info('Plots defined. Begin plotting graphs...')
         # Central func to define the args for the plots
         plotting.plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict)
+    else:
+        omicLogger.info('No plots desired.')
+        
+    omicLogger.info('Process completed.')
         
     ######### TODO: SELECT BEST MODEL
 

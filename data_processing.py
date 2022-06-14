@@ -9,6 +9,8 @@ from sklearn.pipeline import Pipeline
 import models
 import math
 import plotting
+import logging
+omicLogger = logging.getLogger("OmicLogger")
 
 ###### FS METHODS
 from sklearn.feature_selection import SelectKBest, VarianceThreshold, RFE 
@@ -48,7 +50,8 @@ def standardize_data(data):
     """ 
     Standardize the input X using Standard Scaler
     """
-
+    omicLogger.debug('Applying Standard scaling to given data...')
+    
     if scipy.sparse.issparse(data):
         data = data.todense()
     else:
@@ -59,6 +62,7 @@ def standardize_data(data):
     return data, SS
 
 def transform_data(data,transformer):
+    omicLogger.debug('Transforming given data according to given transformer...')
     
     if scipy.sparse.issparse(data):
         data = data.todense()
@@ -76,7 +80,7 @@ def get_data(path_file, target, metadata_path):
     """ 
     Read the input files and return X, y (target) and the feature_names
     """
-
+    omicLogger.debug('Inserting data into DataFrames...')
     # Read the data
     data = pd.read_csv(path_file, index_col=0)
     print("Data dimension: "+str(data.shape))
@@ -104,7 +108,7 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     '''
     Load and process the data
     '''
-
+    omicLogger.debug('Loading Microbiome data...')
     # Use calour to create an experiment
     print("Path file: " +path_file)
     print("Metadata file: " +metadata_path)
@@ -172,7 +176,7 @@ def get_data_gene_expression(path_file, metadata_path, config_dict):
     '''
     Load and process the data
     '''
-
+    omicLogger.debug('Loading Gene Expression data...')
     # Use calour to create an experiment
     print("Path file: " +path_file)
     print("Metadata file: " +metadata_path)
@@ -223,7 +227,7 @@ def get_data_gene_expression(path_file, metadata_path, config_dict):
         strcommand = strcommand+"--outputmetadata "+metout_file
 
     print(strcommand)
-
+    omicLogger.debug('Running python/R preprocessing script...')
     python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
     print(python_command)
     subprocess.call(python_command, shell=True)
@@ -235,7 +239,7 @@ def get_data_metabolomic(path_file, metadata_path, config_dict):
     '''
     Load and process the data
     '''
-
+    omicLogger.debug('Loading Metabolic data...')
     # Use calour to create an experiment
     print("Path file: " +path_file)
     print("Metadata file: " +metadata_path)
@@ -280,7 +284,7 @@ def get_data_metabolomic(path_file, metadata_path, config_dict):
         strcommand = strcommand+"--outputmetadata "+metout_file
 
     print(strcommand)
-
+    omicLogger.debug('Running python/R preprocessing script...')
     python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
     print(python_command)
     subprocess.call(python_command, shell=True)
@@ -292,6 +296,7 @@ def get_data_tabular(path_file, metadata_path, config_dict):
     '''
     Load and process the data
     '''
+    omicLogger.debug('Loading Tabular data...')
 
     # Use calour to create an experiment
     print("Path file: " +path_file)
@@ -338,6 +343,7 @@ def get_data_tabular(path_file, metadata_path, config_dict):
     
     print(strcommand)
 
+    omicLogger.debug('Running python/R preprocessing script...')
     python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
     print(python_command)
     subprocess.call(python_command, shell=True)
@@ -349,6 +355,7 @@ def load_data(config_dict,load_holdout=False):
     """
     Load the data presented in the config file
     """
+    omicLogger.debug('Data load inititalised. Loading training data...')
     
     if(config_dict["data_type"]=="microbiome"):
         # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
@@ -365,6 +372,7 @@ def load_data(config_dict,load_holdout=False):
         x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
         
     if load_holdout:
+        omicLogger.debug('Training loaded. Loading holdout data...')
         if(config_dict["data_type"]=="microbiome"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
             x_heldout, y_heldout, features_names = get_data_microbiome(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
@@ -378,7 +386,8 @@ def load_data(config_dict,load_holdout=False):
         else:
             # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
             x_heldout, y_heldout, features_names = get_data(config_dict["file_path_holdout_data"], config_dict["target"], config_dict["metadata_file_holdout_data"])
-        
+       
+    omicLogger.debug('Load completed')
     if load_holdout:
         return x, y, x_heldout, y_heldout, features_names 
     else:
@@ -390,6 +399,8 @@ def split_data(x, y, config_dict):
     """
     Split the data according to the config (i.e normal split or stratify by groups)
     """
+    
+    omicLogger.debug('Splitting data...')
     # Split the data in train and test
     if config_dict["stratify_by_groups"] == "Y":
 
@@ -404,6 +415,8 @@ def strat_split(x, y, config_dict):
     """
     split the data according to stratification
     """
+    omicLogger.debug('Splitting according to stratification...')
+    
     gss = GroupShuffleSplit(n_splits=1, test_size=config_dict["test_size"], random_state=config_dict["seed_num"])
     #gss = GroupKFold(n_splits=7)
 
@@ -420,6 +433,8 @@ def std_split(x, y, config_dict):
     '''
     Determine the type of train test split to use on the data.
     '''
+    omicLogger.debug('Split according to standard methods...')
+    
     test_size = config_dict["test_size"]
     seed_num = config_dict["seed_num"]
     problem_type = config_dict["problem_type"]
@@ -458,6 +473,7 @@ def manual_feat_selection(x,y,k_select,problem_type,method_dict):
     '''
     Given trainging data this will select the k best features for predicting the target. we assume data has been split into test-train and standardised
     '''
+    omicLogger.debug(f'Selecting {k_select} features...')
     if method_dict['name'] == 'SelectKBest':
         metric = globals()[method_dict['metric']]
         fs_method = SelectKBest(metric, k=k_select)
@@ -476,6 +492,7 @@ def train_eval_feat_selection_model(x,y,n_feature,problem_type,eval_model=None,e
     """
     Train and score a model if it were to only use n_feature
     """
+    omicLogger.debug('Selecting features, training model and evaluating for given K...')
     
     x_trans, SKB = manual_feat_selection(x,y,n_feature,problem_type,method_dict)    #select the best k features
     
@@ -506,6 +523,8 @@ def k_selector(experiment_folder,acc,top=True,low=True,save=True):
     """
     Given a set of accuracy results will choose the lowest scoring, stable k
     """
+    omicLogger.debug('Selecting optimium K...')
+    
     acc = dict(sorted(acc.items()))     #ensure keys are sorted low-high
     sr = pd.DataFrame(pd.Series(acc))    #turn results dict into a series
     
@@ -550,6 +569,7 @@ def auto_feat_selection(experiment_folder,x,y,problem_type,min_features=10,inter
     """
     Given data this will automatically find the best number of features, we assume the data provided has already been split into test-train and standardised.
     """
+    omicLogger.debug('Initialising the automated selection process...')
     
     print("Generating logarithmic selection for k")
     max_features = x.shape[1]
@@ -589,6 +609,7 @@ def feat_selection(experiment_folder,x,y,features_names,problem_type,FS_dict,sav
     """
     A function to activate manual or auto feature selection
     """
+    omicLogger.debug('Initalising feature selection process...')
     
     # extract out parameters from the feature selection dict
     
@@ -621,6 +642,7 @@ def feat_selection(experiment_folder,x,y,features_names,problem_type,FS_dict,sav
 
 def variance_removal(x,threshold=0):
     
+    omicLogger.debug('Applying variance thresholding...')
     selector = VarianceThreshold(threshold)
     x_trans = selector.fit_transform(x)
     
@@ -630,7 +652,7 @@ def validate_models_and_metrics(problem_type,estimator,metric):
     """
     Check if given the problem type that the estimator and evaluation metric chosen is valid or not
     """
-    
+    omicLogger.debug('Validating model and metric settings...')
     # check that the estimator is loaded in
     if estimator not in globals():
         raise ValueError(f"{estimator} is not currently available for use")
@@ -661,6 +683,7 @@ def validate_models_and_metrics(problem_type,estimator,metric):
     return metric in objective_low
 
 def parse_model_inputs(problem_type, eval_model, eval_metric):
+    omicLogger.debug('Parsing model inputs...')
     # check we have a valid problem type
     if not ((problem_type == 'classification') or (problem_type == 'regression')):
         raise ValueError("PROBLEM TYPE IS NOT CLASSIFICATION OR REGRESSION")
@@ -681,6 +704,7 @@ def parse_FS_settings(problem_type,FS_dict):
     """
     A function to check ALL the FS setting to ensure correct/valid entiries/combinations
     """
+    omicLogger.debug('Parsing feature selection settings...')
     
     keys = FS_dict.keys()
     

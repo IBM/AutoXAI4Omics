@@ -36,6 +36,7 @@ import sklearn.metrics as skm
 ##########
 from data_processing import *
 from plotting import *
+import logging
 ##########
 
 if __name__ == "__main__":
@@ -59,25 +60,38 @@ if __name__ == "__main__":
     # Create the folders needed
     experiment_folder = utils.create_experiment_folders(config_dict, config_path)
     
+    # Set up process logger
+    omicLogger = utils.setup_logger(experiment_folder)
+    omicLogger.info('Loading data...')
+    
     x, y, x_heldout, y_heldout, features_names = load_data(config_dict,load_holdout=True)
-
+    omicLogger.info('Data Loaded. Splitting data...')
+    
     # Split the data in train and test
     x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
+    omicLogger.info('Data splitted. Standardising...')
     
     # standardise data
     x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
     x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
     x_heldout = transform_data(x_heldout,SS) #transform the holdout data according to the fitted standardiser
+    omicLogger.info('Data standardised. Selecting features...')
     
     #implement feature selection if desired
     if config_dict['feature_selection'] is not None:
         x_train, features_names, FS = feat_selection(experiment_folder,x_train, y_train, features_names, config_dict["problem_type"], config_dict['feature_selection'], save=False)
         x_test = FS.transform(x_test)
         x_heldout = FS.transform(x_heldout)
+        omicLogger.info('Features selected. Re-combining data...')
+    else:
+        print("Skipping Feature selection.")
+        omicLogger.info('Skipping feature selection. Re-combining data...')
+
         
     # concatenate both test and train into test
     x = np.concatenate((x_train,x_test))
     y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
+    omicLogger.info('Data combined. Defining all Scorers...')
     
     """
     if (config_dict["problem_type"] == "classification"):
@@ -93,7 +107,10 @@ if __name__ == "__main__":
     
     # Select only the scorers that we want
     scorer_dict = models.define_scorers(config_dict["problem_type"])
+    omicLogger.info('All scorers defined. Extracting chosen scorers...')
+    
     scorer_dict = {k: scorer_dict[k] for k in config_dict["scorer_list"]}
+    omicLogger.info('Scorers extracted. Defining plots...')
     
     # See what plots are defined
     plot_dict = define_plots(config_dict["problem_type"])
@@ -105,6 +122,7 @@ if __name__ == "__main__":
         if model_name in CustomModel.custom_aliases:
             CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict, experiment_folder)
 
+    omicLogger.debug('Plots defined. Creating results DataFrame...')
     # Create dataframe for performance results
     df_performance_results = pd.DataFrame()
 
@@ -125,8 +143,9 @@ if __name__ == "__main__":
 
     # For each model, load it and then compute performance result
     # Loop over the models
+    omicLogger.debug('Begin evaluating models...')
     for model_name in config_dict["model_list"]:
-        
+        omicLogger.debug(f'Evaluate model: {model_name}')
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -135,11 +154,14 @@ if __name__ == "__main__":
             exit()
 
         print(f"Plotting barplot for {model_name} using {config_dict['fit_scorer']}")
+        omicLogger.debug('Loading...')
         model = utils.load_model(model_name, model_path)
 
+        omicLogger.debug('Evaluating...')
         # Evaluate the best model using all the scores and CV
         performance_results_dict = models.evaluate_model(model, config_dict['problem_type'], x_train, y_train, x_heldout, y_heldout)
         
+        omicLogger.debug('Saving...')
         # Save the results
         df_performance_results, fname_perfResults = models.save_results(
             results_folder, df_performance_results, performance_results_dict,
@@ -147,5 +169,7 @@ if __name__ == "__main__":
 
         print(f"{model_name} evaluation on hold out complete! Results saved at {Path(fname_perfResults).parents[0]}")
 
+    omicLogger.debug('Begin plotting graphs')
     # Central func to define the args for the plots
     plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_heldout, y_heldout, scorer_dict, holdout=True)
+    omicLogger.info('Process completed.')

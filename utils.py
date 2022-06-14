@@ -18,9 +18,10 @@ import models
 import plotting
 from custom_model import CustomModel, TabAuto
 import calour as ca
-
-
-
+from datetime import datetime
+import logging
+# omicLogger = logging.getLogger("OmicLogger")
+import yaml
 
 def filter_biom(amp_exp, abundance=10, prevalence=0.01, collapse_tax=None):
     '''
@@ -48,7 +49,6 @@ def filter_biom(amp_exp, abundance=10, prevalence=0.01, collapse_tax=None):
 
     return amp_exp
 
-
 def encode_all_categorical(df, include_cols=[], exclude_cols=[]):
     '''
     Encodes all data of type "object" to categorical
@@ -69,7 +69,6 @@ def encode_all_categorical(df, include_cols=[], exclude_cols=[]):
                 # Encode using the numerical codes
                 df[col] = df[col].cat.codes
 
-
 def unique_subjects(df):
     '''
     Find the unique subjects by adding the subject number to the study code
@@ -79,7 +78,6 @@ def unique_subjects(df):
     df["Subject"] = df["Subject"].astype(str)
     df["unique_subject"] = df["StudyID"] + "_" + df["Subject"].str[-2:].astype(int).astype(str)
     return df
-
 
 def prepare_data(amp_exp):
     '''
@@ -91,7 +89,6 @@ def prepare_data(amp_exp):
         data = amp_exp.data
     data = StandardScaler().fit_transform(data)
     return data
-
 
 def select_class_col(amp_exp, encoding=None, index=None, name=None):
     '''
@@ -122,7 +119,6 @@ def select_class_col(amp_exp, encoding=None, index=None, name=None):
         print(f"Corresponding encoding {code}")
     return y
 
-
 def merge_classes(amp_exp, class_col_name, merge_by):
     # Get the relevant class column
     class_col = amp_exp.sample_metadata[class_col_name]
@@ -133,15 +129,12 @@ def merge_classes(amp_exp, class_col_name, merge_by):
     amp_exp.sample_metadata[class_col_name] = class_col
     return amp_exp
 
-
 def remove_classes(class_col, contains="X"):
     # Deprecated! Keeping function here as replacement is specific to Calour - this is specific to Pandas
     return class_col[~class_col.str.contains(contains)]
 
-
 def filter_metadata(amp_exp, col_name, to_filter):
     return amp_exp.filter_by_metadata(field=col_name, select=to_filter, axis=0, negate=True)
-
 
 def modify_classes(amp_exp, class_col_name, remove_class=None, merge_by=None):
     '''
@@ -155,7 +148,6 @@ def modify_classes(amp_exp, class_col_name, remove_class=None, merge_by=None):
     if merge_by is not None:
         amp_exp = merge_classes(amp_exp, class_col_name, merge_by=merge_by)
     return amp_exp
-
 
 def filter_multiple(amp_exp, filter_list, axis=0, negate=True):
     # Loop over the filter dicts so that we can filter by multiple sets of conditions
@@ -172,7 +164,6 @@ def filter_multiple(amp_exp, filter_list, axis=0, negate=True):
         amp_exp = amp_exp.reorder(select, axis=axis, inplace=False)
     return amp_exp
 
-
 def filter_samples(amp_exp, filter_obj):
     '''
     Filter the metadata samples using a {col_name: [remove_vals]} construct
@@ -186,7 +177,6 @@ def filter_samples(amp_exp, filter_obj):
         amp_exp = filter_multiple(amp_exp, filter_obj)
     return amp_exp
 
-
 def check_keys(selection_list, def_dict):
     '''
     Check that each key to be selected exists in the dict that defines them
@@ -196,7 +186,6 @@ def check_keys(selection_list, def_dict):
     for name in selection_list:
         if name not in def_dict:
             raise KeyError(f"{name} is not a defined model in {def_dict}")
-
 
 def load_model(model_name, model_path):
     '''
@@ -222,7 +211,6 @@ def load_model(model_name, model_path):
             model = joblib.load(f)
     return model
 
-
 def load_config(config_path):
     '''
     Load a JSON file (general function, but we use it for configs)
@@ -230,7 +218,6 @@ def load_config(config_path):
     with open(config_path) as json_file:
         config_dict = json.load(json_file)
     return config_dict
-
 
 def save_config(experiment_folder, config_path, config_dict):
     '''
@@ -240,7 +227,6 @@ def save_config(experiment_folder, config_path, config_dict):
     fname = experiment_folder / config_path.name
     with open(fname, "w") as outfile:
         json.dump(config_dict, outfile, indent=4)
-
 
 def check_config(config_dict):
     '''
@@ -271,7 +257,6 @@ def check_config(config_dict):
         except:
             print("Assuming windows")
 
-
 def create_experiment_folders(config_dict, config_path):
     '''
     Create the folder for the given config and the relevant subdirectories
@@ -290,7 +275,6 @@ def create_experiment_folders(config_dict, config_path):
     # Save the config in the experiment folder for ease
     save_config(experiment_folder, config_path, config_dict)
     return experiment_folder
-
 
 def select_explainer(model, model_name, df_train, problem_type):
     '''
@@ -315,7 +299,6 @@ def select_explainer(model, model_name, df_train, problem_type):
         elif problem_type == "regression":
             explainer = shap.KernelExplainer(model.predict, df_train_km)
     return explainer
-
 
 def compute_exemplars_SHAPvalues_withCrossValidation(experiment_folder, config_dict, amp_exp, model, model_name,
                                                      x_train, x_test, y_test, fold_id, pcAgreementLevel=10, save=True):
@@ -387,7 +370,6 @@ def compute_exemplars_SHAPvalues_withCrossValidation(experiment_folder, config_d
 
     return num_exemplar
 
-
 def save_exemplars_SHAP_values(config_dict, experiment_folder, feature_names, model_name, class_names,
                                exemplars_selected, fold_id):
     # Deal with classification differently, classification has shap values for each class
@@ -418,7 +400,6 @@ def save_exemplars_SHAP_values(config_dict, experiment_folder, feature_names, mo
         df_exemplars = pd.DataFrame(data=exemplars_selected, columns=feature_names)
         fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_{fold_id}"
         df_exemplars.to_csv(fname_exemplars + '.txt')
-
 
 def compute_average_abundance_top_features(config_dict, num_top, model_name, class_names, feature_names, data,  shap_values_selected):
 
@@ -489,7 +470,6 @@ def compute_average_abundance_top_features(config_dict, num_top, model_name, cla
 
     return top_names, top_averageAbund, shap_values_mean_sorted[:num_top]
 
-
 # Get the set of samples for which the prediction are very close to the ground truth
 def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
     # Get the predictions
@@ -543,7 +523,6 @@ def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
 
     return exemplar_X_test
 
-
 def get_feature_names_alternative(amp_exp):
     inputFeatureData = amp_exp.feature_metadata
     """ Get simple names for taxonomy """
@@ -558,7 +537,6 @@ def get_feature_names_alternative(amp_exp):
         names.append(name)
     return names
 
-
 def get_feature_names_for_abundance(amp_exp):
     inputFeatureData = amp_exp.feature_metadata
     """ Get simple names for taxonomy """
@@ -572,7 +550,6 @@ def get_feature_names_for_abundance(amp_exp):
         #    name = tmpSplit[len(tmpSplit)-3]#+tmpSplit[len(tmpSplit)-1]
         names.append(name)
     return names
-
 
 def get_feature_names_calourexp(amp_exp, config_dict):
     '''
@@ -608,16 +585,13 @@ def get_feature_names_calourexp(amp_exp, config_dict):
                 counter[root_name] += 1
     return feature_names
 
-
 def save_explainer(experiment_folder, model_name, explainer):
     save_name = f"{experiment_folder / 'models' / 'explainers' / 'shap'}_{model_name}.pkl"
     with open(save_name, 'wb') as f:
         joblib.dump(explainer, f)
 
-
 def tidy_tf():
     K.clear_session()
-
 
 def create_parser():
     parser = argparse.ArgumentParser(description="Microbiome ML Framework")
@@ -627,7 +601,6 @@ def create_parser():
         help="Filename of the relevant config file. Automatically selects from configs/ subdirectory."
     )
     return parser
-
 
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
@@ -662,3 +635,19 @@ def create_microbiome_calourexp(fpath_biom, fpath_meta, norm_reads=1000, min_rea
 
     return exp
 
+def setup_logger(experiment_folder):
+    with open('logging.yml') as file:
+        lg_file = yaml.safe_load(file)
+
+    lg_file['handlers']['file']['filename'] =str(experiment_folder/f'AutoOmicLog_{str(int(datetime.timestamp(datetime.utcnow())))}.log')
+    logging.config.dictConfig(lg_file)
+    
+    # formatter = logging.Formatter('%(name)s - %(asctime)s - %(filename)s - %(funcName)s() - %(levelname)s : %(message)s')
+    # fh = logging.FileHandler(filename=str(experiment_folder/f'AutoOmicLog_{str(int(datetime.timestamp(datetime.utcnow())))}.log'),mode='a')
+    # fh.setFormatter(formatter)
+    omicLogger = logging.getLogger("OmicLogger")
+    # omicLogger.setLevel(logging.DEBUG)
+    # omicLogger.addHandler(fh)
+    omicLogger.info('OmicLogger initialised')
+    
+    return omicLogger
