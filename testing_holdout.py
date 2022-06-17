@@ -32,6 +32,7 @@ from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, make_scorer
 import sklearn.metrics as skm
 # import imblearn
+import joblib
 
 ##########
 from data_processing import *
@@ -64,34 +65,31 @@ if __name__ == "__main__":
     omicLogger = utils.setup_logger(experiment_folder)
     omicLogger.info('Loading data...')
     
-    x, y, x_heldout, y_heldout, features_names = load_data(config_dict,load_holdout=True)
-    omicLogger.info('Data Loaded. Splitting data...')
+    x_heldout, y_heldout, features_names = load_data(config_dict,load_holdout=None)
+    omicLogger.info('Heldout Data Loaded. Loading test/train data...')
     
-    # Split the data in train and test
-    x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
-    omicLogger.info('Data splitted. Standardising...')
+    x_df = pd.read_csv(experiment_folder/'transformed_model_input_data.csv')
+    x_train = x_df[x_df['set']=='Train'].iloc[:,:-1].values
+    x_test = x_df[x_df['set']=='Test'].iloc[:,:-1].values
+    x = x_df.iloc[:,:-1].values
+    features_names = x_df.columns[:-1]
     
-    # standardise data
-    x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
-    x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
+    y_df = pd.read_csv(experiment_folder/'transformed_model_target_data.csv')
+    y_train = y_df[y_df['set']=='Train'].iloc[:,:-1].values.ravel()
+    y_test = y_df[y_df['set']=='Test'].iloc[:,:-1].values.ravel()
+    y = y_df.iloc[:,:-1].values.ravel()
+    omicLogger.info('Test/train Data Loaded. Transforming holdout data...')
+    
+    with open(experiment_folder/'transformer_std.pkl', 'rb') as f:
+        SS = joblib.load(f)
     x_heldout = transform_data(x_heldout,SS) #transform the holdout data according to the fitted standardiser
-    omicLogger.info('Data standardised. Selecting features...')
     
-    #implement feature selection if desired
     if config_dict['feature_selection'] is not None:
-        x_train, features_names, FS = feat_selection(experiment_folder,x_train, y_train, features_names, config_dict["problem_type"], config_dict['feature_selection'], save=False)
-        x_test = FS.transform(x_test)
+        with open(experiment_folder/'transformer_fs.pkl', 'rb') as f:
+            FS = joblib.load(f)
         x_heldout = FS.transform(x_heldout)
-        omicLogger.info('Features selected. Re-combining data...')
-    else:
-        print("Skipping Feature selection.")
-        omicLogger.info('Skipping feature selection. Re-combining data...')
-
         
-    # concatenate both test and train into test
-    x = np.concatenate((x_train,x_test))
-    y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
-    omicLogger.info('Data combined. Defining all Scorers...')
+    omicLogger.info('Heldout data transformed. Defining scorers...')
     
     """
     if (config_dict["problem_type"] == "classification"):

@@ -1450,6 +1450,29 @@ def opt_k_plot(experiment_folder, sr_n, save=True):
     if save:
         fname = f"{experiment_folder / 'graphs' / 'feature_selection_scatter'}"
         save_fig(fig, fname)
+
+def plot_model_performance(experiment_folder,data,metric,low,save=True):
+    """
+    produces a scatter plot of the models and their performance on the training set and test set according to the given metric
+    """
+    omicLogger.debug(f"Creating model performance scatter according to {metric}...")
+    
+    ax = sns.scatterplot(x=data[metric+'_Train'].tolist(), y=data[metric+'_Test'].tolist(),)
+    ax_min = data.min().min()*0.75
+    ax_max = 1 if not low else data.max().max()
+    ax.plot([ax_min,ax_max],[ax_min,ax_max],'k--',)
+    ax.set(xlabel='Training set', ylabel='Test set')
+    ax.set_title('Model Performance by '+metric)
+    for model,row in data.iterrows():
+        test = row[metric+'_Test']
+        train = row[metric+'_Train']
+        ax.text(train+.02, test, str(model))
+        
+    fig = plt.gcf()
+    if save:
+        plotname = 'model_performance_'+metric
+        fname = f"{experiment_folder / 'graphs' /plotname }"
+        save_fig(fig, fname)
         
 if __name__ == "__main__":
     '''
@@ -1477,31 +1500,17 @@ if __name__ == "__main__":
     omicLogger.info('Loading data...')
     
     #read in the data
-    x, y, features_names = load_data(config_dict)
-    omicLogger.info('Data Loaded. Splitting data...')
+    x_df = pd.read_csv(experiment_folder/'transformed_model_input_data.csv')
+    x_train = x_df[x_df['set']=='Train'].iloc[:,:-1].values
+    x_test = x_df[x_df['set']=='Test'].iloc[:,:-1].values
+    x = x_df.iloc[:,:-1].values
+    features_names = x_df.columns[:-1]
     
-    # Split the data in train and test
-    x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
-    omicLogger.info('Data splitted. Standardising...')
-    
-    # standardise data
-    x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
-    x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
-    omicLogger.info('Data standardised. Selecting features...')
-    
-    #implement feature selection if desired
-    if config_dict['feature_selection'] is not None:
-        x_train, features_names, FS = feat_selection(experiment_folder,x_train, y_train, features_names, config_dict["problem_type"], config_dict['feature_selection'])
-        x_test = FS.transform(x_test)
-        omicLogger.info('Features selected. Re-combining data...')
-    else:
-        print("Skipping Feature selection.")
-        omicLogger.info('Skipping feature selection. Re-combining data...')
-        
-    # concatenate both test and train into test
-    x = np.concatenate((x_train,x_test))
-    y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
-    omicLogger.info('Data combined. Defining scorers...')
+    y_df = pd.read_csv(experiment_folder/'transformed_model_target_data.csv')
+    y_train = y_df[y_df['set']=='Train'].iloc[:,:-1].values.ravel()
+    y_test = y_df[y_df['set']=='Test'].iloc[:,:-1].values.ravel()
+    y = y_df.iloc[:,:-1].values.ravel()
+    omicLogger.info('Test/train Data Loaded. Defining scorers...')
     
     """
     if (config_dict["problem_type"] == "classification"):

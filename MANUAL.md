@@ -96,7 +96,7 @@ The JSON config file is at the centre of the framework - it controls everything 
         "verbose": true,
         "auto_stack": false,
         "time_limits": 1000
-    }
+    },
     "feature_selection": {
         'k': 'auto',
         'var_threshold': 0,
@@ -110,8 +110,7 @@ The JSON config file is at the centre of the framework - it controls everything 
              "name": "SelectKBest", 
              "metric": "f_classif"
              }
-    }
-
+    },
 }
 ```
 ### General remarks

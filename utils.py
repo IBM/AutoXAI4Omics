@@ -20,8 +20,12 @@ from custom_model import CustomModel, TabAuto
 import calour as ca
 from datetime import datetime
 import logging
-# omicLogger = logging.getLogger("OmicLogger")
+omicLogger = logging.getLogger("OmicLogger")
 import yaml
+
+import os
+import shutil
+
 
 def filter_biom(amp_exp, abundance=10, prevalence=0.01, collapse_tax=None):
     '''
@@ -651,3 +655,51 @@ def setup_logger(experiment_folder):
     omicLogger.info('OmicLogger initialised')
     
     return omicLogger
+
+def low_metric_objective(metric):
+    """
+    Given a metric will return a bool representing wether the objective for the metric is as low as possible (True) or high as possible (False)
+    """
+    omicLogger.debug("Getting metric objective (High vs Low)...")
+    
+    objective_low = ['hamming_loss', 'hinge_loss','log_loss','zero_one_loss', 'mean_absolute_error', 'mean_squared_error', 'mean_squared_log_error', 'median_absolute_error', 'mean_poisson_deviance', 'mean_gamma_deviance', 
+                     'mean_tweedie_deviance']
+    objective_high = ['accuracy_score', 'f1_score','jaccard_score','matthews_corrcoef', 'precision_score', 'recall_score','explained_variance_score','r2_score']
+
+    if not ((metric in objective_high) or (metric in objective_low)):
+        raise ValueError(f"{metric} not avalable for use")
+    else:
+        return metric in objective_low
+    
+def copy_best_content(experiment_folder,best_models,collapse_tax):
+    omicLogger.debug("Extracting best model content into unique folder...")
+    
+    if collapse_tax == None:
+        collapse_tax = ''
+    
+    best = best_models[0]
+    alternatives = best_models[1:]
+    
+    if os.path.exists(experiment_folder/'best_model/'):
+        shutil.rmtree(experiment_folder/'best_model/')
+     
+    os.mkdir(experiment_folder/'best_model/')   
+    
+    fnames = [os.path.join(path, name) for path, subdirs, files in os.walk(str(experiment_folder)) for name in files]
+    sl_fnames = sorted([x for x in fnames if (('_'+best in x) or (best+'_' in x)) and ('.ipynb_checkpoints' not in x)])
+
+    for origin in sl_fnames:
+        omicLogger.debug(f'copying file {origin}')
+        file = os.path.basename(origin)
+        target = experiment_folder/f'best_model/{file}'
+        shutil.copyfile(origin, target)
+        
+    if len(alternatives)!=0:
+        with open(experiment_folder/'best_model/alternatives.txt', 'w') as fp:
+            fp.write('\n'.join(alternatives))
+            
+    filepath = experiment_folder/f'results/scores_{collapse_tax}_performance_results_testset.csv'
+    df = pd.read_csv(filepath)
+    df.set_index('model',inplace=True)
+    df = df.loc['rf']
+    df.to_csv(experiment_folder/f'best_model/scores_{collapse_tax}_performance_results_testset.csv')

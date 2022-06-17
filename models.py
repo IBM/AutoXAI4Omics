@@ -31,6 +31,11 @@ from custom_model import FixedKeras, AutoKeras, AutoSKLearn, AutoLGBM, AutoXGBoo
 import logging
 omicLogger = logging.getLogger("OmicLogger")
 
+from utils import copy_best_content
+import os
+
+from plotting import plot_model_performance
+
 
 ########## LOAD/DEFINE ##########
 def load_params_json(fpath):
@@ -295,6 +300,62 @@ def rmse(y_true, y_pred):
     omicLogger.debug('calculating rmse...')
     return np.sqrt(skm.mean_squared_error(y_true, y_pred))
 
+def best_selector(experiment_folder,problem_type,metric=None,collapse_tax=None):
+    """
+    Give trained models this will find and select the best one
+    """
+        
+    if collapse_tax == None:
+        collapse_tax = ''
+    
+    omicLogger.debug("selecting best model...")
+    filepath = experiment_folder/f'results/scores_{collapse_tax}_performance_results_testset.csv'
+    
+    if not os.path.exists(filepath):
+        raise ValueError(f'{filepath} does not exist')
+    
+    df = pd.read_csv(filepath)
+    df = df.set_index('model')
+    
+    if problem_type=="classification":
+        if (metric == None):
+            omicLogger.info(f'Best selection metric is None, Defaulting to F1_score...')
+            metric = 'f1'
+        low=False
+    else:
+        if (metric == None):
+            omicLogger.info(f'Best selection metric is None, Defaulting to Mean_AE...')
+            metric = 'mean_ae'
+        low=True
+        
+    df_cols = list(set([x.replace('_Train','').replace('_Test','') for x in list(df.columns) if ('PerClass' not in x)]))
+    offical_name = [x for x in df_cols if (metric in x.lower())]
+        
+    if len(offical_name)==0:
+        raise ValueError(f'{metric} not in metrics calculated for models')
+    
+    metric = offical_name[0]
+    
+    t_df = df[[metric+'_Train',metric+'_Test']]
+    
+    plot_model_performance(experiment_folder,t_df,metric,low=low)
+    
+    ang = t_df.apply(lambda row : round(np.arccos(np.dot(row.values,[1,1])/(np.linalg.norm(row.values)*np.linalg.norm([1,1]))),4),axis=1)
+    ang.name='Angle'
+
+    nrm = t_df.apply(lambda row : round(np.linalg.norm(row.values-1+int(low)),4),axis=1)
+    nrm.name='Norm'
+    
+    best = pd.concat([nrm,ang],axis=1)
+    best.sort_values(by=['Norm','Angle'],inplace=True)
+
+    nrm_min = list(np.where(best['Norm']==best['Norm'].min())[0])
+    sub1 = best['Angle'].iloc[nrm_min]
+    ang_min = list(np.where(sub1==sub1.min())[0])
+    best_models = list(sub1.keys()[ang_min])
+    
+    return best_models
+
 ########## WRAPPERS ##########
 def random_search(model, model_name, param_ranges, budget, x_train, y_train, seed_num, scorer_dict, fit_scorer):
     '''
@@ -475,6 +536,9 @@ def run_models(
             model_name, fname,
             suffix="_performance_results_testset", save_pkl=False, save_csv=True)
 
+        
+        
+        
         print(f"{model_name} complete! Results saved at {Path(fname_perfResults).parents[0]}")
 
         # Save predictions and probabilities on test set

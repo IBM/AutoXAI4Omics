@@ -8,6 +8,7 @@ from data_processing import *
 
 ##########
 import logging
+import joblib
 ##########
 
 def main(config_dict, config_path):
@@ -36,13 +37,25 @@ def main(config_dict, config_path):
     # standardise data
     x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
     x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
-    omicLogger.info('Data standardised. Selecting features...')
     
-    #implement feature selection if desired
+    # save the standardiser transformer
+    save_name = experiment_folder / "transformer_std.pkl"
+    with open(save_name, 'wb') as f:
+        joblib.dump(SS, f)
+    
+    omicLogger.info('Data standardised, transformer saved. Selecting features...')
+    
+    # implement feature selection if desired
     if config_dict['feature_selection'] is not None:
         x_train, features_names, FS = feat_selection(experiment_folder,x_train, y_train, features_names, config_dict["problem_type"], config_dict['feature_selection'])
         x_test = FS.transform(x_test)
-        omicLogger.info('Features selected. Re-combining data...')
+        
+        # Save the feature selection tranformer
+        save_name = experiment_folder / "transformer_fs.pkl"
+        with open(save_name, 'wb') as f:
+            joblib.dump(FS, f)
+            
+        omicLogger.info('Features selected, transformer saved. Re-combining data...')
     else:
         print("Skipping Feature selection.")
         omicLogger.info('Skipping feature selection. Re-combining data...')
@@ -50,9 +63,19 @@ def main(config_dict, config_path):
     # concatenate both test and train into test
     x = np.concatenate((x_train,x_test))
     y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
-    omicLogger.info('Data combined. Defining models...')
-    ############ TODO: SAVE DATA TO FILE
     
+    # save the transformed input data
+    x_df = pd.DataFrame(x,columns = features_names)
+    x_df['set'] = 'Train'
+    x_df['set'].iloc[-x_test.shape[0]:]='Test'
+    x_df.to_csv(experiment_folder/'transformed_model_input_data.csv',index=False)
+    
+    y_df = pd.DataFrame(y,columns = ['target'])
+    y_df['set'] = 'Train'
+    y_df['set'].iloc[-y_test.shape[0]:]='Test'
+    y_df.to_csv(experiment_folder/'transformed_model_target_data.csv',index=False)
+            
+    omicLogger.info('Data combined and saved to files. Defining models...')
     
     """
     if (config_dict["problem_type"] == "classification"):
@@ -127,9 +150,13 @@ def main(config_dict, config_path):
     else:
         omicLogger.info('No plots desired.')
         
+    # Select Best Model
+    best_models = models.best_selector(experiment_folder,config_dict['problem_type'],config_dict['fit_scorer'],config_dict['collapse_tax'])
+    utils.copy_best_content(experiment_folder,best_models,config_dict['collapse_tax'])
+        
     omicLogger.info('Process completed.')
         
-    ######### TODO: SELECT BEST MODEL
+    
 
 def activate(args):
     parser = argparse.ArgumentParser(description="Explainable AI framework for omics")

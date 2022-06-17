@@ -354,24 +354,27 @@ def get_data_tabular(path_file, metadata_path, config_dict):
 def load_data(config_dict,load_holdout=False):
     """
     Load the data presented in the config file
+    load_holdout = none, returns only the holdout data
+    load_holdout = True, returns both the non-holdout and the holdout data
+    load_holdout = False, returns only the non-holdout data
     """
     omicLogger.debug('Data load inititalised. Loading training data...')
-    
-    if(config_dict["data_type"]=="microbiome"):
-        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-        x,y,features_names = get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    elif(config_dict["data_type"] == "gene_expression"):
-        # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-        x, y, features_names = get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    elif(config_dict["data_type"] == "metabolomic"):
-        x, y, features_names = get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    elif(config_dict["data_type"] == "tabular"):
-        x, y, features_names = get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-    else:
-        # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
-        x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
+    if load_holdout is not None:
+        if(config_dict["data_type"]=="microbiome"):
+            # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
+            x,y,features_names = get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+        elif(config_dict["data_type"] == "gene_expression"):
+            # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
+            x, y, features_names = get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+        elif(config_dict["data_type"] == "metabolomic"):
+            x, y, features_names = get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+        elif(config_dict["data_type"] == "tabular"):
+            x, y, features_names = get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+        else:
+            # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
+            x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
         
-    if load_holdout:
+    if (load_holdout is None) or load_holdout:
         omicLogger.debug('Training loaded. Loading holdout data...')
         if(config_dict["data_type"]=="microbiome"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
@@ -388,7 +391,9 @@ def load_data(config_dict,load_holdout=False):
             x_heldout, y_heldout, features_names = get_data(config_dict["file_path_holdout_data"], config_dict["target"], config_dict["metadata_file_holdout_data"])
        
     omicLogger.debug('Load completed')
-    if load_holdout:
+    if load_holdout is None:
+        return x_heldout, y_heldout, features_names
+    elif load_holdout:
         return x, y, x_heldout, y_heldout, features_names 
     else:
         return x, y, features_names
@@ -633,7 +638,7 @@ def feat_selection(experiment_folder,x,y,features_names,problem_type,FS_dict,sav
         raise ValueError("k must either be an int or the string 'auto' ")
     
     # construct the pipline of transformers
-    union = Pipeline([("variance", VT),("skb", SKB)])
+    union = Pipeline([("variance", VT),("featureSeletor", SKB)])
     
     # fetch the name of remaining features after the FS pipeline
     feature_names_out = features_names[VT.get_support(indices=True)][SKB.get_support(indices=True)]
@@ -676,11 +681,7 @@ def validate_models_and_metrics(problem_type,estimator,metric):
     if not (((problem_type=='regression') and (metric in metrics_regressors)) or ((problem_type=='classification') and (metric in metrics_classifiers))):
         raise ValueError(f"{metric} is not a valid method for a {problem_type} problem")
                                                  
-    objective_low = ['hamming_loss', 'hinge_loss','log_loss','zero_one_loss', 'mean_absolute_error', 'mean_squared_error', 'mean_squared_log_error', 'median_absolute_error', 'mean_poisson_deviance', 'mean_gamma_deviance', 
-                     'mean_tweedie_deviance']
-    objective_high = ['accuracy_score', 'f1_score','jaccard_score','matthews_corrcoef', 'precision_score', 'recall_score','explained_variance_score','r2_score']
-                                                 
-    return metric in objective_low
+    return utils.low_metric_objective(metric)
 
 def parse_model_inputs(problem_type, eval_model, eval_metric):
     omicLogger.debug('Parsing model inputs...')
