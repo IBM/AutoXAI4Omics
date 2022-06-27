@@ -9,6 +9,7 @@ from data_processing import *
 ##########
 import logging
 import joblib
+import cProfile
 ##########
 
 def main(config_dict, config_path):
@@ -59,7 +60,12 @@ def main(config_dict, config_path):
     else:
         print("Skipping Feature selection.")
         omicLogger.info('Skipping feature selection. Re-combining data...')
-        
+    
+    # perform class balancing if it is desired
+    if (config_dict["problem_type"] == "classification"):
+        if (config_dict["oversampling"] == "Y"):
+            x_train, y_train = oversample_data(x_train, y_train,config_dict["seed_num"])
+    
     # concatenate both test and train into test
     x = np.concatenate((x_train,x_test))
     y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
@@ -76,18 +82,6 @@ def main(config_dict, config_path):
     y_df.to_csv(experiment_folder/'transformed_model_target_data.csv',index=False)
             
     omicLogger.info('Data combined and saved to files. Defining models...')
-    
-    """
-    if (config_dict["problem_type"] == "classification"):
-        if (config_dict["oversampling"] == "Y"):
-            # define oversampling strategy
-            oversample = imblearn.over_sampling.RandomOverSampler(sampling_strategy='minority')
-            # fit and apply the transform
-            x_train, y_train = oversample.fit_resample(x_train, y_train)
-            print(f"X train data after oversampling shape: {x_train.shape}")
-            print(f"y train data after oversampling shape: {y_train.shape}")
-    """
-
 
     print("----------------------------------------------------------")
     print(f"X data shape: {x.shape}")
@@ -184,5 +178,16 @@ if __name__ == "__main__":
     # Do the initial setup
     config_path, config_dict = utils.initial_setup(args)
     
+    # init the profiler to time function executions
+    pr = cProfile.Profile()
+    pr.enable()
+    
     # Run the models
     main(config_dict, config_path)
+    
+    # save time profile information
+    pr.disable()
+    csv = prof_to_csv(pr)
+    with open(f"{config_dict['save_path']}results/{config_dict['name']}/time_profile.csv", 'w+') as f:
+        f.write(csv)
+

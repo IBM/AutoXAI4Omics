@@ -11,6 +11,11 @@ import math
 import plotting
 import logging
 omicLogger = logging.getLogger("OmicLogger")
+import imblearn
+
+import cProfile
+import pstats
+import io
 
 ###### FS METHODS
 from sklearn.feature_selection import SelectKBest, VarianceThreshold, RFE 
@@ -782,3 +787,29 @@ def parse_FS_settings(problem_type,FS_dict):
         auto_dict['eval_model'] = method_dict['estimator']
         
     return k, threshold, method_dict, auto_dict
+
+################### CLASS BALANCING ###################
+
+def oversample_data(x_train, y_train,seed):
+    """
+    Given the training set it has a class imbalance problem, this will over sample the training data to balance out the classes
+    """
+    omicLogger.debug("Oversampling data...")
+    # define oversampling strategy
+    oversample = imblearn.over_sampling.RandomOverSampler(random_state=seed,sampling_strategy='not majority')
+    # fit and apply the transform
+    x_resampled, y_resampled = oversample.fit_resample(x_train, y_train)
+    print(f"X train data after oversampling shape: {x_train.shape}")
+    print(f"y train data after oversampling shape: {y_train.shape}")
+    
+    return x_resampled, y_resampled
+
+################### TIME PROFILE ###################
+def prof_to_csv(prof: cProfile.Profile):
+    out_stream = io.StringIO()
+    pstats.Stats(prof, stream=out_stream).print_stats()
+    result = out_stream.getvalue()
+    # chop off header lines
+    result = 'ncalls' + result.split('ncalls')[-1]
+    lines = [','.join(line.rstrip().split(None, 5)) for line in result.split('\n')]
+    return '\n'.join(lines)

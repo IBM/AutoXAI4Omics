@@ -17,8 +17,9 @@ from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.svm import SVC, SVR
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier, GradientBoostingClassifier, AdaBoostRegressor, RandomForestRegressor, GradientBoostingRegressor
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, make_scorer
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, make_scorer, roc_auc_score
 import sklearn.metrics as skm
+from sklearn.preprocessing import normalize
 
 import joblib
 from xgboost import XGBClassifier, XGBRegressor
@@ -252,6 +253,13 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
     pred_train = model.predict(x_train)
 
     if problem_type == "classification":
+        if len(set(y_train))==2:
+            pred_test_proba = model.predict_proba(x_test)[:,1]
+            pred_train_proba = model.predict_proba(x_train)[:,1]
+        else:
+            pred_test_proba = normalize(model.predict_proba(x_test), axis=1, norm='l1')
+            pred_train_proba = normalize(model.predict_proba(x_train), axis=1, norm='l1')
+            
         score_dict = {
             'Accuracy_Train': accuracy_score(y_train, pred_train),
             'Accuracy_Test': accuracy_score(y_test, pred_test),
@@ -268,7 +276,9 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
             'Recall_PerClass_Train': recall_score(y_train, pred_train, average=None),
             'Recall_PerClass_Test': recall_score(y_test, pred_test, average=None),
             'Conf_matrix_Train': confusion_matrix(y_train, pred_train),
-            'Conf_matrix_Test': confusion_matrix(y_test, pred_test)
+            'Conf_matrix_Test': confusion_matrix(y_test, pred_test),
+            'ROC_auc_score_Train':roc_auc_score(y_train, pred_train_proba,multi_class='ovo'),
+            'ROC_auc_score_Test':roc_auc_score(y_test, pred_test_proba,multi_class='ovo'),
             # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='f1_weighted', cv=5)
         }
     else:

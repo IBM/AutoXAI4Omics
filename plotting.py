@@ -29,9 +29,11 @@ import models
 import utils
 from custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, make_scorer
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, make_scorer, roc_curve, auc
 import sklearn.metrics as skm
+from itertools import cycle
 # import imblearn
+import cProfile
 
 ##########
 from data_processing import *
@@ -54,7 +56,8 @@ def define_plots(problem_type):
             "conf_matrix": conf_matrix_plot,
             "shap_plots": shap_plots,
             "shap_force_plots": shap_force_plots,
-            "permut_imp_test": permut_importance
+            "permut_imp_test": permut_importance,
+            "roc_curve": roc_curve_plot
         }
     elif problem_type == "regression":
         plot_dict = {
@@ -107,6 +110,8 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
             plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_test, y_test, config_dict["top_feats_permImp"], cv='prefit', holdout=holdout)
         elif plot_method == "shap_plots":
             plot_func(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, config_dict["top_feats_shap"], holdout=holdout)
+        elif plot_method == "roc_curve":
+            plot_func(experiment_folder, config_dict, x_test, y_test, holdout=holdout)
 
         """elif plot_method == "shap_force_plots":
             plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations="all",
@@ -1473,6 +1478,77 @@ def plot_model_performance(experiment_folder,data,metric,low,save=True):
         plotname = 'model_performance_'+metric
         fname = f"{experiment_folder / 'graphs' /plotname }"
         save_fig(fig, fname)
+     
+    
+def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, holdout=False):
+    '''
+    Creates a ROC curve plot for each model. Saves them in separate files.
+    '''
+    omicLogger.debug('Creating roc_curve_plot...')
+    # Loop over the defined models
+    for model_name in config_dict["model_list"]:
+        # Define the figure object
+        fig, ax = plt.subplots()
+        # Load the model
+        try:
+            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
+        except IndexError:
+            print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
+            exit()
+
+        print(f"Plotting ROC Curve for {model_name}")
+        model = utils.load_model(model_name, model_path)
+        # Get the predictions
+        y_pred = model.predict_proba(x_test)
+        
+        try:
+            class_names = model.classes_.tolist()
+            # plt.setp(
+            #     ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+        except AttributeError:
+            print("Unable to get class names automatically")
+            class_names = None
+            
+            
+        # Compute ROC curve and ROC area for each class
+        fpr = dict()
+        tpr = dict()
+        roc_auc = dict()
+        for i in range(len(class_names)):
+            fpr[i], tpr[i], _ = roc_curve(y_test, y_pred[:, i],pos_label=class_names[i])
+            roc_auc[i] = auc(fpr[i], tpr[i])
+        
+        colors = cycle(["aqua", "darkorange", "cornflowerblue"])
+        for i, color in zip(range(len(class_names)), colors):
+            plt.plot(
+                fpr[i],
+                tpr[i],
+                color=color,
+                label="ROC curve of class {0} (area = {1:0.2f})".format(class_names[i], roc_auc[i]),
+            )
+
+        plt.plot([0, 1], [0, 1], color="navy", linestyle="--")
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel("False Positive Rate")
+        plt.ylabel("True Positive Rate")
+        plt.title(f"Receiver operating characteristic - {model_name}")
+        plt.legend(loc="lower right")
+        
+        # Save or show the plot
+        if save:
+            fname = f"{experiment_folder / 'graphs' / 'roc_curve'}_{model_name}"
+            fname += '_holdout' if holdout else ""
+            save_fig(fig, fname)
+        plt.draw()
+        plt.tight_layout()
+        plt.pause(0.001)
+        time.sleep(2)
+        # Close the figure to ensure we start anew
+        plt.clf()
+        plt.close()
+        # Clear keras and TF sessions/graphs etc.
+        utils.tidy_tf()
         
 if __name__ == "__main__":
     '''
@@ -1488,6 +1564,10 @@ if __name__ == "__main__":
     
     # Do the initial setup
     config_path, config_dict = utils.initial_setup(args)
+    
+    # init the profiler to time function executions
+    pr = cProfile.Profile()
+    pr.enable()
     
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
@@ -1512,18 +1592,6 @@ if __name__ == "__main__":
     y = y_df.iloc[:,:-1].values.ravel()
     omicLogger.info('Test/train Data Loaded. Defining scorers...')
     
-    """
-    if (config_dict["problem_type"] == "classification"):
-        if (config_dict["oversampling"] == "Y"):
-            # define oversampling strategy
-            oversample = imblearn.over_sampling.RandomOverSampler(sampling_strategy='minority')
-            # fit and apply the transform
-            x_train, y_train = oversample.fit_resample(x_train, y_train)
-            print(f"X train data after oversampling shape: {x_train.shape}")
-            print(f"y train data after oversampling shape: {y_train.shape}")
-    """
-
-    
     # Select only the scorers that we want
     scorer_dict = models.define_scorers(config_dict["problem_type"])
     scorer_dict = {k: scorer_dict[k] for k in config_dict["scorer_list"]}
@@ -1538,11 +1606,16 @@ if __name__ == "__main__":
     for model_name in config_dict["model_list"]:
         if model_name in CustomModel.custom_aliases:
             CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict, experiment_folder)
-    omicLogger.info('PLots defined. Begin creating plots...')
+    omicLogger.info('Plots defined. Begin creating plots...')
     # Central func to define the args for the plots
     plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict)
     omicLogger.info('Process completed.')
 
+    # save time profile information
+    pr.disable()
+    csv = prof_to_csv(pr)
+    with open(f"{config_dict['save_path']}results/{config_dict['name']}/time_profile.csv", 'w+') as f:
+        f.write(csv)
 
 
 """ OLD versions of some functions - such as shap functions """

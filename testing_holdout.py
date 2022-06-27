@@ -33,6 +33,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import sklearn.metrics as skm
 # import imblearn
 import joblib
+import cProfile
 
 ##########
 from data_processing import *
@@ -54,7 +55,11 @@ if __name__ == "__main__":
     
     # Do the initial setup
     config_path, config_dict = utils.initial_setup(args)
-
+    
+    # init the profiler to time function executions
+    pr = cProfile.Profile()
+    pr.enable()
+    
     # Set the global seed
     np.random.seed(config_dict["seed_num"])
 
@@ -90,18 +95,6 @@ if __name__ == "__main__":
         x_heldout = FS.transform(x_heldout)
         
     omicLogger.info('Heldout data transformed. Defining scorers...')
-    
-    """
-    if (config_dict["problem_type"] == "classification"):
-        if (config_dict["oversampling"] == "Y"):
-            # define oversampling strategy
-            oversample = imblearn.over_sampling.RandomOverSampler(sampling_strategy='minority')
-            # fit and apply the transform
-            x_train, y_train = oversample.fit_resample(x_train, y_train)
-            print(f"X train data after oversampling shape: {x_train.shape}")
-            print(f"y train data after oversampling shape: {y_train.shape}")
-    """
-
     
     # Select only the scorers that we want
     scorer_dict = models.define_scorers(config_dict["problem_type"])
@@ -171,3 +164,9 @@ if __name__ == "__main__":
     # Central func to define the args for the plots
     plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_heldout, y_heldout, scorer_dict, holdout=True)
     omicLogger.info('Process completed.')
+    
+    # save time profile information
+    pr.disable()
+    csv = prof_to_csv(pr)
+    with open(f"{config_dict['save_path']}results/{config_dict['name']}/time_profile.csv", 'w+') as f:
+        f.write(csv)

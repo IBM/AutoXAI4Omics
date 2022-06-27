@@ -30,3 +30,4 @@ scikit-optimize
 emcee
 pyDOE
 # keep the packages in this order! do not delete!
+imblearn
