@@ -98,19 +98,19 @@ The JSON config file is at the centre of the framework - it controls everything 
         "time_limits": 1000
     },
     "feature_selection": {
-        'k': 'auto',
-        'var_threshold': 0,
-        'auto': {
-            'min_features': 10, 
-            'interval': 1,
-            'eval_model': "RandomForestClassifier",
-            'eval_metric': "f1_score"
-            }
+        "k": "auto",
+        "var_threshold": 0,
+        "auto": {
+            "min_features": 10, 
+            "interval": 1,
+            "eval_model": "RandomForestClassifier",
+            "eval_metric": "f1_score"
+            },
          "method": {
              "name": "SelectKBest", 
              "metric": "f_classif"
              }
-    },
+    }
 }
 ```
 ### General remarks
