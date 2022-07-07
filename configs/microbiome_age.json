@@ -39,7 +39,8 @@
 	"collapse_tax": "genus",
 	"remove_classes": null, 
 	"merge_classes": null, 
-	"filter_samples": null, 
+	"filter_samples": null,
+	"encoding": null,
 	
 	"autosklearn_config": {"verbose": true, 
 			       "estimators": ["adaboost", "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"], 
