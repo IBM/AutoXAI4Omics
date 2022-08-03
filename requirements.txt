@@ -1,6 +1,6 @@
 # keep the packages in this order! do not delete!
 numpy==1.19.5
-scipy==1.5.4
+scipy
 pandas
 matplotlib
 scikit-learn
@@ -24,10 +24,10 @@ xgboost==1.3.3
 lightgbm==3.1.1
 optuna==2.5.0
 mxnet
-autogluon==0.2.0
-auto-sklearn==0.12.0
+# autogluon==0.2.0
+imblearn
+auto-sklearn==0.14.7
 scikit-optimize
 emcee
 pyDOE
 # keep the packages in this order! do not delete!
-imblearn

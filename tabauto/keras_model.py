@@ -18,12 +18,13 @@ def to_matrix(data, n):
 class KerasModel(BaseModel):
 
     def __init__(self, input_dim, output_dim, dataset_type, method='train_dnn_keras', init_model=None, conv1d=False,
-                 config=None):
+                 config=None, random_state=1234):
         super().__init__(input_dim, output_dim, dataset_type)
         self.method = method
         self.init_model = init_model
         self.conv1d = conv1d
         self.config = config if config else {}
+        self.random_state = random_state
         if self.method == 'train_dnn_keras':
             self.__init_fx__(input_dim, output_dim, dataset_type)
         elif self.method == 'train_dnn_autokeras':
@@ -51,7 +52,7 @@ class KerasModel(BaseModel):
             output_node = ak.DenseBlock(num_layers=self.num_layers, dropout=self.dropout, use_batchnorm=self.use_batchnorm)(output_node)
             output_node = ak.RegressionHead(dropout=self.dropout, metrics=['mae'])(output_node)
             model = ak.AutoModel(inputs=input_node, outputs=output_node, directory=tmp_path, max_trials=self.max_trials,
-                                 objective="val_loss", tuner=self.tuner)
+                                 objective="val_loss", tuner=self.tuner, seed=self.random_state)
 
             """
             # The following code is not supported well yet by Autokeras :(
@@ -70,11 +71,21 @@ class KerasModel(BaseModel):
             output_node = ak.DenseBlock(num_layers=self.num_layers, dropout=self.dropout, use_batchnorm=self.use_batchnorm)(output_node)
             output_node = ak.ClassificationHead(multi_label=True, dropout=self.dropout, metrics=['accuracy'])(output_node)
             model = ak.AutoModel(inputs=input_node, outputs=output_node, directory=tmp_path, max_trials=self.max_trials,
-                                 objective="accuracy", tuner=self.tuner)
+                                 objective="accuracy", tuner=self.tuner, seed=self.random_state)
 
         self.model = model
 
     def __init_fx__(self, input_dim, output_dim, dataset_type):
+        # import os
+        # os.environ['PYTHONHASHSEED']=str(self.random_state)
+        # os.environ['TF_CUDNN_DETERMINISTIC'] = str(self.random_state)
+        from tensorflow.random import set_seed
+        set_seed(self.random_state)
+        from numpy.random import seed
+        seed(self.random_state)
+        import random
+        random.seed(self.random_state)
+        
         if self.init_model is not None:
             # init_model = self.init_model
             # init_model.summary()
@@ -156,8 +167,8 @@ class KerasModel(BaseModel):
 
     def fit_data_ak(self, trainX, trainY, testX, testY, input_list=None):
         print("training AutoKeras model...")
-        # lr_scheduler = LearningRateScheduler(self._lr_schedule)
-        callbacks = []  # lr_scheduler]
+        lr_scheduler = LearningRateScheduler(self._lr_schedule)
+        callbacks = [lr_scheduler]
         callbacks.append(TerminateOnNaN())
 
         # train the model
@@ -194,29 +205,36 @@ class KerasModel(BaseModel):
         #                         epochs=epochs, batch_size=batch_size, callbacks=callbacks, verbose=2)
 
         bg_train = BatchGeneratorSeqArray(trainX, trainY, batch_size=batch_size)
-        bg_val = BatchGeneratorSeqArray(testX, testY, batch_size=batch_size)
+        if ((testX is None) and (testY is None)):
+            bg_val = None
+        else:
+            bg_val = BatchGeneratorSeqArray(testX, testY, batch_size=batch_size)
         history = self.model.fit_generator(generator=bg_train, validation_data=bg_val,
                                            epochs=epochs, callbacks=callbacks, verbose=2, workers=1)
 
         # Plot training & validation loss values
         plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
+        if bg_val is not None:
+            plt.plot(history.history['val_loss'])
         plt.title('Model loss')
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper right')
+        if bg_val is not None:
+            plt.legend(['Train', 'Test'], loc='upper right')
+        else:
+            plt.legend(['Train'], loc='upper right')
         # plt.show()
         plt.savefig('history_{}.png'.format(os.getpid()))
 
-        try:
-            ohe = self.model_ohe
-            del self.model
-            self.model = load_model('keras_model_ckpt_{}.h5'.format(os.getpid()))
-            self.model_ohe = ohe
-        except BaseException as e:
-            print("exception: ", str(e))
-            del self.model
-            self.model = load_model('keras_model_ckpt_{}.h5'.format(os.getpid()))
+        # try:
+        #     ohe = self.model_ohe
+        #     del self.model
+        #     self.model = load_model('keras_model_ckpt_{}.h5'.format(os.getpid()))
+        #     self.model_ohe = ohe
+        # except BaseException as e:
+        #     print("exception: ", str(e))
+        #     del self.model
+        #     self.model = load_model('keras_model_ckpt_{}.h5'.format(os.getpid()))
 
         feature_importances = None
         self.model.feature_importances_ = feature_importances

@@ -161,7 +161,7 @@ dependencies:
   - zlib=1.2.11=h1de35cc_3
   - zstd=1.3.7=h5bba6e5_0
   - pip:
-    - biom-format==2.1.8
+    - biom-format==2.1.9
     - cachecontrol==0.12.6
     - calour==2019.5.1
     - chardet==3.0.4
@@ -181,5 +181,4 @@ dependencies:
     - scikit-bio==0.5.5
     - statsmodels==0.11.1
     - urllib3==1.25.8
-prefix: /Users/acarrieri@uk.ibm.com/opt/anaconda3/envs/microbiome_py37
 

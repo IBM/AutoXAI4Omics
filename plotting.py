@@ -313,7 +313,9 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
         num_fold = 0
 
         for train_idx, test_idx in fold_obj.split(data, true_labels):
+            omicLogger.debug(f"{model_name}, fold {num_fold}")
             print(f"{model_name}, fold {num_fold}")
+            
             num_fold += 1
             # Load the model
             model = utils.load_model(model_name, model_path)
@@ -419,6 +421,7 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
         num_fold = 0
 
         for train_idx, test_idx in fold_obj.split(data, true_labels, groups):
+            omicLogger.debug(f"{model_name}, fold {num_fold}")
             print(f"{model_name}, fold {num_fold}")
             num_fold += 1
             # Load the model

@@ -319,7 +319,7 @@ class FixedKeras(TabAuto):
         num_outputs = self.n_classes
         dataset_type = self.config_dict["problem_type"]
 
-        model = KerasModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_dnn_keras")
+        model = KerasModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_dnn_keras", random_state=self.random_state)
 
         # Assign the model
         self.model = model
@@ -404,7 +404,7 @@ class AutoKeras(TabAuto):
             verbose = 0
 
         x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
-
+        
         self.model.fit_data(x_train, y_train, x_val, y_val)
 
         if verbose:
@@ -425,7 +425,7 @@ class AutoKeras(TabAuto):
         config = self.config_dict.get("autokeras_config", None)
         print("autokeras_config=", config)
         if config: self.verbose = config.get("verbose", False)
-        model = KerasModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_dnn_autokeras", config=config)
+        model = KerasModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_dnn_autokeras", config=config, random_state=self.random_state)
 
         # Assign the model
         self.model = model
@@ -535,7 +535,7 @@ class AutoSKLearn(TabAuto):
         config = self.config_dict.get("autosklearn_config", None)
         print("autosklearn_config=", config)
         if config: self.verbose = config.get("verbose", False)
-        model = SKLearnModel(num_inputs, num_outputs, dataset_type=dataset_type, method="auto", config=config)
+        model = SKLearnModel(num_inputs, num_outputs, dataset_type=dataset_type, method="auto", config=config, random_state=self.random_state)
 
         # Assign the model
         self.model = model
@@ -629,7 +629,7 @@ class AutoLGBM(TabAuto):
         config = self.config_dict.get("autolgbm_config", None)
         print("autolgbm_config=", config)
         if config: self.verbose = config.get("verbose", False)
-        model = LGBMModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_ml_lgbm_auto", config=config)
+        model = LGBMModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_ml_lgbm_auto", config=config, random_state=self.random_state)
 
         # Assign the model
         self.model = model
@@ -723,7 +723,7 @@ class AutoXGBoost(TabAuto):
         config = self.config_dict.get("autoxgboost_config", None)
         print("autoxgboost_config=", config)
         if config: self.verbose = config.get("verbose", False)
-        model = XGBoostModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_ml_xgboost_auto", config=config)
+        model = XGBoostModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_ml_xgboost_auto", config=config, random_state=self.random_state)
 
         # Assign the model
         self.model = model
@@ -746,135 +746,135 @@ class AutoXGBoost(TabAuto):
         return model
 
 
-class AutoGluon(TabAuto):
-    nickname = "autogluon"
-    # Attributes from the config
-    config_dict = None
+# class AutoGluon(TabAuto):
+#     nickname = "autogluon"
+#     # Attributes from the config
+#     config_dict = None
 
-    def __init__(self, random_state=None, scorer_func=None,
-                 data=None, data_test=None, labels=None, labels_test=None,
-                 n_classes=None, n_examples=None, n_dims=None, onehot_encode_obj=None,
-                 classes_=None, model=None):
-        # Param attributes
-        self.random_state = random_state
-        self.scorer_func = scorer_func
-        # Attributes for the model
-        self.data = data
-        self.data_test = data_test  # To track performance over epochs
-        self.labels = labels
-        self.labels_test = labels_test
-        self.n_classes = n_classes
-        self.n_examples = n_examples
-        self.n_dims = n_dims
-        self.onehot_encode_obj = onehot_encode_obj
-        self.classes_ = classes_
-        #
-        self.model = model
+#     def __init__(self, random_state=None, scorer_func=None,
+#                  data=None, data_test=None, labels=None, labels_test=None,
+#                  n_classes=None, n_examples=None, n_dims=None, onehot_encode_obj=None,
+#                  classes_=None, model=None):
+#         # Param attributes
+#         self.random_state = random_state
+#         self.scorer_func = scorer_func
+#         # Attributes for the model
+#         self.data = data
+#         self.data_test = data_test  # To track performance over epochs
+#         self.labels = labels
+#         self.labels_test = labels_test
+#         self.n_classes = n_classes
+#         self.n_examples = n_examples
+#         self.n_dims = n_dims
+#         self.onehot_encode_obj = onehot_encode_obj
+#         self.classes_ = classes_
+#         #
+#         self.model = model
 
-    def fit(self, data, labels, save_best=True):
-        """
-        Fit to provided data and labels
-        """
-        # Setup some of the attributes from the data
-        self.data = data
-        self.labels = labels
-        self.n_examples = data.shape[0]
-        self.n_dims = data.shape[1]
-        # Set up the needed things for training now we have access to the data and labels
-        self._preparation()
-        # Determine the number of classes
-        if self.config_dict["problem_type"] == "classification":
-            # One-hot encoding has already been done, so take the info from there
-            self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == "regression":
-            self.n_classes = 1
-        # Define the model
-        self._define_model()
+#     def fit(self, data, labels, save_best=True):
+#         """
+#         Fit to provided data and labels
+#         """
+#         # Setup some of the attributes from the data
+#         self.data = data
+#         self.labels = labels
+#         self.n_examples = data.shape[0]
+#         self.n_dims = data.shape[1]
+#         # Set up the needed things for training now we have access to the data and labels
+#         self._preparation()
+#         # Determine the number of classes
+#         if self.config_dict["problem_type"] == "classification":
+#             # One-hot encoding has already been done, so take the info from there
+#             self.n_classes = self.labels.shape[1]
+#         elif self.config_dict["problem_type"] == "regression":
+#             self.n_classes = 1
+#         # Define the model
+#         self._define_model()
 
-        # x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
-        x_train = self.data
-        y_train = self.labels
-        x_val = self.data_test
-        y_val = self.labels_test
+#         # x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
+#         x_train = self.data
+#         y_train = self.labels
+#         x_val = self.data_test
+#         y_val = self.labels_test
 
-        self.model.fit_data(x_train, y_train, x_val, y_val)
+#         self.model.fit_data(x_train, y_train, x_val, y_val)
 
-        if self.verbose:
-            print("Model Summary:")
-            print(self.model.summary())
-        return self
+#         if self.verbose:
+#             print("Model Summary:")
+#             print(self.model.summary())
+#         return self
 
-    def _define_model(self):
-        """
-        Define underlying mode/method
-        """
-        from tabauto.autogluon_model import AutogluonModel
+#     def _define_model(self):
+#         """
+#         Define underlying mode/method
+#         """
+#         from tabauto.autogluon_model import AutogluonModel
 
-        num_inputs = self.n_dims
-        num_outputs = self.n_classes
-        dataset_type = self.config_dict["problem_type"]
+#         num_inputs = self.n_dims
+#         num_outputs = self.n_classes
+#         dataset_type = self.config_dict["problem_type"]
 
-        config = self.config_dict.get("autogluon_config", None)
-        print("autogluon_config=", config)
-        if config: self.verbose = config.get("verbose", False)
-        model = AutogluonModel(num_inputs, num_outputs, dataset_type=dataset_type, method="auto", config=config)
+#         config = self.config_dict.get("autogluon_config", None)
+#         print("autogluon_config=", config)
+#         if config: self.verbose = config.get("verbose", False)
+#         model = AutogluonModel(num_inputs, num_outputs, dataset_type=dataset_type, method="auto", config=config)
 
-        # Assign the model
-        self.model = model
+#         # Assign the model
+#         self.model = model
 
-    def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'autogluon_best'}"
-        print("custom save_model: {}".format(fname))
-        self.model.save(fname+"_h5")
-        self._pickle_member(fname)
+#     def save_model(self):
+#         fname = f"{self.experiment_folder / 'models' / 'autogluon_best'}"
+#         print("custom save_model: {}".format(fname))
+#         self.model.save(fname+"_h5")
+#         self._pickle_member(fname)
 
-    @classmethod
-    def load_model(cls, model_path):
-        from autogluon.tabular import TabularPredictor
+#     @classmethod
+#     def load_model(cls, model_path):
+#         from autogluon.tabular import TabularPredictor
 
-        model_path = str(model_path)
-        # Load the pickled instance
-        with open(model_path+".pkl", 'rb') as f:
-            model = joblib.load(f)
-        # Load the model and set this to the relevant attribute
-        print("loading: {}_h5".format(model_path))
-        model.model = TabularPredictor.load(model_path+"_h5")
-        return model
+#         model_path = str(model_path)
+#         # Load the pickled instance
+#         with open(model_path+".pkl", 'rb') as f:
+#             model = joblib.load(f)
+#         # Load the model and set this to the relevant attribute
+#         print("loading: {}_h5".format(model_path))
+#         model.model = TabularPredictor.load(model_path+"_h5")
+#         return model
 
-    def predict_proba(self, data):
-        from autogluon.tabular import TabularDataset
+#     def predict_proba(self, data):
+#         from autogluon.tabular import TabularDataset
 
-        df_x = pd.DataFrame(data=data)
-        test_data = TabularDataset(data=df_x)
+#         df_x = pd.DataFrame(data=data)
+#         test_data = TabularDataset(data=df_x)
 
-        if self.config_dict["problem_type"] == "classification":
-            preds = self.model.predict_proba(test_data)
-            if isinstance(preds, (pd.DataFrame, pd.Series)):
-                preds = preds.values
-            return preds
-        else:
-            raise NotImplementedError()
+#         if self.config_dict["problem_type"] == "classification":
+#             preds = self.model.predict_proba(test_data)
+#             if isinstance(preds, (pd.DataFrame, pd.Series)):
+#                 preds = preds.values
+#             return preds
+#         else:
+#             raise NotImplementedError()
 
-    def predict(self, data):
-        """
-        Function to predict labels or values
-        """
-        from autogluon.tabular import TabularDataset
+#     def predict(self, data):
+#         """
+#         Function to predict labels or values
+#         """
+#         from autogluon.tabular import TabularDataset
 
-        df_x = pd.DataFrame(data=data)
-        test_data = TabularDataset(data=df_x)
+#         df_x = pd.DataFrame(data=data)
+#         test_data = TabularDataset(data=df_x)
 
-        if self.config_dict["problem_type"] == "classification":
-            # pred_inds = np.argmax(self.model.predict_proba(test_data), axis=1)
-            preds = self.model.predict_proba(test_data)
-            if isinstance(preds, (pd.DataFrame, pd.Series)):
-                preds = preds.values
-            pred_inds = np.argmax(preds, axis=1)
-            preds = self.onehot_encode_obj.categories_[0][pred_inds]
-        elif self.config_dict["problem_type"] == "regression":
-            preds = self.model.predict(test_data)
-            if isinstance(preds, (pd.DataFrame, pd.Series)):
-                preds = preds.values
-        else:
-            raise NotImplementedError()
-        return preds.flatten()
+#         if self.config_dict["problem_type"] == "classification":
+#             # pred_inds = np.argmax(self.model.predict_proba(test_data), axis=1)
+#             preds = self.model.predict_proba(test_data)
+#             if isinstance(preds, (pd.DataFrame, pd.Series)):
+#                 preds = preds.values
+#             pred_inds = np.argmax(preds, axis=1)
+#             preds = self.onehot_encode_obj.categories_[0][pred_inds]
+#         elif self.config_dict["problem_type"] == "regression":
+#             preds = self.model.predict(test_data)
+#             if isinstance(preds, (pd.DataFrame, pd.Series)):
+#                 preds = preds.values
+#         else:
+#             raise NotImplementedError()
+#         return preds.flatten()

@@ -10,3 +10,4 @@ venv
 dask-worker-space
 results
 .ipynb_checkpoints/
+configs/generated_*

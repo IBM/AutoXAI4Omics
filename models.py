@@ -27,7 +27,7 @@ from xgboost import XGBClassifier, XGBRegressor
 import model_params
 
 from custom_model import CustomModel
-from custom_model import FixedKeras, AutoKeras, AutoSKLearn, AutoLGBM, AutoXGBoost, AutoGluon
+from custom_model import FixedKeras, AutoKeras, AutoSKLearn, AutoLGBM, AutoXGBoost #, AutoGluon
 
 import logging
 omicLogger = logging.getLogger("OmicLogger")
@@ -193,14 +193,14 @@ def define_models(problem_type, hyper_tuning):
         model_dict["autolgbm"] = (AutoLGBM, ref_model_dict['autolgbm'])
         model_dict["autoxgboost"] = (AutoXGBoost, ref_model_dict['autoxgboost'])
         model_dict["autosklearn"] = (AutoSKLearn, ref_model_dict['autosklearn'])
-        model_dict["autogluon"] = (AutoGluon, ref_model_dict['autogluon'])
+        # model_dict["autogluon"] = (AutoGluon, ref_model_dict['autogluon'])
     except KeyError:
         model_dict["fixedkeras"] = (FixedKeras, model_params.single_model['fixedkeras'])
         model_dict["autokeras"] = (AutoKeras, model_params.single_model['autokeras'])
         model_dict["autolgbm"] = (AutoLGBM, model_params.single_model['autolgbm'])
         model_dict["autoxgboost"] = (AutoXGBoost, model_params.single_model['autoxgboost'])
         model_dict["autosklearn"] = (AutoSKLearn, model_params.single_model['autosklearn'])
-        model_dict["autogluon"] = (AutoGluon, model_params.single_model['autogluon'])
+        # model_dict["autogluon"] = (AutoGluon, model_params.single_model['autogluon'])
     return model_dict
 
 

@@ -12,13 +12,14 @@ def to_matrix(data, n):
 
 
 class LGBMObjective(object):
-    def __init__(self, dataset_type, train_x, train_y, test_x, test_y):
+    def __init__(self, dataset_type, train_x, train_y, test_x, test_y, random_state=123):
         # Hold this implementation specific arguments as the fields of the class.
         self.dataset_type = dataset_type
         self.train_x = train_x
         self.train_y = train_y
         self.test_x = test_x
         self.test_y = test_y
+        self.random_state = random_state
 
     def __call__(self, trial):
         # Calculate an objective value by using the extra arguments.
@@ -36,6 +37,7 @@ class LGBMObjective(object):
             'bagging_fraction': trial.suggest_uniform('bagging_fraction', 0.4, 1.0),
             'bagging_freq': trial.suggest_int('bagging_freq', 1, 7),
             'min_child_samples': trial.suggest_int('min_child_samples', 5, 100),
+            'random_state' : self.random_state,
         }
 
         if self.dataset_type == 'classification':
@@ -109,11 +111,12 @@ class LGBMObjective(object):
 
 class LGBMModel(BaseModel):
 
-    def __init__(self, input_dim, output_dim, dataset_type, method='train_ml_lgbm', config=None):
+    def __init__(self, input_dim, output_dim, dataset_type, method='train_ml_lgbm', config=None,random_state=123):
 
         super().__init__(input_dim, output_dim, dataset_type)
         self.method = method
         self.config = config if config else {}
+        self.random_state=random_state
         if self.method == 'train_ml_lgbm':
             self.__init_fx__(input_dim, output_dim, dataset_type)
         elif self.method == 'train_ml_lgbm_auto':
@@ -121,10 +124,10 @@ class LGBMModel(BaseModel):
 
     def __init_fx__(self, input_dim, output_dim, dataset_type):
         if dataset_type == "classification":
-            base_model = lgb_core.LGBMClassifier()
+            base_model = lgb_core.LGBMClassifier(random_state=self.random_state)
             model = base_model
         else:
-            base_model = lgb_core.LGBMRegressor()
+            base_model = lgb_core.LGBMRegressor(random_state=self.random_state)
             if output_dim > 1:
                 model = MultiOutputRegressor(base_model)
             else:
@@ -172,8 +175,8 @@ class LGBMModel(BaseModel):
             direction = "minimize"
 
         optuna.logging.set_verbosity(optuna.logging.ERROR)
-        study = optuna.create_study(direction=direction)
-        objective = LGBMObjective(self.dataset_type, trainX, trainY, testX, testY)
+        study = optuna.create_study(direction=direction,sampler=optuna.samplers.TPESampler(seed=self.random_state))
+        objective = LGBMObjective(self.dataset_type, trainX, trainY, testX, testY, random_state=self.random_state)
 
         study.optimize(objective, n_trials=self.n_trials, timeout=self.timeout)
         print('best_trial=', study.best_trial)
@@ -181,12 +184,12 @@ class LGBMModel(BaseModel):
         cv_stats = study.best_trial.user_attrs["cv_stats"]
 
         if self.dataset_type == 'classification':
-            self.model = lgb_core.LGBMClassifier(**study.best_params)
+            self.model = lgb_core.LGBMClassifier(random_state=self.random_state, **study.best_params)
         else:
             param = study.best_params
             param["objective"] = "regression"
             param["metric"] = "l1"
-            self.model = lgb_core.LGBMRegressor(**param)
+            self.model = lgb_core.LGBMRegressor(random_state=self.random_state, **param)
         self.model.fit(trainX, trainY)
         print("="*50)
         print("Autolgb: best model=", self.model)

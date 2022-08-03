@@ -64,7 +64,7 @@ The JSON config file is at the centre of the framework - it controls everything 
 
   "autosklearn_config": {
         "verbose": true,
-        "estimators": [ "adaboost", "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd" ],
+        "estimators": [ "decision_tree", "extra_trees", "k_nearest_neighbors", "random_forest"],
         "time_left_for_this_task": 200,
         "per_run_time_limit": 1000,
         "memory_limit": 65536,
@@ -92,25 +92,20 @@ The JSON config file is at the centre of the framework - it controls everything 
         "n_trials": 10,
         "timeout": 1000
     },
-    "autogluon_config": {
-        "verbose": true,
-        "auto_stack": false,
-        "time_limits": 1000
-    },
     "feature_selection": {
-        "k": "auto",
-        "var_threshold": 0,
-        "auto": {
-            "min_features": 10, 
-            "interval": 1,
-            "eval_model": "RandomForestClassifier",
-            "eval_metric": "f1_score"
-            },
+        'k': 'auto',
+        'var_threshold': 0,
+        'auto': {
+            'min_features': 10, 
+            'interval': 1,
+            'eval_model': "RandomForestClassifier",
+            'eval_metric': "f1_score"
+            }
          "method": {
              "name": "SelectKBest", 
              "metric": "f_classif"
              }
-    }
+    },
 }
 ```
 ### General remarks
@@ -148,7 +143,6 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
     * "autolgbm", LightGBM with automatic Hyper Parameter Optimization implemented. User can change the default settings in the example config file at `autolgbm_config`. "Timeout" is in minutes. 
     * "autokeras",  An AutoML system based on Keras for automatic tuning of neural networks available at https://autokeras.com. User can change the default settings in the example config file at `autokeras_config`. "time_left_for_this_task" and "per_run_time_limit" are in minutes.
     * "autosklearn", An automated machine learning toolkit for algorithm selection and hyperparameter tuning. It leverages recent advantages in Bayesian optimization, meta-learning and ensemble construction. Available at https://automl.github.io/auto-sklearn/master/. User can change the default settings in the example config file at `autosklearn_config`. 
-    * "autogluon", AutoGluon automates machine learning tasks enabling you to easily achieve strong predictive performance, similar to autosklearn. User can change the default settings in the example config file at `autogloun_config`. Time limits is in minutes. 
 * `scorer_list`: Specify the scoring measures to be used to analyse the models(these are defined in `models.py`). 
     * For classification tasks: "acc" (accuracy), "f1" (f1-score), "prec" (precision), "recall"
     * For regression tasks: "mse" (mean squared error), "mean_ae" (mean absolute error), "med_ae" (median absolute error), "rmse" (root mean square error) 
@@ -173,8 +167,8 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 * `collapse_tax`: Allows collapsing the taxonomy to the e.g. genus level "g" or species level "s". Uses the `calour.collapse_taxonomy` function (which collapses the entire taxonomic classification up to the level desired, so even if the genus is the same for two samples, if they have different e.g. order, they will be separate).
 * `min_reads` : samples with fewer than this many reads will be removed (default 1000)
 * `norm_reads` : samples are rescaled to this many total reads (default 1000, see below)
-* `filter_abundance`: low-abundance features are removed, e.g., OTUs with total count less than X across all samples (default 10, see below). Set this to 0 for no abundance filtering.
-* `filter_prevalence`: OTUs with low prevalence are removed. The default value is 0.01 which means that features occurring in < 1% of the samples (see below). Set this to 0 for no prevalence filtering.
+* `filter_abundance`: low-abundance features are removed, e.g., OTUs with total count less than X across all samples (default 10, see below)
+* `filter_prevalence`: OTUs with low prevalence are removed. The default value is 0.01 which means that features occurring in < 1% of the samples (see below)
 * `filter_microbiome_samples`: This can either be a list of dictionaries, or a dictionary, which have different behaviour/use-cases. In both, the dictionary key is the column, and the value is a list of values which will be used to filter the samples. If a single dictionary is provided, then each key:value pair is taken in isolation, and for a given column all samples that match any of the values are removed. A list of dictionaries is used when there are one or more multi-column criteria for samples to be removed. Each dictionary in the list is treated in isolation. In the example shown in the config, we want to remove samples where they have "Value1" in "Column2" and either "Value1" or "Value2" in "Column5", then we also want to do the same but for "Value2" in "Column2" with either "Value1" or "Value3" in "Column5". Uses the `calour.filtering.filter_by_metadata`. For example, as specified in "microbiome_example_config.json", all the samples that value "UK" for the metadata "COUNTRY" will be removed from the analysis. 
 * `remove_classes`: A list of values (class labels) that will be removed from the dataset. Uses the column defined in `target`. Only relevant for classification.
 * `merge_classes`: This is a dictionary where the key is the new class and the value is a list of values that will be converted into the key. So `{"X": ["A", "B"]}` will convert all "A" and "B" labels into "X" labels. Uses the column defined in `target`. Only relevant for classification.
@@ -224,6 +218,7 @@ These parameters need to specified only if `data_type`= "tabular".
     
 * Plot avaliable for classification tasks only:
     * "conf_matrix": The confusion matrix computed on the test set, after the model has being trained and tuned. This plot is generated for each model in `model_list`.
+    * "roc_curve": The ROC curves are computed on the test set after model training is completed and generated for each model.
     
 * Plots available for regression tasks only. These plots are generated for each model `in model_list`: 
     * "hist_overlapped": Histograms showing the overlap between the distributions of true values and predicted values by a given model. This plot is generated for each model in `model_list`. 
