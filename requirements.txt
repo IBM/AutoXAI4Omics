@@ -16,7 +16,7 @@ h5py
 biom-format
 scikit-bio
 docrep
-calour
+calour==2018.5.1
 tensorflow==2.4.0
 keras-tuner==1.0.2
 autokeras==1.0.12

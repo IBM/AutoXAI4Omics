@@ -3,6 +3,7 @@ FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND="noninteractive"
 ARG USER_ID=${USER_ID}
 ENV R_BASE_VERSION 4.2.0
+ENV TF_CPP_MIN_LOG_LEVEL '2'
 
 # Upgrade installed packages
 RUN apt-get update && apt-get upgrade -y && apt-get clean

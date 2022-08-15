@@ -18,7 +18,7 @@ biom-format==2.1.12
 bleach==5.0.1
 CacheControl==0.12.11
 cachetools==5.2.0
-calour==2019.5.1
+calour==2018.5.1
 certifi==2022.6.15
 cffi==1.15.1
 cftime==1.6.1
