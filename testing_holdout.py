@@ -150,7 +150,8 @@ if __name__ == "__main__":
 
         omicLogger.debug('Evaluating...')
         # Evaluate the best model using all the scores and CV
-        performance_results_dict = models.evaluate_model(model, config_dict['problem_type'], x_train, y_train, x_heldout, y_heldout)
+        performance_results_dict, predictions = models.evaluate_model(model, config_dict['problem_type'], x_train, y_train, x_heldout, y_heldout)
+        predictions.to_csv(results_folder/f'{model_name}_holdout_predictions.csv',index=False)
         
         omicLogger.debug('Saving...')
         # Save the results

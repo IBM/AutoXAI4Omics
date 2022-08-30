@@ -123,7 +123,9 @@ def define_scorers(problem_type):
             'mse': skm.make_scorer(skm.mean_squared_error, greater_is_better=False),
             'mean_ae': skm.make_scorer(skm.mean_absolute_error, greater_is_better=False),
             'med_ae': skm.make_scorer(skm.median_absolute_error, greater_is_better=False),
-            'rmse': skm.make_scorer(rmse, greater_is_better=False)
+            'rmse': skm.make_scorer(rmse, greater_is_better=False),
+            'mean_ape' : skm.make_scorer(skm.mean_absolute_percentage_error, greater_is_better=False),
+            'r2' : skm.make_scorer(skm.r2_score, greater_is_better=True)
         }
     else:
         raise ValueError(f"{problem_type} is not recognised, must be either 'regression' or 'classification'")
@@ -251,14 +253,20 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
     
     pred_test = model.predict(x_test)
     pred_train = model.predict(x_train)
+    pred_out = np.concatenate((pred_train,pred_test))
 
     if problem_type == "classification":
+        col_names = ['Prediction']
         if len(set(y_train))==2:
             pred_test_proba = model.predict_proba(x_test)[:,1]
             pred_train_proba = model.predict_proba(x_train)[:,1]
+            prob_out = np.concatenate((pred_train_proba,pred_test_proba)).reshape(-1,1)
+            col_names +=['probability']
         else:
             pred_test_proba = normalize(model.predict_proba(x_test), axis=1, norm='l1')
             pred_train_proba = normalize(model.predict_proba(x_train), axis=1, norm='l1')
+            prob_out = np.concatenate((pred_train_proba,pred_test_proba))
+            col_names += [f'class_{i}_prob' for i in range(len(set(y_train)))]
             
         score_dict = {
             'Accuracy_Train': accuracy_score(y_train, pred_train),
@@ -281,6 +289,8 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
             'ROC_auc_score_Test':roc_auc_score(y_test, pred_test_proba,multi_class='ovo'),
             # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='f1_weighted', cv=5)
         }
+        
+        pred_out = pd.DataFrame(np.concatenate((pred_out.reshape(-1,1),prob_out),axis=1),columns=col_names)
     else:
         score_dict = {
             'MSE_Train': skm.mean_squared_error(y_train, pred_train),
@@ -288,12 +298,17 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
             'Mean_AE_Train': skm.mean_absolute_error(y_train, pred_train),
             'Mean_AE_Test': skm.mean_absolute_error(y_test, pred_test),
             'Med_ae_Train': skm.median_absolute_error(y_train, pred_train),
-            'Med_ae_Test': skm.median_absolute_error(y_test, pred_test)
+            'Med_ae_Test': skm.median_absolute_error(y_test, pred_test),
+            'Mean_APE_Train': skm.mean_absolute_percentage_error(y_train, pred_train),
+            'Mean_APE_Test': skm.mean_absolute_percentage_error(y_test, pred_test),
+            'R2_Train': skm.r2_score(y_train, pred_train),
+            'R2_Test': skm.r2_score(y_test, pred_test)
             # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='mean_ae', cv=5)
         }
+        
+        pred_out = pd.DataFrame(pred_out,columns=['Prediction'])
 
-
-    return score_dict
+    return score_dict, pred_out
 
 def eval_scores(problem_type, scorer_dict, model, data, true_labels):
     omicLogger.debug('Gathering evaluation scores...')
@@ -538,15 +553,14 @@ def run_models(
         save_model(experiment_folder, trained_model, model_name)
 
         # Evaluate the best model using all the scores and CV
-        performance_results_dict = evaluate_model(trained_model, config_dict['problem_type'], x_train, y_train, x_test, y_test)
-
+        performance_results_dict, predictions = evaluate_model(trained_model, config_dict['problem_type'], x_train, y_train, x_test, y_test)
+        predictions.to_csv(results_folder/f'{model_name}_predictions.csv',index=False)
+        
         # Save the results
         df_performance_results, fname_perfResults = save_results(
             results_folder, df_performance_results, performance_results_dict,
             model_name, fname,
             suffix="_performance_results_testset", save_pkl=False, save_csv=True)
-
-        
         
         
         print(f"{model_name} complete! Results saved at {Path(fname_perfResults).parents[0]}")

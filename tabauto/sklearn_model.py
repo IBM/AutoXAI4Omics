@@ -108,6 +108,7 @@ class SKLearnModel(BaseModel):
                     smac_scenario_args={
                         'deterministic': 'true',
                         },
+                    initial_configurations_via_metalearning=0,
                     **kwargs)
             else:
                 raise Exception("Unknown sklearn classification method")
@@ -181,6 +182,7 @@ class SKLearnModel(BaseModel):
                     smac_scenario_args={
                         'deterministic': 'true',
                         },
+                    initial_configurations_via_metalearning=0,
                     **kwargs)  
             else:
                 raise Exception("Unknown sklearn regression method")

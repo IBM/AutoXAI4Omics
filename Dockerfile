@@ -34,6 +34,7 @@ RUN mkdir -p ${R_LIBS_USER}
 COPY --chown=omicsuser:omicsuser install_R_packages.sh .
 COPY --chown=omicsuser:omicsuser *.py *.R ./
 COPY --chown=omicsuser:omicsuser tabauto ./tabauto
+COPY --chown=omicsuser:omicsuser omics ./omics
 COPY --chown=omicsuser:omicsuser logging.yml ./
 
 # Install required Python packages use block below if fixing other packages for the first time, use other

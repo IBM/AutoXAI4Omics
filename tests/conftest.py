@@ -211,11 +211,13 @@ def config_model_list():
 def config_scorers(problem_type):
     if problem_type == 'regression':
         outdict = {
-            "fit_scorer": "mean_ae",
+            "fit_scorer": "mean_ape",
             "scorer_list": [
                 "mean_ae",
                 "med_ae",
-                "rmse"
+                "rmse",
+                "mean_ape",
+                "r2"
             ],
         }
     elif problem_type == 'classification':

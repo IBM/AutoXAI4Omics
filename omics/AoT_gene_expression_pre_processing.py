@@ -20,17 +20,17 @@ args = parser.parse_args()
 if args.expressiontype == "COUNTS":
     os.system('%s %s %s %s %s %s %s %s %s %s %s' % (
     "R", "--slave", "--vanilla", "--args", args.expressionfile, args.Filtergenes[0], args.Filtergenes[1],
-    args.Filtersamples, args.output, "<", "Run_TMM.R"))
+    args.Filtersamples, args.output, "<", "omics/rscripts/Run_TMM.R"))
 
 elif args.expressiontype == "FPKM" or args.expressiontype == "RPKM" or args.expressiontype == "TPM" or args.expressiontype == "TMM":
     os.system('%s %s %s %s %s %s %s %s %s %s %s' % (
     "R", "--slave", "--vanilla", "--args", args.expressionfile, args.Filtergenes[0], args.Filtergenes[1],
-    args.Filtersamples, args.output, "<", "Run_others.R"))
+    args.Filtersamples, args.output, "<", "omics/rscripts/Run_others.R"))
 
 elif args.expressiontype == "Log2FC" or args.expressiontype == "OTHER" or args.expressiontype == "MET" or args.expressiontype == "TAB":
     os.system('%s %s %s %s %s %s %s %s %s %s %s' % (
     "R", "--slave", "--vanilla", "--args", args.expressionfile, args.Filtergenes[0], args.Filtergenes[1],
-    args.Filtersamples, args.output, "<", "Run_LO.R"))
+    args.Filtersamples, args.output, "<", "omics/rscripts/Run_LO.R"))
     
 #Filter metadata according to removed samples
 outputfile = pd.read_csv(args.output, sep=',')

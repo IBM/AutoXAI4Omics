@@ -1,8 +1,8 @@
-import subprocess
+# import subprocess
 import utils
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler, LabelEncoder, QuantileTransformer
 import scipy.sparse
 from sklearn.model_selection import GroupShuffleSplit, GroupKFold, train_test_split 
 from sklearn.pipeline import Pipeline
@@ -16,6 +16,9 @@ import imblearn
 import cProfile
 import pstats
 import io
+
+###### omic pre-processing
+from omics import microbiome, geneExp, metabolomic, tabular
 
 ###### FS METHODS
 from sklearn.feature_selection import SelectKBest, VarianceThreshold, RFE 
@@ -62,7 +65,8 @@ def standardize_data(data):
     else:
         data = data
         
-    SS = StandardScaler()
+    # SS = StandardScaler()
+    SS = QuantileTransformer(n_quantiles=max(20,data.shape[0]//20),output_distribution = 'normal')
     data = SS.fit_transform(data)
     return data, SS
 
@@ -109,253 +113,6 @@ def get_data(path_file, target, metadata_path):
 
     return x,y,features_names
 
-def get_data_microbiome(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-    omicLogger.debug('Loading Microbiome data...')
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
-    if(config_dict["norm_reads"] == "None" and config_dict["min_reads"] == "None"):
-        amp_exp = utils.create_microbiome_calourexp(path_file, metadata_path, None, None)
-    else:
-        amp_exp = utils.create_microbiome_calourexp(path_file, metadata_path, config_dict["norm_reads"],
-                                                    config_dict["min_reads"])
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing microbiome data *******")
-
-    print(f"Original data dimension: {amp_exp.data.shape}")
-    # Use calour to filter the data
-
-    amp_exp = utils.filter_biom(amp_exp, collapse_tax=config_dict["collapse_tax"])
-    print(f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}")
-
-    # Filter any data that needs it
-    if config_dict["filter_samples"] is not None:
-        amp_exp = utils.filter_samples(amp_exp, config_dict["filter_samples"])
-
-    # Modify the classes if need be
-    amp_exp = utils.modify_classes(
-        amp_exp,
-        config_dict["target"],
-        remove_class=config_dict["remove_classes"],
-        merge_by=config_dict["merge_classes"]
-    )
-
-    print(f"After filtering samples: {amp_exp.data.shape}")
-
-    print("Save experiment after filtering with name exp_filtered")
-    amp_exp.save('biom_data_filtered'+config_dict["name"])
-    print("****************************************************")
-    print("")
-    print("")
-    print("")
-
-    # Prepare data (load and normalize)
-    x = utils.prepare_data(amp_exp)
-    print(x.shape)
-    #print(amp_exp.sample_metadata.shape)
-    #print(amp_exp.sample_metadata.columns)
-
-    #try:
-    # Select the labels
-    y = utils.select_class_col(
-        amp_exp,
-        encoding=config_dict["encoding"], #from Cameron
-        name=config_dict["target"]
-    )
-    #except:
-    #   print("!!! ERROR: PLEASE SELECT TARGET TO PREDICT FROM METADATA FILE !!!")
-
-    features_names = utils.get_feature_names_calourexp(amp_exp, config_dict)
-
-    # Check the data and labels are the right size
-    assert len(x) == len(y)
-
-    return  x, y, features_names
-
-def get_data_gene_expression(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-    omicLogger.debug('Loading Gene Expression data...')
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
-
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing gene expression data *******")
-
-    # add the input file parameter
-    strcommand = "--expressionfile "+ path_file + " "
-
-    # add the expression type parameter that is required
-    if config_dict["expression_type"] is not None:
-        expression_type = config_dict["expression_type"]
-        print(expression_type)
-    else:
-        expression_type = "OTHER"
-    strcommand = strcommand+"--expressiontype "+expression_type+ " "
-
-    # add the filter_samples parameter that is optional
-    if config_dict["filter_sample"] is not None:
-        filter_samples = config_dict["filter_sample"]
-        print(filter_samples)
-        strcommand = strcommand + "--Filtersamples " + str(filter_samples) + " "
-
-    # add the filter_genes parameter that is optional
-    if config_dict["filter_genes"] is not None:
-        filter_genes = config_dict["filter_genes"][0] +" "+config_dict["filter_genes"][1]
-        print(filter_genes)
-        strcommand = strcommand+"--Filtergenes "+filter_genes+" "
-
-    # add the output file name that is required
-    if config_dict["output_file_ge"] is not None:
-        output_file = config_dict["output_file_ge"]
-        print(output_file)
-    else:
-        output_file = "processed_gene_expression_data"
-    strcommand = strcommand+"--output "+output_file+" "
-        
-    # add the metadata for filtering 
-    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
-
-    #add metadata output file that is required 
-    if config_dict["output_metadata"] is not None:
-        metout_file = config_dict["output_metadata"]
-        print(metout_file)
-        strcommand = strcommand+"--outputmetadata "+metout_file
-
-    print(strcommand)
-    omicLogger.debug('Running python/R preprocessing script...')
-    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
-    print(python_command)
-    subprocess.call(python_command, shell=True)
-    x,y, feature_names = get_data(config_dict["output_file_ge"], config_dict["target"], metout_file)
-
-    return x,y, feature_names
-
-def get_data_metabolomic(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-    omicLogger.debug('Loading Metabolic data...')
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
-
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing metabolomic data *******")
-
-    # add the input file parameter
-    strcommand = "--expressionfile "+ path_file + " "
-
-    # add the expression type parameter that is required
-    expression_type = "MET"
-    strcommand = strcommand+"--expressiontype "+expression_type+ " "
-
-    # add the filter_samples parameter that is optional
-    if config_dict["filter_metabolomic_sample"] is not None:
-        filter_met_samples = config_dict["filter_metabolomic_sample"]
-        print(filter_met_samples)
-        strcommand = strcommand + "--Filtersamples " + str(filter_met_samples) + " "
-
-    # add the filter_genes parameter to filter measurements that is optional
-    if config_dict["filter_measurements"] is not None:
-        filter_measurements = config_dict["filter_measurements"][0] +" "+config_dict["filter_measurements"][1]
-        print(filter_measurements)
-        strcommand = strcommand+"--Filtergenes "+filter_measurements+" "
-
-    # add the output file name that is required
-    if config_dict["output_file_met"] is not None:
-        output_file_met = config_dict["output_file_met"]
-        print(output_file_met)
-        strcommand = strcommand+"--output "+output_file_met+" "
-
-    # add the metadata for filtering 
-    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
-
-    #add metadata output file that is required
-    if config_dict["output_metadata"] is not None:
-        metout_file = config_dict["output_metadata"]
-        print(metout_file)
-        strcommand = strcommand+"--outputmetadata "+metout_file
-
-    print(strcommand)
-    omicLogger.debug('Running python/R preprocessing script...')
-    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
-    print(python_command)
-    subprocess.call(python_command, shell=True)
-    x,y, feature_names = get_data(config_dict["output_file_met"], config_dict["target"], metout_file)
-
-    return x,y, feature_names
-
-def get_data_tabular(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-    omicLogger.debug('Loading Tabular data...')
-
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
-
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing tabular data *******")
-
-    # add the input file parameter
-    strcommand = "--expressionfile "+ path_file + " "
-
-    # add the expression type parameter that is required
-    expression_type = "TAB"
-    strcommand = strcommand+"--expressiontype "+expression_type+ " "
-
-    # add the filter_samples parameter that is optional
-    if config_dict["filter_tabular_sample"] is not None:
-        filter_tabular_samples = config_dict["filter_tabular_sample"]
-        print(filter_tabular_samples)
-        strcommand = strcommand + "--Filtersamples " + str(filter_tabular_samples) + " "
-
-    # add the filter_genes parameter to filter measurements that is optional
-    if config_dict["filter_tabular_measurements"] is not None:
-        filter_measurements = config_dict["filter_tabular_measurements"][0] +" "+config_dict["filter_tabular_measurements"][1]
-        print(filter_measurements)
-        strcommand = strcommand+"--Filtergenes "+filter_measurements+" "
-
-    # add the output file name that is required
-    if config_dict["output_file_tab"] is not None:
-        output_file_tab = config_dict["output_file_tab"]
-        print(output_file_tab)
-        strcommand = strcommand+"--output "+output_file_tab+" "
-
-    # add the metadata for filtering
-    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
-    
-    #add metadata output file that is required
-    if config_dict["output_metadata"] is not None:
-        metout_file = config_dict["output_metadata"]
-        print(metout_file)
-        strcommand = strcommand+"--outputmetadata "+metout_file+" " 
-    
-    print(strcommand)
-
-    omicLogger.debug('Running python/R preprocessing script...')
-    python_command = "python AoT_gene_expression_pre_processing.py "+strcommand
-    print(python_command)
-    subprocess.call(python_command, shell=True)
-    x,y, feature_names = get_data(config_dict["output_file_tab"], config_dict["target"], metout_file)
-
-    return x,y, feature_names
-
 def load_data(config_dict,load_holdout=False):
     """
     Load the data presented in the config file
@@ -367,14 +124,14 @@ def load_data(config_dict,load_holdout=False):
     if load_holdout is not None:
         if(config_dict["data_type"]=="microbiome"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-            x,y,features_names = get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+            x,y,features_names = microbiome.get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
         elif(config_dict["data_type"] == "gene_expression"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-            x, y, features_names = get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+            x, y, features_names = geneExp.get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"], config_dict)
         elif(config_dict["data_type"] == "metabolomic"):
-            x, y, features_names = get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+            x, y, features_names = metabolomic.get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
         elif(config_dict["data_type"] == "tabular"):
-            x, y, features_names = get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+            x, y, features_names = tabular.get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
         else:
             # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
             x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
@@ -383,14 +140,14 @@ def load_data(config_dict,load_holdout=False):
         omicLogger.debug('Training loaded. Loading holdout data...')
         if(config_dict["data_type"]=="microbiome"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-            x_heldout, y_heldout, features_names = get_data_microbiome(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
+            x_heldout, y_heldout, features_names = microbiome.get_data_microbiome(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
         elif(config_dict["data_type"] == "gene_expression"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-            x_heldout, y_heldout, features_names = get_data_gene_expression(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
+            x_heldout, y_heldout, features_names = geneExp.get_data_gene_expression(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
         elif(config_dict["data_type"] == "metabolomic"):
-            x_heldout, y_heldout, features_names = get_data_metabolomic(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
+            x_heldout, y_heldout, features_names = metabolomic.get_data_metabolomic(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
         elif(config_dict["data_type"] == "tabular"):
-            x_heldout, y_heldout, features_names = get_data_tabular(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
+            x_heldout, y_heldout, features_names = tabular.get_data_tabular(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
         else:
             # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
             x_heldout, y_heldout, features_names = get_data(config_dict["file_path_holdout_data"], config_dict["target"], config_dict["metadata_file_holdout_data"])

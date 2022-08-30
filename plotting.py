@@ -36,7 +36,8 @@ from itertools import cycle
 import cProfile
 
 ##########
-from data_processing import *
+# from data_processing import *
+import data_processing
 import logging
 omicLogger = logging.getLogger("OmicLogger")
 ##########
@@ -260,7 +261,9 @@ def pretty_names(name, name_type):
         "f1": "F1-Score",
         "mean_ae": "Mean Absolute Error",
         "med_ae": "Median Absolute Error",
-        "rmse": "Root Mean Squared Error"
+        "rmse": "Root Mean Squared Error",
+        "mean_ape": "Mean Absolute Percentage Error",
+        "r2": "R^2"
     }
 
     if name_type == "model":
@@ -344,9 +347,6 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
             scores.append(score)
             num_testsamples_list.append(num_testsamples)
 
-            # Clear keras and TF sessions/graphs etc.
-            #utils.tidy_tf()
-
         # Maintain the total list
         all_scores.append(scores)
         # Save CV results
@@ -382,6 +382,8 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
     # Close the figure to ensure we start anew
     plt.clf()
     plt.close()
+    # Clear keras and TF sessions/graphs etc.
+    utils.tidy_tf()
 
 def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True, holdout=False):
     '''
@@ -498,6 +500,8 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
     # Close the figure to ensure we start anew
     plt.clf()
     plt.close()
+    # Clear keras and TF sessions/graphs etc.
+    utils.tidy_tf()
 
 def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True, holdout=False):
     '''
@@ -544,6 +548,9 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
     # Close the figure to ensure we start anew
     plt.clf()
     plt.close()
+    
+    # Clear keras and TF sessions/graphs etc.
+    utils.tidy_tf()
 
 def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, shap_dict, save=True, holdout=False):
     '''
@@ -1153,6 +1160,8 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
 
             plt.clf()
             plt.close()
+            # Clear keras and TF sessions/graphs etc.
+            utils.tidy_tf()
 
 
         # Regression
@@ -1203,6 +1212,8 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
             # Close the figure to ensure we start anew
             plt.clf()
             plt.close()
+            # Clear keras and TF sessions/graphs etc.
+            utils.tidy_tf()
 
             #  #Produce and save dot plot for regression
 
@@ -1230,6 +1241,9 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
             # Close the figure to ensure we start anew
             plt.clf()
             plt.close()
+            
+            # Clear keras and TF sessions/graphs etc.
+            utils.tidy_tf()
 
             # Plot abundance bar plot feature from SHAP
             class_names = []
@@ -1438,6 +1452,11 @@ def feat_acc_plot(experiment_folder, acc, save=True):
     if save:
         fname = f"{experiment_folder / 'graphs' / 'feature_selection_accuracy'}"
         save_fig(fig, fname)
+    # Close the figure to ensure we start anew
+    plt.clf()
+    plt.close()
+    # Clear keras and TF sessions/graphs etc.
+    utils.tidy_tf()
 
 def opt_k_plot(experiment_folder, sr_n, save=True):
     """
@@ -1458,7 +1477,12 @@ def opt_k_plot(experiment_folder, sr_n, save=True):
     if save:
         fname = f"{experiment_folder / 'graphs' / 'feature_selection_scatter'}"
         save_fig(fig, fname)
-
+    # Close the figure to ensure we start anew
+    plt.clf()
+    plt.close()
+    # Clear keras and TF sessions/graphs etc.
+    utils.tidy_tf()
+    
 def plot_model_performance(experiment_folder,data,metric,low,save=True):
     """
     produces a scatter plot of the models and their performance on the training set and test set according to the given metric
@@ -1481,8 +1505,12 @@ def plot_model_performance(experiment_folder,data,metric,low,save=True):
         plotname = 'model_performance_'+metric
         fname = f"{experiment_folder / 'graphs' /plotname }"
         save_fig(fig, fname)
-     
-    
+    # Close the figure to ensure we start anew
+    plt.clf()
+    plt.close()
+    # Clear keras and TF sessions/graphs etc.
+    utils.tidy_tf()
+        
 def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, holdout=False):
     '''
     Creates a ROC curve plot for each model. Saves them in separate files.
@@ -1616,7 +1644,7 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    csv = prof_to_csv(pr)
+    csv = data_processing.prof_to_csv(pr)
     with open(f"{config_dict['save_path']}results/{config_dict['name']}/time_profile.csv", 'w+') as f:
         f.write(csv)
 
