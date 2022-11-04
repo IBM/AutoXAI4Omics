@@ -89,10 +89,7 @@
     "filter_prevalence": null,
     
     "feature_selection": {
-	"k": "auto", 
-	"var_threshold": 0, 
-	"auto": {"min_features": 10, "interval": 1, "eval_model": "RandomForestClassifier", "eval_metric": "f1_score"}, 
-	"method": {"name": "SelectKBest", "metric": "f_classif"}
+	"k": "auto"
     }
     
 }
