@@ -1,13 +1,13 @@
 import subprocess
 import pytest
-import tensorflow
+# import tensorflow
 from os.path import exists
-import joblib
-import numpy as np
+# import joblib
+# import numpy as np
 import sys
 sys.path.append('../auto-omics/')
-import custom_model
-import optuna
+# import custom_model
+# import optuna
 import yaml
 import pandas as pd
     

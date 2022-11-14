@@ -5,107 +5,102 @@ This is a user manual for the framework, where the fields of the config file are
 The JSON config file is at the centre of the framework - it controls everything to be run. The `microbiome_example_config.json` to run the analysis on microbiome data including the pre-processing, looks like:
 ```
 {
-    "name": "age",
-    "data_type": "microbiome",
-    "file_path": "/data/gut_4434.biom",
-    "save_path": "/experiments/",
-    "target": "age",
-    "metadata_file": "/data/gut_4434_map.txt",
-    "seed_num": 42,
-    "test_size": 0.2,
-    "problem_type": "regression",
-    "hyper_tuning": "random",
-    "hyper_budget": 50,
-    "stratify_by_groups": "N",
-    "groups": "",
-    "oversampling": "N",
-    "fit_scorer": "mean_ae",
-    "scorer_list": [
-	    "mean_ae",
-        "med_ae",
-        "rmse"
-    ],
-    "model_list": [
-      "rf",
-      "adaboost",
-      "knn",
-      "autoxgboost",
-      "autolgbm",
-      "autosklearn",
-      "autokeras"
-    ],
-    "plot_method": [
-        "barplot_scorer",
-        "boxplot_scorer",
-        "hist_overlapped",
-        "joint"
-    ],
-    "top_feats_permImp": 20,
-    "top_feats_shap": 20,
-    "explanations_data": "test",
-
-    "norm_reads": 1000,
-    "min_reads": 1000,
-    "filter_abundance": 10,
-    "filter_prevalence": 0.01,
-    "collapse_tax": "genus",
-    "remove_classes": null,
-    "merge_classes": null,
-    "filter_samples": null,
-    "encoding": null,
-
-    "expression_type": "",
-    "filter_sample": null,
-    "filter_genes": null,
-    "filter_tabular_sample": null,
-    "filter_tabular_measurements": ["0", "0"],
-    "output_file_tab": "",
-    "output_metadata": "",
-
-  "autosklearn_config": {
-        "verbose": true,
-        "estimators": [ "decision_tree", "extra_trees", "k_nearest_neighbors", "random_forest"],
-        "time_left_for_this_task": 200,
-        "per_run_time_limit": 1000,
-        "memory_limit": 65536,
-        "n_jobs": 1,
-        "ensemble_size": 1
+    "data":{
+        "name": "diet", 
+        "data_type": "tabular", 
+        "file_path": "/data/diet_prromenade_Features_X_Samples.csv", 
+        "metadata_file": "/data/diet_prromenade_Metadata.csv", 
+        "file_path_holdout_data": "/data/diet_prromenade_Features_X_Samples.csv", 
+        "metadata_file_holdout_data": "/data/diet_prromenade_Metadata.csv", 
+        "save_path": "/experiments/", 
+        "target": "Diet.group"
     },
-
-    "autokeras_config": {
-        "n_epochs": 100,
-        "batch_size": 32,
-        "verbose": true,
-        "n_blocks": 3,
-        "dropout": 0.3,
-        "use_batchnorm": true,
-        "n_trials": 4,
-        "tuner": "bayesian"
+    "plotting":{
+        "plot_method": [
+            "barplot_scorer", 
+            "boxplot_scorer",
+            "conf_matrix", 
+            "shap_plots"
+        ], 
+        "top_feats_permImp": 15, 
+        "top_feats_shap": 15, 
+        "explanations_data": "all"
     },
-    "autolgbm_config": {
-        "verbose": true,
-        "n_trials": 10,
-        "timeout": 1000
-    },
-    "autoxgboost_config": {
-        "verbose": true,
-        "n_trials": 10,
-        "timeout": 1000
-    },
-    "feature_selection": {
-        'k': 'auto',
-        'var_threshold': 0,
-        'auto': {
-            'min_features': 10, 
-            'interval': 1,
-            'eval_model': "RandomForestClassifier",
-            'eval_metric': "f1_score"
+    "ml":{
+        "seed_num": 42, 
+        "test_size": 0.2, 
+        "problem_type": "classification", 
+        "hyper_tuning": "random", 
+        "hyper_budget": 50, 
+        "stratify_by_groups": "N", 
+        "groups": "", 
+        "oversampling": "N", 
+        "fit_scorer": "f1", 
+        "scorer_list": ["acc", "f1"], 
+        "model_list": [
+            "rf", 
+            "adaboost", 
+            "knn", 
+            "autoxgboost", 
+            "autolgbm", 
+            "autosklearn", 
+            "autokeras"
+        ], 
+        "autosklearn_config": {
+            "verbose": true, 
+            "estimators": [
+                "decision_tree", 
+                "extra_trees", 
+                "k_nearest_neighbors", 
+                "random_forest"
+            ], 
+            "time_left_for_this_task": 120, 
+            "per_run_time_limit": 60, 
+            "memory_limit": 65536, 
+            "n_jobs": 1, 
+            "ensemble_size": 1
+        }, 
+        "autokeras_config": {
+            "n_epochs": 100, 
+            "batch_size": 32, 
+            "verbose": true, 
+            "n_blocks": 3, 
+            "dropout": 0.3, 
+            "use_batchnorm": true, 
+            "n_trials": 4, 
+            "tuner": "bayesian"
+        }, 
+        "autolgbm_config": {
+            "verbose": true, 
+            "n_trials": 5, 
+            "timeout": 60
+        }, 
+        "autoxgboost_config": {
+            "verbose": true, 
+            "n_trials": 10, 
+            "timeout": 1000
+        }, 
+        "feature_selection": {
+            "k": "auto", 
+            "var_threshold": 0, 
+            "auto": {
+                "min_features": 10, 
+                "interval": 1, 
+                "eval_model": "RandomForestClassifier", 
+                "eval_metric": "f1_score"
+            }, 
+            "method": {
+                "name": "SelectKBest", 
+                "metric": "f_classif"
             }
-         "method": {
-             "name": "SelectKBest", 
-             "metric": "f_classif"
-             }
+        }
     },
+    "tabular" : {
+        "filter_tabular_sample": null, 
+        "filter_tabular_measurements": [0, 0], 
+        "output_file_tab": "/data/processed_diet_prromenade_filter.csv", 
+        "output_metadata": "/data/processed_diet_prromenade_metadata_filter.csv"
+    }
 }
 ```
 ### General remarks
@@ -120,13 +115,15 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 * All other input data files are expected as .csv files that wil pass directly into the ML workflow with no pre-processing. As such they are required to have samples in rows and measurements (or features) in columns. Column 1 holds the labels for sample names. Similarly, row 1 will contain measurement (or feature) names.
 
 ### General parameters
+These need be stored under the `data` heading.
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder under the `"save_path"` (e.g. `"/experiments/results/"`). The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
 * `data_type`: "microbiome" or "gene_expression" or "metabolomic" or "tabular" or anything else e.g. "proteomic", but the latter does not currently invoke any specific pre-processing.
 * `file_path`: Name of input data file, e.g. "data/skin_closed_reference.biom" if microbiome data, or "tabular_data.csv" if any tabular data, e.g., gene expression data, in a csv file. 
 * `metadata_file`: Name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt". For pre-processing (gene expression, metabolomic, tabular) this file should have as column 1: header "Sample" with associated sample names that correspond to the sample names in `file_path`
- * `target`: Name of the target to predict, e.g. "Age", that is either a column within the `medatata_file` or if `metadata_file` is not provided, e.g. `metadata_file`= "", `target` is the name of a column in the data file specified in `file_path`.
+* `target`: Name of the target to predict, e.g. "Age", that is either a column within the `medatata_file` or if `metadata_file` is not provided, e.g. `metadata_file`= "", `target` is the name of a column in the data file specified in `file_path`.
 
 ### Machine learning parameters 
+These need to be stored under the `ml` heading.
 * `problem_type`: The type of problem, either "classification" or "regression".
 * `stratify_by_groups`: "Y" or "N" (default "N"). This allows the user to perform the ML analysis stratifying the samples by groups as specified in the `groups` parameter below. If "Y", samples in the same group will not appear in both training and test datasets. 
 * `groups`: this is the name of a column in the metadata that represent the groups for the stratification of the samples. For instance, if there are time series samples from the same subjects, `groups` could be "Subject_ID".
@@ -145,7 +142,7 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
     * "autosklearn", An automated machine learning toolkit for algorithm selection and hyperparameter tuning. It leverages recent advantages in Bayesian optimization, meta-learning and ensemble construction. Available at https://automl.github.io/auto-sklearn/master/. User can change the default settings in the example config file at `autosklearn_config`. 
 * `scorer_list`: Specify the scoring measures to be used to analyse the models(these are defined in `models.py`). 
     * For classification tasks: "acc" (accuracy), "f1" (f1-score), "prec" (precision), "recall"
-    * For regression tasks: "mse" (mean squared error), "mean_ae" (mean absolute error), "med_ae" (median absolute error), "rmse" (root mean square error) 
+    * For regression tasks: "mse" (mean squared error), "mean_ae" (mean absolute error), "med_ae" (median absolute error), "rmse" (root mean square error), "mean_ape" (mean absolute percentage error), "r2" (r-squared)
 The performance of all models on the train and test sets according to these measures are saved in the "results/" subfolder of the experiment directory.
 * `fit_scorer`: The measure that will be used to select the "best" model from the hyperparameter search. Also used as the scoring method for the plots to be generated. It needs to be one of the scores specified in `scorer_list`. 
 * `encoding`: For classification tasks, it is the type of encoding to be used for the class. It can be `null` to allow sklearn to deal with it as it needs, or it can be set to "label" (for label encoding) or "onehot" (for one-hot encoding). Note that the neural network models always use one-hot encoding, so if not specified they will handle this themselves. This parameter is rarely used and usually set to `null`. 
@@ -163,7 +160,7 @@ The performance of all models on the train and test sets according to these meas
         * `estimator`: This is only used if `RFE` is being used and determins what estimator is fitted at each stage during the `RFE` process.
 
 ### Microbiome data pre-processing parameters
-These parameters need to specified only if `data_type`= "microbiome", otherwise they can be set as empty strings ""
+These parameters need to specified only if `data_type`= "microbiome", otherwise they can be set as empty strings "". These need to be given under the `microbiome` heading.
 * `collapse_tax`: Allows collapsing the taxonomy to the e.g. genus level "g" or species level "s". Uses the `calour.collapse_taxonomy` function (which collapses the entire taxonomic classification up to the level desired, so even if the genus is the same for two samples, if they have different e.g. order, they will be separate).
 * `min_reads` : samples with fewer than this many reads will be removed (default 1000)
 * `norm_reads` : samples are rescaled to this many total reads (default 1000, see below)
@@ -176,7 +173,7 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 The microbial sequence count table and metadata, in biom file format, is loaded into the calour library an open-source python library called calour http://biocore.github.io/calour/. The loading process filtered out samples with fewer than `min_reads`=1000 reads (default) and then rescaled each sample to have its counts sum up to `norm_reads`=1000 (default)  by dividing each feature frequency by the total number of reads in the sample and multiplying by 1000. After loading, the data underwent two rounds of filtering and the remaining features were collapsed at the genus level. For these rounds of pre-processing filtering, was used. The first round of filtering removed low-abundance features, e.g., OTUs with total count less than 10 across all samples (`calour.experiment.filter_abundance(10)`). The second filter removed OTUs with low prevalence, e.g., features occurring in < 1% of the samples (`calour.experiment.filter_prevalence(0.01)`). If the user want to modify any of these parameters can do it by modifying the code directly in the functions `utils.create_microbiome_calourexp()` and `utils.filter_biom()` of the python script utils.py.  
 
 ### Gene expression data pre-processing parameters
-These parameters need to specified only if `data_type`= "gene_expression".
+These parameters need to specified only if `data_type`= "gene_expression". These need to be given under the `gene_expression` heading.
 * `expression_type`: Format of gene expression data, choices are 'FPKM', 'RPKM', 'TMM', 'TPM', 'Log2FC', 'COUNTS', 'OTHER'. Note that the different gene expression data types are all filtered as per the selected rules below, however, they have different pre-filtering steps;
     * if you specify “COUNTS” then we convert count data to TMM values before filtering
     * if you specify “FPKM”, “RPKM”, “TPM” or “TMM” these go directly into filtering 
@@ -187,20 +184,21 @@ These parameters need to specified only if `data_type`= "gene_expression".
 * `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
 
 ### Metabolomic data pre-processing parameters
-These parameters need to specified only if `data_type`= "metabolomic".
+These parameters need to specified only if `data_type`= "metabolomic". These need to be given under the `metabolomic` heading.
 * `filter_metabolomic_sample`: Remove samples if no of metabolites with measurements is >X std from the mean across all samples (default numerical X=1000000)
 * `filter_measurements`: Remove metabolites unless they have a value over X in Y or more samples (default X=0,Y=1 would be specified in the following format in the json file: ["0","1"])
 * `output_file_met`: Processed output file name (it will be in .csv format)
 * `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
 
 ### General tabular data pre-processing parameters
-These parameters need to specified only if `data_type`= "tabular".
+These parameters need to specified only if `data_type`= "tabular". These need to be given under the `tabular` heading.
 * `filter_tabular_sample`: Remove samples if no of measures with measurements is >X std from the mean across all samples (default numerical X=1000000)
 * `filter_tabular_measurements`: Remove measures unless they have a value over X in Y or more samples (default X=0,Y=1 would be specified in the following format in the json file: ["0","1"])
 * `output_file_tab`: Processed output file name (it will be in .csv format)
 * `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
 
 ### Plotting config parameters
+These need to be given in the `plotting` heading.
  * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. All the generated plots will be saved in the sub-folder `/graphs`. For each  model in the model List, the tool will generate graphs and/or .csv files summarising the results and named as `<plot name_<model name>.png` or `<results type>_<model name>.csv`
  
  Currently possible options are listed below:
@@ -220,14 +218,14 @@ These parameters need to specified only if `data_type`= "tabular".
     * "conf_matrix": The confusion matrix computed on the test set, after the model has being trained and tuned. This plot is generated for each model in `model_list`.
     * "roc_curve": The ROC curves are computed on the test set after model training is completed and generated for each model.
     
-* Plots available for regression tasks only. These plots are generated for each model `in model_list`: 
+* Plots available for regression tasks only. These plots are generated for each model in `model_list`: 
     * "hist_overlapped": Histograms showing the overlap between the distributions of true values and predicted values by a given model. This plot is generated for each model in `model_list`. 
     * "joint": joint_plot: Scatter plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
     * "joint_dens": joint_plot: Joint density plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
     * "corr": correlation_plot: Simple correlation plot between true values and predicted values by a given model. Similar to "joint". 
     
 ### Explainability config parameters
-If 'shap_plots'is in `plot_method` list, the following parameters can be specified:
+If 'shap_plots'is in `plot_method` list, the following parameters can be specified, these need to be given in the `plotting` heading.
 * `top_feats_shap`: Number of top features to be visualised in the shap summary plots, e.g. `top_feats_shap`=10.
 * `explanations_data`: subsets of data for which explanations will be provided. Default is "test". Options are:
     * "test": samples in the test dataset
@@ -235,6 +233,7 @@ If 'shap_plots'is in `plot_method` list, the following parameters can be specifi
     * "exemplars": examplar samples in the test sets will be selected and explained
 
 ### Feauture importance config parameters
+These need to be given in the `plotting` heading.
 * `top_feats_permImp`: Number of top features to be visualised in the permutation importance plot, e.g. `tops_feats_permImp`=10.
 
 ## Extending the Framework

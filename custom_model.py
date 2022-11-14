@@ -334,7 +334,13 @@ class FixedKeras(TabAuto):
         else:
             raise NotImplementedError()
         return preds.flatten()
-
+    
+    def predict_proba(self, data):
+        if self.config_dict["problem_type"] == "classification":
+            return self.model.predict(data)
+        else:
+            raise NotImplementedError()
+            
     def save_model(self):
         fname = f"{self.experiment_folder / 'models' / 'fixedkeras_best'}"
         print("custom save_model: {}".format(fname))

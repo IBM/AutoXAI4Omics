@@ -479,7 +479,7 @@ def predict_model(model, x_train, y_train, x_test=None):
 
 def run_models(
     config_dict, model_list, model_dict, df_train, df_test, x_train, y_train, x_test, 
-    y_test, collapse_tax, experiment_folder, remove_class, merge_class, scorer_dict,
+    y_test, experiment_folder, scorer_dict,
     fit_scorer, hyper_tuning, hyper_budget,  problem_type, seed_num):
     '''
     Run (and tune if applicable) each of the models sequentially, saving the results and models.
@@ -493,22 +493,24 @@ def run_models(
     df_performance_results = pd.DataFrame()
 
 
-    if(config_dict["data_type"]=="microbiome"):
+    if(config_dict['data']["data_type"]=="microbiome"):
         #This is specific to microbiome
+        collapse_tax = config_dict['microbiome']['collapse_tax']
         fname = f"scores_{collapse_tax}"
+        #Remove or merge samples based on target values (for example merging to categories, if classification)
+        if config_dict['microbiome']['remove_classes'] is not None:
+            fname += "_remove"
+        elif config_dict['microbiome']['merge_classes'] is not None:
+            fname += "_merge"
     else:
         fname = "scores_"
 
-    #Remove or merge samples based on target values (for example merging to categories, if classification)
-    if remove_class is not None:
-        fname += "_remove"
-    elif merge_class is not None:
-        fname += "_merge"
+
 
     # Just need it here for determing tuning logic
     ref_model_dict = select_model_dict(hyper_tuning)
     # So that we can pass the func to the CustomModels
-    scorer_func = scorer_dict[config_dict['fit_scorer']]
+    scorer_func = scorer_dict[config_dict['ml']['fit_scorer']]
 
     # Run each model
     for model_name in model_list:
@@ -521,7 +523,7 @@ def run_models(
         # Setup the CustomModels
         if model_name in CustomModel.custom_aliases:
             single_model_flag, param_ranges = model.setup_custom_model(
-                config_dict, experiment_folder, model_name, ref_model_dict, param_ranges, scorer_func, x_test, y_test
+                config_dict['ml'], experiment_folder, model_name, ref_model_dict, param_ranges, scorer_func, x_test, y_test
             )
         # Random search
         if hyper_tuning == "random" and not single_model_flag:
@@ -553,7 +555,7 @@ def run_models(
         save_model(experiment_folder, trained_model, model_name)
 
         # Evaluate the best model using all the scores and CV
-        performance_results_dict, predictions = evaluate_model(trained_model, config_dict['problem_type'], x_train, y_train, x_test, y_test)
+        performance_results_dict, predictions = evaluate_model(trained_model, config_dict['ml']['problem_type'], x_train, y_train, x_test, y_test)
         predictions.to_csv(results_folder/f'{model_name}_predictions.csv',index=False)
         
         # Save the results
@@ -579,7 +581,7 @@ def run_models(
         # # Old version
         #
         # Evaluate the model using the specified scores (on the training data) - previous version
-        # scorer_dict_train = eval_scores(config_dict['problem_type'],
+        # scorer_dict_train = eval_scores(config_dict['ml']['problem_type'],
         #     scorer_dict, trained_model,
         #     x_train, y_train
         # )
@@ -590,7 +592,7 @@ def run_models(
         #     suffix="_train", save_pkl=False, save_csv=True)
         #
         # # Evaluate on the test data
-        # scorer_dict_test = eval_scores(config_dict['problem_type'],
+        # scorer_dict_test = eval_scores(config_dict['ml']['problem_type'],
         #     scorer_dict, trained_model,
         #     x_test, y_test
         # )

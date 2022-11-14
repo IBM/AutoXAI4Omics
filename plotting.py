@@ -84,7 +84,7 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
     omicLogger.debug('Begin plotting graphs...')
 
     # Loop over every plot method we're using
-    for plot_method in config_dict["plot_method"]:
+    for plot_method in config_dict['plotting']["plot_method"]:
         plot_func = plot_dict[plot_method]
         print(plot_method)
         # Hand-crafted passing the arguments in because over-engineering
@@ -98,19 +98,19 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
         elif plot_method == "conf_matrix":
             plot_func(experiment_folder, config_dict, x_test, y_test, normalize=False, holdout=holdout)
         elif plot_method == "corr":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], holdout=holdout)
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict['data']["target"], holdout=holdout)
         elif plot_method == "hist":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], holdout=holdout)
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict['data']["target"], holdout=holdout)
         elif plot_method == "hist_overlapped":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], holdout=holdout)
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict['data']["target"], holdout=holdout)
         elif plot_method == "joint":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], holdout=holdout)
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict['data']["target"], holdout=holdout)
         elif plot_method == "joint_dens":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["target"], kind="kde", holdout=holdout)
+            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict['data']["target"], kind="kde", holdout=holdout)
         elif plot_method == "permut_imp_test":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_test, y_test, config_dict["top_feats_permImp"], cv='prefit', holdout=holdout)
+            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_test, y_test, config_dict['plotting']["top_feats_permImp"], cv='prefit', holdout=holdout)
         elif plot_method == "shap_plots":
-            plot_func(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, config_dict["top_feats_shap"], holdout=holdout)
+            plot_func(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, config_dict['plotting']["top_feats_shap"], holdout=holdout)
         elif plot_method == "roc_curve":
             plot_func(experiment_folder, config_dict, x_test, y_test, holdout=holdout)
 
@@ -118,11 +118,11 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
             plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations="all",
                              top_exemplars=0.4, save=True)
         elif plot_method == "permut_imp_alldata":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict["top_feats_permImp"], cv='prefit')
+            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict['plotting']["top_feats_permImp"], cv='prefit')
         elif plot_method == "permut_imp_train":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train, config_dict["top_feats_permImp"], cv='prefit')
+            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train, config_dict['plotting']["top_feats_permImp"], cv='prefit')
         elif plot_method == "permut_imp_5cv":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict["top_feats_permImp"], cv=5)"""
+            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict['plotting']["top_feats_permImp"], cv=5)"""
 
     omicLogger.debug('Plotting completed')
     # Clear everything
@@ -286,20 +286,20 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
     all_scores = []
     print(f"Size of data for boxplot: {data.shape}")
     # Create the fold object for CV
-    if config_dict["problem_type"] == "classification":
+    if config_dict['ml']["problem_type"] == "classification":
         fold_obj = StratifiedKFold(
             n_splits=nsplits,
             shuffle=True,
-            random_state=config_dict["seed_num"]
+            random_state=config_dict['ml']["seed_num"]
         )
-    elif config_dict["problem_type"] == "regression":
+    elif config_dict['ml']["problem_type"] == "regression":
         fold_obj = KFold(
             n_splits=nsplits,
             shuffle=True,
-            random_state=config_dict["seed_num"]
+            random_state=config_dict['ml']["seed_num"]
         )
     # Loop over the models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         # Load the model if trained
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -307,9 +307,9 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
             print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
             exit()
 
-        print(f"Plotting boxplot for {model_name} using {config_dict['fit_scorer']}")
+        print(f"Plotting boxplot for {model_name} using {config_dict['ml']['fit_scorer']}")
         # Select the scorer
-        scorer_func = scorer_dict[config_dict['fit_scorer']]
+        scorer_func = scorer_dict[config_dict['ml']['fit_scorer']]
         # Container for scores for this cross-val for this model
         scores = []
         num_testsamples_list = []
@@ -356,7 +356,7 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
         df = pd.DataFrame(d)
         df.to_csv(fname + '.csv')
 
-    pretty_model_names = [pretty_names(name, "model") for name in config_dict["model_list"]]
+    pretty_model_names = [pretty_names(name, "model") for name in config_dict['ml']["model_list"]]
 
     #Make a dataframe
     """
@@ -369,13 +369,13 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
     # Make the boxplot
     sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
     # Format the graph
-    #ax.set_xticklabels(pretty_names(config_dict["model_list"], "score"))
+    #ax.set_xticklabels(pretty_names(config_dict['ml']["model_list"], "score"))
     ax.set_xlabel("ML Methods")
 
     fig = plt.gcf()
     # Save the graph
     if save:
-        fname = f"{experiment_folder / 'graphs' / 'boxplot'}_{config_dict['fit_scorer']}"
+        fname = f"{experiment_folder / 'graphs' / 'boxplot'}_{config_dict['ml']['fit_scorer']}"
         fname += '_holdout' if holdout else ""
         save_fig(fig, fname)
 
@@ -397,16 +397,16 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
     print(f"Size of data for boxplot: {data.shape}")
 
     #GroupBy Subject ID -- TO FINISH CODING
-    metadata = pd.read_csv(config_dict["metadata_file"], index_col=0)
+    metadata = pd.read_csv(config_dict['data']["metadata_file"], index_col=0)
     le = LabelEncoder()
-    groups=le.fit_transform(metadata[config_dict["groups"]])
+    groups=le.fit_transform(metadata[config_dict['ml']["groups"]])
 
-    fold_obj = GroupShuffleSplit(n_splits=5, test_size=config_dict["test_size"],random_state=config_dict["seed_num"])
+    fold_obj = GroupShuffleSplit(n_splits=5, test_size=config_dict['ml']["test_size"],random_state=config_dict['ml']["seed_num"])
 
     #fold_obj = GroupKFold(n_splits=5)
 
     # Loop over the models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         # Load the model if trained
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -414,9 +414,9 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
             print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
             exit()
 
-        print(f"Plotting boxplot for {model_name} using {config_dict['fit_scorer']} - Grouped By "+config_dict["groups"])
+        print(f"Plotting boxplot for {model_name} using {config_dict['ml']['fit_scorer']} - Grouped By "+config_dict['ml']["groups"])
         # Select the scorer
-        scorer_func = scorer_dict[config_dict['fit_scorer']]
+        scorer_func = scorer_dict[config_dict['ml']['fit_scorer']]
         # Container for scores for this cross-val for this model
         scores = []
         num_testsamples_list = []
@@ -437,8 +437,8 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
                     model.labels_test = None
             """
             # Option of oversampling of the training dataset for classification
-            if (config_dict["problem_type"] == "classification"):
-                if (config_dict["oversampling"] == "Y"):
+            if (config_dict['ml']["problem_type"] == "classification"):
+                if (config_dict['ml']["oversampling"] == "Y"):
                     # define oversampling strategy
                     oversample = imblearn.over_sampling.RandomOverSampler(sampling_strategy='minority')
                     # fit and apply the transform
@@ -481,19 +481,19 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
         df = pd.DataFrame(d)
         df.to_csv(fname + '.csv')
 
-    pretty_model_names = [pretty_names(name, "model") for name in config_dict["model_list"]]
+    pretty_model_names = [pretty_names(name, "model") for name in config_dict['ml']["model_list"]]
 
 
     # Make the boxplot
     sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
     # Format the graph
-    #ax.set_xticklabels(pretty_names(config_dict["model_list"], "score"))
+    #ax.set_xticklabels(pretty_names(config_dict['ml']["model_list"], "score"))
     ax.set_xlabel("ML Methods")
 
     fig = plt.gcf()
     # Save the graph
     if save:
-        fname = f"{experiment_folder / 'graphs' / 'boxplot_GroupShuffleSplit_CV'}_{config_dict['fit_scorer']}"
+        fname = f"{experiment_folder / 'graphs' / 'boxplot_GroupShuffleSplit_CV'}_{config_dict['ml']['fit_scorer']}"
         fname += '_holdout' if holdout else ""
         save_fig(fig, fname)
 
@@ -513,7 +513,7 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
     # Container for the scores
     all_scores = []
     # Loop over the models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         # Load the model
 
         try:
@@ -522,22 +522,22 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
             print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
             exit()
 
-        print(f"Plotting barplot for {model_name} using {config_dict['fit_scorer']}")
+        print(f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}")
         model = utils.load_model(model_name, model_path)
         # Get our single score
-        score = np.abs(scorer_dict[config_dict['fit_scorer']](model, data, true_labels))
+        score = np.abs(scorer_dict[config_dict['ml']['fit_scorer']](model, data, true_labels))
         all_scores.append(score)
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
-    pretty_model_names = [pretty_names(name, "model") for name in config_dict["model_list"]]
+    pretty_model_names = [pretty_names(name, "model") for name in config_dict['ml']["model_list"]]
     # Make the barplot
     sns.barplot(x=pretty_model_names, y=all_scores, ax=ax)
     # ax.set_xticklabels(pretty_model_names)
-    ax.set_ylabel(pretty_names(config_dict["fit_scorer"], "score"))
+    ax.set_ylabel(pretty_names(config_dict['ml']["fit_scorer"], "score"))
     ax.set_xlabel("Model")
     ax.set_title(f"Performance on test data")
     if save:
-        fname = f"{experiment_folder / 'graphs' / 'barplot'}_{config_dict['fit_scorer']}"
+        fname = f"{experiment_folder / 'graphs' / 'barplot'}_{config_dict['ml']['fit_scorer']}"
         fname += '_holdout' if holdout else ""
         save_fig(fig, fname)
 
@@ -560,7 +560,7 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
     # Convert the data into dataframes to ensure features are displayed
     df_test = pd.DataFrame(data=x_test, columns=feature_names)
     # Get the model paths
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
 
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -577,7 +577,7 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
         # Calculate the shap values
         shap_values = shap_dict[model_name][1]
         # Handle regression and classification differently
-        if config_dict["problem_type"] == "classification":
+        if config_dict['ml']["problem_type"] == "classification":
             # Try to get the class names
             try:
                 class_names = model.classes_.tolist()
@@ -593,7 +593,7 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
                 show=False,
                 class_names=class_names
             )
-        elif config_dict["problem_type"] == "regression":
+        elif config_dict['ml']["problem_type"] == "regression":
             shap.summary_plot(
                 shap_values,
                 df_test,
@@ -623,7 +623,7 @@ def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=F
     '''
     omicLogger.debug('Creating conf_matrix_plot...')
     # Loop over the defined models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         # Define the figure object
         fig, ax = plt.subplots()
         # Load the model
@@ -694,7 +694,7 @@ def correlation_plot(experiment_folder, config_dict, x_test, y_test, class_name,
     '''
     omicLogger.debug('Creating correlation_plot...')
     # Loop over the defined models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         # Define the figure object
         fig, ax = plt.subplots()
 
@@ -747,7 +747,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
     '''
     omicLogger.debug('Creating histograms...')
     # Loop over the defined models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
 
         # Load the model
         try:
@@ -790,7 +790,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
     '''
     omicLogger.debug('Creating distribution_hist...')
     # Loop over the defined models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         # Define the figure object
         fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(18, 10))
 
@@ -837,7 +837,7 @@ def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind=
     '''
     omicLogger.debug('Creating joint_plot...')
     # Loop over the defined models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -910,7 +910,7 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
     print(type(feature_names))
 
     # Loop over the defined models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         if model_name == "mlp_ens":
             continue
         # Define the figure object
@@ -930,7 +930,7 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
 
         model = utils.load_model(model_name, model_path)
         # Select the scoring function
-        scorer_func = scorer_dict[config_dict['fit_scorer']]
+        scorer_func = scorer_dict[config_dict['ml']['fit_scorer']]
         # Handle the custom model
         if isinstance(model, tuple(CustomModel.__subclasses__())):
             # Remove the test data to avoid any saving
@@ -943,14 +943,14 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
             importances = eli5.sklearn.PermutationImportance(
                 model,
                 scoring=scorer_func,
-                random_state=config_dict["seed_num"],
+                random_state=config_dict['ml']["seed_num"],
                 cv=cv
             ).fit(data, labels, save_best=False)
         else:
             importances = eli5.sklearn.PermutationImportance(
                 model,
                 scoring=scorer_func,
-                random_state=config_dict["seed_num"],
+                random_state=config_dict['ml']["seed_num"],
                 cv=cv
             ).fit(data, labels)
 
@@ -986,10 +986,10 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
             orient="h",
             ax=ax
         )
-        if config_dict["problem_type"] == "classification":
-            ax.set_xlabel(f"{pretty_names(config_dict['fit_scorer'], 'score')} Decrease")
+        if config_dict['ml']["problem_type"] == "classification":
+            ax.set_xlabel(f"{pretty_names(config_dict['ml']['fit_scorer'], 'score')} Decrease")
         else:
-            ax.set_xlabel(f"{pretty_names(config_dict['fit_scorer'], 'score')} Increase")
+            ax.set_xlabel(f"{pretty_names(config_dict['ml']['fit_scorer'], 'score')} Increase")
             ax.set_ylabel("Features")
 
         # Do a np.any(<0) check to see if we get negative values
@@ -1014,8 +1014,8 @@ def permut_importance(experiment_folder, config_dict, scorer_dict, feature_names
 def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test, x_train, num_top_features, pcAgreementLevel=10, save=True,holdout=False):
     omicLogger.debug('Creating shap_plots...')
 
-    if(config_dict["explanations_data"]=="all" or "test" or "train" or "exemplars"):
-        data_forexplanations=config_dict["explanations_data"]
+    if(config_dict['plotting']["explanations_data"]=="all" or "test" or "train" or "exemplars"):
+        data_forexplanations=config_dict['plotting']["explanations_data"]
     #assume test set
     else:
         data_forexplanations="train"
@@ -1031,7 +1031,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
     print(len(feature_names))
 
     # Loop over the defined models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
 
         # Load the model
         try:
@@ -1046,12 +1046,13 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
         print(model_name)
 
         print(f"Plotting SHAP plots for {model_name}")
+        omicLogger.info(f"Plotting SHAP plots for {model_name}")
 
         model = utils.load_model(model_name, model_path)
 
 
         # Select the right explainer from SHAP
-        explainer = utils.select_explainer(model, model_name, df_train, config_dict["problem_type"])
+        explainer = utils.select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
 
         # Get the exemplars on the test set -- maybe to modify to include probability
         exemplar_X_test = utils.get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel)
@@ -1077,7 +1078,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
         # Handle regression and classification differently and store the shap_values in shap_values_selected
 
         # Classification
-        if config_dict["problem_type"] == "classification":
+        if config_dict['ml']["problem_type"] == "classification":
 
             # For classification there is not difference between data structure returned by SHAP
             shap_values_selected = shap_values
@@ -1311,7 +1312,7 @@ def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_nam
     df_train = pd.DataFrame(data=x_train, columns=feature_names)
 
     # Get the model paths
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
 
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -1323,11 +1324,11 @@ def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_nam
         model = utils.load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
-        explainer = utils.select_explainer(model, model_name, df_train, config_dict["problem_type"])
+        explainer = utils.select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
         shap_values = explainer.shap_values(data)
 
         # Handle classification and regression differently
-        if config_dict["problem_type"] == "classification":
+        if config_dict['ml']["problem_type"] == "classification":
             # Try to get the class names
             try:
                 class_names = model.classes_.tolist()
@@ -1379,7 +1380,7 @@ def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_nam
                 plt.close()
 
         # Different exemplar calc for regression
-        elif config_dict["problem_type"] == "regression":
+        elif config_dict['ml']["problem_type"] == "regression":
             # Containers to avoid repetition with calling graph func
             names = []
             exemplar_indices = []
@@ -1517,7 +1518,7 @@ def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, ho
     '''
     omicLogger.debug('Creating roc_curve_plot...')
     # Loop over the defined models
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
         # Define the figure object
         fig, ax = plt.subplots()
         # Load the model
@@ -1601,51 +1602,56 @@ if __name__ == "__main__":
     pr.enable()
     
     # Set the global seed
-    np.random.seed(config_dict["seed_num"])
+    np.random.seed(config_dict['ml']["seed_num"])
     
     # Create the folders needed
     experiment_folder = utils.create_experiment_folders(config_dict, config_path)
     
     # Set up process logger
     omicLogger = utils.setup_logger(experiment_folder)
-    omicLogger.info('Loading data...')
-    
-    #read in the data
-    x_df = pd.read_csv(experiment_folder/'transformed_model_input_data.csv')
-    x_train = x_df[x_df['set']=='Train'].iloc[:,:-1].values
-    x_test = x_df[x_df['set']=='Test'].iloc[:,:-1].values
-    x = x_df.iloc[:,:-1].values
-    features_names = x_df.columns[:-1]
-    
-    y_df = pd.read_csv(experiment_folder/'transformed_model_target_data.csv')
-    y_train = y_df[y_df['set']=='Train'].iloc[:,:-1].values.ravel()
-    y_test = y_df[y_df['set']=='Test'].iloc[:,:-1].values.ravel()
-    y = y_df.iloc[:,:-1].values.ravel()
-    omicLogger.info('Test/train Data Loaded. Defining scorers...')
-    
-    # Select only the scorers that we want
-    scorer_dict = models.define_scorers(config_dict["problem_type"])
-    scorer_dict = {k: scorer_dict[k] for k in config_dict["scorer_list"]}
-    omicLogger.info('All scorers defined. Defining plots...')
-    
-    # See what plots are defined
-    plot_dict = define_plots(config_dict["problem_type"])
+    try:
+        omicLogger.info('Loading data...')
 
-    # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
-    # So set that up here
-    # Other option is to modify cls.__getstate__
-    for model_name in config_dict["model_list"]:
-        if model_name in CustomModel.custom_aliases:
-            CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict, experiment_folder)
-    omicLogger.info('Plots defined. Begin creating plots...')
-    # Central func to define the args for the plots
-    plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict)
-    omicLogger.info('Process completed.')
+        #read in the data
+        x_df = pd.read_csv(experiment_folder/'transformed_model_input_data.csv')
+        x_train = x_df[x_df['set']=='Train'].iloc[:,:-1].values
+        x_test = x_df[x_df['set']=='Test'].iloc[:,:-1].values
+        x = x_df.iloc[:,:-1].values
+        features_names = x_df.columns[:-1]
 
+        y_df = pd.read_csv(experiment_folder/'transformed_model_target_data.csv')
+        y_train = y_df[y_df['set']=='Train'].iloc[:,:-1].values.ravel()
+        y_test = y_df[y_df['set']=='Test'].iloc[:,:-1].values.ravel()
+        y = y_df.iloc[:,:-1].values.ravel()
+        omicLogger.info('Test/train Data Loaded. Defining scorers...')
+
+        # Select only the scorers that we want
+        scorer_dict = models.define_scorers(config_dict['ml']["problem_type"])
+        scorer_dict = {k: scorer_dict[k] for k in config_dict['ml']["scorer_list"]}
+        omicLogger.info('All scorers defined. Defining plots...')
+
+        # See what plots are defined
+        plot_dict = define_plots(config_dict['ml']["problem_type"])
+
+        # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
+        # So set that up here
+        # Other option is to modify cls.__getstate__
+        for model_name in config_dict['ml']["model_list"]:
+            if model_name in CustomModel.custom_aliases:
+                CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict['ml'], experiment_folder)
+        omicLogger.info('Plots defined. Begin creating plots...')
+        # Central func to define the args for the plots
+        plot_graphs(config_dict, experiment_folder, features_names, plot_dict, x, y, x_train, y_train, x_test, y_test, scorer_dict)
+        omicLogger.info('Process completed.')
+    except Exception as e:
+        omicLogger.error(e, exc_info=True)
+        logging.error(e, exc_info=True)
+        raise e
+        
     # save time profile information
     pr.disable()
     csv = data_processing.prof_to_csv(pr)
-    with open(f"{config_dict['save_path']}results/{config_dict['name']}/time_profile.csv", 'w+') as f:
+    with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", 'w+') as f:
         f.write(csv)
 
 
@@ -1668,7 +1674,7 @@ def shap_plots_exemplars(experiment_folder, config_dict, feature_names, x_test, 
     num_top = 30
 
     # Get the model paths and run through
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
 
         # Load the model
         try:
@@ -1681,7 +1687,7 @@ def shap_plots_exemplars(experiment_folder, config_dict, feature_names, x_test, 
         model = utils.load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
-        explainer = utils.select_explainer(model, model_name, df_train, config_dict["problem_type"])
+        explainer = utils.select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
         # print(explainer.expected_value)
 
         # Get the exemplars  -- maybe to modify to include probability
@@ -1693,7 +1699,7 @@ def shap_plots_exemplars(experiment_folder, config_dict, feature_names, x_test, 
         # Handle regression and classification differently
 
         # Classification
-        if config_dict["problem_type"] == "classification":
+        if config_dict['ml']["problem_type"] == "classification":
 
             # For classification there is not difference between data structure returned by SHAP
             exemplars_selected = exemplar_shap_values
@@ -1889,7 +1895,7 @@ def compute_shap_values(experiment_folder, config_dict, x_train, x_forShap, feat
 
     #For each model saved, load the model
     # Get the model paths
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
 
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -1900,7 +1906,7 @@ def compute_shap_values(experiment_folder, config_dict, x_train, x_forShap, feat
         model = utils.load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
-        explainer = utils.select_explainer(model, model_name, df_train, config_dict["problem_type"])
+        explainer = utils.select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
 
         # Calculate the shap values
         print(f"Calculating SHAP values for {model_name}")
@@ -1942,7 +1948,7 @@ def precompute_shap_values(experiment_folder, config_dict, x_train, x_test, feat
     df_test = pd.DataFrame(data=x_test, columns=feature_names)
 
     # Get the model paths
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
 
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -1960,7 +1966,7 @@ def precompute_shap_values(experiment_folder, config_dict, x_train, x_test, feat
                 explainer = pickle.load(pkl_in)
         else:
             # Select the right explainer from SHAP
-            explainer = utils.select_explainer(model, model_name, df_train, config_dict["problem_type"])
+            explainer = utils.select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
             # Try to load shap values
         if Path(shap_val_path).is_file():
             with open(shap_val_path, "rb") as pkl_in:
@@ -1996,7 +2002,7 @@ def shap_force_single(experiment_folder, config_dict, x_test, y_test, feature_na
     # Convert the data into dataframes to ensure features are displayed
     df_test = pd.DataFrame(data=x_test, columns=feature_names)
     # Get the model paths
-    for model_name in config_dict["model_list"]:
+    for model_name in config_dict['ml']["model_list"]:
 
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -2013,7 +2019,7 @@ def shap_force_single(experiment_folder, config_dict, x_test, y_test, feature_na
         shap_values = shap_dict[model_name][1]
 
         # Handle classification and regression differently
-        if config_dict["problem_type"] == "classification":
+        if config_dict['ml']["problem_type"] == "classification":
             # Try to get the class names
             try:
                 class_names = model.classes_.tolist()
@@ -2064,7 +2070,7 @@ def shap_force_single(experiment_folder, config_dict, x_test, y_test, feature_na
                 plt.close()
 
         # Different exemplar calc for regression
-        elif config_dict["problem_type"] == "regression":
+        elif config_dict['ml']["problem_type"] == "regression":
             # Containers to avoid repetition with calling graph func
             names = []
             exemplar_indices = []

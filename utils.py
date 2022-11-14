@@ -117,21 +117,25 @@ def check_config(config_dict):
     Running models can be expensive - let's check that the parameters are valid before wasting time!
     '''
     # Check that all the chosen models are defined
-    model_dict = models.define_models(config_dict["problem_type"], config_dict["hyper_tuning"])
-    check_keys(config_dict["model_list"], model_dict)
+    model_dict = models.define_models(config_dict['ml']["problem_type"], config_dict['ml']["hyper_tuning"])
+    check_keys(config_dict['ml']["model_list"], model_dict)
+    
     # Check that the chosen scorers (e.g. accuracy) are defined
-    scorer_dict = models.define_scorers(config_dict["problem_type"])
-    check_keys(config_dict["scorer_list"], scorer_dict)
+    scorer_dict = models.define_scorers(config_dict['ml']["problem_type"])
+    check_keys(config_dict['ml']["scorer_list"], scorer_dict)
+    
     # Check that the fit_scorer is used in scorer_list (otherwise the randomsearch throws an error)
-    if config_dict["fit_scorer"] not in config_dict["scorer_list"]:
+    if config_dict['ml']["fit_scorer"] not in config_dict['ml']["scorer_list"]:
         raise ValueError(
-            f"The fit_scorer must be one of the scorers provided ({config_dict['fit_scorer']} is not in {config_dict['scorer_list']})")
+            f"The fit_scorer must be one of the scorers provided ({config_dict['ml']['fit_scorer']} is not in {config_dict['ml']['scorer_list']})")
+        
     # Check the plotting params if we're using them
-    if config_dict["plot_method"] is not None:
-        plot_dict = plotting.define_plots(config_dict["problem_type"])
-        check_keys(config_dict["plot_method"], plot_dict)
+    if config_dict['plotting']["plot_method"] is not None:
+        plot_dict = plotting.define_plots(config_dict['ml']["problem_type"])
+        check_keys(config_dict['plotting']["plot_method"], plot_dict)
+        
     # Mac problem with xgboost and openMP
-    if "xgboost" in config_dict["model_list"]:
+    if "xgboost" in config_dict['ml']["model_list"]:
         # Fix for an issue with XGBoost and MacOSX
         import os
         # Check if we're running MacOSX
@@ -146,7 +150,7 @@ def create_experiment_folders(config_dict, config_path):
     Create the folder for the given config and the relevant subdirectories
     '''
     # Create the folder for this experiment
-    experiment_folder = Path(config_dict["save_path"]) / "results" / config_dict["name"]
+    experiment_folder = Path(config_dict['data']["save_path"]) / "results" / config_dict['data']["name"]
     # Provide a warning if the folder already exists
     if experiment_folder.is_dir():
         print(f"{experiment_folder} exists - results may be overwritten!")
@@ -154,7 +158,7 @@ def create_experiment_folders(config_dict, config_path):
     # Create the subdirectories
     (experiment_folder / "models").mkdir(exist_ok=True)
     (experiment_folder / "results").mkdir(exist_ok=True)
-    if config_dict["plot_method"] is not None:
+    if config_dict['plotting']["plot_method"] is not None:
         (experiment_folder / "graphs").mkdir(exist_ok=True)
     # Save the config in the experiment folder for ease
     save_config(experiment_folder, config_path, config_dict)
@@ -192,7 +196,7 @@ def compute_exemplars_SHAPvalues_withCrossValidation(experiment_folder, config_d
     df_train = pd.DataFrame(data=x_train, columns=feature_names)
 
     # Select the right explainer from SHAP
-    explainer = select_explainer(model, model_name, df_train, config_dict["problem_type"])
+    explainer = select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
 
     # Get the exemplars  --  to modify to include probability -- get exemplars that have prob > 0.65
     exemplar_X_test = get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel)
@@ -207,7 +211,7 @@ def compute_exemplars_SHAPvalues_withCrossValidation(experiment_folder, config_d
     exemplar_shap_values = explainer.shap_values(exemplar_X_test)
 
     # Classification
-    if config_dict["problem_type"] == "classification":
+    if config_dict['ml']["problem_type"] == "classification":
 
         # For classification there is not difference between data structure returned by SHAP
         exemplars_selected = exemplar_shap_values
@@ -258,7 +262,7 @@ def save_exemplars_SHAP_values(config_dict, experiment_folder, feature_names, mo
                                exemplars_selected, fold_id):
     # Deal with classification differently, classification has shap values for each class
     # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
-    if config_dict["problem_type"] == "classification":
+    if config_dict['ml']["problem_type"] == "classification":
 
         # XGBoost for binary classification seems to return the SHAP values only for class 1
         if (model_name == "xgboost" and len(class_names) == 2):
@@ -299,7 +303,7 @@ def compute_average_abundance_top_features(config_dict, num_top, model_name, cla
 
     # Deal with classification differently, classification has shap values for each class
     # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
-    if config_dict["problem_type"] == "classification":
+    if config_dict['ml']["problem_type"] == "classification":
 
         # XGBoost for binary classification seems to return the SHAP values only for class 1
         if (model_name == "xgboost" and len(class_names) == 2):
@@ -371,14 +375,14 @@ def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
     # Handle classification and regression differently
 
     # Classification
-    if config_dict["problem_type"] == "classification":
+    if config_dict['ml']["problem_type"] == "classification":
 
         print("Classification")
         # Return indices of equal elements between two arrays
         exemplar_indices = np.equal(pred_y, test_y)
 
     # Regression
-    elif config_dict["problem_type"] == "regression":
+    elif config_dict['ml']["problem_type"] == "regression":
 
         print('Regression - Percentage Agreement Level:', pcAgreementLevel)
 
@@ -435,7 +439,10 @@ def initial_setup(args):
     # config_path = args.config
     config_dict = load_config(config_path)
     # Validate the provided config
-    check_config(config_dict)
+    # check_config(config_dict)
+    import parsers
+    config_dict = parsers.parse_config(config_dict)
+    
     # Setup the CustomModel
     # CustomModel.custom_aliases = {k.nickname: k for k in CustomModel.__subclasses__()}
     CustomModel.custom_aliases = {k.nickname: k for k in all_subclasses(CustomModel)}

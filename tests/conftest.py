@@ -175,10 +175,12 @@ def config_all_plotting(problem_type):
         outlist += config_plot_classification()
     
     outdict = {
-        "plot_method" : outlist,
-        "top_feats_permImp": 20,
-        "top_feats_shap": 20,
-        "explanations_data": "all",
+        "plotting" : {
+            "plot_method" : outlist,
+            "top_feats_permImp": 20,
+            "top_feats_shap": 20,
+            "explanations_data": "all",
+        }
     }
     return outdict
 
@@ -231,22 +233,24 @@ def config_scorers(problem_type):
     return outdict
 
 
-def config_data_paths(file_path,meta_path):
+def config_data_paths(file_path,meta_path,problem_type,multi=False):
     outdict = {
-        "file_path": '/'+file_path,
-        "metadata_file": '/'+meta_path,
-        "file_path_holdout_data": '/'+file_path,
-        "metadata_file_holdout_data": '/'+meta_path,
-        "save_path": "/experiments/",
-        "target": "target",
-        "data_type": "test_data",
+        'data':{
+            "name": "generated_test_"+problem_type+ ('_multi' if multi else '')+'_run1_',
+            "file_path": '/'+file_path,
+            "metadata_file": '/'+meta_path,
+            "file_path_holdout_data": '/'+file_path,
+            "metadata_file_holdout_data": '/'+meta_path,
+            "save_path": "/experiments/",
+            "target": "target",
+            "data_type": "other",
+        }
     }
     return outdict
 
 
-def config_define_problem(problem_type,multi=False):
+def config_define_problem(problem_type):
     outdict = {
-        "name": "generated_test_"+problem_type+ ('_multi' if multi else '')+'_run1_',
         "seed_num": 29292,
         "test_size": 0.2,
         "problem_type": problem_type,
@@ -261,65 +265,67 @@ def config_define_problem(problem_type,multi=False):
 
 def config_microbiome():
     outdict = {
-        'collapse_tax':None,
-        'min_reads':None,
-        'norm_reads':None,
-        'filter_abundance':None,
-        'filter_prevalence':None,
-        'filter_microbiome_samples':None,
-        'remove_classes':None,
-        'merge_classes':None,
+        'collapse_tax':None,              #opt: ["genus" or "species"], list of strs, dft None
+        'min_reads':None,                 #dft: 1000, int >= 0 (can be None?)
+        'norm_reads':None,                #dft: 1000, int >= 0 (can be None?)
+        'filter_abundance':None,          #dft: 10, int >=0 (can be None?)
+        'filter_prevalence':None,         #float: 0<=x<=1, dft: 0.01 (can be None?)
+        'filter_microbiome_samples':None, #list of dict with col as keys and list of strs to remove as values ------------------- check if understood correctly
+        'remove_classes':None,            #list of strs, dft none
+        'merge_classes':None,             #dict with keys & list of strs for values, dft none
     }
     return outdict
 
 
 def config_gene_expression():
     outdict = {
-        'expression_type':None,
-        'filter_sample':None,
-        'filter_genes':None,
-        'output_file_ge':None,
-        'output_metadata':None,
+        'expression_type':None,              #one of [FPKM,RPKM,TMM,TPM,Log2FC,COUNTS,OTHER] MANDITORY
+        'filter_sample':None,                #dft: 100000, numeric >0 (can be None?)
+        'filter_genes':None,                 #list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
+        'output_file_ge':None,               #str file name, dft None
+        'output_metadata':None,              #str file name, dft None
     }
     return outdict
 
 
 def config_metabolmic():
     outdict = {
-        'filter_metabolomic_sample':None,
-        'filter_measurements':None,
-        'output_file_met':None,
-        'output_metadata':None,
+        'filter_metabolomic_sample':None,       # numeric >=0, dft: 100000 (can be None?)
+        'filter_measurements':None,             # list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
+        'output_file_met':None,                 # str file name, dft None
+        'output_metadata':None,                 # str file name, dft None
     }
     return outdict
 
 
 def config_tabular():
     outdict = {
-        'filter_tabular_sample':None,
-        'filter_tabular_measurements':None,
-        'output_file_tab':None,
-        'output_metadata':None,
+        'filter_tabular_sample':None,           # numeric >=0, dft: 100000 (can be None?)
+        'filter_tabular_measurements':None,     # list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
+        'output_file_tab':None,                 # str file name, dft None
+        'output_metadata':None,                 # str file name, dft None
     }
     return outdict
 
 
 def config_create(problem_type,file_path,meta_path,multi=False,run=1):
     outdict = {
-        **config_define_problem(problem_type,multi),  # Define the Problem and general parameters            # [EXP/AUTO]
-        **config_data_paths(file_path,meta_path),     # Define the paths to where the data is stored         # [EXP/AUTO]
-        **config_scorers(problem_type),               # Define scorers to be used depending on problem type  # [HIDDEN]
-        **config_model_list(),                        # Define the models to be trained                      # [ADV]
+        **config_data_paths(file_path,meta_path,problem_type,multi),     # Define the paths to where the data is stored         # [EXP/AUTO]
         **config_all_plotting(problem_type),          # Define what plots to do                              # [HIDDEN]
-        **config_all_auto_methods(),                  # Define auto methods setting                          # [HIDDEN]
-        **config_feature_selection(),                 # Define the feature selection settings                # [ADV/AUTO]
-        **config_microbiome(),                        # settings for the corresponding data type             # [?]
+        'ml' : {
+            **config_define_problem(problem_type),  # Define the Problem and general parameters            # [EXP/AUTO]
+            **config_scorers(problem_type),               # Define scorers to be used depending on problem type  # [HIDDEN]
+            **config_model_list(),                        # Define the models to be trained                      # [ADV]
+            **config_all_auto_methods(),                  # Define auto methods setting                          # [HIDDEN]
+            **config_feature_selection(),                 # Define the feature selection settings                # [ADV/AUTO]
+        }
+        # **config_microbiome(),                      # settings for the corresponding data type             # [?]
         # **config_gene_expression(),                 # settings for the corresponding data type             # [?]
         # **config_metabolmic(),                      # settings for the corresponding data type             # [?]
         # **config_tabular(),                         # settings for the corresponding data type             # [?]
     }
     
-    outdict['name'] += str(run).zfill(len(str(RUNS)))
+    outdict['data']['name'] += str(run).zfill(len(str(RUNS)))
     fname = f"configs/generated_test_{problem_type}"
     fname += "_multi.json" if (multi and (problem_type=='classification')) else ".json"
     

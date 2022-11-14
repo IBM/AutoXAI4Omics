@@ -206,15 +206,17 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     '''
     Load and process the data
     '''
+    microbiome_config = config_dict['microbiome']
+    
     omicLogger.debug('Loading Microbiome data...')
     # Use calour to create an experiment
     print("Path file: " +path_file)
     print("Metadata file: " +metadata_path)
-    if(config_dict["norm_reads"] == "None" and config_dict["min_reads"] == "None"):
+    if((microbiome_config["norm_reads"] == None) and (microbiome_config["min_reads"] == None)):
         amp_exp = create_microbiome_calourexp(path_file, metadata_path, None, None)
     else:
-        amp_exp = create_microbiome_calourexp(path_file, metadata_path, config_dict["norm_reads"],
-                                                    config_dict["min_reads"])
+        amp_exp = create_microbiome_calourexp(path_file, metadata_path, microbiome_config["norm_reads"],
+                                                    microbiome_config["min_reads"])
     print("")
     print("")
     print("")
@@ -223,25 +225,25 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     print(f"Original data dimension: {amp_exp.data.shape}")
     # Use calour to filter the data
 
-    amp_exp = filter_biom(amp_exp, collapse_tax=config_dict["collapse_tax"])
+    amp_exp = filter_biom(amp_exp, collapse_tax=microbiome_config["collapse_tax"])
     print(f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}")
 
     # Filter any data that needs it
-    if config_dict["filter_samples"] is not None:
-        amp_exp = filter_samples(amp_exp, config_dict["filter_samples"])
+    if microbiome_config["filter_microbiome_samples"] is not None:
+        amp_exp = filter_samples(amp_exp, microbiome_config["filter_microbiome_samples"])
 
     # Modify the classes if need be
     amp_exp = modify_classes(
         amp_exp,
-        config_dict["target"],
-        remove_class=config_dict["remove_classes"],
-        merge_by=config_dict["merge_classes"]
+        config_dict['data']["target"],
+        remove_class=microbiome_config["remove_classes"],
+        merge_by=microbiome_config["merge_classes"]
     )
 
     print(f"After filtering samples: {amp_exp.data.shape}")
 
     print("Save experiment after filtering with name exp_filtered")
-    amp_exp.save('biom_data_filtered'+config_dict["name"])
+    amp_exp.save('biom_data_filtered'+config_dict['data']["name"])
     print("****************************************************")
     print("")
     print("")
@@ -257,13 +259,13 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     # Select the labels
     y = select_class_col(
         amp_exp,
-        encoding=config_dict["encoding"], #from Cameron
-        name=config_dict["target"]
+        encoding=config_dict['ml']["encoding"], #from Cameron
+        name=config_dict['data']["target"]
     )
     #except:
     #   print("!!! ERROR: PLEASE SELECT TARGET TO PREDICT FROM METADATA FILE !!!")
 
-    features_names = get_feature_names_calourexp(amp_exp, config_dict)
+    features_names = get_feature_names_calourexp(amp_exp, microbiome_config)
 
     # Check the data and labels are the right size
     assert len(x) == len(y)

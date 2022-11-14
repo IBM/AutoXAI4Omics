@@ -167,8 +167,9 @@ class KerasModel(BaseModel):
 
     def fit_data_ak(self, trainX, trainY, testX, testY, input_list=None):
         print("training AutoKeras model...")
-        lr_scheduler = LearningRateScheduler(self._lr_schedule)
-        callbacks = [lr_scheduler]
+        # lr_scheduler = LearningRateScheduler(self._lr_schedule)
+        # callbacks = [lr_scheduler]
+        callbacks=[]
         callbacks.append(TerminateOnNaN())
 
         # train the model

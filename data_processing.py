@@ -122,35 +122,35 @@ def load_data(config_dict,load_holdout=False):
     """
     omicLogger.debug('Data load inititalised. Loading training data...')
     if load_holdout is not None:
-        if(config_dict["data_type"]=="microbiome"):
+        if(config_dict['data']["data_type"]=="microbiome"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-            x,y,features_names = microbiome.get_data_microbiome(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-        elif(config_dict["data_type"] == "gene_expression"):
+            x,y,features_names = microbiome.get_data_microbiome(config_dict['data']["file_path"], config_dict['data']["metadata_file"], config_dict)
+        elif(config_dict['data']["data_type"] == "gene_expression"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-            x, y, features_names = geneExp.get_data_gene_expression(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-        elif(config_dict["data_type"] == "metabolomic"):
-            x, y, features_names = metabolomic.get_data_metabolomic(config_dict["file_path"], config_dict["metadata_file"], config_dict)
-        elif(config_dict["data_type"] == "tabular"):
-            x, y, features_names = tabular.get_data_tabular(config_dict["file_path"], config_dict["metadata_file"], config_dict)
+            x, y, features_names = geneExp.get_data_gene_expression(config_dict)
+        elif(config_dict['data']["data_type"] == "metabolomic"):
+            x, y, features_names = metabolomic.get_data_metabolomic(config_dict)
+        elif(config_dict['data']["data_type"] == "tabular"):
+            x, y, features_names = tabular.get_data_tabular(config_dict)
         else:
             # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
-            x, y, features_names = get_data(config_dict["file_path"], config_dict["target"], config_dict["metadata_file"])
+            x, y, features_names = get_data(config_dict['data']["file_path"], config_dict['data']["target"], config_dict['data']["metadata_file"])
         
     if (load_holdout is None) or load_holdout:
         omicLogger.debug('Training loaded. Loading holdout data...')
-        if(config_dict["data_type"]=="microbiome"):
+        if(config_dict['data']["data_type"]=="microbiome"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-            x_heldout, y_heldout, features_names = microbiome.get_data_microbiome(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
-        elif(config_dict["data_type"] == "gene_expression"):
+            x_heldout, y_heldout, features_names = microbiome.get_data_microbiome(config_dict['data']["file_path_holdout_data"], config_dict['data']["metadata_file_holdout_data"], config_dict)
+        elif(config_dict['data']["data_type"] == "gene_expression"):
             # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
-            x_heldout, y_heldout, features_names = geneExp.get_data_gene_expression(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
-        elif(config_dict["data_type"] == "metabolomic"):
-            x_heldout, y_heldout, features_names = metabolomic.get_data_metabolomic(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
-        elif(config_dict["data_type"] == "tabular"):
-            x_heldout, y_heldout, features_names = tabular.get_data_tabular(config_dict["file_path_holdout_data"], config_dict["metadata_file_holdout_data"], config_dict)
+            x_heldout, y_heldout, features_names = geneExp.get_data_gene_expression(config_dict,holdout=True)
+        elif(config_dict['data']["data_type"] == "metabolomic"):
+            x_heldout, y_heldout, features_names = metabolomic.get_data_metabolomic(config_dict,holdout=True)
+        elif(config_dict['data']["data_type"] == "tabular"):
+            x_heldout, y_heldout, features_names = tabular.get_data_tabular(config_dict,holdout=True)
         else:
             # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
-            x_heldout, y_heldout, features_names = get_data(config_dict["file_path_holdout_data"], config_dict["target"], config_dict["metadata_file_holdout_data"])
+            x_heldout, y_heldout, features_names = get_data(config_dict['data']["file_path_holdout_data"], config_dict['data']["target"], config_dict['data']["metadata_file_holdout_data"])
        
     omicLogger.debug('Load completed')
     if load_holdout is None:
@@ -169,7 +169,7 @@ def split_data(x, y, config_dict):
     
     omicLogger.debug('Splitting data...')
     # Split the data in train and test
-    if config_dict["stratify_by_groups"] == "Y":
+    if config_dict['ml']["stratify_by_groups"] == "Y":
 
         x_train, x_test, y_train, y_test = strat_split(x, y, config_dict)
         
@@ -184,12 +184,12 @@ def strat_split(x, y, config_dict):
     """
     omicLogger.debug('Splitting according to stratification...')
     
-    gss = GroupShuffleSplit(n_splits=1, test_size=config_dict["test_size"], random_state=config_dict["seed_num"])
+    gss = GroupShuffleSplit(n_splits=1, test_size=config_dict['ml']["test_size"], random_state=config_dict['ml']["seed_num"])
     #gss = GroupKFold(n_splits=7)
 
-    metadata = pd.read_csv(config_dict["metadata_file"], index_col=0)
+    metadata = pd.read_csv(config_dict['data']["metadata_file"], index_col=0)
     le = LabelEncoder()
-    groups = le.fit_transform(metadata[config_dict["groups"]])
+    groups = le.fit_transform(metadata[config_dict['ml']["groups"]])
 
     for train_idx, test_idx in gss.split(x, y, groups):
         x_train, x_test, y_train, y_test = x[train_idx], x[test_idx], y[train_idx], y[test_idx]
@@ -202,9 +202,9 @@ def std_split(x, y, config_dict):
     '''
     omicLogger.debug('Split according to standard methods...')
     
-    test_size = config_dict["test_size"]
-    seed_num = config_dict["seed_num"]
-    problem_type = config_dict["problem_type"]
+    test_size = config_dict['ml']["test_size"]
+    seed_num = config_dict['ml']["seed_num"]
+    problem_type = config_dict['ml']["problem_type"]
     
     
     if problem_type == "classification":

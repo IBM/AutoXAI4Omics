@@ -1,69 +1,88 @@
-import logging
-omicLogger = logging.getLogger("OmicLogger")
-import subprocess
+import pandas as pd
+from omics import R_replacement as rrep
 
-def get_data_gene_expression(path_file, metadata_path, config_dict):
-    '''
-    Load and process the data
-    '''
-    omicLogger.debug('Loading Gene Expression data...')
-    # Use calour to create an experiment
-    print("Path file: " +path_file)
-    print("Metadata file: " +metadata_path)
+#import logging # uncomment this when incorporated in AO
+#omicLogger = logging.getLogger("OmicLogger") #uncommment this when incorporated in AO
 
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing gene expression data *******")
+def get_data_gene_expression(config_dict,holdout=False):
 
-    # add the input file parameter
-    strcommand = "--expressionfile "+ path_file + " "
+    """
+    - Runs one of 3 gene expression preprocessing functions based on data type.
+    - Filters metadata based on processed data (removes any samples removed during processing)
+    - Returns x,y,feature_names
 
-    # add the expression type parameter that is required
-    if config_dict["expression_type"] is not None:
-        expression_type = config_dict["expression_type"]
-        print(expression_type)
-    else:
-        expression_type = "OTHER"
-    strcommand = strcommand+"--expressiontype "+expression_type+ " "
+    Parameters
+    ---------
+    config_dict: config dictionary 
 
-    # add the filter_samples parameter that is optional
-    if config_dict["filter_sample"] is not None:
-        filter_samples = config_dict["filter_sample"]
-        print(filter_samples)
-        strcommand = strcommand + "--Filtersamples " + str(filter_samples) + " "
+    Returns
+    --------
+    x,y, feature names (in correct format format for ML)
 
-    # add the filter_genes parameter that is optional
-    if config_dict["filter_genes"] is not None:
-        filter_genes = config_dict["filter_genes"][0] +" "+config_dict["filter_genes"][1]
-        print(filter_genes)
-        strcommand = strcommand+"--Filtergenes "+filter_genes+" "
+    """
 
-    # add the output file name that is required
-    if config_dict["output_file_ge"] is not None:
-        output_file = config_dict["output_file_ge"]
-        print(output_file)
+    # add filter_genes & filter_samples parameters from config_dict that have default values set in config
+    filter_genes1 = int(config_dict['gene_expression']["filter_genes"][0])
+    filter_genes2 = int(config_dict['gene_expression']["filter_genes"][1])
+    filter_samples = config_dict['gene_expression']["filter_sample"]
+
+    # add the output file name from config_dict that is required
+    if config_dict['gene_expression']["output_file_ge"] is not None:
+        output_file = config_dict['gene_expression']["output_file_ge"]
+        print("Output file: " +output_file)
     else:
         output_file = "processed_gene_expression_data"
-    strcommand = strcommand+"--output "+output_file+" "
-        
-    # add the metadata for filtering 
-    strcommand = strcommand+"--metadatafile "+ metadata_path + " "
-
-    #add metadata output file that is required 
-    if config_dict["output_metadata"] is not None:
-        metout_file = config_dict["output_metadata"]
-        print(metout_file)
-        strcommand = strcommand+"--outputmetadata "+metout_file
-
-    print(strcommand)
-    omicLogger.debug('Running python/R preprocessing script...')
-    python_command = "python omics/AoT_gene_expression_pre_processing.py "+strcommand
-    print(python_command)
-    subprocess.call(python_command, shell=True)
+    output_file += "_holdout" if holdout else ""
     
-    from data_processing import get_data
-    x,y, feature_names = get_data(config_dict["output_file_ge"], config_dict["target"], metout_file)
+    #add metadata output file from config_dict that is required 
+    if config_dict['gene_expression']["output_metadata"] is not None:
+        metout_file = config_dict['gene_expression']["output_metadata"]
+    else:
+        metout_file = "processed_gene_expression_metadata"
+    metout_file+= "_holdout" if holdout else ""
+    
+    #Based on GE data type, perform ge preprocessing (functions in preprocessing.py)
+    #omicLogger.debug('Loading Gene Expression data...')
 
-    return x,y, feature_names
+    if config_dict['gene_expression']["expression_type"] == "COUNTS":
+        filtered_data = rrep.preprocessing_TMM(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
+        print("data type = ", config_dict['gene_expression']["expression_type"])
 
+    elif config_dict['gene_expression']["expression_type"] == "FPKM" or config_dict['gene_expression']["expression_type"] == "RPKM" or config_dict['gene_expression']["expression_type"] == "TPM" or config_dict['gene_expression']["expression_type"] == "TMM":
+        filtered_data = rrep.preprocessing_others(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
+        print("data type = ", config_dict['gene_expression']["expression_type"])
+
+    elif config_dict['gene_expression']["expression_type"] == "Log2FC" or config_dict['gene_expression']["expression_type"] == "OTHER" or config_dict['gene_expression']["expression_type"] == "MET" or config_dict['gene_expression']["expression_type"] == "TAB":
+        filtered_data = rrep.preprocessing_LO(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
+        print("data type = ", config_dict['gene_expression']["expression_type"])
+
+    else: # it's defined as 'OTHER'
+        filtered_data = rrep.preprocessing_LO(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
+        print("data type = ", config_dict['gene_expression']["expression_type"])
+
+
+    #Save filtered ge data
+    filtered_data.to_csv(output_file) 
+    
+    #If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as metout
+    #and extract target from metadata. If metadata not present, assume target in data file.
+    metafile = "metadata_file"+ ("_holdout_data" if holdout else "")
+    if (config_dict['data'][metafile] != ""):
+        metadata = pd.read_csv(config_dict['data']["metadata_file"], index_col=0)  
+        mask = metadata.index.isin(filtered_data.index)  
+        filtered_metadata = metadata.loc[mask]
+        filtered_metadata.to_csv(metout_file) 
+        y = filtered_metadata[config_dict['data']["target"]].values
+     
+    else:
+        file = "file_path"+ ("_holdout_data" if holdout else "")
+        unfiltered_data = pd.read_csv(config_dict['data'][file], index_col=0)
+        target_y = unfiltered_data.loc[config_dict['data']["target"]] # need loc because target in ge data is ROW not column (as in metadata)
+        # Filter y 
+        mask = target_y.index.isin(filtered_data.index) 
+        filtered_target_y = target_y.loc[mask]
+        y = filtered_target_y.values
+
+    feature_names = filtered_data.columns
+
+    return filtered_data,y, feature_names    
