@@ -1,0 +1,95 @@
+{
+    "name": "bloodUreaNitrogen",
+    "data_type": "gene_expression",
+    "file_path": "/data/Pre-process_GE_L1000_discrete_drug_perturbation_blood_urea_nitrogen.csv",
+    "save_path": "/experiments",
+    "target": "blood_urea_nitrogen(mg/dl)",
+    "metadata_file": "/data/metadata_L1000.csv",
+    "seed_num": 42,
+    "test_size": 0.2,
+    "problem_type": "regression",
+    "stratify_by_groups": "N",
+    "groups": "",
+    "oversampling": "N",
+    "hyper_tuning": "random",
+    "hyper_budget": 50,
+    "fit_scorer": "mean_ae",
+    "scorer_list": [
+        "rmse",
+        "mean_ae",
+        "med_ae"
+    ],
+    "model_list": [
+        "rf",
+        "autosklearn",
+        "autokeras",
+        "autolgbm",
+        "autoxgboost"
+    ],
+    "autokeras_config": {
+        "n_epochs": 50,
+        "batch_size": 32,
+        "verbose": true,
+        "n_blocks": 3,
+        "dropout": 0.3,
+        "use_batchnorm": true,
+        "n_trials": 3,
+        "tuner": "bayesian"
+    },
+    "autosklearn_config": {
+        "verbose": true,
+        "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "sgd"],
+        "time_left_for_this_task": 120,
+        "per_run_time_limit": 60,
+        "memory_limit": 65536,
+        "n_jobs": 1,
+        "ensemble_size": 1
+    },
+    "autolgbm_config": {
+        "verbose": true,
+        "n_trials": 5,
+        "timeout": 60
+    },
+    "autoxgboost_config": {
+        "verbose": true,
+        "n_trials": 5,
+        "timeout": 60
+    },
+    "autogluon_config": {
+        "verbose": true,
+        "auto_stack": false,
+        "time_limits": 60,
+        "auto_hpo": false,
+        "n_trials": 20
+    },
+    "plot_method": [
+        "boxplot_scorer",
+        "barplot_scorer",
+        "shap_plots"
+    ],
+    "top_feats_permImp": 15,
+    "top_feats_shap": 15,
+    "explanations_data": "all",
+
+    "expression_type": "OTHER",
+    "filter_sample": 100,
+    "filter_genes": ["0", "0"],
+    "output_file_ge": "/data/processed_gene_expression_L1000_drug_perturbation_blood_urea_nitrogen.csv",
+    "output_metadata": "/data/processed_gene_expression_L1000_drug_perturbation_blood_urea_nitrogen_filter.csv",
+
+    "collapse_tax": "",
+    "remove_classes": null,
+    "merge_classes": null,
+    "encoding": null,
+    "filter_samples": null,
+    
+    "norm_reads": "None",
+    "min_reads": "None",
+    "filter_abundance": null,
+    "filter_prevalence": null,
+    
+    "feature_selection": {
+	"k": "auto"
+    }
+    
+}
