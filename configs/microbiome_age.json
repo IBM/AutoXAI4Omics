@@ -1,13 +1,11 @@
 {
     "data":{
         "name": "age", 
-        "data_type": "microbiome", 
-        "save_path": "/experiments/", 
-        "target": "age", 
-        "file_path": "/data/gut_4434.biom", 
+        "file_path": "/data/gut_4434.biom",
         "metadata_file": "/data/gut_4434_map.txt", 
-        "file_path_holdout_data": "/data/temp.csv", 
-        "metadata_file_holdout_data": "/data/temp.csv"
+        "save_path": "/experiments/",
+        "target": "age",
+        "data_type": "microbiome"
     },
     "ml":{
         "seed_num": 42, 
@@ -46,7 +44,8 @@
                        "n_trials": 10, 
                        "timeout": 1000}, 
 
-        "feature_selection": null
+        "feature_selection": null,
+        "encoding": null
         
     },
     "plotting":{
