@@ -77,9 +77,8 @@
     "gene_expression":{
         "expression_type": "OTHER",
         "filter_sample": 100,
-        "filter_genes": ["0", "0"],
+        "filter_genes": [0, 0],
         "output_file_ge": "/data/processed_gene_expression_L1000_drug_perturbation_blood_urea_nitrogen.csv",
-        "output_metadata": "/data/processed_gene_expression_L1000_drug_perturbation_blood_urea_nitrogen_filter.csv",
-        
+        "output_metadata": "/data/processed_gene_expression_L1000_drug_perturbation_blood_urea_nitrogen_filter.csv"
     }
 }

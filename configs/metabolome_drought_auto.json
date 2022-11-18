@@ -1,11 +1,11 @@
 {
     "data":{
         "name": "drought",
-        "data_type": "metabolites",
         "file_path": "/data/metabolites_drought.csv",
+        "metadata_file": null,
         "save_path": "/experiments",
-        "target": "Drought"
-        
+        "target": "Drought",
+        "data_type": "metabolomic"
     },
     "ml":{
         "seed_num": 42,
@@ -40,7 +40,7 @@
         },
         "autosklearn_config": {
             "verbose": true,
-            "estimators": ["adaboost",  "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "sgd"],
+            "estimators": ["decision_tree", "extra_trees", "k_nearest_neighbors"],
             "time_left_for_this_task": 120,
             "per_run_time_limit": 60,
             "memory_limit": 65536,
