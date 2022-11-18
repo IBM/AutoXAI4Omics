@@ -23,7 +23,7 @@
         "model_list": ["rf", "adaboost", "knn", "autoxgboost", "autolgbm", "autosklearn", "autokeras"], 
         "autosklearn_config": {
             "verbose": true,
-            "estimators": ["adaboost", "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"],
+            "estimators": ["decision_tree", "extra_trees", "k_nearest_neighbors", "random_forest"],
             "time_left_for_this_task": 120, 
             "per_run_time_limit": 60,
             "memory_limit": 65536,
@@ -62,8 +62,8 @@
         "explanations_data": "all"
     },
     "tabular":{
-        "filter_tabular_sample": null,
-        "filter_tabular_measurements": ["0", "0"],
+        "filter_tabular_sample": 0,
+        "filter_tabular_measurements": [0, 0],
         "output_file_tab": "/data/processed_diet_prromenade_filter.csv",
         "output_metadata": "/data/processed_diet_prromenade_metadata_filter.csv"
         
