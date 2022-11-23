@@ -2,7 +2,6 @@
     "data":{
         "name": "drought",
         "file_path": "/data/metabolites_drought.csv",
-        "metadata_file": null,
         "save_path": "/experiments",
         "target": "Drought",
         "data_type": "metabolomic"
