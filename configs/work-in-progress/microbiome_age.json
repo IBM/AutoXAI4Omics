@@ -28,7 +28,7 @@
                        "ensemble_size": 1}, 
 
         "autokeras_config": {"n_epochs": 100, 
-                     "batch_size": 128,
+                     "batch_size": 256,
                      "verbose": true, 
                      "n_blocks": 3, 
                      "dropout": 0.3, 

@@ -32,7 +32,7 @@
         ],
         "autokeras_config": {
             "n_epochs": 50,
-            "batch_size": 32,
+            "batch_size": 128,
             "verbose": true,
             "n_blocks": 3,
             "dropout": 0.3,
