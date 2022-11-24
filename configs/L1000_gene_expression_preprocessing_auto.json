@@ -3,7 +3,7 @@
         "name": "bloodUreaNitrogen",
         "data_type": "gene_expression",
         "file_path": "/data/Pre-process_GE_L1000_discrete_drug_perturbation_blood_urea_nitrogen.csv",
-        "save_path": "/experiments",
+        "save_path": "/experiments/",
         "target": "blood_urea_nitrogen(mg/dl)",
         "metadata_file": "/data/metadata_L1000.csv"
         
