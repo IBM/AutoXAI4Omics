@@ -54,7 +54,7 @@ def get_data_tabular(config_dict,holdout=False):
     #and extract target from metadata. If metadata not present, assume target in data file.
     
     metafile = "metadata_file"+ ("_holdout_data" if holdout else "")
-    if (config_dict['data'][metafile] != ""):
+    if (config_dict['data'][metafile] != "") and (config_dict['data'][metafile] is not None):
         metadata = pd.read_csv(config_dict['data'][metafile], index_col=0)  
         mask = metadata.index.isin(filtered_data.index)  
         filtered_metadata = metadata.loc[mask]
