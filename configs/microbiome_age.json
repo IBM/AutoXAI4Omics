@@ -1,68 +1,109 @@
 {
-    "data":{
-        "name": "age", 
-        "data_type": "microbiome", 
-        "save_path": "/experiments/", 
-        "target": "age", 
-        "file_path": "/data/gut_4434.biom", 
-        "metadata_file": "/data/gut_4434_map.txt", 
-        "file_path_holdout_data": "/data/temp.csv", 
-        "metadata_file_holdout_data": "/data/temp.csv"
+    "data" :{
+        "name": "microbiome_age",
+        "file_path": "/data/gut_4434.biom",
+        "metadata_file": "/data/gut_4434_map.txt",
+        "file_path_holdout_data": "/data/gut_4434.biom",
+        "metadata_file_holdout_data": "/data/gut_4434_map.txt",
+        "save_path": "/experiments/",
+        "target": "age",
+        "data_type": "microbiome"
     },
     "ml":{
-        "seed_num": 42, 
-        "test_size": 0.2, 
-        "problem_type": "regression", 
-        "hyper_tuning": "random", 
-        "hyper_budget": 50, 
-        "stratify_by_groups": "N", 
-        "groups": "", 
-        "oversampling": "N", 
-        "fit_scorer": "mean_ae", 
-        "scorer_list": ["mean_ae", "med_ae", "rmse"], 
-        "model_list": ["rf", "adaboost", "knn", "autoxgboost", "autolgbm", "autosklearn", "autokeras"], 
-        "autosklearn_config": {"verbose": true, 
-                       "estimators": ["adaboost", "decision_tree", "extra_trees", "gradient_boosting", "k_nearest_neighbors", "random_forest", "sgd"], 
-                       "time_left_for_this_task": 120, 
-                       "per_run_time_limit": 60, 
-                       "memory_limit": 65536, 
-                       "n_jobs": 1, 
-                       "ensemble_size": 1}, 
-
-        "autokeras_config": {"n_epochs": 100, 
-                     "batch_size": 32, 
-                     "verbose": true, 
-                     "n_blocks": 3, 
-                     "dropout": 0.3, 
-                     "use_batchnorm": true, 
-                     "n_trials": 4, 
-                     "tuner": "bayesian"}, 
-
-        "autolgbm_config": {"verbose": true, 
-                    "n_trials": 5, 
-                    "timeout": 60}, 
-
-        "autoxgboost_config": {"verbose": true, 
-                       "n_trials": 10, 
-                       "timeout": 1000}, 
-
-        "feature_selection": null
-        
+        "seed_num": 29292,
+        "test_size": 0.2,
+        "problem_type": "regression",
+        "hyper_tuning": "random",
+        "hyper_budget": 50,
+        "stratify_by_groups": "N",
+        "groups": "",
+        "oversampling": "Y",
+        "fit_scorer": "mean_ae",
+        "encoding":null,
+        "scorer_list": [
+            "mean_ae",
+            "med_ae",
+            "rmse"
+        ],
+        "model_list": [
+            "rf",
+            "adaboost",
+            "knn",
+            "autoxgboost",
+            "autolgbm",
+            "autosklearn",
+            "autokeras",
+            "fixedkeras"
+        ],
+        "autosklearn_config": {
+            "verbose": true,
+            "estimators": [
+                "adaboost",
+                "ard_regression",
+                "decision_tree",
+                "extra_trees",
+                "gaussian_process",
+                "gradient_boosting",
+                "k_nearest_neighbors",
+                "liblinear_svr",
+                "libsvm_svr",
+                "mlp",
+                "random_forest",
+                "sgd"
+            ],
+            "time_left_for_this_task": 120,
+            "per_run_time_limit": 60,
+            "memory_limit": null,
+            "n_jobs": 1,
+            "ensemble_size": 1
+        },
+        "autokeras_config": {
+            "n_epochs": 100,
+            "batch_size": 32,
+            "verbose": true,
+            "n_blocks": 3,
+            "dropout": 0.3,
+            "use_batchnorm": true,
+            "n_trials": 4,
+            "tuner": "bayesian"
+        },
+        "autolgbm_config": {
+            "verbose": true,
+            "n_trials": 15,
+            "timeout": 60
+        },
+        "autoxgboost_config": {
+            "verbose": true,
+            "n_trials": 10,
+            "timeout": 1000
+        },
+        "feature_selection": {
+            "k": "auto"
+        }
     },
     "plotting":{
-        "plot_method": ["barplot_scorer", "boxplot_scorer", "hist_overlapped", "joint", "shap_plots"], 
-        "top_feats_permImp": 15, 
-        "top_feats_shap": 15, 
+        "plot_method": [
+            "barplot_scorer",
+            "boxplot_scorer",
+            "shap_plots",
+            "permut_imp_test",
+            "hist_overlapped",
+            "joint",
+            "joint_dens",
+            "corr"
+        ],
+        "top_feats_permImp": 20,
+        "top_feats_shap": 20,
         "explanations_data": "all"
-        
     },
     "microbiome":{
         "collapse_tax": "genus",
-        "remove_classes": null, 
-        "merge_classes": null, 
-        "norm_reads": 1000,
         "min_reads": 1000,
+        "norm_reads": 1000,
         "filter_abundance": 10,
-        "filter_prevalence": 0.01
+        "filter_prevalence": 0.01,
+        "filter_microbiome_samples": null,
+        "remove_classes": null,
+        "merge_classes": null
     }
 }
