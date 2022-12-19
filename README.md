@@ -1,6 +1,6 @@
-# Auto-Omics: an Explainable Auto-AI framework for omics and tabular data
+# Auto-Omics: an Explainable Auto-AI tool for omics and tabular data
 
-The aim of the framework is to easily allow phenotype prediction from omics data (e.g., gene expression; microbiome data; or any tabular data), using a range of ML models, and various plots (including explainability and feature importance through SHAP and ELI5). 
+The aim of the automated is to easily enable researchers to perform phenotype prediction from omics data (e.g., gene expression; microbiome data; or any tabular data) and any tabular data (e.g., clinical) using a range of ML models. 
 
 Key features include:
 
