@@ -257,9 +257,10 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
 
     #try:
     # Select the labels
+    ml_config: dict = config_dict['ml']
     y = select_class_col(
         amp_exp,
-        encoding=config_dict['ml']["encoding"], #from Cameron
+        encoding=ml_config.get('encoding'), #from Cameron
         name=config_dict['data']["target"]
     )
     #except:
