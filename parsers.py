@@ -402,10 +402,12 @@ def parse_data(dataEntry):
             raise ValueError(f'File given in file_path does not exist')
             
     if "metadata_file" not in keys:
-        dataEntry['metadata_file'] = None
+        # Set to an empty string so that it is assumed the main dataset given contains the target
+        dataEntry['metadata_file'] = ''
     else:
         type_check(dataEntry['metadata_file'],str,"metadata_file")
-        if not exists(dataEntry['metadata_file']):
+        entry = dataEntry['metadata_file']
+        if entry and not exists(entry):
             raise ValueError(f'File given in metadata_file does not exist')
             
     if "file_path_holdout_data" not in keys:
