@@ -49,30 +49,30 @@ def define_plots(problem_type):
     omicLogger.debug('Define dict of plots...')
     # Some plots can only be done for a certain type of ML
     # Check here that the ones given are valid
+    common_plot_dict = {
+        "barplot_scorer": barplot_scorer,
+        "boxplot_scorer": boxplot_scorer_cv,
+        "boxplot_scorer_cv_groupby": boxplot_scorer_cv_groupby,
+        "shap_plots": shap_plots,
+        "shap_force_plots": shap_force_plots,
+        "permut_imp_test": permut_importance
+    }
+    
+    
     if problem_type == "classification":
         plot_dict = {
-            "barplot_scorer": barplot_scorer,
-            "boxplot_scorer": boxplot_scorer_cv,
-            "boxplot_scorer_cv_groupby": boxplot_scorer_cv_groupby,
+            **common_plot_dict,
             "conf_matrix": conf_matrix_plot,
-            "shap_plots": shap_plots,
-            "shap_force_plots": shap_force_plots,
-            "permut_imp_test": permut_importance,
             "roc_curve": roc_curve_plot
         }
     elif problem_type == "regression":
         plot_dict = {
-            "barplot_scorer": barplot_scorer,
-            "boxplot_scorer": boxplot_scorer_cv,
-            "boxplot_scorer_cv_groupby": boxplot_scorer_cv_groupby,
-            "shap_plots": shap_plots,
-            "shap_force_plots":shap_force_plots,
+            **common_plot_dict,
             "corr": correlation_plot,
             "hist": distribution_hist,
             "hist_overlapped": histograms,
             "joint": joint_plot,
-            "joint_dens": joint_plot,
-            "permut_imp_test": permut_importance
+            "joint_dens": joint_plot
         }
     return plot_dict
 
@@ -92,9 +92,9 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
         if plot_method == "barplot_scorer":
             plot_func(experiment_folder, config_dict, scorer_dict, x_test, y_test, holdout=holdout)
         elif plot_method == "boxplot_scorer":
-            plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train, holdout=holdout)
+            plot_func(experiment_folder, config_dict, scorer_dict, x, y, holdout=holdout)
         elif plot_method == "boxplot_scorer_cv_groupby":
-            plot_func(experiment_folder, config_dict, scorer_dict, x_train, y_train, holdout=holdout)
+            plot_func(experiment_folder, config_dict, scorer_dict, x, y, holdout=holdout)
         elif plot_method == "conf_matrix":
             plot_func(experiment_folder, config_dict, x_test, y_test, normalize=False, holdout=holdout)
         elif plot_method == "corr":
@@ -114,15 +114,15 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
         elif plot_method == "roc_curve":
             plot_func(experiment_folder, config_dict, x_test, y_test, holdout=holdout)
 
-        """elif plot_method == "shap_force_plots":
-            plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations="all",
-                             top_exemplars=0.4, save=True)
-        elif plot_method == "permut_imp_alldata":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict['plotting']["top_feats_permImp"], cv='prefit')
-        elif plot_method == "permut_imp_train":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train, config_dict['plotting']["top_feats_permImp"], cv='prefit')
-        elif plot_method == "permut_imp_5cv":
-            plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict['plotting']["top_feats_permImp"], cv=5)"""
+        # elif plot_method == "shap_force_plots":
+        #     plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations="all",
+        #                      top_exemplars=0.4, save=True)
+        # elif plot_method == "permut_imp_alldata":
+        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict['plotting']["top_feats_permImp"], cv='prefit')
+        # elif plot_method == "permut_imp_train":
+        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train, config_dict['plotting']["top_feats_permImp"], cv='prefit')
+        # elif plot_method == "permut_imp_5cv":
+        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict['plotting']["top_feats_permImp"], cv=5)
 
     omicLogger.debug('Plotting completed')
     # Clear everything
@@ -131,94 +131,6 @@ def plot_graphs(config_dict, experiment_folder, feature_names, plot_dict, x, y, 
     # Clear keras and TF sessions/graphs etc.
     utils.tidy_tf()
 
-def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top, exemplar_X_test, exemplars_selected, data_forexplanations,holdout=False):
-    omicLogger.debug('Creating summary_SHAPdotplot_perclass...')
-    
-    if (model_name == 'xgboost' and len(class_names) == 2):
-        print('Shape exemplars_selected: ' + str(exemplars_selected.shape))
-        class_name = class_names[1]
-        print('Class: ' + str(class_name))
-        if holdout:
-             fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{'holdout'}"
-        else:
-            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}"
-
-        # Plot shap bar plot
-        shap.summary_plot(
-            exemplars_selected,
-            exemplar_X_test,
-            plot_type='dot',
-            color_bar='000',
-            max_display=num_top,
-            feature_names=feature_names,
-            show=False
-        )
-        fig = plt.gcf()
-        save_fig(fig, fname)
-        plt.draw()
-        plt.tight_layout()
-        plt.pause(0.001)
-        time.sleep(2)
-        # Close the figure to ensure we start anew
-        plt.clf()
-        plt.close()
-        
-        if not holdout:
-            fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
-            #saving the shapley values to dataframe
-            df_shapley_values = pd.DataFrame(data=exemplars_selected, columns=feature_names)
-            df_shapley_values.to_csv(fname+".csv")
-
-    else:
-        for i in range(len(class_names)):
-            class_name = class_names[i]
-            print('Class: ' + str(class_name))
-            print('i:' + str(i))
-
-            print('Length exemplars_selected: ' + str(len(exemplars_selected)))
-            print('Type exemplars_selected: ' + str(type(exemplars_selected)))
-            
-            if not holdout:
-                fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
-                #saving the shapley values to dataframe
-                df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names)
-                df_shapley_values.to_csv(fname_df+".csv")
-            
-            if holdout:
-                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{'holdout'}_{i}"
-            else:
-                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
-            
-
-            # Plot shap bar plot
-            shap.summary_plot(
-                exemplars_selected[i],
-                exemplar_X_test,
-                plot_type='dot',
-                color_bar='000',
-                max_display=num_top,
-                feature_names=feature_names,
-                show=False
-            )
-            my_cmap = plt.get_cmap('viridis')
-
-            # Change the colormap of the artists
-            for fc in plt.gcf().get_children():
-                for fcc in fc.get_children():
-                    if hasattr(fcc, "set_cmap"):
-                        fcc.set_cmap(my_cmap)
-            fig = plt.gcf()
-            save_fig(fig, fname)
-            plt.draw()
-            plt.tight_layout()
-            plt.pause(0.001)
-            time.sleep(2)
-            # Close the figure to ensure we start anew
-            plt.clf()
-            plt.close()
-
-    plt.clf()
-    plt.close()
 
 def save_fig(fig, fname, dpi=200, fig_format="png"):
     omicLogger.debug(f'Saving figure ({fname})to file...')
@@ -359,12 +271,11 @@ def boxplot_scorer_cv(experiment_folder, config_dict, scorer_dict, data, true_la
     pretty_model_names = [pretty_names(name, "model") for name in config_dict['ml']["model_list"]]
 
     #Make a dataframe
-    """
-    df_cv_scores = pd.DataFrame(all_scores, columns=pretty_model_names)
-    fname_all_cv = f"{experiment_folder / 'results' / 'scores_CV_allmodels'}"
-    df_cv_scores.to_csv(fname_all_cv+".csv")
-    print(df_cv_scores)
-    """
+    # df_cv_scores = pd.DataFrame(all_scores, columns=pretty_model_names)
+    # fname_all_cv = f"{experiment_folder / 'results' / 'scores_CV_allmodels'}"
+    # df_cv_scores.to_csv(fname_all_cv+".csv")
+    # print(df_cv_scores)
+    
 
     # Make the boxplot
     sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
@@ -435,28 +346,6 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
                     model.data_test = None
                 if model.labels_test is not None:
                     model.labels_test = None
-            """
-            # Option of oversampling of the training dataset for classification
-            if (config_dict['ml']["problem_type"] == "classification"):
-                if (config_dict['ml']["oversampling"] == "Y"):
-                    # define oversampling strategy
-                    oversample = imblearn.over_sampling.RandomOverSampler(sampling_strategy='minority')
-                    # fit and apply the transform
-                    x_train, y_train = oversample.fit_resample(x_train, y_train)
-                    print(f"X train data after oversampling shape: {x_train.shape}")
-                    print(f"y train data after oversampling shape: {y_train.shape}")
-            
-            """
-            """
-            if model_name in CustomModel.custom_aliases:
-                if (model_name == "autolgbm"):
-                    print("It's autolgbm don't do anything")
-                else:
-                    model.fit(data[train_idx], true_labels[train_idx], save_best=False)
-                # Otherwise fit the model as normal
-            else:
-                model.fit(data[train_idx], true_labels[train_idx])
-            """
 
             model.fit(data[train_idx], true_labels[train_idx])
 
@@ -1061,19 +950,29 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
         if(data_forexplanations=="all"):
             shap_values = explainer.shap_values(x)
             data = x
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set']).index
+            
         elif(data_forexplanations == "train"):
             shap_values = explainer.shap_values(x_train)
             data = x_train
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set'])
+            data_indx = data_indx[data_indx.set=='Train'].index
         elif(data_forexplanations=="test"):
             shap_values = explainer.shap_values(x_test)
             data = x_test
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set'])
+            data_indx = data_indx[data_indx.set=='Test'].index
         elif(data_forexplanations=="exemplars"):
             shap_values = explainer.shap_values(exemplar_X_test)
             data = exemplar_X_test
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set'])
+            data_indx = data_indx[data_indx.set=='Test'].index
         #otherwise assume train set
         else:
             shap_values = explainer.shap_values(x_train)
             data = x_train
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set'])
+            data_indx = data_indx[data_indx.set=='Train'].index
 
         # Handle regression and classification differently and store the shap_values in shap_values_selected
 
@@ -1154,7 +1053,8 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                                                                                                        shap_values_selected)
             
             summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names,
-                                         num_top, data, shap_values_selected, data_forexplanations,holdout)
+                                         num_top, data, shap_values_selected, data_forexplanations,
+                                         data_indx, holdout)
 
 
 
@@ -1179,7 +1079,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
             if not holdout:
                 fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
                 #saving the shapley values to dataframe
-                df_shapley_values = pd.DataFrame(data=shap_values_selected, columns=feature_names)
+                df_shapley_values = pd.DataFrame(data=shap_values_selected, columns=feature_names,index=data_indx)
                 df_shapley_values.to_csv(fname+".csv")
 
             # Plot shap bar plot
@@ -1293,6 +1193,95 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
 
         # Clear keras and TF sessions/graphs etc.
         utils.tidy_tf()
+
+def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, feature_names, num_top, exemplar_X_test, exemplars_selected, data_forexplanations, data_indx, holdout=False):
+    omicLogger.debug('Creating summary_SHAPdotplot_perclass...')
+    
+    if (model_name == 'xgboost' and len(class_names) == 2):
+        print('Shape exemplars_selected: ' + str(exemplars_selected.shape))
+        class_name = class_names[1]
+        print('Class: ' + str(class_name))
+        if holdout:
+             fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{'holdout'}"
+        else:
+            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}"
+
+        # Plot shap bar plot
+        shap.summary_plot(
+            exemplars_selected,
+            exemplar_X_test,
+            plot_type='dot',
+            color_bar='000',
+            max_display=num_top,
+            feature_names=feature_names,
+            show=False
+        )
+        fig = plt.gcf()
+        save_fig(fig, fname)
+        plt.draw()
+        plt.tight_layout()
+        plt.pause(0.001)
+        time.sleep(2)
+        # Close the figure to ensure we start anew
+        plt.clf()
+        plt.close()
+        
+        if not holdout:
+            fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
+            #saving the shapley values to dataframe
+            df_shapley_values = pd.DataFrame(data=exemplars_selected, columns=feature_names, index=data_indx)
+            df_shapley_values.to_csv(fname+".csv")
+
+    else:
+        for i in range(len(class_names)):
+            class_name = class_names[i]
+            print('Class: ' + str(class_name))
+            print('i:' + str(i))
+
+            print('Length exemplars_selected: ' + str(len(exemplars_selected)))
+            print('Type exemplars_selected: ' + str(type(exemplars_selected)))
+            
+            if not holdout:
+                fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
+                #saving the shapley values to dataframe
+                df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names, index=data_indx)
+                df_shapley_values.to_csv(fname_df+".csv")
+            
+            if holdout:
+                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{'holdout'}_{i}"
+            else:
+                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
+            
+
+            # Plot shap bar plot
+            shap.summary_plot(
+                exemplars_selected[i],
+                exemplar_X_test,
+                plot_type='dot',
+                color_bar='000',
+                max_display=num_top,
+                feature_names=feature_names,
+                show=False
+            )
+            my_cmap = plt.get_cmap('viridis')
+
+            # Change the colormap of the artists
+            for fc in plt.gcf().get_children():
+                for fcc in fc.get_children():
+                    if hasattr(fcc, "set_cmap"):
+                        fcc.set_cmap(my_cmap)
+            fig = plt.gcf()
+            save_fig(fig, fname)
+            plt.draw()
+            plt.tight_layout()
+            plt.pause(0.001)
+            time.sleep(2)
+            # Close the figure to ensure we start anew
+            plt.clf()
+            plt.close()
+
+    plt.clf()
+    plt.close()
 
 def shap_force_plots(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations, class_col="?", top_exemplars=0.1, save=True, holdout=False):
     '''
@@ -1613,13 +1602,13 @@ if __name__ == "__main__":
         omicLogger.info('Loading data...')
 
         #read in the data
-        x_df = pd.read_csv(experiment_folder/'transformed_model_input_data.csv')
+        x_df = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0)
         x_train = x_df[x_df['set']=='Train'].iloc[:,:-1].values
         x_test = x_df[x_df['set']=='Test'].iloc[:,:-1].values
         x = x_df.iloc[:,:-1].values
         features_names = x_df.columns[:-1]
 
-        y_df = pd.read_csv(experiment_folder/'transformed_model_target_data.csv')
+        y_df = pd.read_csv(experiment_folder/'transformed_model_target_data.csv',index_col=0)
         y_train = y_df[y_df['set']=='Train'].iloc[:,:-1].values.ravel()
         y_test = y_df[y_df['set']=='Test'].iloc[:,:-1].values.ravel()
         y = y_df.iloc[:,:-1].values.ravel()
@@ -1655,475 +1644,3 @@ if __name__ == "__main__":
         f.write(csv)
 
 
-""" OLD versions of some functions - such as shap functions """
-
-
-"""
-        elif plot_method == "shap_plots_exemplars":
-            plot_func(experiment_folder, config_dict, feature_names, amp_exp, x_test, y_test, x_train, pcAgreementLevel=10)
-"""
-
-"""
-def shap_plots_exemplars(experiment_folder, config_dict, feature_names, x_test, y_test, x_train,
-                         pcAgreementLevel=10, save=True):
-    # Convert the data into dataframes to ensure features are displayed
-    df_train = pd.DataFrame(data=x_train, columns=feature_names)
-    print(feature_names)
-    print(len(feature_names))
-
-    num_top = 30
-
-    # Get the model paths and run through
-    for model_name in config_dict['ml']["model_list"]:
-
-        # Load the model
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
-            print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
-            exit()
-
-        print(f"Plotting SHAP for {model_name}")
-        model = utils.load_model(model_name, model_path)
-
-        # Select the right explainer from SHAP
-        explainer = utils.select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
-        # print(explainer.expected_value)
-
-        # Get the exemplars  -- maybe to modify to include probability
-        exemplar_X_test = utils.get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel)
-
-        # Compute SHAP values for examplars
-        exemplar_shap_values = explainer.shap_values(exemplar_X_test)
-
-        # Handle regression and classification differently
-
-        # Classification
-        if config_dict['ml']["problem_type"] == "classification":
-
-            # For classification there is not difference between data structure returned by SHAP
-            exemplars_selected = exemplar_shap_values
-
-            # Try to get the class names
-            try:
-                class_names = model.classes_.tolist()
-            except AttributeError:
-                print("Unable to get class names automatically - classes will be encoded")
-                class_names = None
-
-            if (model_name == 'xgboost' and len(class_names) == 2):
-                # Use SHAP's summary plot
-                shap.summary_plot(
-                    exemplars_selected,
-                    exemplar_X_test,
-                    plot_type='bar',
-                    max_display=num_top,
-                    feature_names=feature_names,
-                    show=False,
-                    class_names=class_names
-                )
-                fig = plt.gcf()
-
-                # Save the plot for multi-class classification
-                if save:
-                    fname = f"{experiment_folder / 'graphs' / 'shap_plots_exemplars'}_{model_name}"
-                    save_fig(fig, fname)
-                plt.draw()
-                plt.tight_layout()
-                plt.pause(0.001)
-                time.sleep(2)
-                # Close the figure to ensure we start anew
-                plt.clf()
-                plt.close()
-
-            else:
-                # Use SHAP's summary plot
-                shap.summary_plot(
-                    exemplars_selected,
-                    exemplar_X_test,
-                    # plot_type='violin',
-                    max_display=num_top,
-                    feature_names=feature_names,
-                    show=False,
-                    class_names=class_names
-                )
-                fig = plt.gcf()
-
-                # Save the plot for multi-class classification
-                if save:
-                    fname = f"{experiment_folder / 'graphs' / 'shap_plots_exemplars'}_{model_name}"
-                    save_fig(fig, fname)
-                plt.draw()
-                plt.tight_layout()
-                plt.pause(0.001)
-                time.sleep(2)
-                # Close the figure to ensure we start anew
-                plt.clf()
-                plt.close()
-
-            objects, abundance, shap_values_mean_sorted = utils.compute_average_abundance_top_features(config_dict,
-                                                                                                       num_top,
-                                                                                                       model_name,
-                                                                                                       class_names,
-                                                                                                       amp_exp,
-                                                                                                       exemplars_selected)
-            summary_SHAPdotplot_perclass(config_dict, experiment_folder, class_names, model_name, feature_names,
-                                         num_top, amp_exp, exemplar_X_test, exemplars_selected)
-
-            plt.clf()
-            plt.close()
-
-
-        # Regression
-        else:
-            # Handle Shap saves differently the values for Keras when it's regression
-            if (model_name == 'mlp_keras'):
-                exemplars_selected = exemplar_shap_values[0]
-            else:
-                exemplars_selected = exemplar_shap_values
-
-            # Plot shap bar plot
-            shap.summary_plot(
-                exemplars_selected,
-                exemplar_X_test,
-                plot_type='bar',
-                color_bar='000',
-                max_display=num_top,
-                feature_names=feature_names,
-                show=False
-            )
-            fig = plt.gcf()
-            # fig.set_size_inches(30,30, forward=True)
-            # Setup the title
-            # fig.suptitle(f"SHAP Summary Plot for top features {pretty_names(model_name, 'model')} for {class_col} ({name})", fontsize=16, y=1.4)
-
-            # Save the plot
-            if save:
-                fname = f"{experiment_folder / 'graphs' / 'shap_bar_plot_exemplars'}_{model_name}"
-                save_fig(fig, fname)
-
-                # img = mp_img.imread(fname+'.png')
-            # plt.imshow(img)
-
-            plt.tight_layout()
-            plt.draw()
-            plt.pause(0.001)
-            time.sleep(2)
-            # Close the figure to ensure we start anew
-            plt.clf()
-            plt.close()
-
-            # Plot shap bar plot
-            shap.summary_plot(
-                exemplars_selected,
-                exemplar_X_test,
-                plot_type='dot',
-                color_bar='000',
-                max_display=num_top,
-                feature_names=feature_names,
-                show=False
-            )
-            fig = plt.gcf()
-            # Save the plot
-            if save:
-                fname = f"{experiment_folder / 'graphs' / 'shap_summary_dot_plot_exemplars'}_{model_name}"
-                save_fig(fig, fname)
-
-            plt.tight_layout()
-            plt.draw()
-            plt.pause(0.001)
-            time.sleep(2)
-
-            # Close the figure to ensure we start anew
-            plt.clf()
-            plt.close()
-
-            # Plot abundance bar plot feature from SHAP
-            class_names = []
-            objects, abundance, shap_values_mean_sorted = utils.compute_average_abundance_top_features(config_dict,
-                                                                                                       num_top,
-                                                                                                       model_name,
-                                                                                                       class_names,
-                                                                                                       amp_exp,
-                                                                                                       exemplars_selected)
-
-        # Displaying the average percentage %
-        abundance = np.asarray(abundance) / 10
-
-        d = {'Features': objects,
-             'SHAP values': shap_values_mean_sorted,
-             'Average abundance': list(abundance)}
-
-        fname = f"{experiment_folder / 'results' / 'top_features_AbsMeanSHAP_Abundance'}_{model_name}"
-        df = pd.DataFrame(d)
-        df.to_csv(fname + '.txt')
-
-        # Bar plot of average abundance across all the samples of the top genera
-        y_pos = np.arange(len(objects))
-        plt.barh(y_pos, abundance, align='center', color='black')
-        plt.yticks(y_pos, objects)
-        plt.gca().invert_yaxis()
-        plt.xlabel('Average abundance (%)')
-
-        fig = plt.gcf()
-
-        if save:
-            fname = f"{experiment_folder / 'graphs' / 'abundance_top_features_exemplars'}_{model_name}"
-            save_fig(fig, fname)
-
-        plt.draw()
-        plt.tight_layout()
-        plt.pause(0.001)
-        time.sleep(2)
-        # Close the figure to ensure we start anew
-        plt.clf()
-        plt.close()
-
-        # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
-
-"""
-
-"""
-def compute_shap_values(experiment_folder, config_dict, x_train, x_forShap, feature_names):
-
-    # Convert the data into dataframes to ensure features are displayed
-    df_train = pd.DataFrame(data=x_train, columns=feature_names)
-    df_x_forShap = pd.DataFrame(data=x_forShap, columns=feature_names)
-
-    shap_dict = {}
-
-    #For each model saved, load the model
-    # Get the model paths
-    for model_name in config_dict['ml']["model_list"]:
-
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
-            print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
-            exit()
-
-        model = utils.load_model(model_name, model_path)
-
-        # Select the right explainer from SHAP
-        explainer = utils.select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
-
-        # Calculate the shap values
-        print(f"Calculating SHAP values for {model_name}")
-        # Keras DeepExplainer model needs the array
-        if model_name == "mlp_keras":
-            shap_values = explainer.shap_values(df_x_forShap.values)
-        else:
-            shap_values = explainer.shap_values(df_x_forShap)
-        # For custom models and other odd outputs
-        if isinstance(shap_values, list) and len(shap_values) == 1:
-            shap_values = shap_values[0]
-
-        # Check if we have something saved
-        explainer_path = f"{experiment_folder / 'models' / 'explainer'}_{model_name}.pickle"
-        shap_val_path = f"{experiment_folder / 'models' / 'shap_values'}_{model_name}.pickle"
-        # Cannot easily pickle the explainer for the CustomModels
-        if model_name not in CustomModel.custom_aliases:
-            with open(shap_val_path, "wb") as pkl_out:
-                pickle.dump(shap_values, pkl_out)
-            with open(explainer_path, "wb") as pkl_out:
-                pickle.dump(explainer, pkl_out)
-
-        # Add explainer and shap vals to dictionary
-        shap_dict[model_name] = (explainer, shap_values)
-
-    return shap_dict
-
-
-def precompute_shap_values(experiment_folder, config_dict, x_train, x_test, feature_names):
-    '''
-    Precompute SHAP values so that (for the KernelExplainer) this only happens once.
-    x_shap is the set of
-    Store the explainer and the shap values (both must be saved stored!!) in a dict to pass to plot funcs.
-    '''
-    shap_dict = {}
-
-    # Convert the data into dataframes to ensure features are displayed
-    df_train = pd.DataFrame(data=x_train, columns=feature_names)
-    df_test = pd.DataFrame(data=x_test, columns=feature_names)
-
-    # Get the model paths
-    for model_name in config_dict['ml']["model_list"]:
-
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
-            print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
-            exit()
-
-        model = utils.load_model(model_name, model_path)
-        # Check if we have something saved
-        explainer_path = f"{experiment_folder / 'models' / 'explainer'}_{model_name}.pickle"
-        shap_val_path = f"{experiment_folder / 'models' / 'shap_values'}_{model_name}.pickle"
-        # Try to load the explainer
-        if Path(explainer_path).is_file():
-            with open(explainer_path, "rb") as pkl_in:
-                explainer = pickle.load(pkl_in)
-        else:
-            # Select the right explainer from SHAP
-            explainer = utils.select_explainer(model, model_name, df_train, config_dict['ml']["problem_type"])
-            # Try to load shap values
-        if Path(shap_val_path).is_file():
-            with open(shap_val_path, "rb") as pkl_in:
-                shap_values = pickle.load(pkl_in)
-        # Otherwise calculate and save
-        else:
-            # Calculate the shap values
-            print(f"Calculating SHAP values for {model_name}")
-            # Keras DeepExplainer model needs the array
-            if model_name == "mlp_keras":
-                shap_values = explainer.shap_values(df_test.values)
-            else:
-                shap_values = explainer.shap_values(df_test)
-            # For custom models and other odd outputs
-            if isinstance(shap_values, list) and len(shap_values) == 1:
-                shap_values = shap_values[0]
-            # Cannot easily pickle the explainer for the CustomModels
-            if model_name not in CustomModel.custom_aliases:
-                with open(shap_val_path, "wb") as pkl_out:
-                    pickle.dump(shap_values, pkl_out)
-                with open(explainer_path, "wb") as pkl_out:
-                    pickle.dump(explainer, pkl_out)
-        # Add explainer and shap vals to dictionary
-        shap_dict[model_name] = (explainer, shap_values)
-    return shap_dict
-"""
-"""
-def shap_force_single(experiment_folder, config_dict, x_test, y_test, feature_names, shap_dict, class_col,
-                      top_exemplars=0.1, save=True):
-    '''
-    Wrapper to create a SHAP force plot for the top exemplar of each class for each model.
-    '''
-    # Convert the data into dataframes to ensure features are displayed
-    df_test = pd.DataFrame(data=x_test, columns=feature_names)
-    # Get the model paths
-    for model_name in config_dict['ml']["model_list"]:
-
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
-            print("The trained model " + str('*' + model_name + '*.pkl') + " is not present")
-            exit()
-
-        print(f"Plotting SHAP for {model_name}")
-        model = utils.load_model(model_name, model_path)
-        # Select the right explainer from SHAP
-        explainer = shap_dict[model_name][0]
-        print(explainer.expected_value)
-        # Calculate the shap values
-        shap_values = shap_dict[model_name][1]
-
-        # Handle classification and regression differently
-        if config_dict['ml']["problem_type"] == "classification":
-            # Try to get the class names
-            try:
-                class_names = model.classes_.tolist()
-            except AttributeError:
-                print("Unable to get class names automatically - classes will be encoded")
-                # Hack to get numbers instead - should probably raise an error
-                class_names = range(100)
-            # Get the predicted probabilities
-            probs = model.predict_proba(x_test)
-            # Use a masked array to check which predictions are correct, and then which we're most confident in
-            class_exemplars = np.ma.masked_array(
-                probs,
-                mask=np.repeat(model.predict(x_test) != y_test.values, probs.shape[1])
-                # Need to repeat so the mask is the same shape as predict_proba
-            ).argmax(0).tolist()
-            # print(class_exemplars)
-            for i, (class_index, class_name) in enumerate(zip(class_exemplars, class_names)):
-                # Close the figure to ensure we start anew
-                plt.clf()
-                plt.close()
-                # exemplar_data = df_test.iloc[class_index, :]
-                exemplar_data = x_test[class_index, :]
-                # Create the force plot
-                fig = shap.force_plot(
-                    explainer.expected_value[i],
-                    shap_values[i][class_index],
-                    exemplar_data,
-                    feature_names=feature_names,
-                    matplotlib=True,
-                    show=False,
-                    text_rotation=30
-                )
-                # Need to add label/text on the side for the class name
-                print(f"{pretty_names(model_name, 'model')}")
-                fig.suptitle(
-                    f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} with class {class_name}",
-                    fontsize=16, y=1.4)
-                # Save the plot
-                if save:
-                    fname = f"{experiment_folder / 'graphs' / 'shap_force_single'}_{model_name}_class{class_name}"
-                    save_fig(fig, fname)
-                plt.draw()
-                plt.tight_layout()
-                plt.pause(0.001)
-                time.sleep(2)
-                # Close the figure to ensure we start anew
-                plt.clf()
-                plt.close()
-
-        # Different exemplar calc for regression
-        elif config_dict['ml']["problem_type"] == "regression":
-            # Containers to avoid repetition with calling graph func
-            names = []
-            exemplar_indices = []
-            # Get the predictions
-            preds = model.predict(x_test).flatten()
-            # Calculate the difference in predictions
-            dists = np.abs(y_test.values - preds)
-            # Select the max and min top exemplars (i.e. closest to the max and min values for the target)
-            if top_exemplars is not None:
-                indices = dists.argsort()
-                # Select the top percentage to choose from
-                num_indices = int(len(preds) * top_exemplars)
-                # Select the top exemplars
-                exemplar_index = indices[:num_indices]
-                # With clashes, it takes the first found (which is good as this corresponds to the lower prediction error)
-                top_min_index = exemplar_index[np.argmin(y_test.values[exemplar_index])]
-                exemplar_indices.append(top_min_index)
-                names.append("min")
-                top_max_index = exemplar_index[np.argmax(y_test.values[exemplar_index])]
-                exemplar_indices.append(top_max_index)
-                names.append("max")
-            # Otherwise we just take our single best prediction
-            else:
-                exemplar_indices.append(dists.argmin())
-                names.append("closest")
-            # Create a plot for each of the selected exemplars
-            for name, exemplar_index in zip(names, exemplar_indices):
-                # Create the plot
-                fig = shap.force_plot(
-                    explainer.expected_value,
-                    shap_values[exemplar_index],
-                    x_test[exemplar_index],
-                    feature_names=feature_names,
-                    matplotlib=True,
-                    show=False,
-                    text_rotation=30
-                )
-                # Setup the title
-                fig.suptitle(
-                    f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} for {class_col} ({name})",
-                    fontsize=16, y=1.4)
-                # Save the plot
-                if save:
-                    fname = f"{experiment_folder / 'graphs' / 'shap_force_single'}_{model_name}_{name}"
-                    save_fig(fig, fname)
-                plt.draw()
-                plt.tight_layout()
-                plt.pause(0.001)
-                time.sleep(2)
-                # Close the figure to ensure we start anew
-                plt.clf()
-                plt.close()
-                # Clear everything
-        # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
-"""

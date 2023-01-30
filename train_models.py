@@ -36,11 +36,14 @@ def main(config_dict, config_path):
         # Split the data in train and test
         x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
         omicLogger.info('Data splitted. Standardising...')
+        
+        x_ind_train = x_train.index
+        x_ind_test = x_test.index
 
         # standardise data
         x_train, SS = standardize_data(x_train) #fit the standardiser to the training data
         x_test = transform_data(x_test,SS) #transform the test data according to the fitted standardiser
-
+        
         # save the standardiser transformer
         save_name = experiment_folder / "transformer_std.pkl"
         with open(save_name, 'wb') as f:
@@ -68,20 +71,26 @@ def main(config_dict, config_path):
             if (config_dict['ml']["oversampling"] == "Y"):
                 x_train, y_train = oversample_data(x_train, y_train,config_dict['ml']["seed_num"])
 
+        
         # concatenate both test and train into test
         x = np.concatenate((x_train,x_test))
         y = np.concatenate((y_train,y_test)) #y needs to be re-concatenated as the ordering of x may have been changed in splitting 
-
+        
         # save the transformed input data
         x_df = pd.DataFrame(x,columns = features_names)
         x_df['set'] = 'Train'
         x_df['set'].iloc[-x_test.shape[0]:]='Test'
-        x_df.to_csv(experiment_folder/'transformed_model_input_data.csv',index=False)
+        if not ((config_dict['ml']["problem_type"] == "classification") and (config_dict['ml']["oversampling"] == "Y")):
+            x_df.index = list(x_ind_train)+list(x_ind_test)
+        
+        x_df.to_csv(experiment_folder/'transformed_model_input_data.csv',index=True)
 
         y_df = pd.DataFrame(y,columns = ['target'])
         y_df['set'] = 'Train'
         y_df['set'].iloc[-y_test.shape[0]:]='Test'
-        y_df.to_csv(experiment_folder/'transformed_model_target_data.csv',index=False)
+        if not ((config_dict['ml']["problem_type"] == "classification") and (config_dict['ml']["oversampling"] == "Y")):
+            y_df.index = list(x_ind_train)+list(x_ind_test)
+        y_df.to_csv(experiment_folder/'transformed_model_target_data.csv',index=True)
 
         omicLogger.info('Data combined and saved to files. Defining models...')
 

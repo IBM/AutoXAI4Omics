@@ -75,13 +75,13 @@ if __name__ == "__main__":
         x_heldout, y_heldout, features_names = load_data(config_dict,load_holdout=None)
         omicLogger.info('Heldout Data Loaded. Loading test/train data...')
 
-        x_df = pd.read_csv(experiment_folder/'transformed_model_input_data.csv')
+        x_df = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0)
         x_train = x_df[x_df['set']=='Train'].iloc[:,:-1].values
         x_test = x_df[x_df['set']=='Test'].iloc[:,:-1].values
         x = x_df.iloc[:,:-1].values
         features_names = x_df.columns[:-1]
 
-        y_df = pd.read_csv(experiment_folder/'transformed_model_target_data.csv')
+        y_df = pd.read_csv(experiment_folder/'transformed_model_target_data.csv',index_col=0)
         y_train = y_df[y_df['set']=='Train'].iloc[:,:-1].values.ravel()
         y_test = y_df[y_df['set']=='Test'].iloc[:,:-1].values.ravel()
         y = y_df.iloc[:,:-1].values.ravel()
