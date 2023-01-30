@@ -58,3 +58,24 @@ def test_model_outputs(problem):
         
         assert (df_run==df_stored).all().all()
         
+@pytest.mark.omics
+@pytest.mark.parametrize("script", [
+    pytest.param('./train_models.sh', marks=pytest.mark.training), 
+    pytest.param('./testing_holdout.sh', marks=pytest.mark.holdout), 
+    pytest.param('./plotting.sh', marks=pytest.mark.plotting)
+    ])
+@pytest.mark.parametrize("omic",[
+    pytest.param('geneExp', marks=pytest.mark.gene), 
+    pytest.param('metabolomic', marks=pytest.mark.metabolomic), 
+    pytest.param('microbiome', marks=pytest.mark.microbiome), 
+    pytest.param('tabular', marks=pytest.mark.tabular)
+    ])
+@pytest.mark.parametrize("problem", [
+    pytest.param('binary', marks=pytest.mark.classification),
+    pytest.param('multi', marks=pytest.mark.classification),
+    pytest.param('reg', marks=pytest.mark.regression),
+    ])
+def test_omic_datasets(script, omic, problem):
+    fname = f'omicTestConfigs/test_{omic}_{problem}.json'
+    sp = subprocess.call([script, fname])
+    assert sp==0

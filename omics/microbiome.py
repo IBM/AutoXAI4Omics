@@ -2,6 +2,7 @@ import scipy.sparse
 import calour as ca
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 import logging
+import pandas as pd
 omicLogger = logging.getLogger("OmicLogger")
 
 def create_microbiome_calourexp(fpath_biom, fpath_meta, norm_reads=1000, min_reads=1000):
@@ -270,5 +271,7 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
 
     # Check the data and labels are the right size
     assert len(x) == len(y)
+    
+    x2= pd.DataFrame(x,amp_exp.sample_metadata['_sample_id'],features_names)
 
-    return  x, y, features_names
+    return  x2, y, features_names

@@ -91,7 +91,15 @@ def get_data(path_file, target, metadata_path):
     """
     omicLogger.debug('Inserting data into DataFrames...')
     # Read the data
-    data = pd.read_csv(path_file, index_col=0)
+    data = pd.read_csv(path_file) 
+    
+    #check if the first column is meant to be the index
+    #Assumption is that if the first column name is empty/none then it is meant to be an index
+    if ('Unnamed' in data.columns[0]) or (data.columns[0] is None):
+        data.set_index(data.columns[0],inplace=True)
+        data.index.name = None
+    
+    
     print("Data dimension: "+str(data.shape))
 
     # Check if the target is in a separate file or in the same data
@@ -101,12 +109,12 @@ def get_data(path_file, target, metadata_path):
 
     else: # it assumes the data does not contain the target column
         # Read the metadata file
-        metadata = pd.read_csv(metadata_path, index_col=0)
+        metadata = pd.read_csv(metadata_path, index_col=0) 
         y = metadata[target].values
         data_notarget = data
 
     features_names = data_notarget.columns
-    x = data_notarget.values
+    x = data_notarget #.values
 
     # Check the data and labels are the right size
     assert len(x) == len(y)
