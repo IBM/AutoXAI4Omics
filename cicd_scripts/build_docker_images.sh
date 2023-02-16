@@ -22,7 +22,7 @@ fi
 echo "$TRAVIS_BRANCH"
 echo "${TRAVIS_BRANCH}"
 
-if [$TRAVIS_BRANCH == DEV];
+if ["${TRAVIS_BRANCH}" == "DEV"];
 then
     _imageTag="DEV"
 else
