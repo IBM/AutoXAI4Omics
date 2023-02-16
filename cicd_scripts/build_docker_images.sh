@@ -6,8 +6,8 @@
 #
 # @author James Strudwick IBM Research
 #
-#set -x # switch on
-set +x # switch off
+set -x # switch on
+# set +x # switch off
 
 echo "This is the script to build Auto-Omics Docker Images"
 
@@ -18,6 +18,9 @@ if [[ -z $IMAGE_NAME ]]; then
    # return 1 - used with source 
    exit 1
 fi
+
+echo $TRAVIS_BRANCH
+echo ${TRAVIS_BRANCH}
 
 if [["$TRAVIS_BRANCH" == "'DEV'"]];
 then
