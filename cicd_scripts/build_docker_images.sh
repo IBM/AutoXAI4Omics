@@ -37,7 +37,7 @@ docker buildx install
 docker buildx ls
 
 # build docker image
-docker build --platform linux/amd64,linux/arm64 --no-cache --progress plain --tag $IMAGE_NAME:$_imageTag .
+docker build --platform "linux/amd64","linux/arm64" --no-cache --progress plain --tag $IMAGE_NAME:$_imageTag .
 if [ $? -ne 0 ]; then
    echo "Failed to build image."
    exit 1
