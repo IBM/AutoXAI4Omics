@@ -1,0 +1,53 @@
+#
+##############################
+# Copyright IBM Corp. 2023
+##############################
+#
+# @author James Strudwick IBM Research
+#
+
+#
+# Travis file to build the docker images from both main & dev branches
+# and place the resulting images into the IBM Research Container registry
+# under the RES3 account.
+#
+language: generic
+os: linux
+dist: xenial
+
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+    - IMAGE_NAME=auto_omics
+    
+# safelist - only work with these github branches
+branches:
+   only:
+   - DEV
+   - main
+
+# trigger builds on each push to dev
+#if: (type=push AND branch IN (Trigger-Travis-build, task-276-travis-update)) OR (type=pull_request AND branch=dev)
+
+notifications:
+  email: 
+    recipients:
+      - james.strudwick@ibm.com
+    on_success: always
+    on_failure: always
+
+install: skip
+
+script:
+  - cicd_scripts/build_docker_images.sh
+  - docker images
+
+after_success: 
+  - cicd_scripts/push_image_to_cr.sh
+
+after_script:
+  - ibmcloud cr images
