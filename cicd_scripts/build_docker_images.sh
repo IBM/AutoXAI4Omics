@@ -34,7 +34,7 @@ echo "Note: Images built via this script are only pushed to the docker repositor
 docker buildx install
 
 # build docker image
-docker buildx build --platform linux/amd64,linux/arm64 --no-cache --progress plain --tag $IMAGE_NAME:$_imageTag .
+docker build --platform linux/amd64,linux/arm64 --no-cache --progress plain --tag $IMAGE_NAME:$_imageTag .
 if [ $? -ne 0 ]; then
    echo "Failed to build image."
    exit 1
