@@ -19,8 +19,8 @@ if [[ -z $IMAGE_NAME ]]; then
    exit 1
 fi
 
-echo $TRAVIS_BRANCH
-echo ${TRAVIS_BRANCH}
+echo "$TRAVIS_BRANCH"
+echo "${TRAVIS_BRANCH}"
 
 if [["$TRAVIS_BRANCH" == "'DEV'"]];
 then
