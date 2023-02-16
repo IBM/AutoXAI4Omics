@@ -19,7 +19,7 @@ if [[ -z $IMAGE_NAME ]]; then
    exit 1
 fi
 
-if ["$TRAVIS_BRANCH" = "DEV"];
+if [["$TRAVIS_BRANCH" == "DEV"]];
 then
     _imageTag="DEV"
 else
