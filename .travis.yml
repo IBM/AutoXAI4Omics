@@ -22,6 +22,7 @@ services:
 
 env:
   global:
+    - PLATFORM=arm
     - IMAGE_NAME=auto_omics
     
 # safelist - only work with these github branches
