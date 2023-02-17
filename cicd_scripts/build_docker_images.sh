@@ -39,6 +39,7 @@ docker buildx install
 #list builders for logging
 docker buildx ls
 
+docker buildx create --platform=linux/amd64,linux/amd64 --use
 # build docker image
 docker build --platform=linux/amd64,linux/arm64 --no-cache --progress plain --tag $IMAGE_NAME:$_imageTag .
 if [ $? -ne 0 ]; then
