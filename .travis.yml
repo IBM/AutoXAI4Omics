@@ -50,7 +50,7 @@ before_install:
   - curl --silent -L "https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
   - chmod a+x ~/.docker/cli-plugins/docker-buildx
 
-install: skip
+install: travis_wait 30 mvn install
 
 script:
   - cicd_scripts/build_docker_images.sh
