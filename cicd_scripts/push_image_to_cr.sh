@@ -5,7 +5,10 @@
 ##############################
 #
 # @author James Strudwick IBM Research
-#
+# 
+
+set -x # switch on
+# set +x # switch off
 
 echo "Script to push an image built within Travis-ci to IBM's Cloud image repo."
 echo "This script is called by Travis-ci during the deploy stage."
@@ -18,7 +21,10 @@ echo "Branch: $TRAVIS_BRANCH"
 echo "Commit message: $TRAVIS_COMMIT_MESSAGE"
 echo "Image name: $IMAGE_NAME"
 
-if ["$TRAVIS_BRANCH" = "DEV"];
+echo "$TRAVIS_BRANCH"
+echo "${TRAVIS_BRANCH}"
+
+if [[ "${TRAVIS_BRANCH}" == "DEV" ]];
 then
     _imageTag="DEV"
 else
@@ -26,8 +32,6 @@ else
     _imageTag=${__version__}
 fi
 echo "Image Tag: $_imageTag"
-
-echo
 
 ############################################################################
 # Download and install a few CLI tools and the Kubernetes Service plug-in. #
