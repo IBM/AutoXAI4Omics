@@ -26,12 +26,12 @@ echo "${TRAVIS_BRANCH}"
 
 if [[ "${TRAVIS_BRANCH}" == "DEV" ]];
 then
-    _imageTag="DEV"
+    IMAGE_TAG="DEV"
 else
     source _version.py
-    _imageTag=${__version__}
+    IMAGE_TAG=${__version__}
 fi
-echo "Image Tag: $_imageTag"
+echo "Image Tag: $IMAGE_TAG"
 
 ############################################################################
 # Download and install a few CLI tools and the Kubernetes Service plug-in. #
