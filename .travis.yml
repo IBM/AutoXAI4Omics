@@ -1,0 +1,62 @@
+#
+##############################
+# Copyright IBM Corp. 2023
+##############################
+#
+# @author James Strudwick IBM Research
+#
+
+#
+# Travis file to build the docker images from both main & dev branches
+# and place the resulting images into the IBM Research Container registry
+# under the RES3 account.
+#
+language: generic
+os: linux
+dist: xenial
+
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+    - IMAGE_NAME=auto_omics
+    
+# safelist - only work with these github branches
+branches:
+   only:
+   - DEV
+   - main
+
+# trigger builds on each push to dev
+#if: (type=push AND branch IN (Trigger-Travis-build, task-276-travis-update)) OR (type=pull_request AND branch=dev)
+
+notifications:
+  email: 
+    recipients:
+      - james.strudwick@ibm.com
+    on_success: always
+    on_failure: always
+
+before_install:
+  - sudo rm -rf /var/lib/apt/lists/*
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) edge"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - mkdir -vp ~/.docker/cli-plugins/
+  - curl --silent -L "https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
+  - chmod a+x ~/.docker/cli-plugins/docker-buildx
+
+install: skip
+
+script:
+  - travis_wait 60 cicd_scripts/build_docker_images.sh
+  - docker images
+
+after_success: skip
+
+after_script:
+  - ibmcloud cr images
