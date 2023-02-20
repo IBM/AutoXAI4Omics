@@ -89,12 +89,14 @@ if [ $TRAVIS_BRANCH == "main" ]; then
     --build-arg USER_ID=501 \
     --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_TAG \
     --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:latest \
+    --push \
     .
 else
     docker build --platform=linux/amd64,linux/arm64 \
     --no-cache --progress plain \
     --build-arg USER_ID=501 \
     --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_TAG \
+    --push
     .
 fi
 
