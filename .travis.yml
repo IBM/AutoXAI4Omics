@@ -56,8 +56,7 @@ script:
   - travis_wait 60 cicd_scripts/build_docker_images.sh
   - docker images
 
-after_success: 
-  - cicd_scripts/push_image_to_cr.sh
+after_success: skip
 
 after_script:
   - ibmcloud cr images

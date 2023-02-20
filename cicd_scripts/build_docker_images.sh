@@ -9,30 +9,66 @@
 set -x # switch on
 # set +x # switch off
 
-echo "This is the script to build Auto-Omics Docker Images"
+echo "This is the script to build & push Auto-Omics Docker Images"
 
-CWD="$(basename $(pwd))"
-
-if [[ -z $IMAGE_NAME ]]; then 
-   echo "No Image Name defined in commit message."
-   # return 1 - used with source 
-   exit 1
-fi
-
-echo "$TRAVIS_BRANCH"
-echo "${TRAVIS_BRANCH}"
+echo "IBM Cloud Region: $IBM_CLOUD_REGION"
+echo "Container Registry Region: $REGISTRY_REGION"
+echo "Container Registry Namespace: $REGISTRY_NAMESPACE"
+echo 
+echo "Branch: $TRAVIS_BRANCH"
+echo "Commit message: $TRAVIS_COMMIT_MESSAGE"
+echo "Image name: $IMAGE_NAME"
 
 if [[ "${TRAVIS_BRANCH}" == "DEV" ]];
 then
-    _imageTag="DEV"
+    IMAGE_TAG="DEV"
 else
     source _version.py
-    _imageTag=${__version__}
+    IMAGE_TAG=${__version__}
 fi
-echo "Image Tag: $_imageTag"
+echo "Image Tag: $IMAGE_TAG"
 
-echo "Note: Images built via this script are only pushed to the docker repository within this travis image."
+############################################################################
+# Download and install a few CLI tools and the Kubernetes Service plug-in. #
+# Documentation on details can be found here:                              #
+#    https://github.com/IBM-Cloud/ibm-cloud-developer-tools                #
+############################################################################
+echo "Install IBM Cloud CLI"
+curl -sL https://ibm.biz/idt-installer | bash
 
+############################################################################
+# Log into the IBM Cloud environment using apikey                          #
+############################################################################
+echo "Login to IBM Cloud using apikey"
+ibmcloud login -r ${IBM_CLOUD_REGION} --apikey ${IBM_CLOUD_API_KEY}
+if [ $? -ne 0 ]; then
+  echo "Failed to authenticate to IBM Cloud"
+  exit 1
+fi
+
+############################################################################
+# Set the right Region for IBM Cloud container registry                    #
+############################################################################
+echo "Switch to the correct region for the required IBM Cloud container registry"
+ibmcloud cr region-set ${REGISTRY_REGION}
+if [ $? -ne 0 ]; then
+  echo "Failed to switch to correct IBM Cloud container registry region"
+  exit 1
+fi
+############################################################################
+# Log into the IBM Cloud container registry                                #
+############################################################################
+echo "Checking connected to IBM's Cloud container registry"
+ibmcloud cr login
+if [ $? -ne 0 ]; then
+  echo "Failed to login to IBM's Cloud container registry"
+  exit 1
+fi
+ibmcloud cr images
+
+############################################################################
+# configure docker buildx                                                  #
+############################################################################
 #install buildx
 docker buildx install
 
@@ -42,8 +78,26 @@ docker buildx create --platform=linux/amd64,linux/amd64 --use
 #list builders for logging
 docker buildx ls
 
-# build docker image
-docker build --platform=linux/amd64,linux/arm64 --no-cache --progress plain --build-arg USER_ID=501 --tag $IMAGE_NAME:$_imageTag .
+############################################################################
+# configure docker buildx                                                  #
+############################################################################
+# NOTE docker buildx automaticaly pushes to the repo
+
+if [ $TRAVIS_BRANCH == "main" ]; then
+    docker build --platform=linux/amd64,linux/arm64 \
+    --no-cache --progress plain \
+    --build-arg USER_ID=501 \
+    --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_TAG \
+    --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:latest \
+    .
+else
+    docker build --platform=linux/amd64,linux/arm64 \
+    --no-cache --progress plain \
+    --build-arg USER_ID=501 \
+    --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_TAG \
+    .
+fi
+
 if [ $? -ne 0 ]; then
    echo "Failed to build image."
    exit 1
