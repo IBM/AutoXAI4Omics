@@ -950,28 +950,28 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
         if(data_forexplanations=="all"):
             shap_values = explainer.shap_values(x)
             data = x
-            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set']).index
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['SampleID','set']).index
             
         elif(data_forexplanations == "train"):
             shap_values = explainer.shap_values(x_train)
             data = x_train
-            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set'])
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['SampleID','set'])
             data_indx = data_indx[data_indx.set=='Train'].index
         elif(data_forexplanations=="test"):
             shap_values = explainer.shap_values(x_test)
             data = x_test
-            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set'])
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['SampleID','set'])
             data_indx = data_indx[data_indx.set=='Test'].index
         elif(data_forexplanations=="exemplars"):
             shap_values = explainer.shap_values(exemplar_X_test)
             data = exemplar_X_test
-            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set'])
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['SampleID','set'])
             data_indx = data_indx[data_indx.set=='Test'].index
         #otherwise assume train set
         else:
             shap_values = explainer.shap_values(x_train)
             data = x_train
-            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['Unnamed: 0','set'])
+            data_indx = pd.read_csv(experiment_folder/'transformed_model_input_data.csv',index_col=0,usecols=['SampleID','set'])
             data_indx = data_indx[data_indx.set=='Train'].index
 
         # Handle regression and classification differently and store the shap_values in shap_values_selected
@@ -1080,6 +1080,8 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                 fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
                 #saving the shapley values to dataframe
                 df_shapley_values = pd.DataFrame(data=shap_values_selected, columns=feature_names,index=data_indx)
+                df_shapley_values.sort_index(inplace=True)
+                df_shapley_values.index.name='SampleID'
                 df_shapley_values.to_csv(fname+".csv")
 
             # Plot shap bar plot
@@ -1230,6 +1232,8 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
             fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
             #saving the shapley values to dataframe
             df_shapley_values = pd.DataFrame(data=exemplars_selected, columns=feature_names, index=data_indx)
+            df_shapley_values.sort_index(inplace=True)
+            df_shapley_values.index.name='SampleID'
             df_shapley_values.to_csv(fname+".csv")
 
     else:
@@ -1245,6 +1249,8 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
                 fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
                 #saving the shapley values to dataframe
                 df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names, index=data_indx)
+                df_shapley_values.sort_index(inplace=True)
+                df_shapley_values.index.name='SampleID'
                 df_shapley_values.to_csv(fname_df+".csv")
             
             if holdout:

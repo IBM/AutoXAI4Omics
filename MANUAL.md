@@ -236,6 +236,26 @@ If 'shap_plots'is in `plot_method` list, the following parameters can be specifi
 These need to be given in the `plotting` heading.
 * `top_feats_permImp`: Number of top features to be visualised in the permutation importance plot, e.g. `tops_feats_permImp`=10.
 
+## Prediction mode
+
+Prediction mode can be used once you have trained a set of model on your a data set. The assumption is that the user is going to feed in the exact same feature set that they gave when the trained their model.
+
+When you want to perform the prediction on a dataset you supply the same config file that you used to train the model but with an extra `prediction` section, as shown belown. Note that when the predction script is run currently it only predicts using the best model.
+
+```
+"prediction":{
+        "file_path":"/data/testsets/microbiome/microbiome_500.biom",
+        "metadata_file": "/data/testsets/microbiome/microbiome_metadata_500_reg.txt",
+        "outfile_name": 'prediction_results'
+    }
+```
+
+The three entries here are:
+* `file_path`: The path to the file you wish to predict on
+* `metadata_file`: Optional - the path to the accompaning metadata for the prediction file
+* `outfile_name`: Optional, defaults to 'prediction_results', is the name of the csv file the prediction results will be saved to.
+
+
 ## Extending the Framework
 This section will briefly outline the steps needed to extend the framework. This is mainly aimed at pointing the user towards the relevant dictionaries when a new model or plot is to be added.
 ​

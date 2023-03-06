@@ -73,7 +73,7 @@ ibmcloud cr images
 docker buildx install
 
 #create builder
-docker buildx create --platform=linux/amd64,linux/amd64 --use
+docker buildx create --platform=linux/arm64,linux/amd64 --use
 
 #list builders for logging
 docker buildx ls

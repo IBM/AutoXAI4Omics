@@ -493,17 +493,17 @@ def run_models(
     df_performance_results = pd.DataFrame()
 
 
+    fname = "scores_"
+    
     if(config_dict['data']["data_type"]=="microbiome"):
         #This is specific to microbiome
-        collapse_tax = config_dict['microbiome']['collapse_tax']
-        fname = f"scores_{collapse_tax}"
+        if config_dict['microbiome']['collapse_tax'] is not None:
+            fname += f"{collapse_tax}"
         #Remove or merge samples based on target values (for example merging to categories, if classification)
         if config_dict['microbiome']['remove_classes'] is not None:
             fname += "_remove"
         elif config_dict['microbiome']['merge_classes'] is not None:
             fname += "_merge"
-    else:
-        fname = "scores_"
 
 
 
