@@ -1,5 +1,6 @@
 import pandas as pd
 from omics import R_replacement as rrep
+import joblib
 
 #import logging # uncomment this when incorporated in AO
 #omicLogger = logging.getLogger("OmicLogger") #uncommment this when incorporated in AO
@@ -45,24 +46,29 @@ def get_data_gene_expression(config_dict,holdout=False):
     #omicLogger.debug('Loading Gene Expression data...')
 
     if config_dict['gene_expression']["expression_type"] == "COUNTS":
-        filtered_data = rrep.preprocessing_TMM(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
+        filtered_data, genestokeep = rrep.preprocessing_TMM(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
         print("data type = ", config_dict['gene_expression']["expression_type"])
 
-    elif config_dict['gene_expression']["expression_type"] == "FPKM" or config_dict['gene_expression']["expression_type"] == "RPKM" or config_dict['gene_expression']["expression_type"] == "TPM" or config_dict['gene_expression']["expression_type"] == "TMM":
-        filtered_data = rrep.preprocessing_others(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
+    elif config_dict['gene_expression']["expression_type"] in ["FPKM", "RPKM", "TPM", "TMM"]:
+        filtered_data, genestokeep = rrep.preprocessing_others(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
         print("data type = ", config_dict['gene_expression']["expression_type"])
 
-    elif config_dict['gene_expression']["expression_type"] == "Log2FC" or config_dict['gene_expression']["expression_type"] == "OTHER" or config_dict['gene_expression']["expression_type"] == "MET" or config_dict['gene_expression']["expression_type"] == "TAB":
-        filtered_data = rrep.preprocessing_LO(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
+    elif config_dict['gene_expression']["expression_type"] in ["Log2FC", "OTHER", "MET", "TAB"]:
+        filtered_data, genestokeep = rrep.preprocessing_LO(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
         print("data type = ", config_dict['gene_expression']["expression_type"])
 
     else: # it's defined as 'OTHER'
-        filtered_data = rrep.preprocessing_LO(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
+        filtered_data, genestokeep = rrep.preprocessing_LO(config_dict,filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples,holdout=holdout)
         print("data type = ", config_dict['gene_expression']["expression_type"])
 
 
     #Save filtered ge data
     filtered_data.to_csv(output_file) 
+    
+    # save list of genes kept
+    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes.pkl'
+    with open(save_name, 'wb') as f:
+        joblib.dump(genestokeep, f)
     
     #If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as metout
     #and extract target from metadata. If metadata not present, assume target in data file.
@@ -86,3 +92,52 @@ def get_data_gene_expression(config_dict,holdout=False):
     feature_names = filtered_data.columns
 
     return filtered_data,y, feature_names    
+
+def get_data_gene_expression_trained(config_dict,holdout=False,prediction=False):
+
+    """
+    - Runs preprocessing_LO function.
+    - Filters metadata based on processed data (removes any samples removed during processing)
+    - Returns x,y,feature_names
+
+    Parameters
+    ---------
+    config_dict: config dictionary 
+
+    Returns
+    --------
+    x,y, feature names (in correct format format for ML)
+
+    """
+    
+    tmm = True if config_dict['gene_expression']['expression_type']=="COUNTS" else False
+
+    filtered_data = rrep.apply_learned_processing(config_dict, holdout=holdout, prediction=prediction, tmm = tmm)
+    print("data type = ", config_dict['data']["data_type"])
+
+    
+    #If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as metout
+    #and extract target from metadata. If metadata not present, assume target in data file.
+    if holdout:
+        metafile = "metadata_file"+ ("_holdout_data" if holdout else "")
+        if (config_dict['data'][metafile] != "") and (config_dict['data'][metafile] is not None):
+            metadata = pd.read_csv(config_dict['data'][metafile], index_col=0)  
+            mask = metadata.index.isin(filtered_data.index)  
+            filtered_metadata = metadata.loc[mask]
+            filtered_metadata.to_csv(metout_file) 
+            y = filtered_metadata[config_dict['data']["target"]].values
+
+        else:
+            file = "file_path"+ ("_holdout_data" if holdout else "")
+            unfiltered_data = pd.read_csv(config_dict['data'][file], index_col=0)
+            target_y = unfiltered_data.loc[config_dict['data']["target"]] # need loc because target in ge data is ROW not column (as in metadata)
+            # Filter y 
+            mask = target_y.index.isin(filtered_data.index) 
+            filtered_target_y = target_y.loc[mask]
+            y = filtered_target_y.values
+    else:
+        y = None
+
+    feature_names = filtered_data.columns
+
+    return filtered_data,y, feature_names   
