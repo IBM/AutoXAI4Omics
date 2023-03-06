@@ -1,7 +1,9 @@
 # Set base image and key env vars
 FROM python:3.9.14
 # ENV DEBIAN_FRONTEND="noninteractive"
-ARG USER_ID=${USER_ID}
+
+# Default 1001 - non privileged uid
+ARG USER_ID=1001
 ENV TF_CPP_MIN_LOG_LEVEL '2'
 
 # Upgrade installed packages
@@ -12,20 +14,22 @@ RUN apt-get install -y software-properties-common git
 RUN python -m pip install --upgrade pip
 
 # Add omicuser and set env vars
-RUN useradd -l -m -s /bin/bash -u ${USER_ID} omicsuser
-USER omicsuser
+# Give omicsuser gid 0 so has root group permissions to read files, 
+#   and is the same gid as Openshift users. Compatible with Openshift and k8s
+RUN useradd -l -m -s /bin/bash --uid ${USER_ID} -g 0 omicsuser
+
 WORKDIR /home/omicsuser
-ENV PATH "/home/omicsuser/.local/bin:${PATH}"
-ENV PYTHONPATH "/home/omicsuser:${PYTHONPATH}"
 
 # Copy in required files
-COPY --chown=omicsuser:omicsuser *.py ./
-COPY --chown=omicsuser:omicsuser tabauto ./tabauto
-COPY --chown=omicsuser:omicsuser omics ./omics
-COPY --chown=omicsuser:omicsuser logging.yml ./
+COPY *.py ./
+# grant write permissions to these folders
+COPY --chown=omicsuser:0 tabauto ./tabauto 
+COPY --chown=omicsuser:0 omics ./omics
+
+COPY logging.yml ./
 
 # Install required Python packages use block below if fixing other packages for the first time, use other
-COPY --chown=omicsuser:omicsuser requirements.txt .
+COPY requirements.txt .
 RUN pip install -r requirements.txt 
 # COPY --chown=omicsuser:omicsuser requirements_fixed.txt .
 # RUN pip install -r requirements_fixed.txt 
@@ -33,8 +37,7 @@ RUN pip install -r requirements.txt
 # use this a fix for Calour
 # RUN pip install numpy==1.20.0
 
-# use root if dev work is needed
-# user root
-
+# Use 'omicsuser' user - this is overruled in Openshift
+USER omicsuser
 # init run command
 CMD ["$@"]

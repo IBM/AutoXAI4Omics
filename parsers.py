@@ -696,6 +696,32 @@ def parse_omic(config):
             config['metabolomic'] = parse_metabolomic(omicEnt)
     return config
 
+#################### prediction ####################
+
+def parse_prediction(predictionEntry):
+    validKeys = {"file_path","outfile_name","metadata_file"}
+    keys = set(predictionEntry.keys())
+    
+    if not set(keys).issubset(validKeys):
+        raise ValueError(f'Invalid entry for predictionEntry: {set(keys)-validKeys}. Valid options: {validKeys}')
+
+    if "file_path" not in keys: ###################################### MANDITORY ######################################
+        raise ValueError(f'prediction:file_path must be defined')
+    else:
+        type_check(predictionEntry['file_path'],str,"file_path")
+        if not exists(predictionEntry['file_path']):
+            raise ValueError(f'File given in prediction:file_path does not exist')
+    
+    if "metadata_file" not in keys:
+        predictionEntry['metadata_file'] = None
+            
+    if ("outfile_name" not in keys) or (outfile_name=='') or (outfile_name is None):
+        predictionEntry['outfile_name'] = 'prediction_results'
+    else:
+        type_check(predictionEntry['outfile_name'],str,"outfile_name")
+        
+    return predictionEntry
+
 #################### config ####################
 def parse_config(config):
     
@@ -705,5 +731,8 @@ def parse_config(config):
     pltEnt = {} if pltEnt is None else pltEnt
     config['plotting'] = parser_plotting(pltEnt,config['ml']['problem_type'])
     config = parse_omic(config)
+    
+    if 'prediction' in config.keys():
+        config['prediction'] = parse_prediction(config['prediction'])
     
     return config

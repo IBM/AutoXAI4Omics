@@ -32,6 +32,9 @@ def main(config_dict, config_path):
         #read the data
         x, y, features_names = load_data(config_dict)
         omicLogger.info('Data Loaded. Splitting data...')
+        
+        if len(x.index.unique())!=x.shape[0]:
+            raise ValueError("The sample index/names contain duplicate entries")
 
         # Split the data in train and test
         x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
@@ -69,7 +72,8 @@ def main(config_dict, config_path):
         # perform class balancing if it is desired
         if (config_dict['ml']["problem_type"] == "classification"):
             if (config_dict['ml']["oversampling"] == "Y"):
-                x_train, y_train = oversample_data(x_train, y_train,config_dict['ml']["seed_num"])
+                x_train, y_train, re_sampled_idxs = oversample_data(x_train, y_train,config_dict['ml']["seed_num"])
+                x_ind_train = x_ind_train[re_sampled_idxs]
 
         
         # concatenate both test and train into test
@@ -80,16 +84,19 @@ def main(config_dict, config_path):
         x_df = pd.DataFrame(x,columns = features_names)
         x_df['set'] = 'Train'
         x_df['set'].iloc[-x_test.shape[0]:]='Test'
-        if not ((config_dict['ml']["problem_type"] == "classification") and (config_dict['ml']["oversampling"] == "Y")):
-            x_df.index = list(x_ind_train)+list(x_ind_test)
-        
+        # if not ((config_dict['ml']["problem_type"] == "classification") and (config_dict['ml']["oversampling"] == "Y")):
+        x_df.index = list(x_ind_train)+list(x_ind_test)
+        x_df.sort_index(inplace=True)
+        x_df.index.name = 'SampleID'
         x_df.to_csv(experiment_folder/'transformed_model_input_data.csv',index=True)
 
         y_df = pd.DataFrame(y,columns = ['target'])
         y_df['set'] = 'Train'
         y_df['set'].iloc[-y_test.shape[0]:]='Test'
-        if not ((config_dict['ml']["problem_type"] == "classification") and (config_dict['ml']["oversampling"] == "Y")):
-            y_df.index = list(x_ind_train)+list(x_ind_test)
+        # if not ((config_dict['ml']["problem_type"] == "classification") and (config_dict['ml']["oversampling"] == "Y")):
+        y_df.index = list(x_ind_train)+list(x_ind_test)
+        y_df.sort_index(inplace=True)
+        y_df.index.name = 'SampleID'
         y_df.to_csv(experiment_folder/'transformed_model_target_data.csv',index=True)
 
         omicLogger.info('Data combined and saved to files. Defining models...')

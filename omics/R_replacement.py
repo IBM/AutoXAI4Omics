@@ -1,4 +1,4 @@
-
+import joblib
 import pandas as pd
 from bioinfokit.analys import norm
 import conorm as cn
@@ -70,8 +70,54 @@ def preprocessing_LO(config_dict,filtergene1,filtergene2,filter_sample,holdout):
     data_final = tdata_filtered.loc[tokeep]   # filter original df (already filtered for genes) (with +ve and -ve values), keeping those samples    
 
     #Return final data, discarded genes, and discarded samples
-    return data_final
+    return data_final, genestokeep
 
+#---------------------------------------------------------------------------------------------------#
+
+def apply_learned_processing(config_dict, holdout, prediction=False, tmm = False):
+    
+    if holdout==False and prediction==False:
+        raise ValueError("One of holdout or prediction need to be true")
+        
+    if holdout:
+        file = "file_path"+ ("_holdout_data" if holdout else "")
+        data_file = pd.read_csv(config_dict['data'][file], index_col=0) #sampleID as index
+
+        #If metadata not provided, drop target prior to filtering
+        metafile = "metadata_file"+ ("_holdout_data" if holdout else "")
+        if(config_dict['data'][metafile] == ""):
+            data_file = data_file.drop(config_dict['data']["target"], axis=0)
+
+    elif prediction:
+        file = config_dict['prediction']["file_path"]
+        data_file = pd.read_csv(file, index_col=0) #sampleID as index
+        
+    
+    # save list of genes kept
+    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes.pkl'
+    with open(save_name, 'rb') as f:
+        genestokeep = joblib.load(f)
+            
+    data_filtered = data_file.loc[genestokeep] 
+  
+    if tmm:
+        #Normalise samples using edgeR TMM (using python package conorm)
+        data_tmm = cn.tmm(data_filtered)
+        #data_tmm_factors = cn.tmm_norm_factors(data_filtered) #can return norm factors if needed
+
+        #CPM of TMM normalised samples
+        nm = norm()
+        nm.cpm(df=data_tmm) # CPM of TMM normalised samples
+        data_tmm_cpm = nm.cpm_norm
+
+        #Transpose data (samples rows, genes as columns)
+        tdata_tmm_cpm = data_tmm_cpm.transpose()
+        
+        return tdata_tmm_cpm
+    else:
+        #Transpose data (samples rows, genes as columns)
+        tdata_filtered = data_filtered.transpose()
+        return tdata_filtered
     
 
 #---------------------------------------------------------------------------------------------------#
@@ -141,7 +187,7 @@ def preprocessing_others(config_dict,filtergene1,filtergene2,filter_sample,holdo
     data_final = tdata_filtered.loc[tokeep]   # filter original df (already filtered for genes) (with +ve and -ve values), keeping those samples    
 
     #Return final data, discarded genes, and discarded samples
-    return data_final
+    return data_final, genestokeep
 
 #---------------------------------------------------------------------------------------------------#
 
@@ -227,4 +273,4 @@ def preprocessing_TMM(config_dict,filtergene1,filtergene2,filter_sample,holdout)
     data_final = tdata_tmm_cpm.loc[tokeep]   # filter original df (already filtered for genes) (with +ve and -ve values), keeping those samples 
 
     #Return final data
-    return data_final
+    return data_final, genestokeep

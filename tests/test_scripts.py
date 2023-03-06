@@ -15,7 +15,8 @@ import pandas as pd
 @pytest.mark.parametrize("script", [
     pytest.param('./train_models.sh', marks=pytest.mark.training), 
     pytest.param('./testing_holdout.sh', marks=pytest.mark.holdout), 
-    pytest.param('./plotting.sh', marks=pytest.mark.plotting)
+    pytest.param('./plotting.sh', marks=pytest.mark.plotting),
+    pytest.param('./prediction.sh', marks=pytest.mark.prediction),
     ])
 def test_scripts(script,problem_create):
     fname = problem_create.split('/')[1]
@@ -62,7 +63,8 @@ def test_model_outputs(problem):
 @pytest.mark.parametrize("script", [
     pytest.param('./train_models.sh', marks=pytest.mark.training), 
     pytest.param('./testing_holdout.sh', marks=pytest.mark.holdout), 
-    pytest.param('./plotting.sh', marks=pytest.mark.plotting)
+    pytest.param('./plotting.sh', marks=pytest.mark.plotting),
+    pytest.param('./predict.sh',marks=pytest.mark.prediction)
     ])
 @pytest.mark.parametrize("omic",[
     pytest.param('geneExp', marks=pytest.mark.gene), 
