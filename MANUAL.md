@@ -240,7 +240,7 @@ These need to be given in the `plotting` heading.
 
 Prediction mode can be used once you have trained a set of model on your a data set. The assumption is that the user is going to feed in the exact same feature set that they gave when the trained their model.
 
-When you want to perform the prediction on a dataset you supply the same config file that you used to train the model but with an extra `prediction` section, as shown belown. Note that when the predction script is run currently it only predicts using the best model.
+When you want to perform the prediction on a dataset you supply the same config file that you used to train the model but with an extra `prediction` section within the config, as shown belown and lunch it by running `./predict.sh config.json` . Note that when the predction script is run currently it only predicts using the best model.
 
 ```
 "prediction":{
