@@ -86,7 +86,7 @@ def main(config_dict, config_path):
         x_df['set'].iloc[-x_test.shape[0]:]='Test'
         # if not ((config_dict['ml']["problem_type"] == "classification") and (config_dict['ml']["oversampling"] == "Y")):
         x_df.index = list(x_ind_train)+list(x_ind_test)
-        x_df.sort_index(inplace=True)
+        # x_df.sort_index(inplace=True)
         x_df.index.name = 'SampleID'
         x_df.to_csv(experiment_folder/'transformed_model_input_data.csv',index=True)
 
@@ -95,7 +95,7 @@ def main(config_dict, config_path):
         y_df['set'].iloc[-y_test.shape[0]:]='Test'
         # if not ((config_dict['ml']["problem_type"] == "classification") and (config_dict['ml']["oversampling"] == "Y")):
         y_df.index = list(x_ind_train)+list(x_ind_test)
-        y_df.sort_index(inplace=True)
+        # y_df.sort_index(inplace=True)
         y_df.index.name = 'SampleID'
         y_df.to_csv(experiment_folder/'transformed_model_target_data.csv',index=True)
 
