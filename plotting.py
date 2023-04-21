@@ -1080,7 +1080,7 @@ def shap_plots(experiment_folder, config_dict, feature_names, x, x_test, y_test,
                 fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
                 #saving the shapley values to dataframe
                 df_shapley_values = pd.DataFrame(data=shap_values_selected, columns=feature_names,index=data_indx)
-                df_shapley_values.sort_index(inplace=True)
+                # df_shapley_values.sort_index(inplace=True)
                 df_shapley_values.index.name='SampleID'
                 df_shapley_values.to_csv(fname+".csv")
 
@@ -1232,7 +1232,7 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
             fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
             #saving the shapley values to dataframe
             df_shapley_values = pd.DataFrame(data=exemplars_selected, columns=feature_names, index=data_indx)
-            df_shapley_values.sort_index(inplace=True)
+            # df_shapley_values.sort_index(inplace=True)
             df_shapley_values.index.name='SampleID'
             df_shapley_values.to_csv(fname+".csv")
 
@@ -1249,7 +1249,7 @@ def summary_SHAPdotplot_perclass(experiment_folder, class_names, model_name, fea
                 fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
                 #saving the shapley values to dataframe
                 df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names, index=data_indx)
-                df_shapley_values.sort_index(inplace=True)
+                # df_shapley_values.sort_index(inplace=True)
                 df_shapley_values.index.name='SampleID'
                 df_shapley_values.to_csv(fname_df+".csv")
             

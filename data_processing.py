@@ -419,7 +419,7 @@ def auto_feat_selection(experiment_folder,x,y,problem_type,min_features=10,inter
     print("Generating logarithmic selection for k")
     max_features = x.shape[1]
     #if the max number of features is infact smaller than min_features, set min_features to 1
-    if max_features < min_features:
+    if max_features-3 <= min_features:
         print("Min features more than given number of features, setting min_features to 1.")
         min_features = 1 
     

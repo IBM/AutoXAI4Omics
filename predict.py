@@ -117,7 +117,9 @@ if __name__ == "__main__":
         
         omicLogger.info("Saving predictions...")
         predictions = pd.DataFrame(predictions,columns=['Prediction'])
-        predictions.to_csv(experiment_folder/f'best_model_predictions.csv',index=False)
+        predictions.index = x_to_predict.index
+        predictions.index.name = 'SampleID'
+        predictions.to_csv(experiment_folder/f'{config_dict['prediction']['outfile_name']}.csv',index=True)
         
         omicLogger.info('Process completed.')
         
