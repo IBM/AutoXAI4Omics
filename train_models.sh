@@ -15,5 +15,5 @@ docker run \
   -v "${PWD}"/configs:/configs \
   -v "${PWD}"/data:/data \
   -v "${PWD}"/experiments:/experiments \
-  ${NAME}:${VERSION} \
+  ${IMAGE_NAME}:${IMAGE_TAG} \
     python train_models.py -c /configs/"$configname"
