@@ -715,7 +715,7 @@ def parse_prediction(predictionEntry):
     if "metadata_file" not in keys:
         predictionEntry['metadata_file'] = None
             
-    if ("outfile_name" not in keys) or (outfile_name=='') or (outfile_name is None):
+    if ("outfile_name" not in keys) or (predictionEntry['outfile_name']=='') or (predictionEntry['outfile_name'] is None):
         predictionEntry['outfile_name'] = 'prediction_results'
     else:
         type_check(predictionEntry['outfile_name'],str,"outfile_name")
