@@ -93,6 +93,7 @@ if __name__ == "__main__":
         
         omicLogger.info("Loading Data...")
         x_to_predict, features_names = load_data(config_dict,load_prediction=True)
+        x_indexes = x_to_predict.index
         
         omicLogger.info("Loading data transformers...")
         SS, FS = assert_data_transformers_exists(experiment_folder,config_dict)
@@ -117,9 +118,9 @@ if __name__ == "__main__":
         
         omicLogger.info("Saving predictions...")
         predictions = pd.DataFrame(predictions,columns=['Prediction'])
-        predictions.index = x_to_predict.index
+        predictions.index = x_indexes
         predictions.index.name = 'SampleID'
-        predictions.to_csv(experiment_folder/f'{config_dict['prediction']['outfile_name']}.csv',index=True)
+        predictions.to_csv(experiment_folder/f"{config_dict['prediction']['outfile_name']}.csv",index=True)
         
         omicLogger.info('Process completed.')
         
