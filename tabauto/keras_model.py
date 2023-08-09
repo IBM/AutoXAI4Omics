@@ -194,8 +194,8 @@ class KerasModel(BaseModel):
         es = EarlyStopping(monitor='val_loss', verbose=1, patience=20)
 
         # ckpt = ModelCheckpoint('keras_model_ckpt.h5', monitor='val_accuracy', verbose=1, save_best_only=True, mode='auto')
-        ckpt = ModelCheckpoint('keras_model_ckpt_{}.h5'.format(os.getpid()), monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
-        callbacks = [lr_scheduler, ckpt, es]
+        # ckpt = ModelCheckpoint('keras_model_ckpt_{}.model'.format(os.getpid()), monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
+        callbacks = [lr_scheduler, es] #,ckpt]
         # train the model
         # choose number of epochs and batch_size
         epochs = 50*2
@@ -225,7 +225,7 @@ class KerasModel(BaseModel):
         else:
             plt.legend(['Train'], loc='upper right')
         # plt.show()
-        plt.savefig('history_{}.png'.format(os.getpid()))
+        # plt.savefig('history_{}.png'.format(os.getpid()))
 
         # try:
         #     ohe = self.model_ohe
