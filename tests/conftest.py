@@ -258,7 +258,7 @@ def config_define_problem(problem_type):
         "hyper_budget": 50,
         "stratify_by_groups": "N",
         "groups": "",
-        "oversampling": "Y",
+        "balancing": "OVER",
     }
     return outdict
 

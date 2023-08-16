@@ -241,7 +241,7 @@ def parse_autosklearn(sklearnEntry,problem_type):
 
 #################### problem ####################
 def parse_MLSettings(problemEntry):
-    validKeys = {"seed_num","test_size","problem_type","hyper_tuning","hyper_budget","stratify_by_groups","groups","oversampling","fit_scorer","scorer_list","model_list","autosklearn_config","autokeras_config","autolgbm_config","autoxgboost_config","encoding","feature_selection"}
+    validKeys = {"seed_num","test_size","problem_type","hyper_tuning","hyper_budget","stratify_by_groups","groups","balancing","fit_scorer","scorer_list","model_list","autosklearn_config","autokeras_config","autolgbm_config","autoxgboost_config","encoding","feature_selection"}
     keys = set(problemEntry.keys())
     
     if not set(keys).issubset(validKeys):
@@ -299,12 +299,12 @@ def parse_MLSettings(problemEntry):
     else:
         type_check(problemEntry['groups'],str,'groups')
         
-    if "oversampling" not in keys:
-        problemEntry['oversampling'] = "N" 
+    if "balancing" not in keys:
+        problemEntry['balancing'] = "NONE" 
     else:
-        type_check(problemEntry['oversampling'],str,'oversampling')
-        if problemEntry['oversampling'] not in ["Y", "N"]:
-            raise ValueError(f'oversampling must be either "Y" or "N"')
+        type_check(problemEntry['balancing'],str,'balancing')
+        if problemEntry['balancing'] not in ["OVER","UNDER", "NONE"]:
+            raise ValueError(f'balancing must be either "OVER", "UNDER", "NONE"')
     
     classif = ["acc","f1","prec","recall"]
     reg = ["mean_ae","med_ae","rmse","mean_ape","r2"]

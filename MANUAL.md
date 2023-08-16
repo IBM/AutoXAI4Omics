@@ -34,7 +34,7 @@ The JSON config file is at the centre of the framework - it controls everything 
         "hyper_budget": 50, 
         "stratify_by_groups": "N", 
         "groups": "", 
-        "oversampling": "N", 
+        "balancing": "NONE", 
         "fit_scorer": "f1", 
         "scorer_list": ["acc", "f1"], 
         "model_list": [
@@ -127,7 +127,7 @@ These need to be stored under the `ml` heading.
 * `problem_type`: The type of problem, either "classification" or "regression".
 * `stratify_by_groups`: "Y" or "N" (default "N"). This allows the user to perform the ML analysis stratifying the samples by groups as specified in the `groups` parameter below. If "Y", samples in the same group will not appear in both training and test datasets. 
 * `groups`: this is the name of a column in the metadata that represent the groups for the stratification of the samples. For instance, if there are time series samples from the same subjects, `groups` could be "Subject_ID".
-* `oversampling`: "Y", or "N" (default "N") if the user choses to perform oversampling of the training data. This functionality work only for classification tasks and makes sense if there the categories/classes are significantilly unbalanced.
+* `balancing`: "OVER","UNDER", or "NONE" (default "NONE") if the user choses to perform class balancing of the data of the training data. This functionality work only for classification tasks and makes sense if there the categories/classes are significantilly unbalanced.
 * `seed_num`: Provide the seed number to be used. This is given to everything that has a `random_state` argument, as well as being used as the general seed (for `numpy` and `tensorflow`).
 * `test_size`: The size of the test data (given to scikit-learn's `train_test_split`), e.g., 0.2 if 20% of the dataset is selected as test set and set aside.
 * `hyper_tuning`: The type of hyperparameter tuning to be used, either random search "random" or grid "grid" or `null`. In case of `null` the models will be trained with just one set of parameters. The parameters are defined in `model_params.py` for each method. Grid or random search rely on `scikit-learn` implementations. 

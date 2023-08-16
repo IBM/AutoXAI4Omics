@@ -71,9 +71,18 @@ def main(config_dict, config_path):
 
         # perform class balancing if it is desired
         if (config_dict['ml']["problem_type"] == "classification"):
-            if (config_dict['ml']["oversampling"] == "Y"):
+            # if (config_dict['ml']["oversampling"] == "Y"):
+            #     x_train, y_train, re_sampled_idxs = oversample_data(x_train, y_train,config_dict['ml']["seed_num"])
+            #     x_ind_train = x_ind_train[re_sampled_idxs]
+            if (config_dict['ml']["balancing"] == "OVER"):
                 x_train, y_train, re_sampled_idxs = oversample_data(x_train, y_train,config_dict['ml']["seed_num"])
                 x_ind_train = x_ind_train[re_sampled_idxs]
+            elif (config_dict['ml']["balancing"] == "UNDER"):
+                x_train, y_train, re_sampled_idxs = undersample_data(x_train, y_train,config_dict['ml']["seed_num"])
+                x_ind_train = x_ind_train[re_sampled_idxs]
+            # elif (config_dict['ml']["balancing"] == "BOTH"):
+            #     x_train, y_train, re_sampled_idxs = combisample_data(x_train, y_train,config_dict['ml']["seed_num"])
+            #     x_ind_train = x_ind_train[re_sampled_idxs]
 
         
         # concatenate both test and train into test
