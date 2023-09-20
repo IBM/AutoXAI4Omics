@@ -11,16 +11,16 @@ sys.path.append('../auto-omics/')
 import yaml
 import pandas as pd
     
-@pytest.mark.scripts
-@pytest.mark.parametrize("script", [
-    pytest.param('./train_models.sh', marks=pytest.mark.training), 
-    pytest.param('./testing_holdout.sh', marks=pytest.mark.holdout), 
-    pytest.param('./plotting.sh', marks=pytest.mark.plotting),
-    pytest.param('./prediction.sh', marks=pytest.mark.prediction),
+@pytest.mark.modes
+@pytest.mark.parametrize("mode", [
+    pytest.param('train', marks=pytest.mark.training), 
+    pytest.param('test', marks=pytest.mark.holdout), 
+    pytest.param('plotting', marks=pytest.mark.plotting),
+    pytest.param('predict', marks=pytest.mark.prediction),
     ])
-def test_scripts(script,problem_create):
+def test_modes(mode,problem_create):
     fname = problem_create.split('/')[1]
-    sp = subprocess.call([script, fname])
+    sp = subprocess.call(['./auto_omics.sh', '-m', mode, '-c' ,fname])
     assert sp==0
     
     
@@ -60,11 +60,11 @@ def test_model_outputs(problem):
         assert (df_run==df_stored).all().all()
         
 @pytest.mark.omics
-@pytest.mark.parametrize("script", [
-    pytest.param('./train_models.sh', marks=pytest.mark.training), 
-    pytest.param('./testing_holdout.sh', marks=pytest.mark.holdout), 
-    pytest.param('./plotting.sh', marks=pytest.mark.plotting),
-    pytest.param('./predict.sh',marks=pytest.mark.prediction)
+@pytest.mark.parametrize("mode", [
+    pytest.param('train', marks=pytest.mark.training), 
+    pytest.param('test', marks=pytest.mark.holdout), 
+    pytest.param('plotting', marks=pytest.mark.plotting),
+    pytest.param('predict',marks=pytest.mark.prediction)
     ])
 @pytest.mark.parametrize("omic",[
     pytest.param('geneExp', marks=pytest.mark.gene), 
@@ -77,7 +77,7 @@ def test_model_outputs(problem):
     pytest.param('multi', marks=pytest.mark.classification),
     pytest.param('reg', marks=pytest.mark.regression),
     ])
-def test_omic_datasets(script, omic, problem):
-    fname = f'omicTestConfigs/test_{omic}_{problem}.json'
-    sp = subprocess.call([script, fname])
+def test_omic_datasets(mode, omic, problem):
+    fname = f'OmicsTestSets/configs/test_{omic}_{problem}.json'
+    sp = subprocess.call(['./auto_omics.sh', '-m', mode, '-c' ,fname])
     assert sp==0
