@@ -32,6 +32,8 @@ while getopts 'm:c:rg' OPTION; do
                     echo "Unrecognised mode: ${OPTARG}. Valid modes: train, test, predict, plotting, bash"
                     exit 1
                     ;;
+            esac
+            ;;
         c)
             echo "Registering config"
             CONFIG=${OPTARG}
@@ -76,7 +78,6 @@ if [ $MODE != "bash" ]
 then
     docker run \
       --rm \
-      # -u ${USER_ID} \
       $GPU \
       $VOL_MAPS \
       $IMAGE_FULL \
@@ -85,7 +86,6 @@ else
     docker run \
       --rm \
       -ti \
-      # -u ${USER_ID} \
       $ROOT \
       $VOL_MAPS \
       $IMAGE_FULL \
