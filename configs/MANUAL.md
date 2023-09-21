@@ -1,7 +1,4 @@
-# User manual
-This is a user manual for the framework, where the fields of the config file are explained, and some explanation about how to use and extend the framework is provided.
-​
-## Config File Explanation
+# Config Manual
 The JSON config file is at the centre of the framework - it controls everything to be run. The `microbiome_example_config.json` to run the analysis on microbiome data including the pre-processing, looks like:
 ```
 {
@@ -103,7 +100,7 @@ The JSON config file is at the centre of the framework - it controls everything 
     }
 }
 ```
-### General remarks
+## General remarks
 * If a value for a parameter in the json file is not provided, the value should `null` or "".
 * There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`, `metabolomic`, `tabular`}. The `data_type` can have any other value or be an empty string (e.g. "proteomic", "", etc.),  but those will not invoke any special pre-processing
 * For categorical data, phenotypes are listed in alphabetical order in the results
@@ -114,7 +111,7 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 * Input data files for pre-processing of metabolomic and tabular data are expected as .csv files with measurements in rows and tested samples in columns. Column 1 holds the labels for measurement names e.g. metabolites. Similarly, row 1 will contain sample names.
 * All other input data files are expected as .csv files that wil pass directly into the ML workflow with no pre-processing. As such they are required to have samples in rows and measurements (or features) in columns. Column 1 holds the labels for sample names. Similarly, row 1 will contain measurement (or feature) names.
 
-### General parameters
+## General parameters
 These need be stored under the `data` heading.
 * `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder under the `"save_path"` (e.g. `"/experiments/results/"`). The needed subdirectories for the results, models and (if any) graphs are created within this experiment folder.
 * `data_type`: "microbiome" or "gene_expression" or "metabolomic" or "tabular" or anything else e.g. "proteomic", but the latter does not currently invoke any specific pre-processing.
@@ -122,7 +119,7 @@ These need be stored under the `data` heading.
 * `metadata_file`: Name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt". For pre-processing (gene expression, metabolomic, tabular) this file should have as column 1: header "Sample" with associated sample names that correspond to the sample names in `file_path`
 * `target`: Name of the target to predict, e.g. "Age", that is either a column within the `medatata_file` or if `metadata_file` is not provided, e.g. `metadata_file`= "", `target` is the name of a column in the data file specified in `file_path`.
 
-### Machine learning parameters 
+## Machine learning parameters 
 These need to be stored under the `ml` heading.
 * `problem_type`: The type of problem, either "classification" or "regression".
 * `stratify_by_groups`: "Y" or "N" (default "N"). This allows the user to perform the ML analysis stratifying the samples by groups as specified in the `groups` parameter below. If "Y", samples in the same group will not appear in both training and test datasets. 
@@ -159,7 +156,7 @@ The performance of all models on the train and test sets according to these meas
         * `metric`: This is only used if `SelectKBest` is being used and determins what metric is to be used in the method. valid options include: `f_regression`, `f_classif`, `mutual_info_regression` or `mutual_info_classif`
         * `estimator`: This is only used if `RFE` is being used and determins what estimator is fitted at each stage during the `RFE` process.
 
-### Microbiome data pre-processing parameters
+## Microbiome data pre-processing parameters
 These parameters need to specified only if `data_type`= "microbiome", otherwise they can be set as empty strings "". These need to be given under the `microbiome` heading.
 * `collapse_tax`: Allows collapsing the taxonomy to the e.g. genus level "g" or species level "s". Uses the `calour.collapse_taxonomy` function (which collapses the entire taxonomic classification up to the level desired, so even if the genus is the same for two samples, if they have different e.g. order, they will be separate).
 * `min_reads` : samples with fewer than this many reads will be removed (default 1000)
@@ -172,7 +169,7 @@ These parameters need to specified only if `data_type`= "microbiome", otherwise 
 
 The microbial sequence count table and metadata, in biom file format, is loaded into the calour library an open-source python library called calour http://biocore.github.io/calour/. The loading process filtered out samples with fewer than `min_reads`=1000 reads (default) and then rescaled each sample to have its counts sum up to `norm_reads`=1000 (default)  by dividing each feature frequency by the total number of reads in the sample and multiplying by 1000. After loading, the data underwent two rounds of filtering and the remaining features were collapsed at the genus level. For these rounds of pre-processing filtering, was used. The first round of filtering removed low-abundance features, e.g., OTUs with total count less than 10 across all samples (`calour.experiment.filter_abundance(10)`). The second filter removed OTUs with low prevalence, e.g., features occurring in < 1% of the samples (`calour.experiment.filter_prevalence(0.01)`). If the user want to modify any of these parameters can do it by modifying the code directly in the functions `utils.create_microbiome_calourexp()` and `utils.filter_biom()` of the python script utils.py.  
 
-### Gene expression data pre-processing parameters
+## Gene expression data pre-processing parameters
 These parameters need to specified only if `data_type`= "gene_expression". These need to be given under the `gene_expression` heading.
 * `expression_type`: Format of gene expression data, choices are 'FPKM', 'RPKM', 'TMM', 'TPM', 'Log2FC', 'COUNTS', 'OTHER'. Note that the different gene expression data types are all filtered as per the selected rules below, however, they have different pre-filtering steps;
     * if you specify “COUNTS” then we convert count data to TMM values before filtering
@@ -183,21 +180,21 @@ These parameters need to specified only if `data_type`= "gene_expression". These
 * `output_file_ge`: Processed output file name (it will be in .csv format)
 * `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
 
-### Metabolomic data pre-processing parameters
+## Metabolomic data pre-processing parameters
 These parameters need to specified only if `data_type`= "metabolomic". These need to be given under the `metabolomic` heading.
 * `filter_metabolomic_sample`: Remove samples if no of metabolites with measurements is >X std from the mean across all samples (default numerical X=1000000)
 * `filter_measurements`: Remove metabolites unless they have a value over X in Y or more samples (default X=0,Y=1 would be specified in the following format in the json file: ["0","1"])
 * `output_file_met`: Processed output file name (it will be in .csv format)
 * `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
 
-### General tabular data pre-processing parameters
+## General tabular data pre-processing parameters
 These parameters need to specified only if `data_type`= "tabular". These need to be given under the `tabular` heading.
 * `filter_tabular_sample`: Remove samples if no of measures with measurements is >X std from the mean across all samples (default numerical X=1000000)
 * `filter_tabular_measurements`: Remove measures unless they have a value over X in Y or more samples (default X=0,Y=1 would be specified in the following format in the json file: ["0","1"])
 * `output_file_tab`: Processed output file name (it will be in .csv format)
 * `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
 
-### Plotting config parameters
+## Plotting config parameters
 These need to be given in the `plotting` heading.
  * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. All the generated plots will be saved in the sub-folder `/graphs`. For each  model in the model List, the tool will generate graphs and/or .csv files summarising the results and named as `<plot name_<model name>.png` or `<results type>_<model name>.csv`
  
@@ -224,7 +221,7 @@ These need to be given in the `plotting` heading.
     * "joint_dens": joint_plot: Joint density plot showing the correlation between true values and predicted values by a given model. Pearson's correlation is also reported.
     * "corr": correlation_plot: Simple correlation plot between true values and predicted values by a given model. Similar to "joint". 
     
-### Explainability config parameters
+## Explainability config parameters
 If 'shap_plots'is in `plot_method` list, the following parameters can be specified, these need to be given in the `plotting` heading.
 * `top_feats_shap`: Number of top features to be visualised in the shap summary plots, e.g. `top_feats_shap`=10.
 * `explanations_data`: subsets of data for which explanations will be provided. Default is "test". Options are:
@@ -232,11 +229,11 @@ If 'shap_plots'is in `plot_method` list, the following parameters can be specifi
     * "all": entire set of samples, that is training and test dataset
     * "exemplars": examplar samples in the test sets will be selected and explained
 
-### Feauture importance config parameters
+## Feauture importance config parameters
 These need to be given in the `plotting` heading.
 * `top_feats_permImp`: Number of top features to be visualised in the permutation importance plot, e.g. `tops_feats_permImp`=10.
 
-## Prediction mode
+# Prediction mode
 
 Prediction mode can be used once you have trained a set of model on your a data set. The assumption is that the user is going to feed in the exact same feature set that they gave when the trained their model.
 
@@ -254,40 +251,3 @@ The three entries here are:
 * `file_path`: The path to the file you wish to predict on
 * `metadata_file`: Optional - the path to the accompaning metadata for the prediction file
 * `outfile_name`: Optional, defaults to 'prediction_results', is the name of the csv file the prediction results will be saved to.
-
-
-## Extending the Framework
-This section will briefly outline the steps needed to extend the framework. This is mainly aimed at pointing the user towards the relevant dictionaries when a new model or plot is to be added.
-​
-There are a few parts of this framework that are hard-coded, and will need to be modified when adding new plots, models, or scorers.
-​
-### Adding a new data type
-A new `data_type` option can be added to the code, with associated specific pre-procrssing steps.
-
-### Adding a new plot
-In `plotting.py`, the `define_plots()` function at the top specifies which plotting functions are available for regression and classification problems. Some plots are applicable to both, so add the alias (which is used in the config file) and the function object itself to the relevant dictionary (or -ies).
-​
-The function itself then needs to be added to the `plot_graphs()` function with the relevant arguments. Some functions have been duplicated here with different arguments for easy access via the alias (allowing multiple calls to the same function from a single config file call).
-​
-For plots that load a Tensorflow or Keras model, after that model is used you will need to call `utils.tidy_tf()` to ensure that there is no lingering session or graph. This is called after every plot function, but when loading multiple Tensorflow models this will need to be called inside the plotting function.
-​
-All plotting functions have a save argument to allow plots to be shown on the screen or saved, though this defaults to `True`. For uniform parameters, when saving use the `save_fig()` function that calls the usual `fig.savefig` function in matplotlib. When loading models, do this through the `utils.load_model()` function. For defining the saving and loading for a _CustomModel_, see the section below about adding models.
-​
-If the model has a useful hook to SHAP e.g. via the _TreeExplainer_, then make sure it is added in `utils.select_explainer()`.
-​
-There is a `plotting.pretty_names()` function that specifies some better looking names for the aliases of the scorers and models. Either for new models/scorers or existing ones, change the values there to affect the text on plots.
-​
-### Adding a new model
-To add a new model, the parameter definitions need to added to `model_params.py`, which has separate dictionaries for parameter definitions for grid or random search, as well as a single model. Similarly, new models need to be added to `models.define_models()`, which includes any specific modifications for the parameter definitions for classification or regression. If larger changes are needed, you should add a separate model specifically for the problem type.
-​
-#### CustomModel
-In addition to the above, if the model is not part of scikit-learn, then it can be added as a subclass of the _CustomModel_ class (in `custom_model.py`). The methods of the base class show what needs to be defined in order for it to behave similarly to a sklearn model.
-​
-The key things to keep in mind are a way to save and load models, which may require temporarily deleting attributes that cannot be pickled e.g. a Tensorflow graph. Thus, when loading, these attributes will need to be added back in, e.g. by defining the graph again. If you encounter errors, first look at how the other subclasses (`MLPEnsemble` wrapping Tensorflow, and `MLPKeras` wrapping Keras) handled it.
-​
-Each subclass should has a `nickname` class attribute, which is the model's alias used in the config files. This is automatically taken and stored in `CustomModel.custom_aliases`, which is then used throughout when these models need to be handled differently from the normal sklearn models.
-​
-### Adding a new scorer
-To add a new measure, simply register the function in the dictionary in `models.define_scorers()`. 
-​
-The only caveat here is that the sklearn convention is that a higher value is better. This convention is used in the hyperparameter tuning, and so when specifying a loss or an error, then when calling `make_scorer()` then you need to pass `greater_is_better=False`. In this case, the values become negative, so when plotting the absolute value needs to be taken (this can also be done for the .csv results if desired, but is not currently).

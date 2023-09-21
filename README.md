@@ -29,7 +29,7 @@ For general IBM internal use of the tool please cite this article:
 * Docker
 
 ## User manual
-Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the [***MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/Auto-Omics/blob/main/MANUAL.md).
+Everything is controlled through a config dictionary, an example of which can be found in the configs/ folder. For an explanation of all parameters, please see the [***MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/Auto-Omics/blob/main/configs/MANUAL.md).
 
 There are three possible ways to run the workflow. 
 
