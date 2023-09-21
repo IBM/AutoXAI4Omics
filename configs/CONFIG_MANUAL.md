@@ -112,7 +112,7 @@ These parameters need to specified only if `data_type`= "tabular". These need to
 * `output_file_tab`: Processed output file name (it will be in .csv format)
 * `output_metadata`: Processed output metadata file name in .csv format (filtered target data and samples to match those remaining after pre-processing for input into ML)
 
-## Plotting config parameters
+## Plotting entry
 These need to be given in the `plotting` heading.
  * `plot_method`: A list of the plots to create (as defined in the `define_plots()` function in `plotting.py`). If this list is empty or `null`, no plots are made. The `plotting.py` script can be run separately if the models have been saved, decoupling model and graph creation but still using the same config file. All the generated plots will be saved in the sub-folder `/graphs`. For each  model in the model List, the tool will generate graphs and/or .csv files summarizing the results and named as `<plot name_<model name>.png` or `<results type>_<model name>.csv`
  
@@ -151,7 +151,7 @@ If 'shap_plots'is in `plot_method` list, the following parameters can be specifi
 These need to be given in the `plotting` heading.
 * `top_feats_permImp`: Number of top features to be visualized in the permutation importance plot, e.g. `tops_feats_permImp`=10.
 
-# Prediction mode
+## Prediction entry
 
 Prediction mode can be used once you have trained a set of model on your a data set. The assumption is that the user is going to feed in the exact same feature set that they gave when the trained their model.
 
