@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 import sys
 
+
 class CustomModel:
     """
     Custom model class that we use for our models. This should probably inherit from sklearn's base estimator, but it doesn't.
@@ -23,6 +24,7 @@ class CustomModel:
 
     All of these methods are required. All of the attributes put here are required. All future subclasses need these.
     """
+
     # Easy reference to the config dict
     config_dict = None
     # Aliases for model names for this class
@@ -101,8 +103,18 @@ class CustomModel:
         raise NotImplementedError()
 
     @classmethod
-    def setup_custom_model(cls, config_dict, experiment_folder, model_name, ref_model_dict, param_ranges, scorer_func, x_test=None, y_test=None):
-        """"
+    def setup_custom_model(
+        cls,
+        config_dict,
+        experiment_folder,
+        model_name,
+        ref_model_dict,
+        param_ranges,
+        scorer_func,
+        x_test=None,
+        y_test=None,
+    ):
+        """ "
         Some initial preprocessing is needed for the class to set some attributes and determine tuning type.
         """
         cls.setup_cls_vars(config_dict, experiment_folder)
@@ -119,7 +131,9 @@ class CustomModel:
             single_model_flag = False
         except KeyError:
             single_model_flag = True
-            print(f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model instead")
+            print(
+                f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model instead"
+            )
         return single_model_flag, param_ranges
 
     @classmethod
@@ -197,7 +211,7 @@ class TabAuto(CustomModel):
             temp_params[attr] = getattr(self, attr)
             setattr(self, attr, None)
         # Pickle the now TF-free object
-        with open(fname+".pkl", 'wb') as f:
+        with open(fname + ".pkl", "wb") as f:
             joblib.dump(self, f)
         # Restore attributes
         for attr, value in temp_params.items():
@@ -210,7 +224,7 @@ class TabAuto(CustomModel):
         # Check if the labels are already one-hot encoded
         if len(self.labels.shape) == 1 or self.labels.shape[1] > 1:
             # Create the encode object
-            self.onehot_encode_obj = OneHotEncoder(categories='auto', sparse=False)
+            self.onehot_encode_obj = OneHotEncoder(categories="auto", sparse=False)
             # Fit transform the labels that we have
             # Reshape the labels just in case (if they are, it has no effect)
             self.labels = self.onehot_encode_obj.fit_transform(self.labels.reshape(-1, 1))
@@ -242,11 +256,28 @@ class FixedKeras(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def __init__(self, n_epochs=None, batch_size=None, lr=None, layer_dict=None,
-                 verbose=None, random_state=None, n_blocks=None, dropout=None,
-                 scorer_func=None, data=None, data_test=None, labels=None, labels_test=None,
-                 n_classes=None, n_examples=None, n_dims=None, onehot_encode_obj=None,
-                 classes_=None, model=None):
+    def __init__(
+        self,
+        n_epochs=None,
+        batch_size=None,
+        lr=None,
+        layer_dict=None,
+        verbose=None,
+        random_state=None,
+        n_blocks=None,
+        dropout=None,
+        scorer_func=None,
+        data=None,
+        data_test=None,
+        labels=None,
+        labels_test=None,
+        n_classes=None,
+        n_examples=None,
+        n_dims=None,
+        onehot_encode_obj=None,
+        classes_=None,
+        model=None,
+    ):
         # Param attributes
         self.n_epochs = n_epochs
         self.batch_size = batch_size
@@ -319,7 +350,9 @@ class FixedKeras(TabAuto):
         num_outputs = self.n_classes
         dataset_type = self.config_dict["problem_type"]
 
-        model = KerasModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_dnn_keras", random_state=self.random_state)
+        model = KerasModel(
+            num_inputs, num_outputs, dataset_type=dataset_type, method="train_dnn_keras", random_state=self.random_state
+        )
 
         # Assign the model
         self.model = model
@@ -334,27 +367,27 @@ class FixedKeras(TabAuto):
         else:
             raise NotImplementedError()
         return preds.flatten()
-    
+
     def predict_proba(self, data):
         if self.config_dict["problem_type"] == "classification":
             return self.model.predict(data)
         else:
             raise NotImplementedError()
-            
+
     def save_model(self):
         fname = f"{self.experiment_folder / 'models' / 'fixedkeras_best'}"
         print("custom save_model: {}".format(fname))
-        self.model.save(fname+".h5")
+        self.model.save(fname + ".h5")
         self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
         model_path = str(model_path)
         # Load the pickled instance
-        with open(model_path+".pkl", 'rb') as f:
+        with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
-        model.model = tensorflow.keras.models.load_model(model_path+".h5")
+        model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 
 
@@ -363,10 +396,21 @@ class AutoKeras(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def __init__(self, random_state=None,
-                 scorer_func=None, data=None, data_test=None, labels=None, labels_test=None,
-                 n_classes=None, n_examples=None, n_dims=None, onehot_encode_obj=None,
-                 classes_=None, model=None):
+    def __init__(
+        self,
+        random_state=None,
+        scorer_func=None,
+        data=None,
+        data_test=None,
+        labels=None,
+        labels_test=None,
+        n_classes=None,
+        n_examples=None,
+        n_dims=None,
+        onehot_encode_obj=None,
+        classes_=None,
+        model=None,
+    ):
         # Param attributes
         self.random_state = random_state
         self.scorer_func = scorer_func
@@ -410,7 +454,7 @@ class AutoKeras(TabAuto):
             verbose = 0
 
         x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
-        
+
         self.model.fit_data(x_train, y_train, x_val, y_val)
 
         if verbose:
@@ -430,8 +474,16 @@ class AutoKeras(TabAuto):
 
         config = self.config_dict.get("autokeras_config", None)
         print("autokeras_config=", config)
-        if config: self.verbose = config.get("verbose", False)
-        model = KerasModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_dnn_autokeras", config=config, random_state=self.random_state)
+        if config:
+            self.verbose = config.get("verbose", False)
+        model = KerasModel(
+            num_inputs,
+            num_outputs,
+            dataset_type=dataset_type,
+            method="train_dnn_autokeras",
+            config=config,
+            random_state=self.random_state,
+        )
 
         # Assign the model
         self.model = model
@@ -455,20 +507,20 @@ class AutoKeras(TabAuto):
     def save_model(self):
         fname = f"{self.experiment_folder / 'models' / 'autokeras_best'}"
         print("custom save_model: {}".format(fname))
-        self.model.save(fname+".h5")
+        self.model.save(fname + ".h5")
         self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
         model_path = str(model_path)
         # Load the pickled instance
-        with open(model_path+".pkl", 'rb') as f:
+        with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
-        print("loading:", model_path+".h5")
+        print("loading:", model_path + ".h5")
         # custom_objects = {"cast_to_float32": autokeras.keras_layers.CastToFloat32}
         # model.model = tensorflow.keras.models.load_model(model_path+".h5", custom_objects=custom_objects)
-        model.model = tensorflow.keras.models.load_model(model_path+".h5")
+        model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 
 
@@ -477,8 +529,21 @@ class AutoSKLearn(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def __init__(self, random_state=None, scorer_func=None, data=None, data_test=None, labels=None, labels_test=None,
-                 n_classes=None, n_examples=None, n_dims=None, onehot_encode_obj=None, classes_=None, model=None):
+    def __init__(
+        self,
+        random_state=None,
+        scorer_func=None,
+        data=None,
+        data_test=None,
+        labels=None,
+        labels_test=None,
+        n_classes=None,
+        n_examples=None,
+        n_dims=None,
+        onehot_encode_obj=None,
+        classes_=None,
+        model=None,
+    ):
         # Param attributes
         self.random_state = random_state
         self.scorer_func = scorer_func
@@ -540,8 +605,16 @@ class AutoSKLearn(TabAuto):
 
         config = self.config_dict.get("autosklearn_config", None)
         print("autosklearn_config=", config)
-        if config: self.verbose = config.get("verbose", False)
-        model = SKLearnModel(num_inputs, num_outputs, dataset_type=dataset_type, method="auto", config=config, random_state=self.random_state)
+        if config:
+            self.verbose = config.get("verbose", False)
+        model = SKLearnModel(
+            num_inputs,
+            num_outputs,
+            dataset_type=dataset_type,
+            method="auto",
+            config=config,
+            random_state=self.random_state,
+        )
 
         # Assign the model
         self.model = model
@@ -549,18 +622,18 @@ class AutoSKLearn(TabAuto):
     def save_model(self):
         fname = f"{self.experiment_folder / 'models' / 'autosklearn_best'}"
         print("custom save_model: {}".format(fname))
-        self.model.save(fname+".h5")
+        self.model.save(fname + ".h5")
         self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
         model_path = str(model_path)
         # Load the pickled instance
-        with open(model_path+".pkl", 'rb') as f:
+        with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model and set this to the relevant attribute
         print("loading: {}.h5".format(model_path))
-        model.model = joblib.load(model_path+".h5")
+        model.model = joblib.load(model_path + ".h5")
         return model
 
 
@@ -569,10 +642,21 @@ class AutoLGBM(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def __init__(self, random_state=None,
-                 scorer_func=None, data=None, data_test=None, labels=None, labels_test=None,
-                 n_classes=None, n_examples=None, n_dims=None, onehot_encode_obj=None,
-                 classes_=None, model=None):
+    def __init__(
+        self,
+        random_state=None,
+        scorer_func=None,
+        data=None,
+        data_test=None,
+        labels=None,
+        labels_test=None,
+        n_classes=None,
+        n_examples=None,
+        n_dims=None,
+        onehot_encode_obj=None,
+        classes_=None,
+        model=None,
+    ):
         # Param attributes
         self.random_state = random_state
         self.scorer_func = scorer_func
@@ -634,8 +718,16 @@ class AutoLGBM(TabAuto):
 
         config = self.config_dict.get("autolgbm_config", None)
         print("autolgbm_config=", config)
-        if config: self.verbose = config.get("verbose", False)
-        model = LGBMModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_ml_lgbm_auto", config=config, random_state=self.random_state)
+        if config:
+            self.verbose = config.get("verbose", False)
+        model = LGBMModel(
+            num_inputs,
+            num_outputs,
+            dataset_type=dataset_type,
+            method="train_ml_lgbm_auto",
+            config=config,
+            random_state=self.random_state,
+        )
 
         # Assign the model
         self.model = model
@@ -643,18 +735,18 @@ class AutoLGBM(TabAuto):
     def save_model(self):
         fname = f"{self.experiment_folder / 'models' / 'autolgbm_best'}"
         print("custom save_model: {}".format(fname))
-        self.model.save(fname+".h5")
+        self.model.save(fname + ".h5")
         self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
         model_path = str(model_path)
         # Load the pickled instance
-        with open(model_path+".pkl", 'rb') as f:
+        with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model and set this to the relevant attribute
         print("loading: {}.h5".format(model_path))
-        model.model = joblib.load(model_path+".h5")
+        model.model = joblib.load(model_path + ".h5")
         return model
 
 
@@ -663,10 +755,21 @@ class AutoXGBoost(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def __init__(self, random_state=None, scorer_func=None,
-                 data=None, data_test=None, labels=None, labels_test=None,
-                 n_classes=None, n_examples=None, n_dims=None, onehot_encode_obj=None,
-                 classes_=None, model=None):
+    def __init__(
+        self,
+        random_state=None,
+        scorer_func=None,
+        data=None,
+        data_test=None,
+        labels=None,
+        labels_test=None,
+        n_classes=None,
+        n_examples=None,
+        n_dims=None,
+        onehot_encode_obj=None,
+        classes_=None,
+        model=None,
+    ):
         # Param attributes
         self.random_state = random_state
         self.scorer_func = scorer_func
@@ -728,8 +831,16 @@ class AutoXGBoost(TabAuto):
 
         config = self.config_dict.get("autoxgboost_config", None)
         print("autoxgboost_config=", config)
-        if config: self.verbose = config.get("verbose", False)
-        model = XGBoostModel(num_inputs, num_outputs, dataset_type=dataset_type, method="train_ml_xgboost_auto", config=config, random_state=self.random_state)
+        if config:
+            self.verbose = config.get("verbose", False)
+        model = XGBoostModel(
+            num_inputs,
+            num_outputs,
+            dataset_type=dataset_type,
+            method="train_ml_xgboost_auto",
+            config=config,
+            random_state=self.random_state,
+        )
 
         # Assign the model
         self.model = model
@@ -737,18 +848,18 @@ class AutoXGBoost(TabAuto):
     def save_model(self):
         fname = f"{self.experiment_folder / 'models' / 'autoxgboost_best'}"
         print("custom save_model: {}".format(fname))
-        self.model.save(fname+".h5")
+        self.model.save(fname + ".h5")
         self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
         model_path = str(model_path)
         # Load the pickled instance
-        with open(model_path+".pkl", 'rb') as f:
+        with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model and set this to the relevant attribute
         print("loading: {}.h5".format(model_path))
-        model.model = joblib.load(model_path+".h5")
+        model.model = joblib.load(model_path + ".h5")
         return model
 
 

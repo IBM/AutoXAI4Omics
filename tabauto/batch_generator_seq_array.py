@@ -1,16 +1,27 @@
 import numpy as np
 from tensorflow.keras.utils import Sequence
+
 # from tensorflow.keras.utils import to_categorical
 
 import logging
+
 _log = logging.getLogger(__name__)
 
 
 class BatchGeneratorSeqArray(Sequence):
-
-    def __init__(self, dataset_x, dataset_y, dataset_labels=[], batch_size=32, shuffle=False, seed=None,
-                 aug=None, one_dim=False, transform_label=True, preprocessing_function=None):
-
+    def __init__(
+        self,
+        dataset_x,
+        dataset_y,
+        dataset_labels=[],
+        batch_size=32,
+        shuffle=False,
+        seed=None,
+        aug=None,
+        one_dim=False,
+        transform_label=True,
+        preprocessing_function=None,
+    ):
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.aug = aug
@@ -20,7 +31,7 @@ class BatchGeneratorSeqArray(Sequence):
 
         self.rs = np.random.RandomState(seed)
 
-        assert self.batch_size > 0, 'Batch size has to be a positive integer!'
+        assert self.batch_size > 0, "Batch size has to be a positive integer!"
 
         # generate pointers to the data
         self.dataset_x = dataset_x
@@ -38,7 +49,7 @@ class BatchGeneratorSeqArray(Sequence):
 
         self.preprocessing_config = None
 
-        assert(self.dataset_x.shape[0] == self.dataset_y.shape[0])
+        assert self.dataset_x.shape[0] == self.dataset_y.shape[0]
 
         # the ordering in the container
         shape = self.dataset_x.shape
@@ -70,7 +81,6 @@ class BatchGeneratorSeqArray(Sequence):
         return int(np.ceil(self.len / float(self.batch_size)))
 
     def __getitem__(self, idx):
-
         start_idx = idx * self.batch_size
         end_idx = (idx + 1) * self.batch_size
         # check if end_idx > len
@@ -84,7 +94,7 @@ class BatchGeneratorSeqArray(Sequence):
 
         if self.preprocessing_function is not None:
             arrays = []
-            for k in range(0, end_idx-start_idx):
+            for k in range(0, end_idx - start_idx):
                 im = self.preprocessing_function(x_train[k, ...])
                 arrays.append(im)
             x_train = np.stack(arrays)

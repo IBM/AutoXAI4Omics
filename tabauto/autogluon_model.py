@@ -11,13 +11,11 @@ from .base_model import BaseModel
 
 
 def to_matrix(data, n):
-    return [data[i:i+n] for i in range(0, len(data), n)]
+    return [data[i : i + n] for i in range(0, len(data), n)]
 
 
 class AutogluonModel(BaseModel):
-
-    def __init__(self, input_dim, output_dim, dataset_type, method='train_ml_autogluon', config=None):
-
+    def __init__(self, input_dim, output_dim, dataset_type, method="train_ml_autogluon", config=None):
         self.method = method
         self.savedir = None
         self.config = config if config else {}
@@ -38,10 +36,10 @@ class AutogluonModel(BaseModel):
         df_x = pd.DataFrame(data=trainX)
         df_y = pd.DataFrame(data=trainY)
         df = pd.concat([df_x, df_y], axis=1, ignore_index=True)
-        label_column = len(df.columns)-1
+        label_column = len(df.columns) - 1
 
         train_data = TabularDataset(data=df)
-        savedir = 'ag_models_{}/'.format(os.getpid())  # where to save trained models
+        savedir = "ag_models_{}/".format(os.getpid())  # where to save trained models
         self.savedir = savedir
 
         auto_stack = self.config.get("auto_stack", False)
@@ -52,12 +50,14 @@ class AutogluonModel(BaseModel):
             auto_hpo = False
 
         if auto_hpo:
-            num_trials = self.config.get("n_trials", 20)  # try at most ntrials different hyperparameter configurations for each type of model
+            num_trials = self.config.get(
+                "n_trials", 20
+            )  # try at most ntrials different hyperparameter configurations for each type of model
 
             hyperparameter_tune_kwargs = {  # HPO is not performed unless hyperparameter_tune_kwargs is specified
-                'num_trials': num_trials,
-                'scheduler' : 'local',
-                'searcher': 'auto',
+                "num_trials": num_trials,
+                "scheduler": "local",
+                "searcher": "auto",
             }
             hyperparameters = "default"
 
@@ -65,41 +65,39 @@ class AutogluonModel(BaseModel):
             hyperparameter_tune_kwargs = None
             hyperparameters = None
 
-
-        excluded_model_types=['NN', 'CAT', 'FASTAI', 'GBM', 'XGB']
+        excluded_model_types = ["NN", "CAT", "FASTAI", "GBM", "XGB"]
         # excluded_model_types=['CAT', 'FASTAI', 'GBM', 'XGB']
 
         if self.dataset_type == "classification":
-
-            self.model = TabularPredictor(label=label_column, 
-                                  path=savedir,
-                                  problem_type='multiclass'
-                                  ).fit(train_data=train_data,
-                                    excluded_model_types=excluded_model_types,
-                                    auto_stack=auto_stack, 
-                                    time_limit=time_limits,
-                                    hyperparameters=hyperparameters,
-                                    hyperparameter_tune_kwargs=hyperparameter_tune_kwargs,
-                                    keep_only_best=True)
-
-
+            self.model = TabularPredictor(label=label_column, path=savedir, problem_type="multiclass").fit(
+                train_data=train_data,
+                excluded_model_types=excluded_model_types,
+                auto_stack=auto_stack,
+                time_limit=time_limits,
+                hyperparameters=hyperparameters,
+                hyperparameter_tune_kwargs=hyperparameter_tune_kwargs,
+                keep_only_best=True,
+            )
 
         else:
             # https://auto.gluon.ai/api/autogluon.task.html, autogluon.tabular.TabularPrediction.fit
             # available_metrics = ['root_mean_squared_error', 'mean_squared_error', 'mean_absolute_error',
             # 'median_absolute_error', 'r2']
 
-            self.model = TabularPredictor(label=label_column, 
-                                  path=savedir,
-                                  problem_type='regression', 
-                                  eval_metric='mean_absolute_error',
-                                  ).fit(train_data=train_data,
-                                    excluded_model_types=excluded_model_types,
-                                    auto_stack=auto_stack, 
-                                    time_limit=time_limits,
-                                    hyperparameters=hyperparameters,
-                                    hyperparameter_tune_kwargs=hyperparameter_tune_kwargs,
-                                    keep_only_best=True)
+            self.model = TabularPredictor(
+                label=label_column,
+                path=savedir,
+                problem_type="regression",
+                eval_metric="mean_absolute_error",
+            ).fit(
+                train_data=train_data,
+                excluded_model_types=excluded_model_types,
+                auto_stack=auto_stack,
+                time_limit=time_limits,
+                hyperparameters=hyperparameters,
+                hyperparameter_tune_kwargs=hyperparameter_tune_kwargs,
+                keep_only_best=True,
+            )
 
             # nthreads_per_trial=1
             # not used: hyperparameter_tune=False, num_trials=100, search_strategy = search_strategy
@@ -120,6 +118,7 @@ class AutogluonModel(BaseModel):
     def save(self, path):
         if path:
             import shutil
+
             shutil.rmtree(path, ignore_errors=True)
             shutil.copytree(self.savedir, path)
             # os.rename(self.savedir, path)
