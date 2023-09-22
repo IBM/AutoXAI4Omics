@@ -20,7 +20,6 @@ import matplotlib.ticker as ticker
 import matplotlib.image as mp_img
 import seaborn as sns
 from sklearn.model_selection import cross_val_score, KFold, StratifiedKFold, GroupKFold
-from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 import shap
 import eli5
@@ -461,7 +460,7 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
     # ax.set_xticklabels(pretty_model_names)
     ax.set_ylabel(pretty_names(config_dict["ml"]["fit_scorer"], "score"))
     ax.set_xlabel("Model")
-    ax.set_title(f"Performance on test data")
+    ax.set_title("Performance on test data")
     if save:
         fname = f"{experiment_folder / 'graphs' / 'barplot'}_{config_dict['ml']['fit_scorer']}"
         fname += "_holdout" if holdout else ""
@@ -499,7 +498,7 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
         # Define the figure object
         fig, ax = plt.subplots()
         # Select the right explainer from SHAP
-        explainer = shap_dict[model_name][0]
+        shap_dict[model_name][0]
         # Calculate the shap values
         shap_values = shap_dict[model_name][1]
         # Handle regression and classification differently
@@ -805,7 +804,9 @@ def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind=
         plot.ax_joint.plot(lims, lims, ":k")
 
         # Extract only the pearson val (ignore the p-value)
-        pearson = lambda x, y: sp.pearsonr(x, y)[0]
+        def pearson(x, y):
+            return sp.pearsonr(x, y)[0]
+
         # Add this value to the graph (warning: deprecated in the future)
         plot.annotate(pearson, loc="upper right", stat="Pearson's", borderpad=0.2, mode=None, edgecolor=None)
         if save:
@@ -1386,7 +1387,7 @@ def shap_force_plots(
         y_data = y_test
 
     # Convert the data into dataframes to ensure features are displayed
-    df_data = pd.DataFrame(data=data, columns=feature_names)
+    pd.DataFrame(data=data, columns=feature_names)
     df_train = pd.DataFrame(data=x_train, columns=feature_names)
 
     # Get the model paths
@@ -1645,8 +1646,8 @@ def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, ho
             fpr[i], tpr[i], _ = roc_curve(y_test, y_pred[:, i], pos_label=class_names[i])
             roc_auc[i] = auc(fpr[i], tpr[i])
 
-        colors = cycle(["aqua", "darkorange", "cornflowerblue"])
-        for i, color in zip(range(len(class_names)), colors):
+        ourcolors = cycle(["aqua", "darkorange", "cornflowerblue"])
+        for i, color in zip(range(len(class_names)), ourcolors):
             plt.plot(
                 fpr[i],
                 tpr[i],

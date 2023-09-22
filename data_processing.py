@@ -11,7 +11,6 @@ import math
 import plotting
 import logging
 
-omicLogger = logging.getLogger("OmicLogger")
 import imblearn
 
 import cProfile
@@ -91,6 +90,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 
 ######
+
+omicLogger = logging.getLogger("OmicLogger")
 
 
 ################### STANDARDIS DATA ###################
@@ -566,7 +567,7 @@ def feat_selection(experiment_folder, x, y, features_names, problem_type, FS_dic
         x_trans, SKB = auto_feat_selection(
             experiment_folder, x_trans, y, problem_type, **auto_dict, method_dict=method_dict, save=save
         )
-    elif type(k) == int:
+    elif isinstance(k, int):
         print("Beginning feature selection with given k")
         x_trans, SKB = manual_feat_selection(x_trans, y, k, problem_type, method_dict)
     else:

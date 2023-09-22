@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import models
 import utils
-from data_processing import *
+import data_processing as dp
 import logging
 import joblib
 import cProfile
@@ -26,13 +26,13 @@ def assert_best_model_exists(folder):
         omicLogger.info("No best model folder detected")
         raise ValueError("No best model folder detected please train model before running prediction")
 
-    models = glob.glob(str(path / "*.pkl")) + glob.glob(str(path / "*.h5"))
-    if len(models) == 0:
+    found_models = glob.glob(str(path / "*.pkl")) + glob.glob(str(path / "*.h5"))
+    if len(found_models) == 0:
         omicLogger.info("No model files detected")
         raise ValueError("No model files detected (.pkl or .h5). Can not perform prediction.")
 
     omicLogger.info("Best model found ")
-    return models[0]
+    return found_models[0]
 
 
 def assert_data_transformers_exists(folder, config_dict):
@@ -94,14 +94,14 @@ if __name__ == "__main__":
         model_path = assert_best_model_exists(experiment_folder)
 
         omicLogger.info("Loading Data...")
-        x_to_predict, features_names = load_data(config_dict, load_prediction=True)
+        x_to_predict, features_names = dp.load_data(config_dict, load_prediction=True)
         x_indexes = x_to_predict.index
 
         omicLogger.info("Loading data transformers...")
         SS, FS = assert_data_transformers_exists(experiment_folder, config_dict)
 
         omicLogger.info("Applying trained standardising...")
-        x_to_predict = transform_data(x_to_predict, SS)
+        x_to_predict = dp.transform_data(x_to_predict, SS)
 
         if FS is not None:
             omicLogger.info("Applying trained feature selector...")
@@ -133,6 +133,6 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    csv = prof_to_csv(pr)
+    csv = dp.prof_to_csv(pr)
     with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", "w+") as f:
         f.write(csv)

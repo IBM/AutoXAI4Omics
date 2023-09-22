@@ -25,8 +25,6 @@ class LGBMObjective(object):
         # Calculate an objective value by using the extra arguments.
         train_x = self.train_x
         train_y = self.train_y
-        valid_x = self.test_x
-        valid_y = self.test_y
 
         param = {
             "learning_rate": trial.suggest_loguniform("learning_rate", 0.1, 1),

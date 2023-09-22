@@ -89,7 +89,7 @@ def preprocessing_LO(config_dict, filtergene1, filtergene2, filter_sample, holdo
 
 
 def apply_learned_processing(config_dict, holdout, prediction=False, tmm=False):
-    if holdout == False and prediction == False:
+    if holdout is False and prediction is False:
         raise ValueError("One of holdout or prediction need to be true")
 
     if holdout:

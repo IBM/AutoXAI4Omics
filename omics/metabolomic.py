@@ -105,6 +105,13 @@ def get_data_metabolomic_trained(config_dict, holdout=False, prediction=False):
     filtered_data = rrep.apply_learned_processing(config_dict, holdout=holdout, prediction=prediction)
     print("data type = ", config_dict["data"]["data_type"])
 
+    # add metadata output file from config_dict that is required
+    if config_dict["metabolomic"]["output_metadata"] is not None:
+        metout_file = config_dict["metabolomic"]["output_metadata"]
+    else:
+        metout_file = "processed_metabolomic_metadata"
+    metout_file += "_holdout" if holdout else ""
+
     # If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as metout
     # and extract target from metadata. If metadata not present, assume target in data file.
     if holdout:

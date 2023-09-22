@@ -8,11 +8,12 @@ from os.path import exists
 # import numpy as np
 import sys
 
-sys.path.append("../auto-omics/")
 # import custom_model
 # import optuna
 import yaml
 import pandas as pd
+
+sys.path.append("../auto-omics/")
 
 
 @pytest.mark.modes

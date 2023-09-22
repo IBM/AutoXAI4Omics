@@ -4,7 +4,7 @@ import pandas as pd
 import models
 import utils
 import plotting
-from data_processing import *
+import data_processing as dp
 
 ##########
 import logging
@@ -32,22 +32,22 @@ def main(config_dict, config_path):
         omicLogger.info("Loading data...")
 
         # read the data
-        x, y, features_names = load_data(config_dict)
+        x, y, features_names = dp.load_data(config_dict)
         omicLogger.info("Data Loaded. Splitting data...")
 
         if len(x.index.unique()) != x.shape[0]:
             raise ValueError("The sample index/names contain duplicate entries")
 
         # Split the data in train and test
-        x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
+        x_train, x_test, y_train, y_test = dp.split_data(x, y, config_dict)
         omicLogger.info("Data splitted. Standardising...")
 
         x_ind_train = x_train.index
         x_ind_test = x_test.index
 
         # standardise data
-        x_train, SS = standardize_data(x_train)  # fit the standardiser to the training data
-        x_test = transform_data(x_test, SS)  # transform the test data according to the fitted standardiser
+        x_train, SS = dp.standardize_data(x_train)  # fit the standardiser to the training data
+        x_test = dp.transform_data(x_test, SS)  # transform the test data according to the fitted standardiser
 
         # save the standardiser transformer
         save_name = experiment_folder / "transformer_std.pkl"
@@ -58,7 +58,7 @@ def main(config_dict, config_path):
 
         # implement feature selection if desired
         if config_dict["ml"]["feature_selection"] is not None:
-            x_train, features_names, FS = feat_selection(
+            x_train, features_names, FS = dp.feat_selection(
                 experiment_folder,
                 x_train,
                 y_train,
@@ -84,10 +84,10 @@ def main(config_dict, config_path):
             #     x_train, y_train, re_sampled_idxs = oversample_data(x_train, y_train,config_dict['ml']["seed_num"])
             #     x_ind_train = x_ind_train[re_sampled_idxs]
             if config_dict["ml"]["balancing"] == "OVER":
-                x_train, y_train, re_sampled_idxs = oversample_data(x_train, y_train, config_dict["ml"]["seed_num"])
+                x_train, y_train, re_sampled_idxs = dp.oversample_data(x_train, y_train, config_dict["ml"]["seed_num"])
                 x_ind_train = x_ind_train[re_sampled_idxs]
             elif config_dict["ml"]["balancing"] == "UNDER":
-                x_train, y_train, re_sampled_idxs = undersample_data(x_train, y_train, config_dict["ml"]["seed_num"])
+                x_train, y_train, re_sampled_idxs = dp.undersample_data(x_train, y_train, config_dict["ml"]["seed_num"])
                 x_ind_train = x_ind_train[re_sampled_idxs]
             # elif (config_dict['ml']["balancing"] == "BOTH"):
             #     x_train, y_train, re_sampled_idxs = combisample_data(x_train, y_train,config_dict['ml']["seed_num"])
@@ -245,6 +245,6 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    csv = prof_to_csv(pr)
+    csv = dp.prof_to_csv(pr)
     with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", "w+") as f:
         f.write(csv)

@@ -22,12 +22,11 @@ from custom_model import CustomModel, TabAuto
 # import calour as ca
 from datetime import datetime
 import logging
-
-omicLogger = logging.getLogger("OmicLogger")
 import yaml
-
 import os
 import shutil
+
+omicLogger = logging.getLogger("OmicLogger")
 
 
 def encode_all_categorical(df, include_cols=[], exclude_cols=[]):
@@ -203,86 +202,86 @@ def select_explainer(model, model_name, df_train, problem_type):
     return explainer
 
 
-def compute_exemplars_SHAPvalues_withCrossValidation(
-    experiment_folder,
-    config_dict,
-    amp_exp,
-    model,
-    model_name,
-    x_train,
-    x_test,
-    y_test,
-    fold_id,
-    pcAgreementLevel=10,
-    save=True,
-):
-    feature_names = get_feature_names(amp_exp, config_dict)
+# def compute_exemplars_SHAPvalues_withCrossValidation(
+#     experiment_folder,
+#     config_dict,
+#     amp_exp,
+#     model,
+#     model_name,
+#     x_train,
+#     x_test,
+#     y_test,
+#     fold_id,
+#     pcAgreementLevel=10,
+#     save=True,
+# ):
+#     feature_names = get_feature_names(amp_exp, config_dict)
 
-    # Convert the data into dataframes to ensure features are displayed
-    df_train = pd.DataFrame(data=x_train, columns=feature_names)
+#     # Convert the data into dataframes to ensure features are displayed
+#     df_train = pd.DataFrame(data=x_train, columns=feature_names)
 
-    # Select the right explainer from SHAP
-    explainer = select_explainer(model, model_name, df_train, config_dict["ml"]["problem_type"])
+#     # Select the right explainer from SHAP
+#     explainer = select_explainer(model, model_name, df_train, config_dict["ml"]["problem_type"])
 
-    # Get the exemplars  --  to modify to include probability -- get exemplars that have prob > 0.65
-    exemplar_X_test = get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel)
-    num_exemplar = exemplar_X_test.shape[0]
+#     # Get the exemplars  --  to modify to include probability -- get exemplars that have prob > 0.65
+#     exemplar_X_test = get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel)
+#     num_exemplar = exemplar_X_test.shape[0]
 
-    # Save the dataframe with the original exemplars - each row has OTU abundances for each exemplar
-    df_exemplars_test = pd.DataFrame(data=exemplar_X_test, columns=feature_names)
-    fname_exemplars_test = f"{experiment_folder / 'results' / 'exemplars_abundance'}_{model_name}_{fold_id}"
-    df_exemplars_test.to_csv(fname_exemplars_test + ".txt")
+#     # Save the dataframe with the original exemplars - each row has OTU abundances for each exemplar
+#     df_exemplars_test = pd.DataFrame(data=exemplar_X_test, columns=feature_names)
+#     fname_exemplars_test = f"{experiment_folder / 'results' / 'exemplars_abundance'}_{model_name}_{fold_id}"
+#     df_exemplars_test.to_csv(fname_exemplars_test + ".txt")
 
-    # Compute SHAP values for examplars
-    exemplar_shap_values = explainer.shap_values(exemplar_X_test)
+#     # Compute SHAP values for examplars
+#     exemplar_shap_values = explainer.shap_values(exemplar_X_test)
 
-    # Classification
-    if config_dict["ml"]["problem_type"] == "classification":
-        # For classification there is not difference between data structure returned by SHAP
-        exemplars_selected = exemplar_shap_values
+#     # Classification
+#     if config_dict["ml"]["problem_type"] == "classification":
+#         # For classification there is not difference between data structure returned by SHAP
+#         exemplars_selected = exemplar_shap_values
 
-        # Try to get the class names
-        try:
-            class_names = model.classes_.tolist()
-        except AttributeError:
-            print("Unable to get class names automatically - classes will be encoded")
-            class_names = None
+#         # Try to get the class names
+#         try:
+#             class_names = model.classes_.tolist()
+#         except AttributeError:
+#             print("Unable to get class names automatically - classes will be encoded")
+#             class_names = None
 
-    # Regression
-    else:
-        # Handle Shap saves differently the values for Keras when it's regression
-        if model_name == "mlp_keras":
-            exemplars_selected = exemplar_shap_values[0]
-        else:
-            exemplars_selected = exemplar_shap_values
+#     # Regression
+#     else:
+#         # Handle Shap saves differently the values for Keras when it's regression
+#         if model_name == "mlp_keras":
+#             exemplars_selected = exemplar_shap_values[0]
+#         else:
+#             exemplars_selected = exemplar_shap_values
 
-        # Plot abundance bar plot feature from SHAP
-        class_names = []
+#         # Plot abundance bar plot feature from SHAP
+#         class_names = []
 
-    features, abundance, abs_shap_values_mean_sorted = compute_average_abundance_top_features(
-        config_dict, len(feature_names), model_name, class_names, amp_exp, exemplars_selected
-    )
+#     features, abundance, abs_shap_values_mean_sorted = compute_average_abundance_top_features(
+#         config_dict, len(feature_names), model_name, class_names, amp_exp, exemplars_selected
+#     )
 
-    # Displaying the average percentage %
-    abundance = np.asarray(abundance) / 10
+#     # Displaying the average percentage %
+#     abundance = np.asarray(abundance) / 10
 
-    d = {
-        "Features": features,
-        "Average Abs Mean SHAP values": abs_shap_values_mean_sorted,
-        # 'Average Mean SHAP values':shap_values_mean_sorted,
-        "Average abundance": list(abundance),
-    }
+#     d = {
+#         "Features": features,
+#         "Average Abs Mean SHAP values": abs_shap_values_mean_sorted,
+#         # 'Average Mean SHAP values':shap_values_mean_sorted,
+#         "Average abundance": list(abundance),
+#     }
 
-    fname = f"{experiment_folder / 'results' / 'all_features_MeanSHAP_Abundance'}_{model_name}_{fold_id}"
-    df = pd.DataFrame(d)
-    df.to_csv(fname + ".txt")
+#     fname = f"{experiment_folder / 'results' / 'all_features_MeanSHAP_Abundance'}_{model_name}_{fold_id}"
+#     df = pd.DataFrame(d)
+#     df.to_csv(fname + ".txt")
 
-    # Save exemplars SHAP values
-    save_exemplars_SHAP_values(
-        config_dict, experiment_folder, feature_names, model_name, class_names, exemplars_selected, fold_id
-    )
+#     # Save exemplars SHAP values
+#     save_exemplars_SHAP_values(
+#         config_dict, experiment_folder, feature_names, model_name, class_names, exemplars_selected, fold_id
+#     )
 
-    return num_exemplar
+#     return num_exemplar
 
 
 def save_exemplars_SHAP_values(
@@ -424,7 +423,7 @@ def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
     exesToShow = []
     i = 0
     for val in exemplar_indices:
-        if val == True:
+        if val is True:
             exesToShow.append({"idx": i, "testVal": test_y[i], "predVal": pred_y[i]})
         i = i + 1
 
@@ -540,7 +539,7 @@ def low_metric_objective(metric):
 def copy_best_content(experiment_folder, best_models, collapse_tax):
     omicLogger.debug("Extracting best model content into unique folder...")
 
-    if collapse_tax == None:
+    if collapse_tax is None:
         collapse_tax = ""
 
     best = best_models[0]

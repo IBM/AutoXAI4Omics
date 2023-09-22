@@ -99,7 +99,7 @@ def modify_classes(amp_exp, class_col_name, remove_class=None, merge_by=None):
     Helper function to merge and/or remove classes
     """
     if remove_class is None and merge_by is None:
-        print(f"No filtering or merging has been specified - nothing has changed!")
+        print("No filtering or merging has been specified - nothing has changed!")
         return amp_exp
     if remove_class is not None:
         amp_exp = filter_metadata(amp_exp, class_col_name, to_filter=remove_class)
@@ -243,7 +243,7 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     # Use calour to create an experiment
     print("Path file: " + path_file)
     print("Metadata file: " + metadata_path)
-    if (microbiome_config["norm_reads"] == None) and (microbiome_config["min_reads"] == None):
+    if (microbiome_config["norm_reads"] is None) and (microbiome_config["min_reads"] is None):
         amp_exp = create_microbiome_calourexp(path_file, metadata_path, None, None)
     else:
         amp_exp = create_microbiome_calourexp(
@@ -383,7 +383,7 @@ def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
     # Use calour to create an experiment
     print("Path file: " + path_file)
     print("Metadata file: " + metadata_path)
-    if (microbiome_config["norm_reads"] == None) and (microbiome_config["min_reads"] == None):
+    if (microbiome_config["norm_reads"] is None) and (microbiome_config["min_reads"] is None):
         amp_exp = create_microbiome_calourexp(path_file, metadata_path, None, None)
     else:
         amp_exp = create_microbiome_calourexp(

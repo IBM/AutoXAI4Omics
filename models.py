@@ -1,7 +1,3 @@
-##### Fix for each thread spawning its own GUI is to use 1 thread
-##### Change this to n_jobs = -1 for all-core processing (when we get that working)
-n_jobs = -1
-
 import json
 import pickle
 from json.decoder import JSONDecodeError
@@ -46,12 +42,16 @@ from custom_model import FixedKeras, AutoKeras, AutoSKLearn, AutoLGBM, AutoXGBoo
 
 import logging
 
-omicLogger = logging.getLogger("OmicLogger")
 
 from utils import copy_best_content
 import os
 
 from plotting import plot_model_performance
+
+##### Fix for each thread spawning its own GUI is to use 1 thread
+##### Change this to n_jobs = -1 for all-core processing (when we get that working)
+n_jobs = -1
+omicLogger = logging.getLogger("OmicLogger")
 
 
 ########## LOAD/DEFINE ##########
@@ -353,7 +353,7 @@ def best_selector(experiment_folder, problem_type, metric=None, collapse_tax=Non
     Give trained models this will find and select the best one
     """
 
-    if collapse_tax == None:
+    if collapse_tax is None:
         collapse_tax = ""
 
     omicLogger.debug("selecting best model...")
@@ -366,13 +366,13 @@ def best_selector(experiment_folder, problem_type, metric=None, collapse_tax=Non
     df = df.set_index("model")
 
     if problem_type == "classification":
-        if metric == None:
-            omicLogger.info(f"Best selection metric is None, Defaulting to F1_score...")
+        if metric is None:
+            omicLogger.info("Best selection metric is None, Defaulting to F1_score...")
             metric = "f1"
         low = False
     else:
-        if metric == None:
-            omicLogger.info(f"Best selection metric is None, Defaulting to Mean_AE...")
+        if metric is None:
+            omicLogger.info("Best selection metric is None, Defaulting to Mean_AE...")
             metric = "mean_ae"
         low = True
 
@@ -545,7 +545,7 @@ def run_models(
     if config_dict["data"]["data_type"] == "microbiome":
         # This is specific to microbiome
         if config_dict["microbiome"]["collapse_tax"] is not None:
-            fname += f"{collapse_tax}"
+            fname += config_dict["microbiome"]["collapse_tax"]
         # Remove or merge samples based on target values (for example merging to categories, if classification)
         if config_dict["microbiome"]["remove_classes"] is not None:
             fname += "_remove"

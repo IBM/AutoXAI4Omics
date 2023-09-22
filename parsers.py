@@ -42,7 +42,7 @@ def parser_plotting(plotting_entry, problem):
         else:
             type_check(plotting_entry["top_feats_permImp"], int, "top_feats_permImp")
             if plotting_entry["top_feats_permImp"] <= 0:
-                raise ValueError(f"top_feats_permImp must be greater than 0")
+                raise ValueError("top_feats_permImp must be greater than 0")
 
     # check to see if permut_imp_test is correctly configured
     if "shap_plots" in plotting_entry["plot_method"]:
@@ -51,14 +51,14 @@ def parser_plotting(plotting_entry, problem):
         else:
             type_check(plotting_entry["top_feats_shap"], int, "top_feats_shap")
             if plotting_entry["top_feats_shap"] <= 0:
-                raise ValueError(f"top_feats_shap must be greater than 0")
+                raise ValueError("top_feats_shap must be greater than 0")
 
         if "explanations_data" not in keys:
             plotting_entry["explanations_data"] = "all"
         else:
             type_check(plotting_entry["explanations_data"], str, "explanations_data")
             if plotting_entry["explanations_data"] not in ["test", "exemplars", "all"]:
-                raise ValueError(f'explanations_data must one of: "test", "exemplars", "all"')
+                raise ValueError('explanations_data must one of: "test", "exemplars", "all"')
 
     return plotting_entry
 
@@ -80,14 +80,14 @@ def parse_autoxgboost(xgbEntry):
     else:
         type_check(xgbEntry["n_trials"], int, "autoxgboost_config:n_trials")
         if xgbEntry["n_trials"] < 1:
-            raise ValueError(f"autoxgboost:n_trials must be an int greater than 0")
+            raise ValueError("autoxgboost:n_trials must be an int greater than 0")
 
     if "timeout" not in keys:
         xgbEntry["timeout"] = 1000
     else:
         type_check(xgbEntry["timeout"], int, "autoxgboost_config:timeout")
         if xgbEntry["timeout"] < 1:
-            raise ValueError(f"autoxgboost:timeout must be an int greater than 0")
+            raise ValueError("autoxgboost:timeout must be an int greater than 0")
     return xgbEntry
 
 
@@ -107,14 +107,14 @@ def parse_autolgbm(lgbmEntry):
     else:
         type_check(lgbmEntry["n_trials"], int, "autolgbm_config:n_trials")
         if lgbmEntry["n_trials"] < 1:
-            raise ValueError(f"autolgbm:n_trials must be an int greater than 0")
+            raise ValueError("autolgbm:n_trials must be an int greater than 0")
 
     if "timeout" not in keys:
         lgbmEntry["timeout"] = 1000
     else:
         type_check(lgbmEntry["timeout"], int, "autolgbm_config:timeout")
         if lgbmEntry["timeout"] < 1:
-            raise ValueError(f"autolgbm:timeout must be an int greater than 0")
+            raise ValueError("autolgbm:timeout must be an int greater than 0")
     return lgbmEntry
 
 
@@ -140,35 +140,35 @@ def parse_autokeras(kerasEntry):
     else:
         type_check(kerasEntry["n_trials"], int, "autokeras_config:n_trials")
         if kerasEntry["n_trials"] < 1:
-            raise ValueError(f"autokeras:n_trials must be an int greater than 0")
+            raise ValueError("autokeras:n_trials must be an int greater than 0")
 
     if "n_epochs" not in keys:
         kerasEntry["n_epochs"] = 100
     else:
         type_check(kerasEntry["n_epochs"], int, "autokeras_config:n_epochs")
         if kerasEntry["n_epochs"] < 1:
-            raise ValueError(f"autokeras:n_epochs must be an int greater than 0")
+            raise ValueError("autokeras:n_epochs must be an int greater than 0")
 
     if "batch_size" not in keys:
         kerasEntry["batch_size"] = 32
     else:
         type_check(kerasEntry["batch_size"], int, "autokeras_config:batch_size")
         if kerasEntry["batch_size"] < 1:
-            raise ValueError(f"autokeras:batch_size must be an int greater than 0")
+            raise ValueError("autokeras:batch_size must be an int greater than 0")
 
     if "n_blocks" not in keys:
         kerasEntry["n_blocks"] = 3
     else:
         type_check(kerasEntry["n_blocks"], int, "autokeras_config:n_blocks")
         if kerasEntry["n_blocks"] < 1:
-            raise ValueError(f"autokeras:n_blocks must be an int greater than 0")
+            raise ValueError("autokeras:n_blocks must be an int greater than 0")
 
     if "dropout" not in keys:
         kerasEntry["dropout"] = 0.3
     else:
         type_check(kerasEntry["dropout"], float, "autokeras_config:dropout")
         if (kerasEntry["dropout"] < 0) or (kerasEntry["dropout"] > 1):
-            raise ValueError(f"autokeras:dropout must be an float between 0 & 1")
+            raise ValueError("autokeras:dropout must be an float between 0 & 1")
 
     if "tuner" not in keys:
         kerasEntry["tuner"] = "bayesian"
@@ -206,36 +206,36 @@ def parse_autosklearn(sklearnEntry, problem_type):
     else:
         type_check(sklearnEntry["time_left_for_this_task"], int, "autosklearn_config:time_left_for_this_task")
         if sklearnEntry["time_left_for_this_task"] < 1:
-            raise ValueError(f"autosklearn:time_left_for_this_task must be an int greater than 0")
+            raise ValueError("autosklearn:time_left_for_this_task must be an int greater than 0")
 
     if "per_run_time_limit" not in keys:
         sklearnEntry["per_run_time_limit"] = 30
     else:
         type_check(sklearnEntry["per_run_time_limit"], int, "autosklearn_config:per_run_time_limit")
         if sklearnEntry["per_run_time_limit"] < 1:
-            raise ValueError(f"autosklearn:per_run_time_limit must be an int greater than 0")
+            raise ValueError("autosklearn:per_run_time_limit must be an int greater than 0")
 
     if "n_jobs" not in keys:
         sklearnEntry["n_jobs"] = 1
     else:
         type_check(sklearnEntry["n_jobs"], int, "autosklearn_config:n_jobs")
         if sklearnEntry["n_jobs"] < 1:
-            raise ValueError(f"autosklearn:n_jobs must be an int greater than 0")
+            raise ValueError("autosklearn:n_jobs must be an int greater than 0")
 
     if "ensemble_size" not in keys:
         sklearnEntry["ensemble_size"] = 1
     else:
         type_check(sklearnEntry["ensemble_size"], int, "autosklearn_config:ensemble_size")
         if sklearnEntry["ensemble_size"] < 1:
-            raise ValueError(f"autosklearn:ensemble_size must be an int greater than 0")
+            raise ValueError("autosklearn:ensemble_size must be an int greater than 0")
 
     if "memory_limit" not in keys:
         sklearnEntry["memory_limit"] = None
     else:
-        if sklearnEntry["memory_limit"] != None:
+        if sklearnEntry["memory_limit"] is not None:
             type_check(sklearnEntry["memory_limit"], int, "autosklearn_config:memory_limit")
             if sklearnEntry["memory_limit"] < 0:
-                raise ValueError(f"autosklearn:memory_limit must be None or an int greater than 0")
+                raise ValueError("autosklearn:memory_limit must be None or an int greater than 0")
 
     class_opts = [
         "bernoulli_nb",
@@ -312,19 +312,19 @@ def parse_MLSettings(problemEntry):
     else:
         type_check(problemEntry["seed_num"], int, "seed_num")
         if problemEntry["seed_num"] < 0:
-            raise ValueError(f"seed_num must be an int greater than 0")
+            raise ValueError("seed_num must be an int greater than 0")
 
     if "test_size" not in keys:
         problemEntry["test_size"] = 0.2
     else:
         type_check(problemEntry["test_size"], float, "test_size")
         if (problemEntry["test_size"] < 0) or (problemEntry["test_size"] > 1):
-            raise ValueError(f"test_size must be a float between 0 and 1")
+            raise ValueError("test_size must be a float between 0 and 1")
 
     if (
         "problem_type" not in keys
     ):  ###################################### MANDITORY ######################################
-        raise ValueError(f'problem_type must be given. Options: "classification" or "regression"')
+        raise ValueError('problem_type must be given. Options: "classification" or "regression"')
     else:
         type_check(problemEntry["problem_type"], str, "problem_type")
         if problemEntry["problem_type"] not in ["classification", "regression"]:
@@ -335,7 +335,7 @@ def parse_MLSettings(problemEntry):
     if "hyper_tuning" not in keys:
         problemEntry["hyper_tuning"] = "random"
     else:
-        if problemEntry["hyper_tuning"] != None:
+        if problemEntry["hyper_tuning"] is not None:
             type_check(problemEntry["hyper_tuning"], str, "hyper_tuning")
             if problemEntry["hyper_tuning"] not in ["random", "grid"]:
                 raise ValueError(
@@ -351,14 +351,14 @@ def parse_MLSettings(problemEntry):
         if problemEntry["hyper_tuning"] == "random":
             type_check(problemEntry["hyper_budget"], int, "hyper_budget")
             if problemEntry["hyper_budget"] < 0:
-                raise ValueError(f"hyper_budget must be an int greater than 0")
+                raise ValueError("hyper_budget must be an int greater than 0")
 
     if "stratify_by_groups" not in keys:
         problemEntry["stratify_by_groups"] = "N"
     else:
         type_check(problemEntry["stratify_by_groups"], str, "stratify_by_groups")
         if problemEntry["stratify_by_groups"] not in ["Y", "N"]:
-            raise ValueError(f'stratify_by_groups must be either "Y" or "N"')
+            raise ValueError('stratify_by_groups must be either "Y" or "N"')
 
     if "groups" not in keys:
         problemEntry["groups"] = None
@@ -370,7 +370,7 @@ def parse_MLSettings(problemEntry):
     else:
         type_check(problemEntry["balancing"], str, "balancing")
         if problemEntry["balancing"] not in ["OVER", "UNDER", "NONE"]:
-            raise ValueError(f'balancing must be either "OVER", "UNDER", "NONE"')
+            raise ValueError('balancing must be either "OVER", "UNDER", "NONE"')
 
     classif = ["acc", "f1", "prec", "recall"]
     reg = ["mean_ae", "med_ae", "rmse", "mean_ape", "r2"]
@@ -474,16 +474,16 @@ def parse_data(dataEntry):
         raise ValueError(f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
 
     if "name" not in keys:  ###################################### MANDITORY ######################################
-        raise ValueError(f"name must be given")
+        raise ValueError("name must be given")
     else:
         type_check(dataEntry["name"], str, "name")
 
     if "file_path" not in keys:  ###################################### MANDITORY ######################################
-        raise ValueError(f"file_path must be defined")
+        raise ValueError("file_path must be defined")
     else:
         type_check(dataEntry["file_path"], str, "file_path")
         if not exists(dataEntry["file_path"]):
-            raise ValueError(f"File given in file_path does not exist")
+            raise ValueError("File given in file_path does not exist")
 
     if "metadata_file" not in keys:
         # Set to an empty string so that it is assumed the main dataset given contains the target
@@ -492,21 +492,21 @@ def parse_data(dataEntry):
         type_check(dataEntry["metadata_file"], str, "metadata_file")
         entry = dataEntry["metadata_file"]
         if entry and not exists(entry):
-            raise ValueError(f"File given in metadata_file does not exist")
+            raise ValueError("File given in metadata_file does not exist")
 
     if "file_path_holdout_data" not in keys:
         dataEntry["file_path_holdout_data"] = None
     else:
         type_check(dataEntry["file_path_holdout_data"], str, "file_path_holdout_data")
         if not exists(dataEntry["file_path_holdout_data"]):
-            raise ValueError(f"File given in file_path_holdout_data does not exist")
+            raise ValueError("File given in file_path_holdout_data does not exist")
 
     if "metadata_file_holdout_data" not in keys:
         dataEntry["metadata_file_holdout_data"] = None
     else:
         type_check(dataEntry["metadata_file_holdout_data"], str, "metadata_file_holdout_data")
         if not exists(dataEntry["metadata_file_holdout_data"]):
-            raise ValueError(f"File given in metadata_file_holdout_data does not exist")
+            raise ValueError("File given in metadata_file_holdout_data does not exist")
 
     if "save_path" not in keys:
         dataEntry["save_path"] = "/experiments/"
@@ -514,12 +514,12 @@ def parse_data(dataEntry):
         type_check(dataEntry["save_path"], str, "save_path")
 
     if "target" not in keys:  ###################################### MANDITORY ######################################
-        raise ValueError(f"target must be defined")
+        raise ValueError("target must be defined")
     else:
         type_check(dataEntry["target"], str, "target")
 
     if "data_type" not in keys:  ###################################### MANDITORY ######################################
-        raise ValueError(f"data_type must be defined")
+        raise ValueError("data_type must be defined")
     else:
         type_check(dataEntry["data_type"], str, "data_type")
         valid = ["tabular", "gene_expression", "microbiome", "metabolomic", "other"]
@@ -549,7 +549,7 @@ def parse_microbiome(omicEntry):
     if "collapse_tax" not in keys:
         omicEntry["collapse_tax"] = None
     else:
-        if omicEntry["collapse_tax"] != None:
+        if omicEntry["collapse_tax"] is not None:
             type_check(omicEntry["collapse_tax"], str, "collapse_tax")
             if omicEntry["collapse_tax"] not in ["genus", "species"]:
                 raise ValueError(
@@ -559,39 +559,39 @@ def parse_microbiome(omicEntry):
     if "min_reads" not in keys:
         omicEntry["min_reads"] = None
     else:
-        if omicEntry["min_reads"] != None:
+        if omicEntry["min_reads"] is not None:
             type_check(omicEntry["min_reads"], int, "min_reads")
             if omicEntry["min_reads"] < 0:
-                raise ValueError(f"microbiome:min_reads entry must be an int greater than 0")
+                raise ValueError("microbiome:min_reads entry must be an int greater than 0")
 
     if "norm_reads" not in keys:
         omicEntry["norm_reads"] = None
     else:
-        if omicEntry["norm_reads"] != None:
+        if omicEntry["norm_reads"] is not None:
             type_check(omicEntry["norm_reads"], int, "norm_reads")
             if omicEntry["norm_reads"] < 0:
-                raise ValueError(f"microbiome:norm_reads entry must be an int greater than 0")
+                raise ValueError("microbiome:norm_reads entry must be an int greater than 0")
 
     if "filter_abundance" not in keys:
         omicEntry["filter_abundance"] = None
     else:
-        if omicEntry["filter_abundance"] != None:
+        if omicEntry["filter_abundance"] is not None:
             type_check(omicEntry["filter_abundance"], int, "filter_abundance")
             if omicEntry["filter_abundance"] < 0:
-                raise ValueError(f"microbiome:filter_abundance entry must be an int greater than 0")
+                raise ValueError("microbiome:filter_abundance entry must be an int greater than 0")
 
     if "filter_prevalence" not in keys:
         omicEntry["filter_prevalence"] = None
     else:
-        if omicEntry["filter_prevalence"] != None:
+        if omicEntry["filter_prevalence"] is not None:
             type_check(omicEntry["filter_prevalence"], float, "filter_prevalence")
             if (omicEntry["filter_prevalence"] < 0) or (omicEntry["filter_prevalence"] > 1):
-                raise ValueError(f"microbiome:filter_prevalence must be a float between 0 and 1")
+                raise ValueError("microbiome:filter_prevalence must be a float between 0 and 1")
 
     if "filter_microbiome_samples" not in keys:
         omicEntry["filter_microbiome_samples"] = None
     else:
-        if omicEntry["filter_microbiome_samples"] != None:
+        if omicEntry["filter_microbiome_samples"] is not None:
             # TODO
             # type_check(omicEntry['filter_microbiome_samples'],,'microbiome:filter_microbiome_samples')
             pass
@@ -599,14 +599,14 @@ def parse_microbiome(omicEntry):
     if "remove_classes" not in keys:
         omicEntry["remove_classes"] = None
     else:
-        if omicEntry["remove_classes"] != None:
+        if omicEntry["remove_classes"] is not None:
             type_check(omicEntry["remove_classes"], list, "microbiome:remove_classes")
             list_type_check(omicEntry["remove_classes"], str, "microbiome:remove_classes")
 
     if "merge_classes" not in keys:
         omicEntry["merge_classes"] = None
     else:
-        if omicEntry["merge_classes"] != None:
+        if omicEntry["merge_classes"] is not None:
             type_check(omicEntry["merge_classes"], dict, "merge_classes")
             for key in omicEntry["merge_classes"].keys():
                 type_check(omicEntry["merge_classes"][key], list, f"microbiome:merge_classes:{key}")
@@ -623,10 +623,10 @@ def parse_geneExpression(omicEntry):
 
     if "expression_type" not in keys:
         raise ValueError(
-            f'expression_type must be given and one of: "FPKM", "RPKM", "TMM", "TPM", "Log2FC", "COUNTS", "OTHER"'
+            'expression_type must be given and one of: "FPKM", "RPKM", "TMM", "TPM", "Log2FC", "COUNTS", "OTHER"'
         )
     else:
-        if omicEntry["expression_type"] != None:
+        if omicEntry["expression_type"] is not None:
             type_check(omicEntry["expression_type"], str, "expression_type")
             valid = ["FPKM", "RPKM", "TMM", "TPM", "Log2FC", "COUNTS", "OTHER"]
             if omicEntry["expression_type"] not in valid:
@@ -637,38 +637,38 @@ def parse_geneExpression(omicEntry):
     if "filter_sample" not in keys:
         omicEntry["filter_sample"] = 0
     else:
-        if omicEntry["filter_sample"] != None:
+        if omicEntry["filter_sample"] is not None:
             try:
                 type_check(omicEntry["filter_sample"], int, "filter_sample")
             except:
                 try:
                     type_check(omicEntry["filter_sample"], float, "filter_sample")
                 except:
-                    raise ValueError(f"filter_sample must be a int or a float >0")
+                    raise ValueError("filter_sample must be a int or a float >0")
             if omicEntry["filter_sample"] < 0:
-                raise ValueError(f"filter_sample must be greater than 0.")
+                raise ValueError("filter_sample must be greater than 0.")
 
     if "filter_genes" not in keys:
         omicEntry["filter_genes"] = [0, 0]
     else:
-        if omicEntry["filter_genes"] != None:
+        if omicEntry["filter_genes"] is not None:
             type_check(omicEntry["filter_genes"], list, "filter_genes")
             list_type_check(omicEntry["filter_genes"], int, "filter_genes")
             if len(omicEntry["filter_genes"]) != 2:
-                raise ValueError(f"filter_genes must be a list of 2 integers greater than 0.")
+                raise ValueError("filter_genes must be a list of 2 integers greater than 0.")
             if (omicEntry["filter_genes"][0] < 0) or (omicEntry["filter_genes"][0] < 0):
-                raise ValueError(f"filter_genes must be a list of 2 integers greater than 0.")
+                raise ValueError("filter_genes must be a list of 2 integers greater than 0.")
 
     if "output_file_ge" not in keys:
         omicEntry["output_file_ge"] = None
     else:
-        if omicEntry["output_file_ge"] != None:
+        if omicEntry["output_file_ge"] is not None:
             type_check(omicEntry["output_file_ge"], str, "output_file_ge")
 
     if "output_metadata" not in keys:
         omicEntry["output_metadata"] = None
     else:
-        if omicEntry["output_metadata"] != None:
+        if omicEntry["output_metadata"] is not None:
             type_check(omicEntry["output_metadata"], str, "output_metadata")
 
     return omicEntry
@@ -684,38 +684,38 @@ def parse_metabolomic(omicEntry):
     if "filter_metabolomic_sample" not in keys:
         omicEntry["filter_metabolomic_sample"] = 0
     else:
-        if omicEntry["filter_metabolomic_sample"] != None:
+        if omicEntry["filter_metabolomic_sample"] is not None:
             try:
                 type_check(omicEntry["filter_metabolomic_sample"], int, "filter_metabolomic_sample")
             except:
                 try:
                     type_check(omicEntry["filter_metabolomic_sample"], float, "filter_metabolomic_sample")
                 except:
-                    raise ValueError(f"filter_metabolomic_sample must be a int or a float >0")
+                    raise ValueError("filter_metabolomic_sample must be a int or a float >0")
             if omicEntry["filter_metabolomic_sample"] < 0:
-                raise ValueError(f"filter_metabolomic_sample must be greater than 0.")
+                raise ValueError("filter_metabolomic_sample must be greater than 0.")
 
     if "filter_measurements" not in keys:
         omicEntry["filter_measurements"] = [0, 0]
     else:
-        if omicEntry["filter_measurements"] != None:
+        if omicEntry["filter_measurements"] is not None:
             type_check(omicEntry["filter_measurements"], list, "filter_measurements")
             list_type_check(omicEntry["filter_measurements"], int, "filter_measurements")
             if len(omicEntry["filter_measurements"]) != 2:
-                raise ValueError(f"filter_measurements must be a list of 2 integers greater than 0.")
+                raise ValueError("filter_measurements must be a list of 2 integers greater than 0.")
             if (omicEntry["filter_measurements"][0] < 0) or (omicEntry["filter_measurements"][0] < 0):
-                raise ValueError(f"filter_measurements must be a list of 2 integers greater than 0.")
+                raise ValueError("filter_measurements must be a list of 2 integers greater than 0.")
 
     if "output_file_met" not in keys:
         omicEntry["output_file_met"] = None
     else:
-        if omicEntry["output_file_met"] != None:
+        if omicEntry["output_file_met"] is not None:
             type_check(omicEntry["output_file_met"], str, "output_file_met")
 
     if "output_metadata" not in keys:
         omicEntry["output_metadata"] = None
     else:
-        if omicEntry["output_metadata"] != None:
+        if omicEntry["output_metadata"] is not None:
             type_check(omicEntry["output_metadata"], str, "output_metadata")
 
     return omicEntry
@@ -731,38 +731,38 @@ def parse_tabular(omicEntry):
     if "filter_tabular_sample" not in keys:
         omicEntry["filter_tabular_sample"] = 0
     else:
-        if omicEntry["filter_tabular_sample"] != None:
+        if omicEntry["filter_tabular_sample"] is not None:
             try:
                 type_check(omicEntry["filter_tabular_sample"], int, "filter_tabular_sample")
             except:
                 try:
                     type_check(omicEntry["filter_tabular_sample"], float, "filter_tabular_sample")
                 except:
-                    raise ValueError(f"filter_tabular_sample must be a int or a float >0")
+                    raise ValueError("filter_tabular_sample must be a int or a float >0")
             if omicEntry["filter_tabular_sample"] < 0:
-                raise ValueError(f"filter_tabular_sample must be greater than or equal to 0.")
+                raise ValueError("filter_tabular_sample must be greater than or equal to 0.")
 
     if "filter_tabular_measurements" not in keys:
         omicEntry["filter_tabular_measurements"] = [0, 0]
     else:
-        if omicEntry["filter_tabular_measurements"] != None:
+        if omicEntry["filter_tabular_measurements"] is not None:
             type_check(omicEntry["filter_tabular_measurements"], list, "filter_tabular_measurements")
             list_type_check(omicEntry["filter_tabular_measurements"], int, "filter_tabular_measurements")
             if len(omicEntry["filter_tabular_measurements"]) != 2:
-                raise ValueError(f"filter_tabular_measurements must be a list of 2 integers greater than 0.")
+                raise ValueError("filter_tabular_measurements must be a list of 2 integers greater than 0.")
             if (omicEntry["filter_tabular_measurements"][0] < 0) or (omicEntry["filter_tabular_measurements"][0] < 0):
-                raise ValueError(f"filter_tabular_measurements must be a list of 2 integers greater than 0.")
+                raise ValueError("filter_tabular_measurements must be a list of 2 integers greater than 0.")
 
     if "output_file_tab" not in keys:
         omicEntry["output_file_tab"] = None
     else:
-        if omicEntry["output_file_tab"] != None:
+        if omicEntry["output_file_tab"] is not None:
             type_check(omicEntry["output_file_tab"], str, "output_file_tab")
 
     if "output_metadata" not in keys:
         omicEntry["output_metadata"] = None
     else:
-        if omicEntry["output_metadata"] != None:
+        if omicEntry["output_metadata"] is not None:
             type_check(omicEntry["output_metadata"], str, "output_metadata")
 
     return omicEntry
@@ -800,11 +800,11 @@ def parse_prediction(predictionEntry):
         raise ValueError(f"Invalid entry for predictionEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
 
     if "file_path" not in keys:  ###################################### MANDITORY ######################################
-        raise ValueError(f"prediction:file_path must be defined")
+        raise ValueError("prediction:file_path must be defined")
     else:
         type_check(predictionEntry["file_path"], str, "file_path")
         if not exists(predictionEntry["file_path"]):
-            raise ValueError(f"File given in prediction:file_path does not exist")
+            raise ValueError("File given in prediction:file_path does not exist")
 
     if "metadata_file" not in keys:
         predictionEntry["metadata_file"] = None

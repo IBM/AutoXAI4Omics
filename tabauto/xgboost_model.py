@@ -27,8 +27,6 @@ class XGBoostObjective(object):
         # Calculate an objective value by using the extra arguments.
         train_x = self.train_x
         train_y = self.train_y
-        valid_x = self.test_x
-        valid_y = self.test_y
 
         param = {
             "verbosity": 1,
@@ -178,7 +176,7 @@ class XGBoostModel(BaseModel):
 
     def fit_data_optuna(self, trainX, trainY, testX, testY):
         if self.dataset_type == "classification":
-            n_classes = trainY.shape[1]
+            trainY.shape[1]
             trainY = np.argmax(trainY, axis=-1)
             if testY is not None:
                 testY = np.argmax(testY, axis=-1)

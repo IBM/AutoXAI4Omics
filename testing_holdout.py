@@ -20,7 +20,6 @@ import matplotlib.ticker as ticker
 import matplotlib.image as mp_img
 import seaborn as sns
 from sklearn.model_selection import cross_val_score, KFold, StratifiedKFold, GroupKFold
-from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 import shap
 import eli5
@@ -37,8 +36,8 @@ import joblib
 import cProfile
 
 ##########
-from data_processing import *
-from plotting import *
+import data_processing as dp
+import plotting
 import logging
 
 ##########
@@ -74,7 +73,7 @@ if __name__ == "__main__":
     try:
         omicLogger.info("Loading data...")
 
-        x_heldout, y_heldout, features_names = load_data(config_dict, load_holdout=None)
+        x_heldout, y_heldout, features_names = dp.load_data(config_dict, load_holdout=None)
         omicLogger.info("Heldout Data Loaded. Loading test/train data...")
 
         x_df = pd.read_csv(experiment_folder / "transformed_model_input_data.csv", index_col=0)
@@ -91,7 +90,7 @@ if __name__ == "__main__":
 
         with open(experiment_folder / "transformer_std.pkl", "rb") as f:
             SS = joblib.load(f)
-        x_heldout = transform_data(x_heldout, SS)  # transform the holdout data according to the fitted standardiser
+        x_heldout = dp.transform_data(x_heldout, SS)  # transform the holdout data according to the fitted standardiser
 
         if config_dict["ml"]["feature_selection"] is not None:
             with open(experiment_folder / "transformer_fs.pkl", "rb") as f:
@@ -108,7 +107,7 @@ if __name__ == "__main__":
         omicLogger.info("Scorers extracted. Defining plots...")
 
         # See what plots are defined
-        plot_dict = define_plots(config_dict["ml"]["problem_type"])
+        plot_dict = plotting.define_plots(config_dict["ml"]["problem_type"])
 
         # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
         # So set that up here
@@ -177,7 +176,7 @@ if __name__ == "__main__":
 
         omicLogger.debug("Begin plotting graphs")
         # Central func to define the args for the plots
-        plot_graphs(
+        plotting.plot_graphs(
             config_dict,
             experiment_folder,
             features_names,
@@ -200,6 +199,6 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    csv = prof_to_csv(pr)
+    csv = dp.prof_to_csv(pr)
     with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", "w+") as f:
         f.write(csv)

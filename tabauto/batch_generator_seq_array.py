@@ -52,7 +52,6 @@ class BatchGeneratorSeqArray(Sequence):
         assert self.dataset_x.shape[0] == self.dataset_y.shape[0]
 
         # the ordering in the container
-        shape = self.dataset_x.shape
 
         # Preload all the labels.
         self.labels = self.dataset_y[:]
