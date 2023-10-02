@@ -1,25 +1,33 @@
-auto-sklearn==0.14.7                # <- imported
-autokeras==1.0.20                # <- imported
+numpy==1.23.4
+scipy==1.9.0
+pandas==1.5.0
+matplotlib==3.6.1
+scikit-learn==0.24.2
+seaborn==0.10.0
+numba==0.56.3
+eli5==0.13.0
+shap==0.41.0
+Cython==0.29.32
+statsmodels==0.13.2
+h5py==3.9.0
 biom-format==2.1.12
-bioinfokit==2.1.0
-calour==2018.5.1                # <- imported
-conorm==1.2.0                # <- imported
-eli5==0.13.0                # <- imported
-imblearn==0.0                # <- imported
-lightgbm==3.3.3                # <- imported
-matplotlib==3.6.1                # <- imported
-numpy==1.23.4                # <- imported
-optuna==3.*                # <- imported
-pandas==1.5.0                 # <- imported
-scipy==1.9.0                # <- imported
-scikit-learn==0.24.2                # <- imported
-seaborn==0.10.0                # <- imported
-shap==0.41.0                # <- imported
 scikit-bio==0.5.9
-tensorflow==2.10.1                # <- imported
-xgboost==1.3.3                # <- imported
+docrep==0.3.2
+calour==2018.5.1
+tensorflow==2.10.1
+keras-tuner==1.1.3
+autokeras==1.0.20
+xgboost==1.3.3
+lightgbm==3.3.3
+optuna==3.*
 
-# ----- extra analysis packages ----- #
+imblearn==0.0
+auto-sklearn==0.14.7
+scikit-optimize==0.9.0
+emcee==3.1.3
+
+conorm==1.2.0
+bioinfokit==2.1.0
+
 pip-licenses
 pipdeptree
-pip-upgrader
