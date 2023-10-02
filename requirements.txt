@@ -6,10 +6,10 @@ calour==2018.5.1                # <- imported
 conorm==1.2.0                # <- imported
 eli5==0.13.0                # <- imported
 imblearn==0.0                # <- imported
-lightgbm==4.0.0                # <- imported
+lightgbm==3.3.3                # <- imported
 matplotlib==3.6.1                # <- imported
 numpy==1.23.4                # <- imported
-optuna==3.3.0                # <- imported
+optuna==3.*                # <- imported
 pandas==1.5.0                 # <- imported
 scipy==1.9.0                # <- imported
 scikit-learn==0.24.2                # <- imported
@@ -17,7 +17,7 @@ seaborn==0.10.0                # <- imported
 shap==0.41.0                # <- imported
 scikit-bio==0.5.9
 tensorflow==2.10.1                # <- imported
-xgboost==1.7.6                # <- imported
+xgboost~=1.3                # <- imported
 
 # ----- extra analysis packages ----- #
 pip-licenses
