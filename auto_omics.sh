@@ -25,6 +25,9 @@ while getopts 'm:c:rg' OPTION; do
                 "plotting")
                     MODE=plotting.py
                     ;;
+                "feature")
+                    MODE=feature_selection.py
+                    ;;
                 "bash")
                     MODE=bash
                     ;;

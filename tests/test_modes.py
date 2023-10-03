@@ -24,6 +24,7 @@ sys.path.append("../auto-omics/")
         pytest.param("test", marks=pytest.mark.holdout),
         pytest.param("plotting", marks=pytest.mark.plotting),
         pytest.param("predict", marks=pytest.mark.prediction),
+        pytest.param("feature", marks=pytest.mark.feature),
     ],
 )
 def test_modes(mode, problem_create):
@@ -105,6 +106,7 @@ def test_model_outputs(problem):
         pytest.param("test", marks=pytest.mark.holdout),
         pytest.param("plotting", marks=pytest.mark.plotting),
         pytest.param("predict", marks=pytest.mark.prediction),
+        pytest.param("feature", marks=pytest.mark.feature),
     ],
 )
 @pytest.mark.parametrize(

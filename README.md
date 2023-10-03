@@ -49,6 +49,7 @@ Everything is controlled through a config dictionary, examples of which can be f
 The tool is launched in the cli using `auto_omics.sh` which has multiple flags, examples will be given below:
 
 * `-m` this specifies what mode you want to run auto omics in the options are:
+  * `feature` - Run feature selection on a input data set
   * `train` - Tune and train various machine learning models, generate plots and results
   * `test` - To test and evaluate the tuned and trained machine learning models on a completely different holdout dataset
   * `predict` - Use trained models to predict on unseen data
