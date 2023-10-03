@@ -242,6 +242,11 @@ def config_data_paths(file_path, meta_path, problem_type, multi=False):
     return outdict
 
 
+def config_prediction(file_path):
+    outdict = {"prediction": {"file_path": "/" + file_path}}
+    return outdict
+
+
 def config_define_problem(problem_type):
     outdict = {
         "seed_num": 29292,
@@ -253,6 +258,20 @@ def config_define_problem(problem_type):
         "groups": "",
         "balancing": "OVER",
     }
+    return outdict
+
+
+def config_define_ml(problem_type):
+    outdict = {
+        "ml": {
+            **config_define_problem(problem_type),  # Define the Problem and general parameters            # [EXP/AUTO]
+            **config_scorers(problem_type),  # Define scorers to be used depending on problem type  # [HIDDEN]
+            **config_model_list(),  # Define the models to be trained                      # [ADV]
+            **config_all_auto_methods(),  # Define auto methods setting                          # [HIDDEN]
+            **config_feature_selection(),  # Define the feature selection settings                # [ADV/AUTO]
+        }
+    }
+
     return outdict
 
 
@@ -307,13 +326,7 @@ def config_create(problem_type, file_path, meta_path, multi=False, run=1):
             file_path, meta_path, problem_type, multi
         ),  # Define the paths to where the data is stored         # [EXP/AUTO]
         **config_all_plotting(problem_type),  # Define what plots to do                              # [HIDDEN]
-        "ml": {
-            **config_define_problem(problem_type),  # Define the Problem and general parameters            # [EXP/AUTO]
-            **config_scorers(problem_type),  # Define scorers to be used depending on problem type  # [HIDDEN]
-            **config_model_list(),  # Define the models to be trained                      # [ADV]
-            **config_all_auto_methods(),  # Define auto methods setting                          # [HIDDEN]
-            **config_feature_selection(),  # Define the feature selection settings                # [ADV/AUTO]
-        }
+        **config_define_ml(problem_type) ** config_prediction(file_path)
         # **config_microbiome(),                      # settings for the corresponding data type             # [?]
         # **config_gene_expression(),                 # settings for the corresponding data type             # [?]
         # **config_metabolmic(),                      # settings for the corresponding data type             # [?]
