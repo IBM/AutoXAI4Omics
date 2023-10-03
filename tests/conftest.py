@@ -326,7 +326,8 @@ def config_create(problem_type, file_path, meta_path, multi=False, run=1):
             file_path, meta_path, problem_type, multi
         ),  # Define the paths to where the data is stored         # [EXP/AUTO]
         **config_all_plotting(problem_type),  # Define what plots to do                              # [HIDDEN]
-        **config_define_ml(problem_type) ** config_prediction(file_path)
+        **config_define_ml(problem_type),
+        **config_prediction(file_path),
         # **config_microbiome(),                      # settings for the corresponding data type             # [?]
         # **config_gene_expression(),                 # settings for the corresponding data type             # [?]
         # **config_metabolmic(),                      # settings for the corresponding data type             # [?]
