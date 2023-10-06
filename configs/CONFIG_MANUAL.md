@@ -65,6 +65,7 @@ The performance of all models on the train and test sets according to these meas
   - `var_threshold`: If the variance for the column is less than or equal the provided threshold, then the column is removed. Applied before any chosen feature selection method.
   - `auto`: This is a dict containing the parameters for the automated feature selection process.
     - `min_features` : This is the minimum number of features that we wish to be selected.
+    - `max_features` :  This is the maximum number of features that we wish to be selected. Can be set to `None` to default to the maximum number of columns.
     - `interval` : The range for the number of features to be tested is generated on a logarithmic scale with the minimum being as defined in `min_features` and the max being the total number of columns. This entry defines the size of the logarithmic increment $10^{ -interval}$
     - `eval_model` : This sets what sklearn estimator that shall be used to train a model to evaluate how good each set of chosen k for the feature selection is
     - `eval_metric` : This is the metric that is used to evaluate the trained evaluation model.

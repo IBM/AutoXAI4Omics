@@ -6,7 +6,7 @@ Auto-Omics is a command line automated explainable AI tool that easily enable re
 
 * preprocessing specific for omics data (optional)
 * feature selection (optional)
-* HPO (hyper-parameter optimization of a variety of ML models including neural networks
+* HPO (hyper-parameter optimization) of a variety of ML models including neural networks
 * selection of the best ML model(s)
 * generation of explainability and interpretability results (using SHAP and Eli5)
 * generation of predictive performance scores (cvs files) and a series of visualisations (e.g., plots)

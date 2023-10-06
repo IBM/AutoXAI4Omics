@@ -24,7 +24,7 @@ def dataset_create_data(problem_type, **kwargs):
 def dataset_std_def_reg():
     def_dict = {
         "n_samples": 100,
-        "n_features": 20,
+        "n_features": 200,
         "n_informative": 10,
         "n_targets": 1,
         "shuffle": True,
@@ -37,7 +37,7 @@ def dataset_std_def_reg():
 def dataset_std_def_clf_bin():
     def_dict = {
         "n_samples": 100,
-        "n_features": 20,
+        "n_features": 200,
         "n_informative": 10,
         "n_classes": 2,
         "n_clusters_per_class": 1,
@@ -144,7 +144,12 @@ def config_autoxgboost():
 
 
 def config_all_auto_methods():
-    outdict = {**config_autosklearn(), **config_autokeras(), **config_autolgbm(), **config_autoxgboost()}
+    outdict = {
+        **config_autosklearn(),
+        **config_autokeras(),
+        **config_autolgbm(),
+        **config_autoxgboost(),
+    }
     return outdict
 
 
@@ -192,7 +197,7 @@ def config_all_plotting(problem_type):
 
 
 def config_feature_selection():
-    outdict = {"feature_selection": {"k": "auto"}}
+    outdict = {"feature_selection": {"k": "auto", "auto": {"max_features": None}}}
     return outdict
 
 

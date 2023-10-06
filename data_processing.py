@@ -26,7 +26,12 @@ from sklearn.feature_selection import SelectKBest, VarianceThreshold, RFE
 ######
 
 ###### FS METRICS
-from sklearn.feature_selection import f_regression, f_classif, mutual_info_regression, mutual_info_classif
+from sklearn.feature_selection import (
+    f_regression,
+    f_classif,
+    mutual_info_regression,
+    mutual_info_classif,
+)
 
 ######
 
@@ -226,7 +231,9 @@ def load_data_main(config_dict):
     if config_dict["data"]["data_type"] == "microbiome":
         # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
         x, y, features_names = microbiome.get_data_microbiome(
-            config_dict["data"]["file_path"], config_dict["data"]["metadata_file"], config_dict
+            config_dict["data"]["file_path"],
+            config_dict["data"]["metadata_file"],
+            config_dict,
         )
     elif config_dict["data"]["data_type"] == "gene_expression":
         # This reads and preprocesses microbiome data using calour library -- it would be better to change this preprocessing so that it is not dependent from calour
@@ -238,7 +245,9 @@ def load_data_main(config_dict):
     else:
         # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing except for standardisation with StandardScaler()
         x, y, features_names = get_data(
-            config_dict["data"]["file_path"], config_dict["data"]["target"], config_dict["data"]["metadata_file"]
+            config_dict["data"]["file_path"],
+            config_dict["data"]["target"],
+            config_dict["data"]["metadata_file"],
         )
 
     return x, y, features_names
@@ -291,7 +300,12 @@ def load_data_prediction(config_dict):
 
     else:
         # TODO should work for prediction for now, but if not edit
-        x, _, features_names = get_data(config_dict["prediction"]["file_path"], config_dict["data"]["target"], "", True)
+        x, _, features_names = get_data(
+            config_dict["prediction"]["file_path"],
+            config_dict["data"]["target"],
+            "",
+            True,
+        )
 
     return x, features_names
 
@@ -322,7 +336,9 @@ def strat_split(x, y, config_dict):
     omicLogger.debug("Splitting according to stratification...")
 
     gss = GroupShuffleSplit(
-        n_splits=1, test_size=config_dict["ml"]["test_size"], random_state=config_dict["ml"]["seed_num"]
+        n_splits=1,
+        test_size=config_dict["ml"]["test_size"],
+        random_state=config_dict["ml"]["seed_num"],
     )
     # gss = GroupKFold(n_splits=7)
 
@@ -331,7 +347,12 @@ def strat_split(x, y, config_dict):
     groups = le.fit_transform(metadata[config_dict["ml"]["groups"]])
 
     for train_idx, test_idx in gss.split(x, y, groups):
-        x_train, x_test, y_train, y_test = x[train_idx], x[test_idx], y[train_idx], y[test_idx]
+        x_train, x_test, y_train, y_test = (
+            x[train_idx],
+            x[test_idx],
+            y[train_idx],
+            y[test_idx],
+        )
 
     return x_train, x_test, y_train, y_test
 
@@ -482,6 +503,7 @@ def auto_feat_selection(
     y,
     problem_type,
     min_features=10,
+    max_features=None,
     interval=1,
     eval_model=None,
     eval_metric=None,
@@ -495,7 +517,12 @@ def auto_feat_selection(
     omicLogger.debug("Initialising the automated selection process...")
 
     print("Generating logarithmic selection for k")
-    max_features = x.shape[1]
+    if max_features is None:
+        max_features = x.shape[1]
+    elif max_features > x.shape[1]:
+        print(f"Max features {max_features} is more than the columns in dataset, defaulting to full number of columns")
+        max_features = x.shape[1]
+
     # if the max number of features is infact smaller than min_features, set min_features to 1
     if max_features - 3 <= min_features:
         print("Min features more than given number of features, setting min_features to 1.")
@@ -565,7 +592,13 @@ def feat_selection(experiment_folder, x, y, features_names, problem_type, FS_dic
     if k == "auto":
         print("Beginning Automatic feature selection")
         x_trans, SKB = auto_feat_selection(
-            experiment_folder, x_trans, y, problem_type, **auto_dict, method_dict=method_dict, save=save
+            experiment_folder,
+            x_trans,
+            y,
+            problem_type,
+            **auto_dict,
+            method_dict=method_dict,
+            save=save,
         )
     elif isinstance(k, int):
         print("Beginning feature selection with given k")
@@ -739,6 +772,9 @@ def parse_FS_settings(problem_type, FS_dict):
         if "min_features" not in auto_dict.keys():
             auto_dict["min_features"] = 10
 
+        if "max_features" not in auto_dict.keys():
+            auto_dict["min_features"] = None
+
         if "interval" not in auto_dict.keys():
             auto_dict["interval"] = 1
 
@@ -748,12 +784,15 @@ def parse_FS_settings(problem_type, FS_dict):
         if "eval_metric" not in auto_dict.keys():
             auto_dict["eval_metric"] = None
 
-        auto_dict["eval_model"], auto_dict["eval_metric"], auto_dict["low"] = parse_model_inputs(
-            problem_type, auto_dict["eval_model"], auto_dict["eval_metric"]
-        )
+        (
+            auto_dict["eval_model"],
+            auto_dict["eval_metric"],
+            auto_dict["low"],
+        ) = parse_model_inputs(problem_type, auto_dict["eval_model"], auto_dict["eval_metric"])
     else:
         auto_dict = {
             "min_features": 10,
+            "max_features": None,
             "interval": 1,
             "eval_model": "RandomForestClassifier" if problem_type == "classification" else "RandomForestRegressor",
             "eval_metric": "f1_score" if problem_type == "classification" else "mean_squared_error",
