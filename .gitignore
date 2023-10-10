@@ -11,3 +11,4 @@ venv
 configs
 experiments
 data
+.vscode/settings.json
