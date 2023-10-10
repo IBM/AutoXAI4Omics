@@ -12,6 +12,8 @@ import sys
 # import optuna
 import yaml
 import pandas as pd
+import json
+import glob
 
 sys.path.append("../auto-omics/")
 
@@ -31,6 +33,14 @@ def test_modes(mode, problem_create):
     fname = problem_create.split("/")[1]
     sp = subprocess.call(["./auto_omics.sh", "-m", mode, "-c", fname])
     assert sp == 0
+
+    with open(fname, "r") as infile:
+        config = json.load(infile)
+    log_filepath = config["data"]["save_path"][1:] + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+    log_filepath = glob.glob(log_filepath)[-1]
+    with open(log_filepath, "r") as F:
+        last_line = F.readlines()[-1]
+    assert "INFO : Process completed." in last_line
 
 
 @pytest.mark.output
@@ -130,3 +140,11 @@ def test_omic_datasets(mode, omic, problem):
     fname = f"OmicsTestSets/configs/test_{omic}_{problem}.json"
     sp = subprocess.call(["./auto_omics.sh", "-m", mode, "-c", fname])
     assert sp == 0
+
+    with open(fname, "r") as infile:
+        config = json.load(infile)
+    log_filepath = config["data"]["save_path"][1:] + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+    log_filepath = glob.glob(log_filepath)[-1]
+    with open(log_filepath, "r") as F:
+        last_line = F.readlines()[-1]
+    assert "INFO : Process completed." in last_line
