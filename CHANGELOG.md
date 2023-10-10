@@ -10,3 +10,4 @@ Change log for the codebase. Initialised from the developments following version
     - max_features kwarg added for feature selection
     - moved source code into an src folder & modified dockerfile
     - created utils subfolder
+    - created models subfolder

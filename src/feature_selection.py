@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 import pandas as pd
-import models
+import models.models as models
 import utils.utils as utils
 import data_processing as dp
 

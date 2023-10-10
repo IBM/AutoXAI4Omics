@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder, QuantileTransfor
 import scipy.sparse
 from sklearn.model_selection import GroupShuffleSplit, GroupKFold, train_test_split
 from sklearn.pipeline import Pipeline
-import models
+import models.models as models
 import math
 import plotting
 import logging

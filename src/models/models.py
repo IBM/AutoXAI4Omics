@@ -39,10 +39,10 @@ from sklearn.preprocessing import normalize
 import joblib
 from xgboost import XGBClassifier, XGBRegressor
 
-import model_params
+import models.model_params as model_params
 
-from custom_model import CustomModel
-from custom_model import (
+from models.custom_model import CustomModel
+from models.custom_model import (
     FixedKeras,
     AutoKeras,
     AutoSKLearn,

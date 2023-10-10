@@ -15,9 +15,9 @@ from tensorflow.keras import backend as K
 import joblib
 import pandas as pd
 import shap
-import models
+import models.models as models
 import plotting
-from custom_model import CustomModel, TabAuto
+from models.custom_model import CustomModel, TabAuto
 
 # import calour as ca
 from datetime import datetime

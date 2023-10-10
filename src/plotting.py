@@ -24,9 +24,9 @@ from sklearn.preprocessing import LabelEncoder
 import shap
 import eli5
 import time
-import models
+import models.models as models
 import utils.utils as utils
-from custom_model import CustomModel
+from models.custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import (
     accuracy_score,

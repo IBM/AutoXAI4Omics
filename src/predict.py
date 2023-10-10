@@ -10,13 +10,13 @@ import os
 import glob
 import numpy as np
 import pandas as pd
-import models
+import models.models as models
 import utils.utils as utils
 import data_processing as dp
 import logging
 import joblib
 import cProfile
-from custom_model import CustomModel
+from models.custom_model import CustomModel
 
 
 def assert_best_model_exists(folder):
