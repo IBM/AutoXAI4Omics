@@ -46,7 +46,7 @@ import cProfile
 
 ##########
 # from data_processing import *
-import data_processing
+import utils.data_processing as data_processing
 import logging
 
 omicLogger = logging.getLogger("OmicLogger")
