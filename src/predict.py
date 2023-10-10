@@ -11,7 +11,7 @@ import glob
 import numpy as np
 import pandas as pd
 import models
-import utils
+import utils.utils as utils
 import data_processing as dp
 import logging
 import joblib
@@ -122,7 +122,10 @@ if __name__ == "__main__":
         predictions = pd.DataFrame(predictions, columns=["Prediction"])
         predictions.index = x_indexes
         predictions.index.name = "SampleID"
-        predictions.to_csv(experiment_folder / f"{config_dict['prediction']['outfile_name']}.csv", index=True)
+        predictions.to_csv(
+            experiment_folder / f"{config_dict['prediction']['outfile_name']}.csv",
+            index=True,
+        )
 
         omicLogger.info("Process completed.")
 
@@ -134,5 +137,8 @@ if __name__ == "__main__":
     # save time profile information
     pr.disable()
     csv = dp.prof_to_csv(pr)
-    with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", "w+") as f:
+    with open(
+        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        "w+",
+    ) as f:
         f.write(csv)

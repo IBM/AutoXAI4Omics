@@ -285,7 +285,13 @@ def select_explainer(model, model_name, df_train, problem_type):
 
 
 def save_exemplars_SHAP_values(
-    config_dict, experiment_folder, feature_names, model_name, class_names, exemplars_selected, fold_id
+    config_dict,
+    experiment_folder,
+    feature_names,
+    model_name,
+    class_names,
+    exemplars_selected,
+    fold_id,
 ):
     # Deal with classification differently, classification has shap values for each class
     # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
@@ -317,7 +323,13 @@ def save_exemplars_SHAP_values(
 
 
 def compute_average_abundance_top_features(
-    config_dict, num_top, model_name, class_names, feature_names, data, shap_values_selected
+    config_dict,
+    num_top,
+    model_name,
+    class_names,
+    feature_names,
+    data,
+    shap_values_selected,
 ):
     # Get the names of the features
     names = feature_names
@@ -470,7 +482,7 @@ def initial_setup(args):
     config_dict = load_config(config_path)
     # Validate the provided config
     # check_config(config_dict)
-    import parsers
+    import utils.parsers as parsers
 
     config_dict = parsers.parse_config(config_dict)
 
@@ -555,7 +567,15 @@ def copy_best_content(experiment_folder, best_models, collapse_tax):
     sl_fnames += [
         x
         for x in fnames
-        if any(plot in x for plot in ["barplot", "boxplot", "feature_selection_accuracy", "model_performance"])
+        if any(
+            plot in x
+            for plot in [
+                "barplot",
+                "boxplot",
+                "feature_selection_accuracy",
+                "model_performance",
+            ]
+        )
         and ("checkpoint" not in x)
     ]
 

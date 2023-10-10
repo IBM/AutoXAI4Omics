@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import models
-import utils
+import utils.utils as utils
 import plotting
 import data_processing as dp
 
@@ -200,7 +200,11 @@ def main(config_dict, config_path):
             config_dict["ml"]["fit_scorer"],
             config_dict.get("microbiome", {}).get("collapse_tax"),
         )
-        utils.copy_best_content(experiment_folder, best_models, config_dict.get("microbiome", {}).get("collapse_tax"))
+        utils.copy_best_content(
+            experiment_folder,
+            best_models,
+            config_dict.get("microbiome", {}).get("collapse_tax"),
+        )
 
         omicLogger.info("Process completed.")
     except Exception as e:
@@ -246,5 +250,8 @@ if __name__ == "__main__":
     # save time profile information
     pr.disable()
     csv = dp.prof_to_csv(pr)
-    with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", "w+") as f:
+    with open(
+        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        "w+",
+    ) as f:
         f.write(csv)

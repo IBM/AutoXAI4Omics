@@ -25,10 +25,17 @@ import shap
 import eli5
 import time
 import models
-import utils
+import utils.utils as utils
 from custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, make_scorer
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+    make_scorer,
+)
 import sklearn.metrics as skm
 
 # import imblearn
@@ -153,7 +160,12 @@ if __name__ == "__main__":
             omicLogger.debug("Evaluating...")
             # Evaluate the best model using all the scores and CV
             performance_results_dict, predictions = models.evaluate_model(
-                model, config_dict["ml"]["problem_type"], x_train, y_train, x_heldout, y_heldout
+                model,
+                config_dict["ml"]["problem_type"],
+                x_train,
+                y_train,
+                x_heldout,
+                y_heldout,
             )
             predictions.to_csv(results_folder / f"{model_name}_holdout_predictions.csv", index=False)
 
@@ -200,5 +212,8 @@ if __name__ == "__main__":
     # save time profile information
     pr.disable()
     csv = dp.prof_to_csv(pr)
-    with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", "w+") as f:
+    with open(
+        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        "w+",
+    ) as f:
         f.write(csv)

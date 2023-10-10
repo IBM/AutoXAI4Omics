@@ -8,7 +8,11 @@ import warnings
 import numpy as np
 import scipy.sparse
 import pandas as pd
-from sklearn.model_selection import cross_val_score, RandomizedSearchCV, GridSearchCV  # , KFold, StratifiedKFold
+from sklearn.model_selection import (
+    cross_val_score,
+    RandomizedSearchCV,
+    GridSearchCV,
+)  # , KFold, StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.svm import SVC, SVR
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
@@ -38,12 +42,18 @@ from xgboost import XGBClassifier, XGBRegressor
 import model_params
 
 from custom_model import CustomModel
-from custom_model import FixedKeras, AutoKeras, AutoSKLearn, AutoLGBM, AutoXGBoost  # , AutoGluon
+from custom_model import (
+    FixedKeras,
+    AutoKeras,
+    AutoSKLearn,
+    AutoLGBM,
+    AutoXGBoost,
+)  # , AutoGluon
 
 import logging
 
 
-from utils import copy_best_content
+from utils.utils import copy_best_content
 import os
 
 from plotting import plot_model_performance
@@ -219,14 +229,29 @@ def define_models(problem_type, hyper_tuning):
         model_dict["fixedkeras"] = (FixedKeras, model_params.single_model["fixedkeras"])
         model_dict["autokeras"] = (AutoKeras, model_params.single_model["autokeras"])
         model_dict["autolgbm"] = (AutoLGBM, model_params.single_model["autolgbm"])
-        model_dict["autoxgboost"] = (AutoXGBoost, model_params.single_model["autoxgboost"])
-        model_dict["autosklearn"] = (AutoSKLearn, model_params.single_model["autosklearn"])
+        model_dict["autoxgboost"] = (
+            AutoXGBoost,
+            model_params.single_model["autoxgboost"],
+        )
+        model_dict["autosklearn"] = (
+            AutoSKLearn,
+            model_params.single_model["autosklearn"],
+        )
         # model_dict["autogluon"] = (AutoGluon, model_params.single_model['autogluon'])
     return model_dict
 
 
 ########## SAVE ##########
-def save_results(results_folder, df, score_dict, model_name, fname, suffix=None, save_pkl=False, save_csv=True):
+def save_results(
+    results_folder,
+    df,
+    score_dict,
+    model_name,
+    fname,
+    suffix=None,
+    save_pkl=False,
+    save_csv=True,
+):
     """
     Store the results of the latest model and save this to csv
     """
@@ -310,7 +335,10 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
             # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='f1_weighted', cv=5)
         }
 
-        pred_out = pd.DataFrame(np.concatenate((pred_out.reshape(-1, 1), prob_out), axis=1), columns=col_names)
+        pred_out = pd.DataFrame(
+            np.concatenate((pred_out.reshape(-1, 1), prob_out), axis=1),
+            columns=col_names,
+        )
     else:
         score_dict = {
             "MSE_Train": skm.mean_squared_error(y_train, pred_train),
@@ -392,7 +420,8 @@ def best_selector(experiment_folder, problem_type, metric=None, collapse_tax=Non
 
     ang = t_df.apply(
         lambda row: round(
-            np.arccos(np.dot(row.values, [1, 1]) / (np.linalg.norm(row.values) * np.linalg.norm([1, 1]))), 4
+            np.arccos(np.dot(row.values, [1, 1]) / (np.linalg.norm(row.values) * np.linalg.norm([1, 1]))),
+            4,
         ),
         axis=1,
     )
@@ -413,7 +442,17 @@ def best_selector(experiment_folder, problem_type, metric=None, collapse_tax=Non
 
 
 ########## WRAPPERS ##########
-def random_search(model, model_name, param_ranges, budget, x_train, y_train, seed_num, scorer_dict, fit_scorer):
+def random_search(
+    model,
+    model_name,
+    param_ranges,
+    budget,
+    x_train,
+    y_train,
+    seed_num,
+    scorer_dict,
+    fit_scorer,
+):
     """
     Wrapper for using sklearn's RandomizedSearchCV
     """
@@ -582,7 +621,15 @@ def run_models(
             print("Using random search")
             # Do a random search to find the best parameters
             trained_model = random_search(
-                model, model_name, param_ranges, hyper_budget, x_train, y_train, seed_num, scorer_dict, fit_scorer
+                model,
+                model_name,
+                param_ranges,
+                hyper_budget,
+                x_train,
+                y_train,
+                seed_num,
+                scorer_dict,
+                fit_scorer,
             )
             print("=================== Best model from random search: " + model_name + " ====================")
             print(trained_model)
@@ -601,7 +648,14 @@ def run_models(
             if hyper_budget is not None:
                 print(f"Hyperparameter tuning budget ({hyper_budget}) is not used in a grid search")
             trained_model = grid_search(
-                model, model_name, param_ranges, x_train, y_train, seed_num, scorer_dict, fit_scorer
+                model,
+                model_name,
+                param_ranges,
+                x_train,
+                y_train,
+                seed_num,
+                scorer_dict,
+                fit_scorer,
             )
             print("=================== Best model from grid search: " + model_name + " ====================")
             print(trained_model)
@@ -612,7 +666,12 @@ def run_models(
 
         # Evaluate the best model using all the scores and CV
         performance_results_dict, predictions = evaluate_model(
-            trained_model, config_dict["ml"]["problem_type"], x_train, y_train, x_test, y_test
+            trained_model,
+            config_dict["ml"]["problem_type"],
+            x_train,
+            y_train,
+            x_test,
+            y_test,
         )
         predictions.to_csv(results_folder / f"{model_name}_predictions.csv", index=False)
 

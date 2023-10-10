@@ -1,5 +1,5 @@
 # import subprocess
-import utils
+import utils.utils as utils
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, LabelEncoder, QuantileTransformer

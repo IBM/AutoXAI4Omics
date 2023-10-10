@@ -120,7 +120,16 @@ def parse_autolgbm(lgbmEntry):
 
 def parse_autokeras(kerasEntry):
     keys = kerasEntry.keys()
-    validKeys = {"n_epochs", "batch_size", "verbose", "n_blocks", "dropout", "use_batchnorm", "n_trials", "tuner"}
+    validKeys = {
+        "n_epochs",
+        "batch_size",
+        "verbose",
+        "n_blocks",
+        "dropout",
+        "use_batchnorm",
+        "n_trials",
+        "tuner",
+    }
 
     if not set(keys).issubset(validKeys):
         raise ValueError(f"Invalid entry for autokeras_config: {set(keys)-validKeys}. Valid options: {validKeys}")
@@ -204,14 +213,22 @@ def parse_autosklearn(sklearnEntry, problem_type):
     if "time_left_for_this_task" not in keys:
         sklearnEntry["time_left_for_this_task"] = 120
     else:
-        type_check(sklearnEntry["time_left_for_this_task"], int, "autosklearn_config:time_left_for_this_task")
+        type_check(
+            sklearnEntry["time_left_for_this_task"],
+            int,
+            "autosklearn_config:time_left_for_this_task",
+        )
         if sklearnEntry["time_left_for_this_task"] < 1:
             raise ValueError("autosklearn:time_left_for_this_task must be an int greater than 0")
 
     if "per_run_time_limit" not in keys:
         sklearnEntry["per_run_time_limit"] = 30
     else:
-        type_check(sklearnEntry["per_run_time_limit"], int, "autosklearn_config:per_run_time_limit")
+        type_check(
+            sklearnEntry["per_run_time_limit"],
+            int,
+            "autosklearn_config:per_run_time_limit",
+        )
         if sklearnEntry["per_run_time_limit"] < 1:
             raise ValueError("autosklearn:per_run_time_limit must be an int greater than 0")
 
@@ -267,7 +284,12 @@ def parse_autosklearn(sklearnEntry, problem_type):
     ]
 
     if "estimators" not in keys:
-        sklearnEntry["estimators"] = ["decision_tree", "extra_trees", "k_nearest_neighbors", "random_forest"]
+        sklearnEntry["estimators"] = [
+            "decision_tree",
+            "extra_trees",
+            "k_nearest_neighbors",
+            "random_forest",
+        ]
     else:
         type_check(sklearnEntry["estimators"], list, "autosklearn_config:estimators")
         list_type_check(sklearnEntry["estimators"], str, "autosklearn_config:estimators")
@@ -401,7 +423,16 @@ def parse_MLSettings(problemEntry):
                 f'Non-valid options given for scorer_list: {",".join(list(given_opts-max_opts))}. Possible options: {max_opts}'
             )
 
-    max_opts = {"rf", "adaboost", "knn", "autoxgboost", "autolgbm", "autosklearn", "autokeras", "fixedkeras"}
+    max_opts = {
+        "rf",
+        "adaboost",
+        "knn",
+        "autoxgboost",
+        "autolgbm",
+        "autosklearn",
+        "autokeras",
+        "fixedkeras",
+    }
     if (
         "model_list" not in keys
     ):  ###################################### MANDITORY ######################################
@@ -609,13 +640,27 @@ def parse_microbiome(omicEntry):
         if omicEntry["merge_classes"] is not None:
             type_check(omicEntry["merge_classes"], dict, "merge_classes")
             for key in omicEntry["merge_classes"].keys():
-                type_check(omicEntry["merge_classes"][key], list, f"microbiome:merge_classes:{key}")
-                list_type_check(omicEntry["merge_classes"][key], str, f"microbiome:merge_classes:{key}")
+                type_check(
+                    omicEntry["merge_classes"][key],
+                    list,
+                    f"microbiome:merge_classes:{key}",
+                )
+                list_type_check(
+                    omicEntry["merge_classes"][key],
+                    str,
+                    f"microbiome:merge_classes:{key}",
+                )
     return omicEntry
 
 
 def parse_geneExpression(omicEntry):
-    validKeys = {"expression_type", "filter_sample", "filter_genes", "output_file_ge", "output_metadata"}
+    validKeys = {
+        "expression_type",
+        "filter_sample",
+        "filter_genes",
+        "output_file_ge",
+        "output_metadata",
+    }
     keys = set(omicEntry.keys())
 
     if not set(keys).issubset(validKeys):
@@ -675,7 +720,12 @@ def parse_geneExpression(omicEntry):
 
 
 def parse_metabolomic(omicEntry):
-    validKeys = {"filter_metabolomic_sample", "filter_measurements", "output_file_met", "output_metadata"}
+    validKeys = {
+        "filter_metabolomic_sample",
+        "filter_measurements",
+        "output_file_met",
+        "output_metadata",
+    }
     keys = set(omicEntry.keys())
 
     if not set(keys).issubset(validKeys):
@@ -686,10 +736,18 @@ def parse_metabolomic(omicEntry):
     else:
         if omicEntry["filter_metabolomic_sample"] is not None:
             try:
-                type_check(omicEntry["filter_metabolomic_sample"], int, "filter_metabolomic_sample")
+                type_check(
+                    omicEntry["filter_metabolomic_sample"],
+                    int,
+                    "filter_metabolomic_sample",
+                )
             except:
                 try:
-                    type_check(omicEntry["filter_metabolomic_sample"], float, "filter_metabolomic_sample")
+                    type_check(
+                        omicEntry["filter_metabolomic_sample"],
+                        float,
+                        "filter_metabolomic_sample",
+                    )
                 except:
                     raise ValueError("filter_metabolomic_sample must be a int or a float >0")
             if omicEntry["filter_metabolomic_sample"] < 0:
@@ -722,7 +780,12 @@ def parse_metabolomic(omicEntry):
 
 
 def parse_tabular(omicEntry):
-    validKeys = {"filter_tabular_sample", "filter_tabular_measurements", "output_file_tab", "output_metadata"}
+    validKeys = {
+        "filter_tabular_sample",
+        "filter_tabular_measurements",
+        "output_file_tab",
+        "output_metadata",
+    }
     keys = set(omicEntry.keys())
 
     if not set(keys).issubset(validKeys):
@@ -736,7 +799,11 @@ def parse_tabular(omicEntry):
                 type_check(omicEntry["filter_tabular_sample"], int, "filter_tabular_sample")
             except:
                 try:
-                    type_check(omicEntry["filter_tabular_sample"], float, "filter_tabular_sample")
+                    type_check(
+                        omicEntry["filter_tabular_sample"],
+                        float,
+                        "filter_tabular_sample",
+                    )
                 except:
                     raise ValueError("filter_tabular_sample must be a int or a float >0")
             if omicEntry["filter_tabular_sample"] < 0:
@@ -746,8 +813,16 @@ def parse_tabular(omicEntry):
         omicEntry["filter_tabular_measurements"] = [0, 0]
     else:
         if omicEntry["filter_tabular_measurements"] is not None:
-            type_check(omicEntry["filter_tabular_measurements"], list, "filter_tabular_measurements")
-            list_type_check(omicEntry["filter_tabular_measurements"], int, "filter_tabular_measurements")
+            type_check(
+                omicEntry["filter_tabular_measurements"],
+                list,
+                "filter_tabular_measurements",
+            )
+            list_type_check(
+                omicEntry["filter_tabular_measurements"],
+                int,
+                "filter_tabular_measurements",
+            )
             if len(omicEntry["filter_tabular_measurements"]) != 2:
                 raise ValueError("filter_tabular_measurements must be a list of 2 integers greater than 0.")
             if (omicEntry["filter_tabular_measurements"][0] < 0) or (omicEntry["filter_tabular_measurements"][0] < 0):

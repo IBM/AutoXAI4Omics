@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import models
-import utils
+import utils.utils as utils
 import data_processing as dp
 
 ##########
@@ -141,5 +141,8 @@ if __name__ == "__main__":
     # save time profile information
     pr.disable()
     csv = dp.prof_to_csv(pr)
-    with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", "w+") as f:
+    with open(
+        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        "w+",
+    ) as f:
         f.write(csv)

@@ -25,7 +25,7 @@ import shap
 import eli5
 import time
 import models
-import utils
+import utils.utils as utils
 from custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import (
@@ -70,7 +70,11 @@ def define_plots(problem_type):
     }
 
     if problem_type == "classification":
-        plot_dict = {**common_plot_dict, "conf_matrix": conf_matrix_plot, "roc_curve": roc_curve_plot}
+        plot_dict = {
+            **common_plot_dict,
+            "conf_matrix": conf_matrix_plot,
+            "roc_curve": roc_curve_plot,
+        }
     elif problem_type == "regression":
         plot_dict = {
             **common_plot_dict,
@@ -110,21 +114,63 @@ def plot_graphs(
         # Hand-crafted passing the arguments in because over-engineering
         # Don't judge me (I'm not a big **kwargs fan)
         if plot_method == "barplot_scorer":
-            plot_func(experiment_folder, config_dict, scorer_dict, x_test, y_test, holdout=holdout)
+            plot_func(
+                experiment_folder,
+                config_dict,
+                scorer_dict,
+                x_test,
+                y_test,
+                holdout=holdout,
+            )
         elif plot_method == "boxplot_scorer":
             plot_func(experiment_folder, config_dict, scorer_dict, x, y, holdout=holdout)
         elif plot_method == "boxplot_scorer_cv_groupby":
             plot_func(experiment_folder, config_dict, scorer_dict, x, y, holdout=holdout)
         elif plot_method == "conf_matrix":
-            plot_func(experiment_folder, config_dict, x_test, y_test, normalize=False, holdout=holdout)
+            plot_func(
+                experiment_folder,
+                config_dict,
+                x_test,
+                y_test,
+                normalize=False,
+                holdout=holdout,
+            )
         elif plot_method == "corr":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["data"]["target"], holdout=holdout)
+            plot_func(
+                experiment_folder,
+                config_dict,
+                x_test,
+                y_test,
+                config_dict["data"]["target"],
+                holdout=holdout,
+            )
         elif plot_method == "hist":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["data"]["target"], holdout=holdout)
+            plot_func(
+                experiment_folder,
+                config_dict,
+                x_test,
+                y_test,
+                config_dict["data"]["target"],
+                holdout=holdout,
+            )
         elif plot_method == "hist_overlapped":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["data"]["target"], holdout=holdout)
+            plot_func(
+                experiment_folder,
+                config_dict,
+                x_test,
+                y_test,
+                config_dict["data"]["target"],
+                holdout=holdout,
+            )
         elif plot_method == "joint":
-            plot_func(experiment_folder, config_dict, x_test, y_test, config_dict["data"]["target"], holdout=holdout)
+            plot_func(
+                experiment_folder,
+                config_dict,
+                x_test,
+                y_test,
+                config_dict["data"]["target"],
+                holdout=holdout,
+            )
         elif plot_method == "joint_dens":
             plot_func(
                 experiment_folder,
@@ -183,7 +229,13 @@ def plot_graphs(
 def save_fig(fig, fname, dpi=200, fig_format="png"):
     omicLogger.debug(f"Saving figure ({fname})to file...")
     print(f"Save location: {fname}.{fig_format}")
-    fig.savefig(f"{fname}.{fig_format}", dpi=dpi, format=fig_format, bbox_inches="tight", transparent=False)
+    fig.savefig(
+        f"{fname}.{fig_format}",
+        dpi=dpi,
+        format=fig_format,
+        bbox_inches="tight",
+        transparent=False,
+    )
 
 
 def create_fig(nrows=1, ncols=1, figsize=None):
@@ -230,7 +282,14 @@ def pretty_names(name, name_type):
 
 
 def boxplot_scorer_cv(
-    experiment_folder, config_dict, scorer_dict, data, true_labels, nsplits=5, save=True, holdout=False
+    experiment_folder,
+    config_dict,
+    scorer_dict,
+    data,
+    true_labels,
+    nsplits=5,
+    save=True,
+    holdout=False,
 ):
     """
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
@@ -331,7 +390,15 @@ def boxplot_scorer_cv(
     utils.tidy_tf()
 
 
-def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True, holdout=False):
+def boxplot_scorer_cv_groupby(
+    experiment_folder,
+    config_dict,
+    scorer_dict,
+    data,
+    true_labels,
+    save=True,
+    holdout=False,
+):
     """
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
     """
@@ -348,7 +415,9 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
     groups = le.fit_transform(metadata[config_dict["ml"]["groups"]])
 
     fold_obj = GroupShuffleSplit(
-        n_splits=5, test_size=config_dict["ml"]["test_size"], random_state=config_dict["ml"]["seed_num"]
+        n_splits=5,
+        test_size=config_dict["ml"]["test_size"],
+        random_state=config_dict["ml"]["seed_num"],
     )
 
     # fold_obj = GroupKFold(n_splits=5)
@@ -428,7 +497,15 @@ def boxplot_scorer_cv_groupby(experiment_folder, config_dict, scorer_dict, data,
     utils.tidy_tf()
 
 
-def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_labels, save=True, holdout=False):
+def barplot_scorer(
+    experiment_folder,
+    config_dict,
+    scorer_dict,
+    data,
+    true_labels,
+    save=True,
+    holdout=False,
+):
     """
     Create a barplot for all models in the folder using the fit_scorer from the config.
     """
@@ -478,7 +555,15 @@ def barplot_scorer(experiment_folder, config_dict, scorer_dict, data, true_label
     utils.tidy_tf()
 
 
-def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, shap_dict, save=True, holdout=False):
+def shap_summary_plot(
+    experiment_folder,
+    config_dict,
+    x_test,
+    feature_names,
+    shap_dict,
+    save=True,
+    holdout=False,
+):
     """
     A wrapper to prepare the data and models for the SHAP summary plot
     """
@@ -511,7 +596,13 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
                 class_names = None
 
             # Use SHAP's summary plot
-            shap.summary_plot(shap_values, df_test, plot_type="violin", show=False, class_names=class_names)
+            shap.summary_plot(
+                shap_values,
+                df_test,
+                plot_type="violin",
+                show=False,
+                class_names=class_names,
+            )
         elif config_dict["ml"]["problem_type"] == "regression":
             shap.summary_plot(shap_values, df_test, plot_type="violin", show=False)
         # Get the figure object
@@ -532,7 +623,15 @@ def shap_summary_plot(experiment_folder, config_dict, x_test, feature_names, sha
         utils.tidy_tf()
 
 
-def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=False, save=True, holdout=False):
+def conf_matrix_plot(
+    experiment_folder,
+    config_dict,
+    x_test,
+    y_test,
+    normalize=False,
+    save=True,
+    holdout=False,
+):
     """
     Creates a confusion matrix for each model. Saves them in separate files.
     """
@@ -610,7 +709,14 @@ def conf_matrix_plot(experiment_folder, config_dict, x_test, y_test, normalize=F
 
 
 def correlation_plot(
-    experiment_folder, config_dict, x_test, y_test, class_name, fit_line=True, save=True, holdout=False
+    experiment_folder,
+    config_dict,
+    x_test,
+    y_test,
+    class_name,
+    fit_line=True,
+    save=True,
+    holdout=False,
 ):
     """
     Creates a correlation plot with a 1D line of best fit.
@@ -756,7 +862,16 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
         utils.tidy_tf()
 
 
-def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind="reg", save=True, holdout=False):
+def joint_plot(
+    experiment_folder,
+    config_dict,
+    x_test,
+    y_test,
+    class_name,
+    kind="reg",
+    save=True,
+    holdout=False,
+):
     """
     Uses seaborn's jointplot to illustrate correlation and distribution.
     """
@@ -808,7 +923,14 @@ def joint_plot(experiment_folder, config_dict, x_test, y_test, class_name, kind=
             return sp.pearsonr(x, y)[0]
 
         # Add this value to the graph (warning: deprecated in the future)
-        plot.annotate(pearson, loc="upper right", stat="Pearson's", borderpad=0.2, mode=None, edgecolor=None)
+        plot.annotate(
+            pearson,
+            loc="upper right",
+            stat="Pearson's",
+            borderpad=0.2,
+            mode=None,
+            edgecolor=None,
+        )
         if save:
             if kind == "kde":
                 fname = f"{experiment_folder / 'graphs' / 'joint_kde'}_{model_name}"
@@ -882,11 +1004,17 @@ def permut_importance(
         # Handle the CustomModel to avoid resaving
         if model_name in CustomModel.custom_aliases:
             importances = eli5.sklearn.PermutationImportance(
-                model, scoring=scorer_func, random_state=config_dict["ml"]["seed_num"], cv=cv
+                model,
+                scoring=scorer_func,
+                random_state=config_dict["ml"]["seed_num"],
+                cv=cv,
             ).fit(data, labels, save_best=False)
         else:
             importances = eli5.sklearn.PermutationImportance(
-                model, scoring=scorer_func, random_state=config_dict["ml"]["seed_num"], cv=cv
+                model,
+                scoring=scorer_func,
+                random_state=config_dict["ml"]["seed_num"],
+                cv=cv,
             ).fit(data, labels)
 
         a = np.asarray(importances.results_)
@@ -902,7 +1030,10 @@ def permut_importance(
         # Split the array up for the boxplot func
         top_values = [top_values[:, i] for i in range(top_values.shape[1])]
 
-        top_feature_info = {"Features_names": top_features, "Features_importance_value": top_values}
+        top_feature_info = {
+            "Features_names": top_features,
+            "Features_importance_value": top_values,
+        }
 
         df_topfeature_info = pd.DataFrame(top_feature_info, columns=["Features_names", "Features_importance_value"])
 
@@ -1004,28 +1135,36 @@ def shap_plots(
             shap_values = explainer.shap_values(x)
             data = x
             data_indx = pd.read_csv(
-                experiment_folder / "transformed_model_input_data.csv", index_col=0, usecols=["SampleID", "set"]
+                experiment_folder / "transformed_model_input_data.csv",
+                index_col=0,
+                usecols=["SampleID", "set"],
             ).index
 
         elif data_forexplanations == "train":
             shap_values = explainer.shap_values(x_train)
             data = x_train
             data_indx = pd.read_csv(
-                experiment_folder / "transformed_model_input_data.csv", index_col=0, usecols=["SampleID", "set"]
+                experiment_folder / "transformed_model_input_data.csv",
+                index_col=0,
+                usecols=["SampleID", "set"],
             )
             data_indx = data_indx[data_indx.set == "Train"].index
         elif data_forexplanations == "test":
             shap_values = explainer.shap_values(x_test)
             data = x_test
             data_indx = pd.read_csv(
-                experiment_folder / "transformed_model_input_data.csv", index_col=0, usecols=["SampleID", "set"]
+                experiment_folder / "transformed_model_input_data.csv",
+                index_col=0,
+                usecols=["SampleID", "set"],
             )
             data_indx = data_indx[data_indx.set == "Test"].index
         elif data_forexplanations == "exemplars":
             shap_values = explainer.shap_values(exemplar_X_test)
             data = exemplar_X_test
             data_indx = pd.read_csv(
-                experiment_folder / "transformed_model_input_data.csv", index_col=0, usecols=["SampleID", "set"]
+                experiment_folder / "transformed_model_input_data.csv",
+                index_col=0,
+                usecols=["SampleID", "set"],
             )
             data_indx = data_indx[data_indx.set == "Test"].index
         # otherwise assume train set
@@ -1033,7 +1172,9 @@ def shap_plots(
             shap_values = explainer.shap_values(x_train)
             data = x_train
             data_indx = pd.read_csv(
-                experiment_folder / "transformed_model_input_data.csv", index_col=0, usecols=["SampleID", "set"]
+                experiment_folder / "transformed_model_input_data.csv",
+                index_col=0,
+                usecols=["SampleID", "set"],
             )
             data_indx = data_indx[data_indx.set == "Train"].index
 
@@ -1106,8 +1247,18 @@ def shap_plots(
                 plt.clf()
                 plt.close()
 
-            objects, abundance, shap_values_mean_sorted = utils.compute_average_abundance_top_features(
-                config_dict, num_top, model_name, class_names, feature_names, data, shap_values_selected
+            (
+                objects,
+                abundance,
+                shap_values_mean_sorted,
+            ) = utils.compute_average_abundance_top_features(
+                config_dict,
+                num_top,
+                model_name,
+                class_names,
+                feature_names,
+                data,
+                shap_values_selected,
             )
 
             summary_SHAPdotplot_perclass(
@@ -1212,14 +1363,28 @@ def shap_plots(
 
             # Plot abundance bar plot feature from SHAP
             class_names = []
-            objects, abundance, shap_values_mean_sorted = utils.compute_average_abundance_top_features(
-                config_dict, num_top, model_name, class_names, feature_names, data, shap_values_selected
+            (
+                objects,
+                abundance,
+                shap_values_mean_sorted,
+            ) = utils.compute_average_abundance_top_features(
+                config_dict,
+                num_top,
+                model_name,
+                class_names,
+                feature_names,
+                data,
+                shap_values_selected,
             )
 
         # Displaying the average percentage %
         abundance = np.asarray(abundance) / 10
 
-        d = {"Features": objects, "SHAP values": shap_values_mean_sorted, "Average abundance": list(abundance)}
+        d = {
+            "Features": objects,
+            "SHAP values": shap_values_mean_sorted,
+            "Average abundance": list(abundance),
+        }
 
         fname = f"{experiment_folder / 'results' / 'top_features_AbsMeanSHAP_Abundance'}_{data_forexplanations}_{model_name}"
         fname += "_holdout" if holdout else ""
@@ -1760,5 +1925,8 @@ if __name__ == "__main__":
     # save time profile information
     pr.disable()
     csv = data_processing.prof_to_csv(pr)
-    with open(f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv", "w+") as f:
+    with open(
+        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        "w+",
+    ) as f:
         f.write(csv)

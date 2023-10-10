@@ -9,3 +9,4 @@ Change log for the codebase. Initialised from the developments following version
     - Creation of feature selection mode for AO
     - max_features kwarg added for feature selection
     - moved source code into an src folder & modified dockerfile
+    - created utils subfolder
