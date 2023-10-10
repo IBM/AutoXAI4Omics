@@ -20,13 +20,8 @@ RUN useradd -l -m -s /bin/bash --uid ${USER_ID} -g 0 omicsuser
 
 WORKDIR /home/omicsuser
 
-# Copy in required files
-COPY *.py ./
 # grant write permissions to these folders
-COPY --chown=omicsuser:0 tabauto ./tabauto 
-COPY --chown=omicsuser:0 omics ./omics
-
-COPY logging.yml ./
+COPY --chown=omicsuser:0 src .
 
 # Install required Python packages use block below if fixing other packages for the first time, use other
 COPY requirements.txt .
