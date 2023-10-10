@@ -11,3 +11,4 @@ Change log for the codebase. Initialised from the developments following version
     - moved source code into an src folder & modified dockerfile
     - created utils subfolder
     - created models subfolder
+    - added in structure.md within ./src to explain the structure format adopted
