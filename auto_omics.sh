@@ -2,6 +2,7 @@
 set -x
 
 ROOT=''
+DETACH=''
 GPU=''
 CONFIG=''
 MODE=''
@@ -9,7 +10,7 @@ VOL_MAPS="-v ${PWD}/configs:/configs -v ${PWD}/data:/data -v ${PWD}/experiments:
 
 echo "Getting flags"
 #get variables from input
-while getopts 'm:c:rg' OPTION; do
+while getopts 'm:c:rgd' OPTION; do
     case "$OPTION" in
         m) 
             case "${OPTARG}" in
@@ -49,8 +50,12 @@ while getopts 'm:c:rg' OPTION; do
             echo "Setting gpus access"
             GPU='--gpus all -ti'
             ;;
+        d)
+            echo "Registering container detachment"
+            DETACH='-d'
+            ;;
         ?)
-          echo "script usage: $(basename \$0) [-m] [-c] [-p] [-r] [-g]" >&2
+          echo "script usage: $(basename \$0) [-m] [-c] [-p] [-r] [-g] [-d]" >&2
           exit 1
           ;;
     esac
@@ -81,6 +86,7 @@ if [ $MODE != "bash" ]
 then
     docker run \
       --rm \
+      $DETACH \
       $GPU \
       $VOL_MAPS \
       $IMAGE_FULL \

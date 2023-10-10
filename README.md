@@ -57,6 +57,7 @@ The tool is launched in the cli using `auto_omics.sh` which has multiple flags, 
   * `bash` - Use to open up a bash shell into the tool
 * `-c` this is the filename of the config json within the `Auto-Omics/configs` folder that is going to be given to auto_omics
 * `-r` this sets the contain to run as root. Only possibly required if you are running in `bash` mode
+* `-d` this detatches the cli running the container in the background
 * `-g` this specifies if you want auto_omics to use the gpus that are available on the machine (UNDER TESTING)
 
 Data to be used by Auto-Omics needs to be stored in the `Auto-Omics/data` folder.
