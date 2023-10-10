@@ -44,7 +44,7 @@ import cProfile
 
 ##########
 import utils.data_processing as dp
-import plotting
+import mode_plotting
 import logging
 
 ##########
@@ -114,7 +114,7 @@ if __name__ == "__main__":
         omicLogger.info("Scorers extracted. Defining plots...")
 
         # See what plots are defined
-        plot_dict = plotting.define_plots(config_dict["ml"]["problem_type"])
+        plot_dict = mode_plotting.define_plots(config_dict["ml"]["problem_type"])
 
         # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
         # So set that up here
@@ -188,7 +188,7 @@ if __name__ == "__main__":
 
         omicLogger.debug("Begin plotting graphs")
         # Central func to define the args for the plots
-        plotting.plot_graphs(
+        mode_plotting.plot_graphs(
             config_dict,
             experiment_folder,
             features_names,

@@ -15,19 +15,19 @@ while getopts 'm:c:rgd' OPTION; do
         m) 
             case "${OPTARG}" in
                 "train")
-                    MODE=train_models.py
+                    MODE=mode_train_models.py
                     ;;
                 "test")
-                    MODE=testing_holdout.py
+                    MODE=mode_testing_holdout.py
                     ;;
                 "predict")
-                    MODE=predict.py
+                    MODE=mode_predict.py
                     ;;
                 "plotting")
-                    MODE=plotting.py
+                    MODE=mode_plotting.py
                     ;;
                 "feature")
-                    MODE=feature_selection.py
+                    MODE=mode_feature_selection.py
                     ;;
                 "bash")
                     MODE=bash

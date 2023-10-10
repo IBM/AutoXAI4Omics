@@ -16,7 +16,7 @@ import joblib
 import pandas as pd
 import shap
 import models.models as models
-import plotting
+import mode_plotting
 from models.custom_model import CustomModel, TabAuto
 
 # import calour as ca
@@ -141,7 +141,7 @@ def check_config(config_dict):
 
     # Check the plotting params if we're using them
     if config_dict["plotting"]["plot_method"] is not None:
-        plot_dict = plotting.define_plots(config_dict["ml"]["problem_type"])
+        plot_dict = mode_plotting.define_plots(config_dict["ml"]["problem_type"])
         check_keys(config_dict["plotting"]["plot_method"], plot_dict)
 
     # Mac problem with xgboost and openMP

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import models.models as models
 import utils.utils as utils
-import plotting
+import mode_plotting
 import utils.data_processing as dp
 
 ##########
@@ -173,11 +173,11 @@ def main(config_dict, config_path):
         # Plot some graphs
         if config_dict["plotting"]["plot_method"] is not None:
             # See what plots are defined
-            plot_dict = plotting.define_plots(config_dict["ml"]["problem_type"])
+            plot_dict = mode_plotting.define_plots(config_dict["ml"]["problem_type"])
 
             omicLogger.info("Plots defined. Begin plotting graphs...")
             # Central func to define the args for the plots
-            plotting.plot_graphs(
+            mode_plotting.plot_graphs(
                 config_dict,
                 experiment_folder,
                 features_names,
