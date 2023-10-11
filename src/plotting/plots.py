@@ -7,8 +7,8 @@ from sklearn.model_selection import GroupShuffleSplit, KFold, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from models.custom_model import CustomModel
 import utils.load
-import utils.utils
-from mode_plotting import omicLogger
+
+# import utils.utils
 from utils.save import save_fig
 import seaborn as sns
 import eli5
@@ -16,12 +16,17 @@ import eli5
 import matplotlib.pyplot as plt
 from sklearn.metrics import auc, confusion_matrix, roc_curve
 
+from tensorflow.keras import backend as K
 
 import glob
 import time
 from itertools import cycle
 
 from utils.utils import pretty_names
+
+import logging
+
+omicLogger = logging.getLogger("OmicLogger")
 
 
 def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, holdout=False):
@@ -91,7 +96,7 @@ def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, ho
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def plot_model_performance(experiment_folder, data, metric, low, save=True):
@@ -127,7 +132,7 @@ def plot_model_performance(experiment_folder, data, metric, low, save=True):
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    utils.tidy_tf()
+    tidy_tf()
 
 
 def opt_k_plot(experiment_folder, sr_n, save=True):
@@ -153,7 +158,7 @@ def opt_k_plot(experiment_folder, sr_n, save=True):
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    utils.tidy_tf()
+    tidy_tf()
 
 
 def feat_acc_plot(experiment_folder, acc, save=True):
@@ -175,7 +180,7 @@ def feat_acc_plot(experiment_folder, acc, save=True):
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    utils.tidy_tf()
+    tidy_tf()
 
 
 def shap_force_plots(
@@ -341,7 +346,7 @@ def shap_force_plots(
                 plt.close()
                 # Clear everything
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def summary_SHAPdotplot_perclass(
@@ -653,7 +658,7 @@ def shap_plots(
             plt.clf()
             plt.close()
             # Clear keras and TF sessions/graphs etc.
-            utils.tidy_tf()
+            tidy_tf()
 
         # Regression
         else:
@@ -705,7 +710,7 @@ def shap_plots(
             plt.clf()
             plt.close()
             # Clear keras and TF sessions/graphs etc.
-            utils.tidy_tf()
+            tidy_tf()
 
             #  #Produce and save dot plot for regression
 
@@ -735,7 +740,7 @@ def shap_plots(
             plt.close()
 
             # Clear keras and TF sessions/graphs etc.
-            utils.tidy_tf()
+            tidy_tf()
 
             # Plot abundance bar plot feature from SHAP
             class_names = []
@@ -791,7 +796,7 @@ def shap_plots(
         plt.close()
 
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def permut_importance(
@@ -915,7 +920,7 @@ def permut_importance(
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def joint_plot(
@@ -1003,7 +1008,7 @@ def joint_plot(
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name, save=True, holdout=False):
@@ -1053,7 +1058,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=True, holdout=False):
@@ -1096,7 +1101,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
         plt.close()
 
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def correlation_plot(
@@ -1157,7 +1162,7 @@ def correlation_plot(
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def conf_matrix_plot(
@@ -1242,7 +1247,7 @@ def conf_matrix_plot(
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def shap_summary_plot(
@@ -1310,7 +1315,7 @@ def shap_summary_plot(
         plt.close()
 
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
 
 
 def barplot_scorer(
@@ -1346,7 +1351,7 @@ def barplot_scorer(
         score = np.abs(scorer_dict[config_dict["ml"]["fit_scorer"]](model, data, true_labels))
         all_scores.append(score)
         # Clear keras and TF sessions/graphs etc.
-        utils.tidy_tf()
+        tidy_tf()
     pretty_model_names = [pretty_names(name, "model") for name in config_dict["ml"]["model_list"]]
     # Make the barplot
     sns.barplot(x=pretty_model_names, y=all_scores, ax=ax)
@@ -1368,7 +1373,7 @@ def barplot_scorer(
     plt.close()
 
     # Clear keras and TF sessions/graphs etc.
-    utils.tidy_tf()
+    tidy_tf()
 
 
 def boxplot_scorer_cv_groupby(
@@ -1475,7 +1480,7 @@ def boxplot_scorer_cv_groupby(
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    utils.tidy_tf()
+    tidy_tf()
 
 
 def boxplot_scorer_cv(
@@ -1584,7 +1589,7 @@ def boxplot_scorer_cv(
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    utils.tidy_tf()
+    tidy_tf()
 
 
 def create_fig(nrows=1, ncols=1, figsize=None):
@@ -1631,3 +1636,7 @@ def define_plots(problem_type):
             "joint_dens": joint_plot,
         }
     return plot_dict
+
+
+def tidy_tf():
+    K.clear_session()

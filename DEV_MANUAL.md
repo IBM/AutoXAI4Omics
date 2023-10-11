@@ -15,7 +15,7 @@ In `plotting.py`, the `define_plots()` function at the top specifies which plott
 ​
 The function itself then needs to be added to the `plot_graphs()` function with the relevant arguments. Some functions have been duplicated here with different arguments for easy access via the alias (allowing multiple calls to the same function from a single config file call).
 ​
-For plots that load a Tensorflow or Keras model, after that model is used you will need to call `utils.tidy_tf()` to ensure that there is no lingering session or graph. This is called after every plot function, but when loading multiple Tensorflow models this will need to be called inside the plotting function.
+For plots that load a Tensorflow or Keras model, after that model is used you will need to call `tidy_tf()` to ensure that there is no lingering session or graph. This is called after every plot function, but when loading multiple Tensorflow models this will need to be called inside the plotting function.
 ​
 All plotting functions have a save argument to allow plots to be shown on the screen or saved, though this defaults to `True`. For uniform parameters, when saving use the `save_fig()` function that calls the usual `fig.savefig` function in matplotlib. When loading models, do this through the `utils.load_model()` function. For defining the saving and loading for a _CustomModel_, see the section below about adding models.
 ​

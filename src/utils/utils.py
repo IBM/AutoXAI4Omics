@@ -7,15 +7,13 @@
 from pathlib import Path
 import argparse
 import numpy as np
-from tensorflow.keras import backend as K
 
 # import scipy.sparse
 # from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 import pandas as pd
 import shap
-import models.models as models
-import mode_plotting
-from models.custom_model import CustomModel, TabAuto
+
+from models.custom_model import CustomModel
 
 # import calour as ca
 from datetime import datetime
@@ -318,10 +316,6 @@ def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
     exemplar_X_test = np.array(exemplar_X_test)
 
     return exemplar_X_test
-
-
-def tidy_tf():
-    K.clear_session()
 
 
 def create_parser():

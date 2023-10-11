@@ -3,7 +3,9 @@ import joblib
 
 import pandas as pd
 
-from mode_plotting import omicLogger
+import logging
+
+omicLogger = logging.getLogger("OmicLogger")
 
 
 def save_config(experiment_folder, config_path, config_dict):

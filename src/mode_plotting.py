@@ -18,7 +18,7 @@ import matplotlib.image as mp_img
 from sklearn.model_selection import cross_val_score
 import models.models as models
 from plotting.plots import define_plots
-import utils.load
+import plotting.plots
 import utils.utils as utils
 from models.custom_model import CustomModel
 from sklearn.metrics import (
@@ -177,7 +177,7 @@ def plot_graphs(
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    utils.tidy_tf()
+    plotting.plots.tidy_tf()
 
 
 if __name__ == "__main__":
