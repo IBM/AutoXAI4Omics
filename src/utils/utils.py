@@ -121,42 +121,6 @@ def save_config(experiment_folder, config_path, config_dict):
         json.dump(config_dict, outfile, indent=4)
 
 
-def check_config(config_dict):
-    """
-    Running models can be expensive - let's check that the parameters are valid before wasting time!
-    """
-    # Check that all the chosen models are defined
-    model_dict = models.define_models(config_dict["ml"]["problem_type"], config_dict["ml"]["hyper_tuning"])
-    check_keys(config_dict["ml"]["model_list"], model_dict)
-
-    # Check that the chosen scorers (e.g. accuracy) are defined
-    scorer_dict = models.define_scorers(config_dict["ml"]["problem_type"])
-    check_keys(config_dict["ml"]["scorer_list"], scorer_dict)
-
-    # Check that the fit_scorer is used in scorer_list (otherwise the randomsearch throws an error)
-    if config_dict["ml"]["fit_scorer"] not in config_dict["ml"]["scorer_list"]:
-        raise ValueError(
-            f"The fit_scorer must be one of the scorers provided ({config_dict['ml']['fit_scorer']} is not in {config_dict['ml']['scorer_list']})"
-        )
-
-    # Check the plotting params if we're using them
-    if config_dict["plotting"]["plot_method"] is not None:
-        plot_dict = mode_plotting.define_plots(config_dict["ml"]["problem_type"])
-        check_keys(config_dict["plotting"]["plot_method"], plot_dict)
-
-    # Mac problem with xgboost and openMP
-    if "xgboost" in config_dict["ml"]["model_list"]:
-        # Fix for an issue with XGBoost and MacOSX
-        import os
-
-        # Check if we're running MacOSX
-        try:
-            if os.uname()[0] == "Darwin":
-                os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-        except:
-            print("Assuming windows")
-
-
 def create_experiment_folders(config_dict, config_path):
     """
     Create the folder for the given config and the relevant subdirectories
@@ -481,7 +445,6 @@ def initial_setup(args):
     # config_path = args.config
     config_dict = load_config(config_path)
     # Validate the provided config
-    # check_config(config_dict)
     import utils.parsers as parsers
 
     config_dict = parsers.parse_config(config_dict)

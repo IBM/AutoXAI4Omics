@@ -344,14 +344,18 @@ class FixedKeras(TabAuto):
         """
         Define underlying mode/method
         """
-        from tabauto.keras_model import KerasModel
+        from models.tabauto.keras_model import KerasModel
 
         num_inputs = self.n_dims
         num_outputs = self.n_classes
         dataset_type = self.config_dict["problem_type"]
 
         model = KerasModel(
-            num_inputs, num_outputs, dataset_type=dataset_type, method="train_dnn_keras", random_state=self.random_state
+            num_inputs,
+            num_outputs,
+            dataset_type=dataset_type,
+            method="train_dnn_keras",
+            random_state=self.random_state,
         )
 
         # Assign the model
@@ -466,7 +470,7 @@ class AutoKeras(TabAuto):
         """
         Define underlying mode/method
         """
-        from tabauto.keras_model import KerasModel
+        from models.tabauto.keras_model import KerasModel
 
         num_inputs = self.n_dims
         num_outputs = self.n_classes
@@ -597,7 +601,7 @@ class AutoSKLearn(TabAuto):
         """
         Define underlying mode/method
         """
-        from tabauto.sklearn_model import SKLearnModel
+        from models.tabauto.sklearn_model import SKLearnModel
 
         num_inputs = self.n_dims
         num_outputs = self.n_classes
@@ -710,7 +714,7 @@ class AutoLGBM(TabAuto):
         """
         Define underlying mode/method
         """
-        from tabauto.lgbm_model import LGBMModel
+        from models.tabauto.lgbm_model import LGBMModel
 
         num_inputs = self.n_dims
         num_outputs = self.n_classes
@@ -823,7 +827,7 @@ class AutoXGBoost(TabAuto):
         """
         Define underlying mode/method
         """
-        from tabauto.xgboost_model import XGBoostModel
+        from models.tabauto.xgboost_model import XGBoostModel
 
         num_inputs = self.n_dims
         num_outputs = self.n_classes
@@ -925,7 +929,7 @@ class AutoXGBoost(TabAuto):
 #         """
 #         Define underlying mode/method
 #         """
-#         from tabauto.autogluon_model import AutogluonModel
+#         from models.tabauto.autogluon_model import AutogluonModel
 
 #         num_inputs = self.n_dims
 #         num_outputs = self.n_classes
