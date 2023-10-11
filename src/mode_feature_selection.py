@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
 import pandas as pd
+import utils.load
 import utils.utils as utils
 import utils.data_processing as dp
 
@@ -30,7 +31,7 @@ def main(config_dict, config_path):
         omicLogger.info("Loading data...")
 
         # read the data
-        x, y, features_names = dp.load_data(config_dict)
+        x, y, features_names = utils.load.load_data(config_dict)
         omicLogger.info("Data Loaded. Splitting data...")
 
         if len(x.index.unique()) != x.shape[0]:

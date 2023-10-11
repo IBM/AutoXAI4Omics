@@ -23,3 +23,4 @@ Change log for the codebase. Initialised from the developments following version
     - removed exit() calls
     - bugfixes
     - extracted save funcs from models into utils.save
+    - extracted load funcs from data_processing into utils.load

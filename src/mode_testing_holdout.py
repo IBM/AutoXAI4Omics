@@ -70,7 +70,7 @@ if __name__ == "__main__":
     try:
         omicLogger.info("Loading data...")
 
-        x_heldout, y_heldout, features_names = dp.load_data(config_dict, load_holdout=None)
+        x_heldout, y_heldout, features_names = utils.load.load_data(config_dict, load_holdout=None)
         omicLogger.info("Heldout Data Loaded. Loading test/train data...")
 
         x_df = pd.read_csv(experiment_folder / "transformed_model_input_data.csv", index_col=0)
