@@ -14,10 +14,11 @@ Change log for the codebase. Initialised from the developments following version
     - added in structure.md within ./src to explain the structure format adopted
     - renamed mode scripts to have a `mode_` pre-fix
     - added extra assertion in mode checks
-    - removed redundant `check_config`, `check_keys`
+    - removed redundant `check_config`, `check_keys`, `load_params_json`
     - refactored `plot_graphs` to remove unnessicary `plot_dict` var
     - extracted load funcs from utils into own file
     - extracted save funcs from utils into own file
     - extracted util funcs from `mode_plotting` into respective files
     - extracted plotting funcs from `mode_plotting` into own files
     - removed exit() calls
+    - bugfixes

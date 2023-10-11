@@ -65,69 +65,6 @@ omicLogger = logging.getLogger("OmicLogger")
 
 
 ########## LOAD/DEFINE ##########
-def load_params_json(fpath):
-    """
-    Function to load and process parameters for random search defined in a JSON
-
-    N.B.: This has since been replaced by defining them in a separate Python script
-    """
-    omicLogger.debug("Load parameters from json (Redundant?)...")
-    # First load the JSON file in as a dict
-    print(fpath)
-    try:
-        with open(fpath) as json_file:
-            param_dict = json.load(json_file)
-    except JSONDecodeError:
-        print(f"File {fpath} not found or not a valid JSON file")
-        raise
-    # Separate container to avoid issues
-    param_ranges = {}
-    # Loop over the items in the JSON file
-    for key, value in param_dict.items():
-        if key == "extras":
-            continue
-        # If it's a list, create the range of values
-        if isinstance(value, list):
-            # Create a range if specified
-            if value[0] == "range":
-                value = value[1:]
-                # Get a range of values (but cast to int if they're ints)
-                if isinstance(value[0], int):
-                    start, stop, num_vals = value
-                    param_ranges[key] = [int(i) for i in np.linspace(start, stop, num=num_vals)]
-                # Same as above but using gloats
-                elif isinstance(value[0], float):
-                    start, stop, num_vals = value
-                    param_ranges[key] = [float(i) for i in np.linspace(start, stop, num=num_vals)]
-            # Nothing needs to be done with a list of strings
-            elif isinstance(value[0], (str, int, float)):
-                param_ranges[key] = value
-            else:
-                raise TypeError(f"{value} of type {type(value)} is not a valid parameter in a list")
-        # Single values can be assigned
-        elif isinstance(value, (int, float, str)):
-            # May need to cast this to a list just so we can add args (the 'extras') with ease
-            # Should not effect RandomizedSearchCV
-            param_ranges[key] = value
-        else:
-            raise TypeError(f"{value} of type {type(value)} is not a valid parameter")
-    # Extras is useful for when you mix 'None' values with numerical ranges
-    if "extras" in param_dict:
-        extras = param_dict["extras"]
-        # If there are extra arguments then add them here
-        for key, values in extras.items():
-            try:
-                print(key, param_ranges)
-                param_ranges[key].extend(values)
-            except KeyError:
-                print(f"{key} does not exist in {param_ranges}")
-                raise
-            except AttributeError:
-                print(f"Cannot add extra args to {key} with value {values}")
-                raise
-    return param_ranges
-
-
 def define_scorers(problem_type):
     """
     Define the different measures we can use
