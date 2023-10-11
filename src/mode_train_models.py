@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import models.models as models
 import utils.load
-import utils.utils as utils
+import utils.utils
 import mode_plotting
 import utils.data_processing as dp
 
@@ -25,7 +25,12 @@ def main():
     pr.enable()
 
     # Do the initial setup
-    config_path, config_dict, experiment_folder, omicLogger = utils.initial_setup()
+    (
+        config_path,
+        config_dict,
+        experiment_folder,
+        omicLogger,
+    ) = utils.utils.initial_setup()
 
     try:
         omicLogger.info("Loading data...")
@@ -193,7 +198,7 @@ def main():
             config_dict["ml"]["fit_scorer"],
             config_dict.get("microbiome", {}).get("collapse_tax"),
         )
-        utils.copy_best_content(
+        utils.utils.copy_best_content(
             experiment_folder,
             best_models,
             config_dict.get("microbiome", {}).get("collapse_tax"),

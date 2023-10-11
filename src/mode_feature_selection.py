@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import utils.load
-import utils.utils as utils
+import utils.utils
 import utils.data_processing as dp
 
 ##########
@@ -23,7 +23,12 @@ def main():
     pr.enable()
 
     # Do the initial setup
-    config_path, config_dict, experiment_folder, omicLogger = utils.initial_setup()
+    (
+        config_path,
+        config_dict,
+        experiment_folder,
+        omicLogger,
+    ) = utils.utils.initial_setup()
 
     try:
         omicLogger.info("Loading data...")
