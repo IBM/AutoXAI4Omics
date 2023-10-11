@@ -3,6 +3,8 @@ import joblib
 
 import pandas as pd
 
+from mode_plotting import omicLogger
+
 
 def save_config(experiment_folder, config_path, config_dict):
     """
@@ -56,3 +58,15 @@ def save_explainer(experiment_folder, model_name, explainer):
     save_name = f"{experiment_folder / 'models' / 'explainers' / 'shap'}_{model_name}.pkl"
     with open(save_name, "wb") as f:
         joblib.dump(explainer, f)
+
+
+def save_fig(fig, fname, dpi=200, fig_format="png"):
+    omicLogger.debug(f"Saving figure ({fname})to file...")
+    print(f"Save location: {fname}.{fig_format}")
+    fig.savefig(
+        f"{fname}.{fig_format}",
+        dpi=dpi,
+        format=fig_format,
+        bbox_inches="tight",
+        transparent=False,
+    )

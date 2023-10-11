@@ -18,3 +18,4 @@ Change log for the codebase. Initialised from the developments following version
     - refactored `plot_graphs` to remove unnessicary `plot_dict` var
     - extracted load funcs from utils into own file
     - extracted save funcs from utils into own file
+    - extracted util funcs from `mode_plotting` into respective files

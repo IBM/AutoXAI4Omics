@@ -26,6 +26,7 @@ import eli5
 import time
 import models.models as models
 import utils.load
+from utils.save import save_fig
 import utils.utils as utils
 from models.custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit
@@ -49,6 +50,8 @@ import cProfile
 # from data_processing import *
 import utils.data_processing as data_processing
 import logging
+
+from utils.utils import pretty_names
 
 omicLogger = logging.getLogger("OmicLogger")
 ##########
@@ -229,18 +232,6 @@ def plot_graphs(
     utils.tidy_tf()
 
 
-def save_fig(fig, fname, dpi=200, fig_format="png"):
-    omicLogger.debug(f"Saving figure ({fname})to file...")
-    print(f"Save location: {fname}.{fig_format}")
-    fig.savefig(
-        f"{fname}.{fig_format}",
-        dpi=dpi,
-        format=fig_format,
-        bbox_inches="tight",
-        transparent=False,
-    )
-
-
 def create_fig(nrows=1, ncols=1, figsize=None):
     """
     Universal call to subplots to allow consistent specification of e.g. figsize
@@ -248,40 +239,6 @@ def create_fig(nrows=1, ncols=1, figsize=None):
     omicLogger.debug("Creating figure canvas...")
     fig, ax = plt.subplots(nrows, ncols, figsize=figsize)
     return fig, ax
-
-
-def pretty_names(name, name_type):
-    omicLogger.debug("Fetching pretty names...")
-    model_dict = {
-        "rf": "RF",
-        "mlp_keras": "DeepNN",
-        "tab_auto": "TabAuto",
-        "autokeras": "A/Keras",
-        "fixedkeras": "Keras",
-        "autolgbm": "A/LGBM",
-        "autoxgboost": "A/XGB",
-        "autosklearn": "A/SKL",
-        "autogluon": "A/Gluon",
-        "svm": "SVM",
-        "knn": "KNN",
-        "xgboost": "XGBoost",
-        "adaboost": "AdaBoost",
-    }
-    score_dict = {
-        "acc": "Accuracy",
-        "f1": "F1-Score",
-        "mean_ae": "Mean Absolute Error",
-        "med_ae": "Median Absolute Error",
-        "rmse": "Root Mean Squared Error",
-        "mean_ape": "Mean Absolute Percentage Error",
-        "r2": "R^2",
-    }
-
-    if name_type == "model":
-        new_name = model_dict[name]
-    elif name_type == "score":
-        new_name = score_dict[name]
-    return new_name
 
 
 def boxplot_scorer_cv(
