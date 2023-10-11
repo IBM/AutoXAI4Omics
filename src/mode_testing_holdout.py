@@ -13,6 +13,7 @@ import pandas as pd
 # from sklearn.preprocessing import LabelEncoder
 import models.models as models
 import utils.load
+import utils.save
 import utils.utils
 from models.custom_model import CustomModel
 
@@ -157,7 +158,7 @@ if __name__ == "__main__":
 
             omicLogger.debug("Saving...")
             # Save the results
-            df_performance_results, fname_perfResults = models.save_results(
+            df_performance_results, fname_perfResults = utils.save.save_results(
                 results_folder,
                 df_performance_results,
                 performance_results_dict,

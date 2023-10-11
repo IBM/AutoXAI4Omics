@@ -22,3 +22,4 @@ Change log for the codebase. Initialised from the developments following version
     - extracted plotting funcs from `mode_plotting` into own files
     - removed exit() calls
     - bugfixes
+    - extracted save funcs from models into utils.save

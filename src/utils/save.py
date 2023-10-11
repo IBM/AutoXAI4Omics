@@ -4,6 +4,7 @@ import joblib
 import pandas as pd
 
 import logging
+from models.custom_model import CustomModel
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -74,3 +75,50 @@ def save_fig(fig, fname, dpi=200, fig_format="png"):
         bbox_inches="tight",
         transparent=False,
     )
+
+
+def save_results(
+    results_folder,
+    df,
+    score_dict,
+    model_name,
+    fname,
+    suffix=None,
+    save_pkl=False,
+    save_csv=True,
+):
+    """
+    Store the results of the latest model and save this to csv
+    """
+    omicLogger.debug("Save results to file...")
+
+    df = df.append(pd.Series(score_dict, name=model_name))
+    fname = str(results_folder / fname)
+    # Add a suffix to the filename if provided
+    if suffix is not None:
+        fname += suffix
+    # Save as a csv
+    if save_csv:
+        df.to_csv(fname + ".csv", index_label="model")
+    # Pickle using pandas internal access to it
+    if save_pkl:
+        df.to_pickle(fname + ".pkl")
+    return df, fname
+
+
+def save_model(experiment_folder, model, model_name):
+    """
+    Save a given model to the model folder
+    """
+    omicLogger.debug("Saving model...")
+    model_folder = experiment_folder / "models"
+    # THe CustomModels handle themselves
+    if model_name not in CustomModel.custom_aliases:
+        print(f"Saving {model_name} model")
+        save_name = model_folder / f"{model_name}_best.pkl"
+        with open(save_name, "wb") as f:
+            joblib.dump(model, f)
+    else:  # hat: added this
+        # print(f"Saving {model_name} model")
+        # save_name = model_folder / f"{model_name}_best.pkl"
+        model.save_model()

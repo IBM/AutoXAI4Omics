@@ -36,7 +36,6 @@ from sklearn.metrics import (
 import sklearn.metrics as skm
 from sklearn.preprocessing import normalize
 
-import joblib
 from xgboost import XGBClassifier, XGBRegressor
 
 import models.model_params as model_params
@@ -51,6 +50,8 @@ from models.custom_model import (
 )  # , AutoGluon
 
 import logging
+from utils.save import save_results
+from utils.save import save_model
 
 
 from utils.utils import copy_best_content
@@ -176,54 +177,6 @@ def define_models(problem_type, hyper_tuning):
         )
         # model_dict["autogluon"] = (AutoGluon, model_params.single_model['autogluon'])
     return model_dict
-
-
-########## SAVE ##########
-def save_results(
-    results_folder,
-    df,
-    score_dict,
-    model_name,
-    fname,
-    suffix=None,
-    save_pkl=False,
-    save_csv=True,
-):
-    """
-    Store the results of the latest model and save this to csv
-    """
-    omicLogger.debug("Save results to file...")
-
-    df = df.append(pd.Series(score_dict, name=model_name))
-    fname = str(results_folder / fname)
-    # Add a suffix to the filename if provided
-    if suffix is not None:
-        fname += suffix
-    # Save as a csv
-    if save_csv:
-        df.to_csv(fname + ".csv", index_label="model")
-    # Pickle using pandas internal access to it
-    if save_pkl:
-        df.to_pickle(fname + ".pkl")
-    return df, fname
-
-
-def save_model(experiment_folder, model, model_name):
-    """
-    Save a given model to the model folder
-    """
-    omicLogger.debug("Saving model...")
-    model_folder = experiment_folder / "models"
-    # THe CustomModels handle themselves
-    if model_name not in CustomModel.custom_aliases:
-        print(f"Saving {model_name} model")
-        save_name = model_folder / f"{model_name}_best.pkl"
-        with open(save_name, "wb") as f:
-            joblib.dump(model, f)
-    else:  # hat: added this
-        # print(f"Saving {model_name} model")
-        # save_name = model_folder / f"{model_name}_best.pkl"
-        model.save_model()
 
 
 ########## EVALUATE ##########
