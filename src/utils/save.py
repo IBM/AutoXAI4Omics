@@ -36,7 +36,8 @@ def save_exemplars_SHAP_values(
             fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_{fold_id}"
             df_exemplars.to_csv(fname_exemplars + ".txt")
 
-        # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices. One for each class.
+        # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices.
+        # One for each class.
         else:
             print(type(exemplars_selected))
             print(len(exemplars_selected))
@@ -46,7 +47,8 @@ def save_exemplars_SHAP_values(
                 print("Class: " + str(i))
                 print("Class name: " + str(class_names[i]))
                 df_exemplars = pd.DataFrame(data=exemplars_selected[i], columns=feature_names)
-                fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_{class_names[i]}_{i}_{fold_id}"
+                fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_\
+                    {class_names[i]}_{i}_{fold_id}"
                 df_exemplars.to_csv(fname_exemplars + ".txt")
 
     # Deal with regression

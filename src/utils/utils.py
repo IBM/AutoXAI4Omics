@@ -218,7 +218,8 @@ def compute_average_abundance_top_features(
         if model_name == "xgboost" and len(class_names) == 2:
             feature_order = np.argsort(np.mean(np.abs(shap_values_selected), axis=0))
             shap_values_mean_sorted = np.flip(np.sort(np.mean(np.abs(shap_values_selected), axis=0)))
-        # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices. One for each class.
+        # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices.
+        # One for each class.
         else:
             print(type(shap_values_selected))
             print(len(shap_values_selected))
@@ -359,13 +360,8 @@ def setup_logger(experiment_folder):
         experiment_folder / f"AutoOmicLog_{str(int(datetime.timestamp(datetime.utcnow())))}.log"
     )
     logging.config.dictConfig(lg_file)
-
-    # formatter = logging.Formatter('%(name)s - %(asctime)s - %(filename)s - %(funcName)s() - %(levelname)s : %(message)s')
-    # fh = logging.FileHandler(filename=str(experiment_folder/f'AutoOmicLog_{str(int(datetime.timestamp(datetime.utcnow())))}.log'),mode='a')
-    # fh.setFormatter(formatter)
     omicLogger = logging.getLogger("OmicLogger")
     # omicLogger.setLevel(logging.DEBUG)
-    # omicLogger.addHandler(fh)
     omicLogger.info("OmicLogger initialised")
 
     return omicLogger
@@ -373,7 +369,8 @@ def setup_logger(experiment_folder):
 
 def low_metric_objective(metric):
     """
-    Given a metric will return a bool representing wether the objective for the metric is as low as possible (True) or high as possible (False)
+    Given a metric will return a bool representing wether the objective for the metric is as low as possible (True) or
+    high as possible (False)
     """
     omicLogger.debug("Getting metric objective (High vs Low)...")
 

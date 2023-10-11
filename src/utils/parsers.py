@@ -32,7 +32,8 @@ def parser_plotting(plotting_entry, problem):
 
         if not given_opts.issubset(max_opts):
             raise ValueError(
-                f'Non-valid plot options given for plot_method: {",".join(list(given_opts-max_opts))}. Possible options: {max_opts}'
+                f'Non-valid plot options given for plot_method: {",".join(list(given_opts-max_opts))}. Possible options\
+                    : {max_opts}'
             )
 
     # check to see if permut_imp_test is correctly configured
@@ -420,7 +421,8 @@ def parse_MLSettings(problemEntry):
 
         if not given_opts.issubset(max_opts):
             raise ValueError(
-                f'Non-valid options given for scorer_list: {",".join(list(given_opts-max_opts))}. Possible options: {max_opts}'
+                f'Non-valid options given for scorer_list: {",".join(list(given_opts-max_opts))}. Possible options: \
+                    {max_opts}'
             )
 
     max_opts = {
@@ -447,7 +449,8 @@ def parse_MLSettings(problemEntry):
             given_opts = set(problemEntry["model_list"])
             if not given_opts.issubset(max_opts):
                 raise ValueError(
-                    f'Non-valid options given for model_list: {",".join(list(given_opts-max_opts))}. Possible options: {max_opts}'
+                    f'Non-valid options given for model_list: {",".join(list(given_opts-max_opts))}. Possible options: \
+                        {max_opts}'
                 )
 
     if problemEntry["problem_type"] == "classification":
@@ -584,7 +587,8 @@ def parse_microbiome(omicEntry):
             type_check(omicEntry["collapse_tax"], str, "collapse_tax")
             if omicEntry["collapse_tax"] not in ["genus", "species"]:
                 raise ValueError(
-                    f'microbiome:collapse_tax option not valid: {omicEntry["collapse_tax"]}. Valid options: {["genus", "species"]}'
+                    f'microbiome:collapse_tax option not valid: {omicEntry["collapse_tax"]}. Valid options: \
+                        {["genus", "species"]}'
                 )
 
     if "min_reads" not in keys:
@@ -676,7 +680,8 @@ def parse_geneExpression(omicEntry):
             valid = ["FPKM", "RPKM", "TMM", "TPM", "Log2FC", "COUNTS", "OTHER"]
             if omicEntry["expression_type"] not in valid:
                 raise ValueError(
-                    f'geneExpression:expression_type option not valid: {omicEntry["expression_type"]}. Valid options: {valid}'
+                    f'geneExpression:expression_type option not valid: {omicEntry["expression_type"]}. Valid options: \
+                        {valid}'
                 )
 
     if "filter_sample" not in keys:
@@ -685,10 +690,10 @@ def parse_geneExpression(omicEntry):
         if omicEntry["filter_sample"] is not None:
             try:
                 type_check(omicEntry["filter_sample"], int, "filter_sample")
-            except:
+            except Exception:
                 try:
                     type_check(omicEntry["filter_sample"], float, "filter_sample")
-                except:
+                except Exception:
                     raise ValueError("filter_sample must be a int or a float >0")
             if omicEntry["filter_sample"] < 0:
                 raise ValueError("filter_sample must be greater than 0.")
@@ -741,14 +746,14 @@ def parse_metabolomic(omicEntry):
                     int,
                     "filter_metabolomic_sample",
                 )
-            except:
+            except Exception:
                 try:
                     type_check(
                         omicEntry["filter_metabolomic_sample"],
                         float,
                         "filter_metabolomic_sample",
                     )
-                except:
+                except Exception:
                     raise ValueError("filter_metabolomic_sample must be a int or a float >0")
             if omicEntry["filter_metabolomic_sample"] < 0:
                 raise ValueError("filter_metabolomic_sample must be greater than 0.")
@@ -797,14 +802,14 @@ def parse_tabular(omicEntry):
         if omicEntry["filter_tabular_sample"] is not None:
             try:
                 type_check(omicEntry["filter_tabular_sample"], int, "filter_tabular_sample")
-            except:
+            except Exception:
                 try:
                     type_check(
                         omicEntry["filter_tabular_sample"],
                         float,
                         "filter_tabular_sample",
                     )
-                except:
+                except Exception:
                     raise ValueError("filter_tabular_sample must be a int or a float >0")
             if omicEntry["filter_tabular_sample"] < 0:
                 raise ValueError("filter_tabular_sample must be greater than or equal to 0.")
