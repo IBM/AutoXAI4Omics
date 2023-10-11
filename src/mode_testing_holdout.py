@@ -25,6 +25,7 @@ import shap
 import eli5
 import time
 import models.models as models
+import utils.load
 import utils.utils as utils
 from models.custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit
@@ -152,7 +153,7 @@ if __name__ == "__main__":
 
             print(f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}")
             omicLogger.debug("Loading...")
-            model = utils.load_model(model_name, model_path)
+            model = utils.load.load_model(model_name, model_path)
 
             omicLogger.debug("Evaluating...")
             # Evaluate the best model using all the scores and CV

@@ -11,6 +11,7 @@ import glob
 import numpy as np
 import pandas as pd
 import models.models as models
+import utils.load
 import utils.utils as utils
 import utils.data_processing as dp
 import logging
@@ -113,7 +114,7 @@ if __name__ == "__main__":
 
         model_name = os.path.basename(model_path).split("_")[0]
         omicLogger.debug("Loading model...")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
 
         omicLogger.info("Predicting on data...")
         predictions = model.predict(x_to_predict)

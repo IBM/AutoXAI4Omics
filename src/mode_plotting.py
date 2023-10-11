@@ -25,6 +25,7 @@ import shap
 import eli5
 import time
 import models.models as models
+import utils.load
 import utils.utils as utils
 from models.custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit
@@ -333,7 +334,7 @@ def boxplot_scorer_cv(
 
             num_fold += 1
             # Load the model
-            model = utils.load_model(model_name, model_path)
+            model = utils.load.load_model(model_name, model_path)
             # Handle the custom model
             if isinstance(model, tuple(CustomModel.__subclasses__())):
                 # Remove the test data to avoid any saving
@@ -449,7 +450,7 @@ def boxplot_scorer_cv_groupby(
             print(f"{model_name}, fold {num_fold}")
             num_fold += 1
             # Load the model
-            model = utils.load_model(model_name, model_path)
+            model = utils.load.load_model(model_name, model_path)
             # Handle the custom model
             if isinstance(model, tuple(CustomModel.__subclasses__())):
                 # Remove the test data to avoid any saving
@@ -527,7 +528,7 @@ def barplot_scorer(
             exit()
 
         print(f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Get our single score
         score = np.abs(scorer_dict[config_dict["ml"]["fit_scorer"]](model, data, true_labels))
         all_scores.append(score)
@@ -581,7 +582,7 @@ def shap_summary_plot(
             exit()
 
         print(f"Plotting SHAP for {model_name}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Define the figure object
         fig, ax = plt.subplots()
         # Select the right explainer from SHAP
@@ -650,7 +651,7 @@ def conf_matrix_plot(
             exit()
 
         print(f"Plotting Confusion Matrix for {model_name}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
         # Calc the confusion matrix
@@ -736,7 +737,7 @@ def correlation_plot(
             exit()
 
         print(f"Plotting Correlation Plot for {model_name}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
         # Calc the confusion matrix
@@ -788,7 +789,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
             exit()
 
         print(f"Plotting histogram for {model_name}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
 
@@ -834,7 +835,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
             exit()
 
         print(f"Plotting histogram for {model_name}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
         # Left histograms
@@ -888,7 +889,7 @@ def joint_plot(
             exit()
 
         print(f"Plotting joint plot for {model_name}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
         sns.set(style="white")
@@ -993,7 +994,7 @@ def permut_importance(
         print("Model name")
         print(model_name)
 
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Select the scoring function
         scorer_func = scorer_dict[config_dict["ml"]["fit_scorer"]]
         # Handle the custom model
@@ -1124,7 +1125,7 @@ def shap_plots(
         print(f"Plotting SHAP plots for {model_name}")
         omicLogger.info(f"Plotting SHAP plots for {model_name}")
 
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
         explainer = utils.select_explainer(model, model_name, df_train, config_dict["ml"]["problem_type"])
@@ -1566,7 +1567,7 @@ def shap_force_plots(
             exit()
 
         print(f"Plotting SHAP for {model_name}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
         explainer = utils.select_explainer(model, model_name, df_train, config_dict["ml"]["problem_type"])
@@ -1793,7 +1794,7 @@ def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, ho
             exit()
 
         print(f"Plotting ROC Curve for {model_name}")
-        model = utils.load_model(model_name, model_path)
+        model = utils.load.load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict_proba(x_test)
 
