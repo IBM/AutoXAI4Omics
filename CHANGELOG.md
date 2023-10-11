@@ -17,3 +17,4 @@ Change log for the codebase. Initialised from the developments following version
     - removed redundant `check_config`, `check_keys`
     - refactored `plot_graphs` to remove unnessicary `plot_dict` var
     - extracted load funcs from utils into own file
+    - extracted save funcs from utils into own file

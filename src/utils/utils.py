@@ -5,14 +5,12 @@
 # --------------------------------------------------------------------------
 
 from pathlib import Path
-import json
 import argparse
 import numpy as np
 from tensorflow.keras import backend as K
 
 # import scipy.sparse
 # from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
-import joblib
 import pandas as pd
 import shap
 import models.models as models
@@ -27,6 +25,7 @@ import os
 import shutil
 
 from utils.load import load_config
+from utils.save import save_config
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -66,16 +65,6 @@ def unique_subjects(df):
 def remove_classes(class_col, contains="X"):
     # Deprecated! Keeping function here as replacement is specific to Calour - this is specific to Pandas
     return class_col[~class_col.str.contains(contains)]
-
-
-def save_config(experiment_folder, config_path, config_dict):
-    """
-    Save the config into the results folder for easy access (storage is cheap right?)
-    """
-    # Construct the file name
-    fname = experiment_folder / config_path.name
-    with open(fname, "w") as outfile:
-        json.dump(config_dict, outfile, indent=4)
 
 
 def create_experiment_folders(config_dict, config_path):
@@ -205,44 +194,6 @@ def select_explainer(model, model_name, df_train, problem_type):
 #     return num_exemplar
 
 
-def save_exemplars_SHAP_values(
-    config_dict,
-    experiment_folder,
-    feature_names,
-    model_name,
-    class_names,
-    exemplars_selected,
-    fold_id,
-):
-    # Deal with classification differently, classification has shap values for each class
-    # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
-    if config_dict["ml"]["problem_type"] == "classification":
-        # XGBoost for binary classification seems to return the SHAP values only for class 1
-        if model_name == "xgboost" and len(class_names) == 2:
-            df_exemplars = pd.DataFrame(data=exemplars_selected, columns=feature_names)
-            fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_{fold_id}"
-            df_exemplars.to_csv(fname_exemplars + ".txt")
-
-        # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices. One for each class.
-        else:
-            print(type(exemplars_selected))
-            print(len(exemplars_selected))
-            print(len(exemplars_selected) == len(class_names))
-
-            for i in range(len(exemplars_selected)):
-                print("Class: " + str(i))
-                print("Class name: " + str(class_names[i]))
-                df_exemplars = pd.DataFrame(data=exemplars_selected[i], columns=feature_names)
-                fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_{class_names[i]}_{i}_{fold_id}"
-                df_exemplars.to_csv(fname_exemplars + ".txt")
-
-    # Deal with regression
-    else:
-        df_exemplars = pd.DataFrame(data=exemplars_selected, columns=feature_names)
-        fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_{fold_id}"
-        df_exemplars.to_csv(fname_exemplars + ".txt")
-
-
 def compute_average_abundance_top_features(
     config_dict,
     num_top,
@@ -367,12 +318,6 @@ def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
     exemplar_X_test = np.array(exemplar_X_test)
 
     return exemplar_X_test
-
-
-def save_explainer(experiment_folder, model_name, explainer):
-    save_name = f"{experiment_folder / 'models' / 'explainers' / 'shap'}_{model_name}.pkl"
-    with open(save_name, "wb") as f:
-        joblib.dump(explainer, f)
 
 
 def tidy_tf():
