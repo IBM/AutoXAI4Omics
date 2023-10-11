@@ -4,28 +4,31 @@
 # (C) Copyright IBM Corp. 2019, 2020
 # --------------------------------------------------------------------------
 
-from pathlib import Path
-import re
-import pdb
-import pickle
+# from pathlib import Path
+# import re
+# import pdb
+# import pickle
 import numpy as np
-import scipy.sparse
+
+# import scipy.sparse
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-import matplotlib.ticker as ticker
-import matplotlib.image as mp_img
-from sklearn.model_selection import cross_val_score
+
+# import matplotlib.colors as colors
+# import matplotlib.ticker as ticker
+# import matplotlib.image as mp_img
+# from sklearn.model_selection import cross_val_score
 import models.models as models
 from plotting.plots import define_plots
 import plotting.plots
 import utils.utils as utils
 from models.custom_model import CustomModel
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-)
+
+# from sklearn.metrics import (
+#     accuracy_score,
+#     precision_score,
+#     recall_score,
+# )
 
 # import imblearn
 import cProfile
@@ -53,8 +56,9 @@ def plot_graphs(
     holdout=False,
 ):
     """
-    Plot graphs as specified by the config. Each plot function is handled separately to be explicit (at the cost of length and maintenance).
-    Here you can customize whether you want to graph on train or test based on what arguments are given for the data and labels.
+    Plot graphs as specified by the config. Each plot function is handled separately to be explicit (at the cost of
+    length and maintenance). Here you can customize whether you want to graph on train or test based on what arguments
+    are given for the data and labels.
     """
     omicLogger.debug("Defining graphs...")
     plot_dict = define_plots(config_dict["ml"]["problem_type"])
@@ -163,14 +167,17 @@ def plot_graphs(
             plot_func(experiment_folder, config_dict, x_test, y_test, holdout=holdout)
 
         # elif plot_method == "shap_force_plots":
-        #     plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train, data_forexplanations="all",
-        #                      top_exemplars=0.4, save=True)
+        #     plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train,
+        #                       data_forexplanations="all", top_exemplars=0.4, save=True)
         # elif plot_method == "permut_imp_alldata":
-        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict['plotting']["top_feats_permImp"], cv='prefit')
+        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y,
+        #                       config_dict['plotting']["top_feats_permImp"], cv='prefit')
         # elif plot_method == "permut_imp_train":
-        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train, config_dict['plotting']["top_feats_permImp"], cv='prefit')
+        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x_train, y_train,
+        #                       config_dict['plotting']["top_feats_permImp"], cv='prefit')
         # elif plot_method == "permut_imp_5cv":
-        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y, config_dict['plotting']["top_feats_permImp"], cv=5)
+        #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y,
+        #                       config_dict['plotting']["top_feats_permImp"], cv=5)
 
     omicLogger.debug("Plotting completed")
     # Clear everything

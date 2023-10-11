@@ -22,7 +22,12 @@ import glob
 import time
 from itertools import cycle
 
-from utils.utils import pretty_names
+from utils.utils import (
+    pretty_names,
+    select_explainer,
+    get_exemplars,
+    compute_average_abundance_top_features,
+)
 
 import logging
 
@@ -226,7 +231,7 @@ def shap_force_plots(
         model = utils.load.load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
-        explainer = utils.select_explainer(model, model_name, df_train, config_dict["ml"]["problem_type"])
+        explainer = select_explainer(model, model_name, df_train, config_dict["ml"]["problem_type"])
         shap_values = explainer.shap_values(data)
 
         # Handle classification and regression differently
@@ -506,10 +511,10 @@ def shap_plots(
         model = utils.load.load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
-        explainer = utils.select_explainer(model, model_name, df_train, config_dict["ml"]["problem_type"])
+        explainer = select_explainer(model, model_name, df_train, config_dict["ml"]["problem_type"])
 
         # Get the exemplars on the test set -- maybe to modify to include probability
-        exemplar_X_test = utils.get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel)
+        exemplar_X_test = get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel)
 
         # Compute SHAP values for desired data (either test set x_test, or exemplar_X_test or the entire dataset x)
         if data_forexplanations == "all":
@@ -632,7 +637,7 @@ def shap_plots(
                 objects,
                 abundance,
                 shap_values_mean_sorted,
-            ) = utils.compute_average_abundance_top_features(
+            ) = compute_average_abundance_top_features(
                 config_dict,
                 num_top,
                 model_name,
@@ -748,7 +753,7 @@ def shap_plots(
                 objects,
                 abundance,
                 shap_values_mean_sorted,
-            ) = utils.compute_average_abundance_top_features(
+            ) = compute_average_abundance_top_features(
                 config_dict,
                 num_top,
                 model_name,
