@@ -8,22 +8,24 @@ from pathlib import Path
 import glob
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import cross_val_score, KFold, StratifiedKFold, GroupKFold
-from sklearn.preprocessing import LabelEncoder
+
+# from sklearn.model_selection import cross_val_score, KFold, StratifiedKFold, GroupKFold
+# from sklearn.preprocessing import LabelEncoder
 import models.models as models
 import utils.load
-import utils.utils as utils
+import utils.utils
 from models.custom_model import CustomModel
-from sklearn.model_selection import GroupShuffleSplit
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    confusion_matrix,
-    make_scorer,
-)
-import sklearn.metrics as skm
+
+# from sklearn.model_selection import GroupShuffleSplit
+# from sklearn.metrics import (
+#     accuracy_score,
+#     precision_score,
+#     recall_score,
+#     f1_score,
+#     confusion_matrix,
+#     make_scorer,
+# )
+# import sklearn.metrics as skm
 
 # import imblearn
 import joblib
@@ -43,13 +45,13 @@ if __name__ == "__main__":
     Uses the config in the same way as when giving it to run_models.py.
     """
     # Load the parser
-    parser = utils.create_parser()
+    parser = utils.utils.create_parser()
 
     # Get the args
     args = parser.parse_args()
 
     # Do the initial setup
-    config_path, config_dict = utils.initial_setup(args)
+    config_path, config_dict = utils.utils.initial_setup(args)
 
     # init the profiler to time function executions
     pr = cProfile.Profile()
@@ -59,10 +61,10 @@ if __name__ == "__main__":
     np.random.seed(config_dict["ml"]["seed_num"])
 
     # Create the folders needed
-    experiment_folder = utils.create_experiment_folders(config_dict, config_path)
+    experiment_folder = utils.utils.create_experiment_folders(config_dict, config_path)
 
     # Set up process logger
-    omicLogger = utils.setup_logger(experiment_folder)
+    omicLogger = utils.utils.setup_logger(experiment_folder)
 
     try:
         omicLogger.info("Loading data...")
