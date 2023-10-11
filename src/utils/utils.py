@@ -66,17 +66,6 @@ def remove_classes(class_col, contains="X"):
     return class_col[~class_col.str.contains(contains)]
 
 
-def check_keys(selection_list, def_dict):
-    """
-    Check that each key to be selected exists in the dict that defines them
-
-    Example use case is for our ML models - check that the ones we want to run have been defined
-    """
-    for name in selection_list:
-        if name not in def_dict:
-            raise KeyError(f"{name} is not a defined model in {def_dict}")
-
-
 def load_model(model_name, model_path):
     """
     Load a previously saved and trained model. Uses joblib's version of pickle.
