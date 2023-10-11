@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 import utils.load
-import utils.utils as utils
+import utils.utils
 import utils.data_processing as dp
 import logging
 import joblib
@@ -69,13 +69,13 @@ if __name__ == "__main__":
     Uses the config in the same way as when giving it to run_models.py.
     """
     # Load the parser
-    parser = utils.create_parser()
+    parser = utils.utils.create_parser()
 
     # Get the args
     args = parser.parse_args()
 
     # Do the initial setup
-    config_path, config_dict = utils.initial_setup(args)
+    config_path, config_dict = utils.utils.initial_setup(args)
 
     # init the profiler to time function executions
     pr = cProfile.Profile()
@@ -85,10 +85,10 @@ if __name__ == "__main__":
     np.random.seed(config_dict["ml"]["seed_num"])
 
     # Create the folders needed
-    experiment_folder = utils.create_experiment_folders(config_dict, config_path)
+    experiment_folder = utils.utils.create_experiment_folders(config_dict, config_path)
 
     # Set up process logger
-    omicLogger = utils.setup_logger(experiment_folder)
+    omicLogger = utils.utils.setup_logger(experiment_folder)
 
     try:
         omicLogger.info("Checking for Trained models")
