@@ -34,7 +34,7 @@ def test_modes(mode, problem_create):
     sp = subprocess.call(["./auto_omics.sh", "-m", mode, "-c", fname])
     assert sp == 0
 
-    with open(fname, "r") as infile:
+    with open(f"configs/{fname}", "r") as infile:
         config = json.load(infile)
     log_filepath = config["data"]["save_path"][1:] + f'results/{config["data"]["name"]}/AutoOmicLog_*'
     log_filepath = glob.glob(log_filepath)[-1]
@@ -141,7 +141,7 @@ def test_omic_datasets(mode, omic, problem):
     sp = subprocess.call(["./auto_omics.sh", "-m", mode, "-c", fname])
     assert sp == 0
 
-    with open(fname, "r") as infile:
+    with open(f"configs/{fname}", "r") as infile:
         config = json.load(infile)
     log_filepath = config["data"]["save_path"][1:] + f'results/{config["data"]["name"]}/AutoOmicLog_*'
     log_filepath = glob.glob(log_filepath)[-1]
