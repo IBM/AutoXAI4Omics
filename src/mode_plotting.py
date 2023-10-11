@@ -8,7 +8,6 @@
 # import re
 # import pdb
 # import pickle
-import numpy as np
 
 # import scipy.sparse
 import pandas as pd
@@ -199,16 +198,8 @@ if __name__ == "__main__":
     pr.enable()
 
     # Do the initial setup
-    config_path, config_dict = utils.initial_setup()
+    config_path, config_dict, experiment_folder, omicLogger = utils.initial_setup()
 
-    # Set the global seed
-    np.random.seed(config_dict["ml"]["seed_num"])
-
-    # Create the folders needed
-    experiment_folder = utils.create_experiment_folders(config_dict, config_path)
-
-    # Set up process logger
-    omicLogger = utils.setup_logger(experiment_folder)
     try:
         omicLogger.info("Loading data...")
 

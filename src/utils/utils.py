@@ -24,6 +24,7 @@ import shutil
 
 from utils.load import load_config
 from utils.save import save_config
+import utils.parsers as parsers
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -319,7 +320,7 @@ def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
     return exemplar_X_test
 
 
-def create_parser():
+def create_cli_parser():
     parser = argparse.ArgumentParser(description="Microbiome ML Framework")
     # Config argument
     parser.add_argument(
@@ -335,27 +336,41 @@ def all_subclasses(cls):
     return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
 
-def initial_setup():
+def get_config_path_from_cli():
     # Load the parser for command line (config files)
-    parser = create_parser()
+    cli_parser = create_cli_parser()
 
     # Get the args
-    args = parser.parse_args()
+    cli_args = cli_parser.parse_args()
 
     # Construct the config path
-    config_path = Path.cwd() / "configs" / args.config
-    # print(config_path)
-    # config_path = args.config
-    config_dict = load_config(config_path)
-    # Validate the provided config
-    import utils.parsers as parsers
+    config_path = Path.cwd() / "configs" / cli_args.config
+    return config_path
 
-    config_dict = parsers.parse_config(config_dict)
+
+def initial_setup():
+    # get the path to the config from cli
+    config_path = get_config_path_from_cli()
+    # load and parse the config located at the path
+    config_dict = parsers.parse_config(load_config(config_path))
 
     # Setup the CustomModel
-    # CustomModel.custom_aliases = {k.nickname: k for k in CustomModel.__subclasses__()}
     CustomModel.custom_aliases = {k.nickname: k for k in all_subclasses(CustomModel)}
-    return config_path, config_dict
+
+    # set the random seed
+    set_random_seed(config_dict["ml"]["seed_num"])
+
+    # create folders
+    experiment_folder = create_experiment_folders(config_dict, config_path)
+
+    # setup logger
+    omicLogger = setup_logger(experiment_folder)
+
+    return config_path, config_dict, experiment_folder, omicLogger
+
+
+def set_random_seed(seed: int):
+    np.random.seed(seed)
 
 
 def setup_logger(experiment_folder):
