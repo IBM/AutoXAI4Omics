@@ -1,4 +1,5 @@
 # import subprocess
+import plotting.plots
 import utils.utils as utils
 import pandas as pd
 import numpy as np
@@ -8,7 +9,6 @@ from sklearn.model_selection import GroupShuffleSplit, GroupKFold, train_test_sp
 from sklearn.pipeline import Pipeline
 import models.models as models
 import math
-import mode_plotting
 import logging
 
 import imblearn
@@ -470,7 +470,7 @@ def k_selector(experiment_folder, acc, top=True, low=True, save=True):
     else:
         sr_n = (sr[["r_m", "r_std"]] - sr[["r_m", "r_std"]].mean()) / sr[["r_m", "r_std"]].std()  # normalise the values
 
-        mode_plotting.opt_k_plot(experiment_folder, sr_n, save)
+        plotting.plots.opt_k_plot(experiment_folder, sr_n, save)
 
         if low:
             sr_n = sr_n - math.floor(
@@ -557,7 +557,7 @@ def auto_feat_selection(
         )
 
     # plot feat-acc
-    mode_plotting.feat_acc_plot(experiment_folder, acc, save)
+    plotting.plots.feat_acc_plot(experiment_folder, acc, save)
 
     print("Selecting optimum k")
     chosen_k = k_selector(

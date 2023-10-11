@@ -56,7 +56,7 @@ import logging
 from utils.utils import copy_best_content
 import os
 
-from mode_plotting import plot_model_performance
+from plotting.plots import plot_model_performance
 
 ##### Fix for each thread spawning its own GUI is to use 1 thread
 ##### Change this to n_jobs = -1 for all-core processing (when we get that working)
