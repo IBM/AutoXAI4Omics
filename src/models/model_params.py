@@ -16,7 +16,11 @@ sk_random = {
         "min_samples_leaf": [1, 2, 4],
         "bootstrap": [True, False],
     },
-    "svm": {"C": 10.0 ** np.arange(-4, 8), "gamma": 10.0 ** np.arange(-5, 5), "kernel": ["linear", "rbf"]},
+    "svm": {
+        "C": 10.0 ** np.arange(-4, 8),
+        "gamma": 10.0 ** np.arange(-5, 5),
+        "kernel": ["linear", "rbf"],
+    },
     "knn": {"n_neighbors": sp.randint(2, 20), "metric": ["euclidean", "manhattan"]},
     "adaboost": {"n_estimators": sp.randint(10, 200)},
     "xgboost": {
@@ -50,7 +54,11 @@ sk_grid = {
         "min_samples_leaf": [1, 2, 4],
         "bootstrap": [True, False],
     },
-    "svm": {"C": 10.0 ** np.arange(-3, 8), "gamma": 10.0 ** np.arange(-5, 4), "kernel": ["linear", "rbf"]},
+    "svm": {
+        "C": 10.0 ** np.arange(-3, 8),
+        "gamma": 10.0 ** np.arange(-5, 4),
+        "kernel": ["linear", "rbf"],
+    },
     "knn": {"n_neighbors": range(1, 21, 2), "metric": ["euclidean", "manhattan"]},
     "adaboost": {"n_estimators": range(50, 201, 50)},
     "xgboost": {

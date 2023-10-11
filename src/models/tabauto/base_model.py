@@ -53,13 +53,13 @@ class BaseModel:
     def best_params(self):
         try:
             return self.model.best_params_
-        except:
+        except Exception:
             return None
 
     def feature_importances(self):
         try:
             return self.model.feature_importances_
-        except:
+        except Exception:
             return None
 
     def summary(self):

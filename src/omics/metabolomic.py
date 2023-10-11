@@ -46,7 +46,11 @@ def get_data_metabolomic(config_dict, holdout=False):
     # omicLogger.debug('Loading Gene Expression data...')
 
     filtered_data, genestokeep = rrep.preprocessing_LO(
-        config_dict, filtergene1=filter_genes1, filtergene2=filter_genes2, filter_sample=filter_samples, holdout=holdout
+        config_dict,
+        filtergene1=filter_genes1,
+        filtergene2=filter_genes2,
+        filter_sample=filter_samples,
+        holdout=holdout,
     )
     print("data type = ", config_dict["data"]["data_type"])
 
@@ -54,14 +58,13 @@ def get_data_metabolomic(config_dict, holdout=False):
     filtered_data.to_csv(output_file)
 
     # save list of genes kept
-    save_name = (
-        f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes.pkl'
-    )
+    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes\
+        .pkl'
     with open(save_name, "wb") as f:
         joblib.dump(genestokeep, f)
 
-    # If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as metout
-    # and extract target from metadata. If metadata not present, assume target in data file.
+    # If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as
+    # metout and extract target from metadata. If metadata not present, assume target in data file.
     metafile = "metadata_file" + ("_holdout_data" if holdout else "")
     if (config_dict["data"][metafile] != "") and (config_dict["data"][metafile] is not None):
         metadata = pd.read_csv(config_dict["data"]["metadata_file"], index_col=0)
@@ -112,8 +115,8 @@ def get_data_metabolomic_trained(config_dict, holdout=False, prediction=False):
         metout_file = "processed_metabolomic_metadata"
     metout_file += "_holdout" if holdout else ""
 
-    # If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as metout
-    # and extract target from metadata. If metadata not present, assume target in data file.
+    # If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as
+    # metout and extract target from metadata. If metadata not present, assume target in data file.
     if holdout:
         metafile = "metadata_file" + ("_holdout_data" if holdout else "")
         if (config_dict["data"][metafile] != "") and (config_dict["data"][metafile] is not None):

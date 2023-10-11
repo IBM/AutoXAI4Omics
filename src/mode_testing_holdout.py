@@ -6,38 +6,17 @@
 
 from pathlib import Path
 import glob
-import numpy as np
 import pandas as pd
-
-# from sklearn.model_selection import cross_val_score, KFold, StratifiedKFold, GroupKFold
-# from sklearn.preprocessing import LabelEncoder
 import models.models as models
 import utils.load
 import utils.save
 import utils.utils
 from models.custom_model import CustomModel
-
-# from sklearn.model_selection import GroupShuffleSplit
-# from sklearn.metrics import (
-#     accuracy_score,
-#     precision_score,
-#     recall_score,
-#     f1_score,
-#     confusion_matrix,
-#     make_scorer,
-# )
-# import sklearn.metrics as skm
-
-# import imblearn
 import joblib
 import cProfile
-
-##########
 import utils.data_processing as dp
 import mode_plotting
 import logging
-
-##########
 
 if __name__ == "__main__":
     """

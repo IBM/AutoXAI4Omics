@@ -14,7 +14,8 @@ def preprocessing_LO(config_dict, filtergene1, filtergene2, filter_sample, holdo
     config_dict: config dictionary
     filtergene1 & 2 : filtering paramters : keep genes > 'filtergene1' expression in "filtergene2" or more samples
                     : Default values are set filtergene1=0 (default expression) and filtergene2=1 (default # samples).
-    filter_sample : filtering parameter : remove samples with the number of expressed genes above or below 'filter_sample' SD's from the mean
+    filter_sample : filtering parameter : remove samples with the number of expressed genes above or below
+        'filter_sample' SD's from the mean
 
     Returns
     --------
@@ -57,8 +58,14 @@ def preprocessing_LO(config_dict, filtergene1, filtergene2, filter_sample, holdo
     mean_all = sample_means.mean()  # mean of "sample means"
     std_all = sample_means.std()  # stdev of "sample means"
 
-    print("Average proportion of expressed genes (> 0) across all samples (Sample Mean avg.):", mean_all)
-    print("Standard Deviation of expressed genes (> 0) across all samples (Sample Stdev avg.):", std_all)
+    print(
+        "Average proportion of expressed genes (> 0) across all samples (Sample Mean avg.):",
+        mean_all,
+    )
+    print(
+        "Standard Deviation of expressed genes (> 0) across all samples (Sample Stdev avg.):",
+        std_all,
+    )
 
     # Calculate user filter: number of SD's away from the mean (filter_sample)
     user_filter = filter_sample * std_all
@@ -73,7 +80,8 @@ def preprocessing_LO(config_dict, filtergene1, filtergene2, filter_sample, holdo
 
     # Caculate if the mean number of expressed genes in any sample is outside range
     # 1. Find mean # genes per sample with expression >0,
-    # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean) AND ii) lower than global mean plus user filter
+    # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean)
+    #  AND ii) lower than global mean plus user filter
     tokeep = (sample_means >= (mean_all - user_filter)) & (sample_means <= (mean_all + user_filter))
 
     # Filter original df, keeping those samples that satisfy reqs
@@ -106,9 +114,8 @@ def apply_learned_processing(config_dict, holdout, prediction=False, tmm=False):
         data_file = pd.read_csv(file, index_col=0)  # sampleID as index
 
     # save list of genes kept
-    save_name = (
-        f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes.pkl'
-    )
+    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes\
+        .pkl'
     with open(save_name, "rb") as f:
         genestokeep = joblib.load(f)
 
@@ -139,7 +146,8 @@ def apply_learned_processing(config_dict, holdout, prediction=False, tmm=False):
 
 def preprocessing_others(config_dict, filtergene1, filtergene2, filter_sample, holdout):
     """
-    Note - this function is replacing Run_others.R (note this is the same as Run_LO.R, but without converting to absolute values)
+    Note - this function is replacing Run_others.R (note this is the same as Run_LO.R, but without converting to
+    absolute values)
     ---------
 
     Parameters
@@ -147,7 +155,8 @@ def preprocessing_others(config_dict, filtergene1, filtergene2, filter_sample, h
     pathfile : gene expression csv (REQ)
     filtergene1 & 2 : filtering paramters : keep genes > 'filtergene1' expression in "filtergene2" or more samples
                     : Default values are set filtergene1=0 (default expression) and filtergene2=1 (default # samples).
-    filter_sample : filtering parameter : remove samples with the number of expressed genes above or below 'filter_sample' SD's from the mean
+    filter_sample : filtering parameter : remove samples with the number of expressed genes above or below
+        'filter_sample' SD's from the mean
 
     Returns
     --------
@@ -188,8 +197,14 @@ def preprocessing_others(config_dict, filtergene1, filtergene2, filter_sample, h
     mean_all = sample_means.mean()  # mean of "sample means"
     std_all = sample_means.std()  # stdev of "sample means"
 
-    print("Average proportion of expressed genes (> 0) across all samples (Sample Mean avg.):", mean_all)
-    print("Standard Deviation of expressed genes (> 0) across all samples (Sample Stdev avg.):", std_all)
+    print(
+        "Average proportion of expressed genes (> 0) across all samples (Sample Mean avg.):",
+        mean_all,
+    )
+    print(
+        "Standard Deviation of expressed genes (> 0) across all samples (Sample Stdev avg.):",
+        std_all,
+    )
 
     # Calculate user filter: number of SD's away from the mean (filter_sample)
     user_filter = filter_sample * std_all
@@ -204,7 +219,8 @@ def preprocessing_others(config_dict, filtergene1, filtergene2, filter_sample, h
 
     # Caculate if the mean number of expressed genes in any sample is outside range
     # 1. Find mean # genes per sample with expression >0,
-    # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean) AND ii) lower than global mean plus user filter
+    # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean)
+    #  AND ii) lower than global mean plus user filter
     tokeep = (sample_means >= (mean_all - user_filter)) & (sample_means <= (mean_all + user_filter))
 
     # Filter original df, keeping those samples that satisfy reqs
@@ -233,7 +249,8 @@ def preprocessing_TMM(config_dict, filtergene1, filtergene2, filter_sample, hold
     pathfile : gene expression csv (REQ)
     filtergene1 & 2 : filtering paramters : keep genes > 'filtergene1' expression in "filtergene2" or more samples
                     : Default values are set filtergene1=0 (default expression) and filtergene2=1 (default # samples).
-    filter_sample : filtering parameter : remove samples with the number of expressed genes above or below 'filter_sample' SD's from the mean
+    filter_sample : filtering parameter : remove samples with the number of expressed genes above or below
+        'filter_sample' SD's from the mean
 
     Returns
     --------
@@ -288,8 +305,14 @@ def preprocessing_TMM(config_dict, filtergene1, filtergene2, filter_sample, hold
     mean_all = sample_means.mean()  # mean of "sample means"
     std_all = sample_means.std()  # stdev of "sample means"
 
-    print("Average proportion of expressed genes (> 0) across all samples (Sample Mean avg.):", mean_all)
-    print("Standard Deviation of expressed genes (> 0) across all samples (Sample Stdev avg.):", std_all)
+    print(
+        "Average proportion of expressed genes (> 0) across all samples (Sample Mean avg.):",
+        mean_all,
+    )
+    print(
+        "Standard Deviation of expressed genes (> 0) across all samples (Sample Stdev avg.):",
+        std_all,
+    )
 
     # Calculate user filter: number of SD's away from the mean (filter_sample)
     user_filter = filter_sample * std_all
@@ -304,7 +327,8 @@ def preprocessing_TMM(config_dict, filtergene1, filtergene2, filter_sample, hold
 
     # Caculate if the mean number of expressed genes in any sample is outside range
     # 1. Find mean # genes per sample with expression >0,
-    # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean) AND ii) lower than global mean plus user filter
+    # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean)
+    #  AND ii) lower than global mean plus user filter
     tokeep = (sample_means >= (mean_all - user_filter)) & (sample_means <= (mean_all + user_filter))
 
     # Filter original df, keeping those samples that satisfy reqs

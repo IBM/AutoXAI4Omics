@@ -4,7 +4,12 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Dense, Flatten, Conv1D
 from tensorflow.keras import optimizers, losses
-from tensorflow.keras.callbacks import LearningRateScheduler, EarlyStopping, ModelCheckpoint, TerminateOnNaN
+from tensorflow.keras.callbacks import (
+    LearningRateScheduler,
+    EarlyStopping,
+    ModelCheckpoint,
+    TerminateOnNaN,
+)
 
 import autokeras as ak
 from .base_model import BaseModel
@@ -58,7 +63,9 @@ class KerasModel(BaseModel):
             input_node = ak.Input()
             output_node = input_node
             output_node = ak.DenseBlock(
-                num_layers=self.num_layers, dropout=self.dropout, use_batchnorm=self.use_batchnorm
+                num_layers=self.num_layers,
+                dropout=self.dropout,
+                use_batchnorm=self.use_batchnorm,
             )(output_node)
             output_node = ak.RegressionHead(dropout=self.dropout, metrics=["mae"])(output_node)
             model = ak.AutoModel(
@@ -86,7 +93,9 @@ class KerasModel(BaseModel):
             input_node = ak.Input()
             output_node = input_node
             output_node = ak.DenseBlock(
-                num_layers=self.num_layers, dropout=self.dropout, use_batchnorm=self.use_batchnorm
+                num_layers=self.num_layers,
+                dropout=self.dropout,
+                use_batchnorm=self.use_batchnorm,
             )(output_node)
             output_node = ak.ClassificationHead(multi_label=True, dropout=self.dropout, metrics=["accuracy"])(
                 output_node
@@ -134,30 +143,82 @@ class KerasModel(BaseModel):
             # choose neural network architecture: number of layers, neurons per layer, activation function
             if self.dataset_type == "regression":
                 if output_dim > 10:
-                    model.add(Dense(256, input_dim=input_dim, kernel_initializer=initializer, activation="relu"))
+                    model.add(
+                        Dense(
+                            256,
+                            input_dim=input_dim,
+                            kernel_initializer=initializer,
+                            activation="relu",
+                        )
+                    )
                     model.add(Dense(256, kernel_initializer=initializer, activation="relu"))
                     model.add(Dense(256, kernel_initializer=initializer, activation="relu"))
                     model.add(Dense(256, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(output_dim, kernel_initializer=initializer, activation="linear"))
+                    model.add(
+                        Dense(
+                            output_dim,
+                            kernel_initializer=initializer,
+                            activation="linear",
+                        )
+                    )
                 else:
-                    model.add(Dense(256, input_dim=input_dim, kernel_initializer=initializer, activation="relu"))
+                    model.add(
+                        Dense(
+                            256,
+                            input_dim=input_dim,
+                            kernel_initializer=initializer,
+                            activation="relu",
+                        )
+                    )
                     model.add(Dense(128, kernel_initializer=initializer, activation="relu"))
                     model.add(Dense(64, kernel_initializer=initializer, activation="relu"))
                     model.add(Dense(32, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(output_dim, kernel_initializer=initializer, activation="linear"))
+                    model.add(
+                        Dense(
+                            output_dim,
+                            kernel_initializer=initializer,
+                            activation="linear",
+                        )
+                    )
             else:
                 if not self.conv1d:
-                    model.add(Dense(256, input_dim=input_dim, kernel_initializer=initializer, activation="relu"))
+                    model.add(
+                        Dense(
+                            256,
+                            input_dim=input_dim,
+                            kernel_initializer=initializer,
+                            activation="relu",
+                        )
+                    )
                     model.add(Dense(128, kernel_initializer=initializer, activation="relu"))
                     model.add(Dense(32, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(output_dim, kernel_initializer=initializer, activation="softmax"))
+                    model.add(
+                        Dense(
+                            output_dim,
+                            kernel_initializer=initializer,
+                            activation="softmax",
+                        )
+                    )
                 else:
-                    model.add(Conv1D(filters=16, kernel_size=1, activation="relu", input_shape=(input_dim, 1)))
+                    model.add(
+                        Conv1D(
+                            filters=16,
+                            kernel_size=1,
+                            activation="relu",
+                            input_shape=(input_dim, 1),
+                        )
+                    )
                     model.add(Conv1D(filters=8, kernel_size=1, activation="relu"))
                     model.add(Flatten())
                     model.add(Dense(64, kernel_initializer=initializer, activation="relu"))
                     model.add(Dense(32, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(output_dim, kernel_initializer=initializer, activation="softmax"))
+                    model.add(
+                        Dense(
+                            output_dim,
+                            kernel_initializer=initializer,
+                            activation="softmax",
+                        )
+                    )
 
         # choose optimizer
         opt = optimizers.Adam()
@@ -230,8 +291,10 @@ class KerasModel(BaseModel):
         lr_scheduler = LearningRateScheduler(self._lr_schedule)
         es = EarlyStopping(monitor="val_loss", verbose=1, patience=20)
 
-        # ckpt = ModelCheckpoint('keras_model_ckpt.h5', monitor='val_accuracy', verbose=1, save_best_only=True, mode='auto')
-        # ckpt = ModelCheckpoint('keras_model_ckpt_{}.model'.format(os.getpid()), monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
+        # ckpt = ModelCheckpoint('keras_model_ckpt.h5', monitor='val_accuracy', verbose=1, save_best_only=True,
+        #                           mode='auto')
+        # ckpt = ModelCheckpoint('keras_model_ckpt_{}.model'.format(os.getpid()), monitor='val_loss', verbose=1,
+        #                           save_best_only=True, mode='auto')
         callbacks = [lr_scheduler, es]  # ,ckpt]
         # train the model
         # choose number of epochs and batch_size
@@ -248,7 +311,12 @@ class KerasModel(BaseModel):
         else:
             bg_val = BatchGeneratorSeqArray(testX, testY, batch_size=batch_size)
         history = self.model.fit_generator(
-            generator=bg_train, validation_data=bg_val, epochs=epochs, callbacks=callbacks, verbose=2, workers=1
+            generator=bg_train,
+            validation_data=bg_val,
+            epochs=epochs,
+            callbacks=callbacks,
+            verbose=2,
+            workers=1,
         )
 
         # Plot training & validation loss values

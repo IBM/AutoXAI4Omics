@@ -4,36 +4,14 @@
 # (C) Copyright IBM Corp. 2019, 2020
 # --------------------------------------------------------------------------
 
-# from pathlib import Path
-# import re
-# import pdb
-# import pickle
-
-# import scipy.sparse
 import pandas as pd
 import matplotlib.pyplot as plt
-
-# import matplotlib.colors as colors
-# import matplotlib.ticker as ticker
-# import matplotlib.image as mp_img
-# from sklearn.model_selection import cross_val_score
 import models.models as models
 from plotting.plots import define_plots
 import plotting.plots
 import utils.utils as utils
 from models.custom_model import CustomModel
-
-# from sklearn.metrics import (
-#     accuracy_score,
-#     precision_score,
-#     recall_score,
-# )
-
-# import imblearn
 import cProfile
-
-##########
-# from data_processing import *
 import utils.data_processing as data_processing
 import logging
 

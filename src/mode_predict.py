@@ -1,17 +1,6 @@
-# process config
-# assert that the best model exists (i.e traing has been run)
-# load in data to be predicted on
-# load data transformers
-# transform data
-# load model
-# predict with model
-# save predictions to csv
 import os
 import glob
-
-# import numpy as np
 import pandas as pd
-
 import utils.load
 import utils.utils
 import utils.data_processing as dp
