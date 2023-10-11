@@ -335,7 +335,13 @@ def all_subclasses(cls):
     return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
 
-def initial_setup(args):
+def initial_setup():
+    # Load the parser for command line (config files)
+    parser = create_parser()
+
+    # Get the args
+    args = parser.parse_args()
+
     # Construct the config path
     config_path = Path.cwd() / "configs" / args.config
     # print(config_path)

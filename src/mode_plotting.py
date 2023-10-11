@@ -193,14 +193,8 @@ if __name__ == "__main__":
 
     Uses the config in the same way as when giving it to run_models.py.
     """
-    # Load the parser
-    parser = utils.create_parser()
-
-    # Get the args
-    args = parser.parse_args()
-
     # Do the initial setup
-    config_path, config_dict = utils.initial_setup(args)
+    config_path, config_dict = utils.initial_setup()
 
     # init the profiler to time function executions
     pr = cProfile.Profile()

@@ -16,11 +16,13 @@ import sys
 
 class CustomModel:
     """
-    Custom model class that we use for our models. This should probably inherit from sklearn's base estimator, but it doesn't.
+    Custom model class that we use for our models. This should probably inherit from sklearn's base estimator, but it
+    doesn't.
 
     It doesn't because we have more control this way, and aren't subject to their verbosity/complexity.
 
-    This class contains the poor person's abstract methods - instead of using the ABCMeta and decorator, we're raising errors.
+    This class contains the poor person's abstract methods - instead of using the ABCMeta and decorator, we're raising
+    errors.
 
     All of these methods are required. All of the attributes put here are required. All future subclasses need these.
     """
@@ -52,7 +54,8 @@ class CustomModel:
         """
         sklearn style fit function
 
-        We add an additional argument "save_best" so that we can save a model during training, and then switch saving off for plotting
+        We add an additional argument "save_best" so that we can save a model during training, and then switch saving
+        off for plotting
         """
         raise NotImplementedError()
 
@@ -132,7 +135,8 @@ class CustomModel:
         except KeyError:
             single_model_flag = True
             print(
-                f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model instead"
+                f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model \
+                instead"
             )
         return single_model_flag, param_ranges
 
@@ -144,7 +148,8 @@ class CustomModel:
         cls.experiment_folder = experiment_folder
 
     def __repr__(self):
-        return f"{self.__class__.__name__} model with params:{ {k:v for k,v in self.__dict__.items() if 'data' not in k if 'label' not in k} }"
+        return f"{self.__class__.__name__} model with params:\
+            { {k:v for k,v in self.__dict__.items() if 'data' not in k if 'label' not in k} }"
 
 
 class TabAuto(CustomModel):
@@ -191,7 +196,8 @@ class TabAuto(CustomModel):
 
     def set_params(self, **params):
         """
-        Required function (in sklearn BaseEstimator) used for setting parameters in both a tuning and single model setting
+        Required function (in sklearn BaseEstimator) used for setting parameters in both a tuning and single model
+        setting
         """
         for key, value in params.items():
             if hasattr(self, key):
