@@ -193,12 +193,13 @@ if __name__ == "__main__":
 
     Uses the config in the same way as when giving it to run_models.py.
     """
-    # Do the initial setup
-    config_path, config_dict = utils.initial_setup()
 
     # init the profiler to time function executions
     pr = cProfile.Profile()
     pr.enable()
+
+    # Do the initial setup
+    config_path, config_dict = utils.initial_setup()
 
     # Set the global seed
     np.random.seed(config_dict["ml"]["seed_num"])
@@ -257,9 +258,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    csv = data_processing.prof_to_csv(pr)
-    with open(
-        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
-        "w+",
-    ) as f:
-        f.write(csv)
+    data_processing.prof_to_csv(pr, config_dict)

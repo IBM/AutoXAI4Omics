@@ -106,7 +106,8 @@ def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, ho
 
 def plot_model_performance(experiment_folder, data, metric, low, save=True):
     """
-    produces a scatter plot of the models and their performance on the training set and test set according to the given metric
+    produces a scatter plot of the models and their performance on the training set and test set according to the given
+    metric
     """
     omicLogger.debug(f"Creating model performance scatter according to {metric}...")
 
@@ -168,7 +169,8 @@ def opt_k_plot(experiment_folder, sr_n, save=True):
 
 def feat_acc_plot(experiment_folder, acc, save=True):
     """
-    Produces a graph showing the number of features vs. the performance of the model when that many features are trainined on it
+    Produces a graph showing the number of features vs. the performance of the model when that many features are
+    trainined on it
     """
     omicLogger.debug("Creating feat_acc_plot...")
 
@@ -275,7 +277,8 @@ def shap_force_plots(
                 # Need to add label/text on the side for the class name
                 print(f"{pretty_names(model_name, 'model')}")
                 fig.suptitle(
-                    f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} with class {class_name}",
+                    f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} with class \
+                        {class_name}",
                     fontsize=16,
                     y=1.4,
                 )
@@ -308,7 +311,8 @@ def shap_force_plots(
                 num_indices = int(len(preds) * top_exemplars)
                 # Select the top exemplars
                 exemplar_index = indices[:num_indices]
-                # With clashes, it takes the first found (which is good as this corresponds to the lower prediction error)
+                # With clashes, it takes the first found (which is good as this corresponds to the lower prediction
+                # error)
                 top_min_index = exemplar_index[np.argmin(y_data[exemplar_index])]
                 exemplar_indices.append(top_min_index)
                 names.append("min")
@@ -333,7 +337,8 @@ def shap_force_plots(
                 )
                 # Setup the title
                 fig.suptitle(
-                    f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} for {class_col} ({name})",
+                    f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} for {class_col} \
+                        ({name})",
                     fontsize=16,
                     y=1.4,
                 )
@@ -373,11 +378,10 @@ def summary_SHAPdotplot_perclass(
         class_name = class_names[1]
         print("Class: " + str(class_name))
         if holdout:
-            fname = (
-                f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{'holdout'}"
-            )
+            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_holdout"
         else:
-            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}"
+            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_\
+                {model_name}_{class_name}"
 
         # Plot shap bar plot
         shap.summary_plot(
@@ -417,7 +421,8 @@ def summary_SHAPdotplot_perclass(
             print("Type exemplars_selected: " + str(type(exemplars_selected)))
 
             if not holdout:
-                fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
+                fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_\
+                    {class_name}_{i}"
                 # saving the shapley values to dataframe
                 df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names, index=data_indx)
                 # df_shapley_values.sort_index(inplace=True)
@@ -425,9 +430,11 @@ def summary_SHAPdotplot_perclass(
                 df_shapley_values.to_csv(fname_df + ".csv")
 
             if holdout:
-                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_{'holdout'}_{i}"
+                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_\
+                    {'holdout'}_{i}"
             else:
-                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_{model_name}_{class_name}_{i}"
+                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_\
+                    {model_name}_{class_name}_{i}"
 
             # Plot shap bar plot
             shap.summary_plot(
@@ -696,7 +703,8 @@ def shap_plots(
             fig = plt.gcf()
             # fig.set_size_inches(30,30, forward=True)
             # Setup the title
-            # fig.suptitle(f"SHAP Summary Plot for top features {pretty_names(model_name, 'model')} for {class_col} ({name})", fontsize=16, y=1.4)
+            # fig.suptitle(f"SHAP Summary Plot for top features {pretty_names(model_name, 'model')} for {class_col} \
+            # ({name})", fontsize=16, y=1.4)
 
             # Save the plot
             if save:
@@ -772,7 +780,8 @@ def shap_plots(
             "Average abundance": list(abundance),
         }
 
-        fname = f"{experiment_folder / 'results' / 'top_features_AbsMeanSHAP_Abundance'}_{data_forexplanations}_{model_name}"
+        fname = f"{experiment_folder / 'results' / 'top_features_AbsMeanSHAP_Abundance'}_{data_forexplanations}_\
+            {model_name}"
         fname += "_holdout" if holdout else ""
         df = pd.DataFrame(d)
         df.to_csv(fname + ".csv")
@@ -788,7 +797,8 @@ def shap_plots(
         fig = plt.gcf()
 
         if save:
-            fname = f"{experiment_folder / 'graphs' / 'abundance_top_features_exemplars'}_{data_forexplanations}_{model_name}"
+            fname = f"{experiment_folder / 'graphs' / 'abundance_top_features_exemplars'}_{data_forexplanations}_\
+                {model_name}"
             fname += "_holdout" if holdout else ""
             save_fig(fig, fname)
 
@@ -1501,8 +1511,8 @@ def boxplot_scorer_cv(
     """
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
 
-    By default this uses a 5-fold stratified cross validation. Also it saves the list of SHAP values for each of the exemplars of
-    each fold
+    By default this uses a 5-fold stratified cross validation. Also it saves the list of SHAP values for each of the
+    exemplars of each fold
     """
     omicLogger.debug("Creating boxplot_scorer_cv...")
     # Create the plot objects

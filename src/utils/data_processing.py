@@ -676,11 +676,17 @@ def undersample_data(x_train, y_train, seed):
 
 
 ################### TIME PROFILE ###################
-def prof_to_csv(prof: cProfile.Profile):
+def prof_to_csv(prof: cProfile.Profile, config_dict: dict):
     out_stream = io.StringIO()
     pstats.Stats(prof, stream=out_stream).print_stats()
     result = out_stream.getvalue()
     # chop off header lines
     result = "ncalls" + result.split("ncalls")[-1]
     lines = [",".join(line.rstrip().split(None, 5)) for line in result.split("\n")]
-    return "\n".join(lines)
+    csv_lines = "\n".join(lines)
+
+    with open(
+        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        "w+",
+    ) as f:
+        f.write(csv_lines)

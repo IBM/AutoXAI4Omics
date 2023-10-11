@@ -1,4 +1,4 @@
-import argparse
+# import argparse
 import numpy as np
 import pandas as pd
 import utils.load
@@ -13,10 +13,17 @@ import cProfile
 ##########
 
 
-def main(config_dict, config_path):
+def main():
     """
     Central function to tie together preprocessing, running the models, and plotting
     """
+
+    # init the profiler to time function executions
+    pr = cProfile.Profile()
+    pr.enable()
+
+    # Do the initial setup
+    config_path, config_dict = utils.initial_setup()
 
     # Set the global seed
     np.random.seed(config_dict["ml"]["seed_num"])
@@ -103,27 +110,16 @@ def main(config_dict, config_path):
         logging.error(e, exc_info=True)
         raise e
 
+    # save time profile information
+    pr.disable()
+    dp.prof_to_csv(pr, config_dict)
+
 
 if __name__ == "__main__":
     # This handles pickling issues when cloning for cross-validation
     import multiprocessing
 
     multiprocessing.set_start_method("spawn", force=True)
-    # Do the initial setup
-    config_path, config_dict = utils.initial_setup()
-
-    # init the profiler to time function executions
-    pr = cProfile.Profile()
-    pr.enable()
 
     # Run the models
-    main(config_dict, config_path)
-
-    # save time profile information
-    pr.disable()
-    csv = dp.prof_to_csv(pr)
-    with open(
-        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
-        "w+",
-    ) as f:
-        f.write(csv)
+    main()
