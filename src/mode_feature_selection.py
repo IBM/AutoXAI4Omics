@@ -104,18 +104,6 @@ def main(config_dict, config_path):
         raise e
 
 
-def activate(args):
-    parser = argparse.ArgumentParser(description="Explainable AI framework for omics")
-    parser = utils.create_parser()
-    args = parser.parse_args(args)
-    config_path, config_dict = utils.initial_setup(args)
-
-    # This handles pickling issues when cloning for cross-validation
-    multiprocessing.set_start_method("spawn", force=True)
-    # Run the models
-    main(config_dict, config_path)
-
-
 if __name__ == "__main__":
     # This handles pickling issues when cloning for cross-validation
     import multiprocessing
