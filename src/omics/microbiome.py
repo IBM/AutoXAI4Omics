@@ -14,11 +14,15 @@ def create_microbiome_calourexp(fpath_biom, fpath_meta, norm_reads=1000, min_rea
     """
     try:
         exp = ca.read_amplicon(
-            data_file=fpath_biom, sample_metadata_file=fpath_meta, normalize=norm_reads, min_reads=min_reads
+            data_file=fpath_biom,
+            sample_metadata_file=fpath_meta,
+            normalize=norm_reads,
+            min_reads=min_reads,
         )
-    except:
-        print("!!! ERROR: THE IMPORTED DATA FILES ARE NOT VALID!!!")
-        exit()
+    except Exception as e:
+        omicLogger.error("error with reading amplicon")
+        # print("!!! ERROR: THE IMPORTED DATA FILES ARE NOT VALID!!!")
+        raise e
 
     return exp
 
@@ -247,7 +251,10 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
         amp_exp = create_microbiome_calourexp(path_file, metadata_path, None, None)
     else:
         amp_exp = create_microbiome_calourexp(
-            path_file, metadata_path, microbiome_config["norm_reads"], microbiome_config["min_reads"]
+            path_file,
+            metadata_path,
+            microbiome_config["norm_reads"],
+            microbiome_config["min_reads"],
         )
     print("")
     print("")
@@ -305,7 +312,9 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     # Select the labels
     ml_config: dict = config_dict["ml"]
     y = select_class_col(
-        amp_exp, encoding=ml_config.get("encoding"), name=config_dict["data"]["target"]  # from Cameron
+        amp_exp,
+        encoding=ml_config.get("encoding"),
+        name=config_dict["data"]["target"],  # from Cameron
     )
     # except:
     #   print("!!! ERROR: PLEASE SELECT TARGET TO PREDICT FROM METADATA FILE !!!")
@@ -387,7 +396,10 @@ def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
         amp_exp = create_microbiome_calourexp(path_file, metadata_path, None, None)
     else:
         amp_exp = create_microbiome_calourexp(
-            path_file, metadata_path, microbiome_config["norm_reads"], microbiome_config["min_reads"]
+            path_file,
+            metadata_path,
+            microbiome_config["norm_reads"],
+            microbiome_config["min_reads"],
         )
 
     print("***** Preprocessing microbiome data *******")
@@ -428,7 +440,9 @@ def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
     else:
         ml_config: dict = config_dict["ml"]
         y = select_class_col(
-            amp_exp, encoding=ml_config.get("encoding"), name=config_dict["data"]["target"]  # from Cameron
+            amp_exp,
+            encoding=ml_config.get("encoding"),
+            name=config_dict["data"]["target"],  # from Cameron
         )
 
     features_names = get_feature_names_calourexp(amp_exp, microbiome_config)

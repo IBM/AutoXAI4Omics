@@ -20,9 +20,9 @@ def load_model(model_name, model_path):
 
         try:
             model = CustomModel.custom_aliases[model_name].load_model(model_path)
-        except:
+        except Exception as e:
             print("The trained model " + model_name + " is not present")
-            exit()
+            raise e
     else:
         # Load a previously saved model (using joblib's pickle)
         with open(model_path, "rb") as f:

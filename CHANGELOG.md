@@ -20,3 +20,4 @@ Change log for the codebase. Initialised from the developments following version
     - extracted save funcs from utils into own file
     - extracted util funcs from `mode_plotting` into respective files
     - extracted plotting funcs from `mode_plotting` into own files
+    - removed exit() calls

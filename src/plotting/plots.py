@@ -36,9 +36,9 @@ def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, ho
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting ROC Curve for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -213,9 +213,9 @@ def shap_force_plots(
     for model_name in config_dict["ml"]["model_list"]:
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting SHAP for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -486,9 +486,9 @@ def shap_plots(
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print("Model path")
         print(model_path)
@@ -825,9 +825,9 @@ def permut_importance(
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
         print(f"Plotting permutation importance for {model_name}")
 
         print("Model path")
@@ -937,9 +937,9 @@ def joint_plot(
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting joint plot for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -1021,9 +1021,9 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting histogram for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -1068,9 +1068,9 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting histogram for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -1120,9 +1120,9 @@ def correlation_plot(
 
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting Correlation Plot for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -1180,9 +1180,9 @@ def conf_matrix_plot(
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting Confusion Matrix for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -1264,9 +1264,9 @@ def shap_summary_plot(
     for model_name in config_dict["ml"]["model_list"]:
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting SHAP for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -1336,9 +1336,9 @@ def barplot_scorer(
 
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}")
         model = utils.load.load_model(model_name, model_path)
@@ -1408,9 +1408,9 @@ def boxplot_scorer_cv_groupby(
         # Load the model if trained
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(
             f"Plotting boxplot for {model_name} using {config_dict['ml']['fit_scorer']} - Grouped By "
@@ -1510,9 +1510,9 @@ def boxplot_scorer_cv(
         # Load the model if trained
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError:
+        except IndexError as e:
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            exit()
+            raise e
 
         print(f"Plotting boxplot for {model_name} using {config_dict['ml']['fit_scorer']}")
         # Select the scorer

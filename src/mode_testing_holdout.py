@@ -147,9 +147,9 @@ if __name__ == "__main__":
             # Load the model
             try:
                 model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-            except IndexError:
-                print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-                exit()
+            except IndexError as e:
+                omicLogger.error("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
+                raise e
 
             print(f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}")
             omicLogger.debug("Loading...")
