@@ -172,16 +172,12 @@ def main(config_dict, config_path):
         omicLogger.info("Models trained. Beggining plotting process...")
         # Plot some graphs
         if config_dict["plotting"]["plot_method"] is not None:
-            # See what plots are defined
-            plot_dict = mode_plotting.define_plots(config_dict["ml"]["problem_type"])
-
             omicLogger.info("Plots defined. Begin plotting graphs...")
             # Central func to define the args for the plots
             mode_plotting.plot_graphs(
                 config_dict,
                 experiment_folder,
                 features_names,
-                plot_dict,
                 x,
                 y,
                 x_train,

@@ -91,7 +91,6 @@ def plot_graphs(
     config_dict,
     experiment_folder,
     feature_names,
-    plot_dict,
     x,
     y,
     x_train,
@@ -105,6 +104,9 @@ def plot_graphs(
     Plot graphs as specified by the config. Each plot function is handled separately to be explicit (at the cost of length and maintenance).
     Here you can customize whether you want to graph on train or test based on what arguments are given for the data and labels.
     """
+    omicLogger.debug("Defining graphs...")
+    plot_dict = define_plots(config_dict["ml"]["problem_type"])
+
     omicLogger.debug("Begin plotting graphs...")
 
     # Loop over every plot method we're using
@@ -1892,9 +1894,6 @@ if __name__ == "__main__":
         scorer_dict = {k: scorer_dict[k] for k in config_dict["ml"]["scorer_list"]}
         omicLogger.info("All scorers defined. Defining plots...")
 
-        # See what plots are defined
-        plot_dict = define_plots(config_dict["ml"]["problem_type"])
-
         # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
         # So set that up here
         # Other option is to modify cls.__getstate__
@@ -1907,7 +1906,6 @@ if __name__ == "__main__":
             config_dict,
             experiment_folder,
             features_names,
-            plot_dict,
             x,
             y,
             x_train,

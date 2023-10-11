@@ -15,3 +15,4 @@ Change log for the codebase. Initialised from the developments following version
     - renamed mode scripts to have a `mode_` pre-fix
     - added extra assertion in mode checks
     - removed redundant `check_config`
+    - refactored `plot_graphs` to remove unnessicary `plot_dict` var
