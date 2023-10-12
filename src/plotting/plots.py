@@ -22,12 +22,6 @@ import glob
 import time
 from itertools import cycle
 
-from utils.utils import (
-    pretty_names,
-    select_explainer,
-    get_exemplars,
-    compute_average_abundance_top_features,
-)
 
 import logging
 
@@ -188,6 +182,65 @@ def feat_acc_plot(experiment_folder, acc, save=True):
     plt.close()
     # Clear keras and TF sessions/graphs etc.
     tidy_tf()
+
+
+def pretty_names(name, name_type):
+    omicLogger.debug("Fetching pretty names...")
+    model_dict = {
+        "rf": "RF",
+        "mlp_keras": "DeepNN",
+        "tab_auto": "TabAuto",
+        "autokeras": "A/Keras",
+        "fixedkeras": "Keras",
+        "autolgbm": "A/LGBM",
+        "autoxgboost": "A/XGB",
+        "autosklearn": "A/SKL",
+        "autogluon": "A/Gluon",
+        "svm": "SVM",
+        "knn": "KNN",
+        "xgboost": "XGBoost",
+        "adaboost": "AdaBoost",
+    }
+    score_dict = {
+        "acc": "Accuracy",
+        "f1": "F1-Score",
+        "mean_ae": "Mean Absolute Error",
+        "med_ae": "Median Absolute Error",
+        "rmse": "Root Mean Squared Error",
+        "mean_ape": "Mean Absolute Percentage Error",
+        "r2": "R^2",
+    }
+
+    if name_type == "model":
+        new_name = model_dict[name]
+    elif name_type == "score":
+        new_name = score_dict[name]
+    return new_name
+
+
+def select_explainer(model, model_name, df_train, problem_type):
+    """
+    Select the appropriate SHAP explainer for each model
+    """
+    # Select the right explainer
+    # Note that, for a multi-class (non-binary) problem gradboost cannot use the TreeExplainer
+    if model_name in ["xgboost", "rf"]:
+        explainer = shap.TreeExplainer(model)
+    elif model_name in ["mlp_keras"]:
+        explainer = shap.DeepExplainer(model.model, df_train.values)
+    elif model_name in ["autolgbm", "autoxgboost"]:
+        explainer = shap.TreeExplainer(model.model.model)
+    else:
+        # KernelExplainer can be very slow, so use their KMeans to speed it up
+        # Results are approximate
+        df_train_km = shap.kmeans(df_train, 5)
+        # For classification we use the predict_proba
+        if problem_type == "classification":
+            explainer = shap.KernelExplainer(model.predict_proba, df_train_km)
+        # Otherwise just use predict
+        elif problem_type == "regression":
+            explainer = shap.KernelExplainer(model.predict, df_train_km)
+    return explainer
 
 
 def shap_force_plots(
@@ -465,6 +518,132 @@ def summary_SHAPdotplot_perclass(
 
     plt.clf()
     plt.close()
+
+
+def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
+    # Get the predictions
+    pred_y = model.predict(x_test).flatten()
+
+    test_y = y_test
+    # test_y = y_test.values - previous version
+
+    # Get the predicted probabilities
+    # probs = model.predict_proba(x_test)
+
+    # Create empty array of indices
+    exemplar_indices = []
+
+    # Handle classification and regression differently
+
+    # Classification
+    if config_dict["ml"]["problem_type"] == "classification":
+        print("Classification")
+        # Return indices of equal elements between two arrays
+        exemplar_indices = np.equal(pred_y, test_y)
+
+    # Regression
+    elif config_dict["ml"]["problem_type"] == "regression":
+        print("Regression - Percentage Agreement Level:", pcAgreementLevel)
+
+        if pcAgreementLevel == 0:
+            absPcDevArr = np.abs((np.divide(np.subtract(pred_y, test_y), test_y) * 100))
+            exemplar_indices = absPcDevArr == pcAgreementLevel
+        else:
+            absPcDevArr = np.abs((np.divide(np.subtract(pred_y, test_y), test_y) * 100))
+            exemplar_indices = absPcDevArr < pcAgreementLevel
+
+    # create dataframe for exemplars
+    exesToShow = []
+    i = 0
+    for val in exemplar_indices:
+        if val is True:
+            exesToShow.append({"idx": i, "testVal": test_y[i], "predVal": pred_y[i]})
+        i = i + 1
+
+    # create array with exemplars
+    exemplar_X_test = []
+    for row in exesToShow:
+        exemplar_X_test.append(x_test[int(row["idx"])])
+    exemplar_X_test = np.array(exemplar_X_test)
+
+    return exemplar_X_test
+
+
+def compute_average_abundance_top_features(
+    config_dict,
+    num_top,
+    model_name,
+    class_names,
+    feature_names,
+    data,
+    shap_values_selected,
+):
+    # Get the names of the features
+    names = feature_names
+
+    # Create a dataframe to get the average abundance of each feature
+    dfMaster = pd.DataFrame(data, columns=names)
+    print(dfMaster.head())
+
+    # Order the feature based on SHAP values
+    # feature_order = np.argsort(np.sum(np.abs(exemplars_selected), axis=0)) #Sean's version
+
+    # Deal with classification differently, classification has shap values for each class
+    # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
+    if config_dict["ml"]["problem_type"] == "classification":
+        # XGBoost for binary classification seems to return the SHAP values only for class 1
+        if model_name == "xgboost" and len(class_names) == 2:
+            feature_order = np.argsort(np.mean(np.abs(shap_values_selected), axis=0))
+            shap_values_mean_sorted = np.flip(np.sort(np.mean(np.abs(shap_values_selected), axis=0)))
+        # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices.
+        # One for each class.
+        else:
+            print(type(shap_values_selected))
+            print(len(shap_values_selected))
+
+            shap_values_selected_class = []
+            for i in range(len(shap_values_selected)):
+                print("Class: " + str(i))
+                shap_values_selected_class.append(np.mean(np.abs(shap_values_selected[i]), axis=0))
+            a = np.array(shap_values_selected_class)
+            a_mean = np.mean(a, axis=0)
+            feature_order = np.argsort(a_mean)
+            shap_values_mean_sorted = np.flip(np.sort(a_mean))
+
+    # Deal with regression
+    else:
+        # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
+        feature_order = np.argsort(np.mean(np.abs(shap_values_selected), axis=0))
+        shap_values_mean_sorted = np.flip(np.sort(np.mean(np.abs(shap_values_selected), axis=0)))
+
+    # In all cases flip feature order anyway to agree with shap_values_mean_sorted
+    feature_order = np.flip(feature_order)
+
+    # Select names, average abundance of top features
+    top_names = []
+    top_averageAbund = []
+
+    if num_top < len(feature_order):
+        lim = num_top
+    else:
+        lim = len(feature_order)
+
+    for j in range(0, lim):
+        i = feature_order[j]
+        top_names.append(names[i])
+
+        # Get the average of abundance across all the samples not only exemplar
+        abund = np.mean(dfMaster[names[i]])
+        top_averageAbund.append(abund)
+
+    # Return everything - only SHAP values for the top features
+    print("TOP NAMES: ")
+    print(top_names)
+
+    print("TOP ABUNDANCE: ")
+    print(top_averageAbund)
+
+    return top_names, top_averageAbund, shap_values_mean_sorted[:num_top]
 
 
 def shap_plots(
