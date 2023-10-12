@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
+import utils.ml.feature_selection
 import utils.load
+import utils.ml.standardisation
 import utils.utils
-import utils.data_processing as dp
+import utils.ml.data_split as ds
 import logging
 import joblib
 import cProfile
@@ -36,15 +38,15 @@ def main():
             raise ValueError("The sample index/names contain duplicate entries")
 
         # Split the data in train and test
-        x_train, x_test, y_train, y_test = dp.split_data(x, y, config_dict)
+        x_train, x_test, y_train, y_test = ds.split_data(x, y, config_dict)
         omicLogger.info("Data splitted. Standardising...")
 
         x_ind_train = x_train.index
         x_ind_test = x_test.index
 
         # standardise data
-        x_train, SS = dp.standardize_data(x_train)  # fit the standardiser to the training data
-        x_test = dp.transform_data(x_test, SS)  # transform the test data according to the fitted standardiser
+        x_train, SS = utils.ml.standardisation.standardize_data(x_train)  # fit the standardiser to the training data
+        x_test = utils.utils.transform_data(x_test, SS)  # transform the test data according to the fitted standardiser
 
         # save the standardiser transformer
         save_name = experiment_folder / "transformer_std.pkl"
@@ -55,7 +57,7 @@ def main():
 
         # implement feature selection if desired
         if config_dict["ml"]["feature_selection"] is not None:
-            x_train, features_names, FS = dp.feat_selection(
+            x_train, features_names, FS = utils.ml.feature_selection.feat_selection(
                 experiment_folder,
                 x_train,
                 y_train,
@@ -103,7 +105,7 @@ def main():
 
     # save time profile information
     pr.disable()
-    dp.prof_to_csv(pr, config_dict)
+    utils.utils.prof_to_csv(pr, config_dict)
 
 
 if __name__ == "__main__":

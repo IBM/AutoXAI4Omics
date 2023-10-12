@@ -26,3 +26,4 @@ Change log for the codebase. Initialised from the developments following version
     - extracted load funcs from data_processing into utils.load
     - streamlined init
     - removed globals() call
+    - extracted funcs from data_processing into appropriate locations, and file fully dispersed

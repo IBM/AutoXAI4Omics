@@ -1,4 +1,11 @@
 from os.path import exists
+from models.model_defs import MODELS
+from metrics.metric_defs import METRICS
+import logging
+
+from utils.ml.feature_selection import FS_KBEST_METRICS, FS_METHODS
+
+omicLogger = logging.getLogger("OmicLogger")
 
 
 def list_type_check(givenList, typeName, entryname="list"):
@@ -914,3 +921,157 @@ def parse_config(config):
         config["prediction"] = parse_prediction(config["prediction"])
 
     return config
+
+
+def validate_FS_models_and_metrics(problem_type, estimator, metric):
+    """
+    Check if given the problem type that the estimator and evaluation metric chosen is valid or not
+    """
+    omicLogger.debug("Validating model and metric settings...")
+    # check that the estimator is loaded in
+    if estimator not in MODELS.keys():
+        raise ValueError(f"{estimator} is not currently available for use")
+    else:
+        est = MODELS[estimator]
+
+    # check that the metric is loaded in
+    if metric not in METRICS.keys():
+        raise ValueError(f"{metric} is not currently available for use")
+
+    # check that the estimator selected is appropriate for the problem type
+    if not (
+        ((problem_type == "regression") and (est._estimator_type == "regressor"))
+        or ((problem_type == "classification") and (est._estimator_type == "classifier"))
+    ):
+        raise ValueError(f"{estimator} is not a valid method for a {problem_type} problem")
+
+    # check that the metric selected is appropriate for the problem types
+    if not (problem_type == METRICS[metric][1]):
+        raise ValueError(f"{metric} is not a valid method for a {problem_type} problem")
+
+    return METRICS[metric][2] == "LOW"
+
+
+def parse_FS_model_inputs(problem_type, eval_model, eval_metric):
+    omicLogger.debug("Parsing model inputs...")
+    # check we have a valid problem type
+    if not ((problem_type == "classification") or (problem_type == "regression")):
+        raise ValueError("PROBLEM TYPE IS NOT CLASSIFICATION OR REGRESSION")
+
+    # set the evaluation model and metric if we have been given None
+    if eval_model is None:
+        eval_model = "RandomForestClassifier" if problem_type == "classification" else "RandomForestRegressor"
+
+    if eval_metric is None:
+        eval_metric = "f1_score" if problem_type == "classification" else "mean_squared_error"
+
+    # check the combination of model and metric is valid
+    low = validate_FS_models_and_metrics(problem_type, eval_model, eval_metric)
+
+    return eval_model, eval_metric, low
+
+
+def parse_FS_settings(problem_type, FS_dict):
+    """
+    A function to check ALL the FS setting to ensure correct/valid entiries/combinations
+    """
+    omicLogger.debug("Parsing feature selection settings...")
+
+    keys = FS_dict.keys()
+
+    if "k" in keys:
+        k = FS_dict["k"]
+    else:
+        k = "auto"
+
+    if "var_threshold" in keys:
+        threshold = FS_dict["var_threshold"]
+    else:
+        threshold = 0
+
+    if "method" in keys:
+        method_dict = FS_dict["method"]
+
+        if method_dict["name"] not in FS_METHODS.keys():
+            raise ValueError(
+                f"{method_dict['name']} not currently available for use. please select a different method."
+            )
+
+        elif method_dict["name"] == "SelectKBest":
+            if ("metric" not in method_dict.keys()) or (method_dict["metric"] is None):
+                method_dict["metric"] = "f_classif" if problem_type == "classification" else "f_regression"
+
+            elif method_dict["metric"] not in FS_KBEST_METRICS.keys():
+                raise ValueError(
+                    f"{method_dict['metric']} not currently available for use. please select a different metric."
+                )
+
+            else:
+                metrics_reg = ["f_regression", "mutual_info_regression"]
+                metrics_clf = ["f_classif", "mutual_info_classif"]
+
+                if ((problem_type == "classification") and (method_dict["metric"] not in metrics_clf)) or (
+                    (problem_type == "regression") and (method_dict["metric"] not in metrics_reg)
+                ):
+                    raise ValueError(f"{method_dict['metric']} is not appropriate for problem type {problem_type}.")
+
+        elif method_dict["name"] == "RFE":
+            if ("estimator" not in method_dict.keys()) or (method_dict["estimator"] is None):
+                method_dict["estimator"] = (
+                    "RandomForestClassifier" if problem_type == "classification" else "RandomForestRegressor"
+                )
+            elif method_dict["estimator"] not in MODELS.keys():
+                raise ValueError(
+                    f"{method_dict['estimator']} not currently available for use. please select a different estimator."
+                )
+            else:
+                if (
+                    (MODELS[method_dict["estimator"]]._estimator_type == "regressor")
+                    and (problem_type == "classification")
+                ) or (
+                    (MODELS[method_dict["estimator"]]._estimator_type == "classifier")
+                    and (problem_type == "regression")
+                ):
+                    raise ValueError(f"{method_dict['estimator']} is not appropriate for problem type {problem_type}.")
+    else:
+        method_dict = {
+            "name": "SelectKBest",
+            "metric": "f_classif" if problem_type == "classification" else "f_regression",
+        }
+
+    if "auto" in keys:
+        auto_dict = FS_dict["auto"]
+        if "min_features" not in auto_dict.keys():
+            auto_dict["min_features"] = 10
+
+        if "max_features" not in auto_dict.keys():
+            auto_dict["min_features"] = None
+
+        if "interval" not in auto_dict.keys():
+            auto_dict["interval"] = 1
+
+        if "eval_model" not in auto_dict.keys():
+            auto_dict["eval_model"] = None
+
+        if "eval_metric" not in auto_dict.keys():
+            auto_dict["eval_metric"] = None
+
+        (
+            auto_dict["eval_model"],
+            auto_dict["eval_metric"],
+            auto_dict["low"],
+        ) = parse_FS_model_inputs(problem_type, auto_dict["eval_model"], auto_dict["eval_metric"])
+    else:
+        auto_dict = {
+            "min_features": 10,
+            "max_features": None,
+            "interval": 1,
+            "eval_model": "RandomForestClassifier" if problem_type == "classification" else "RandomForestRegressor",
+            "eval_metric": "f1_score" if problem_type == "classification" else "mean_squared_error",
+            "low": problem_type != "classification",
+        }
+
+    if method_dict["name"] == "RFE":
+        auto_dict["eval_model"] = method_dict["estimator"]
+
+    return k, threshold, method_dict, auto_dict

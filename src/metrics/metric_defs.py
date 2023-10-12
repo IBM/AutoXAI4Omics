@@ -1,0 +1,46 @@
+######
+# LIMITATION --- for now only using metrics that take y_true and y_predict
+from sklearn.metrics import (
+    accuracy_score,
+    explained_variance_score,
+    f1_score,
+    hamming_loss,
+    hinge_loss,
+    jaccard_score,
+    log_loss,
+    matthews_corrcoef,
+    mean_absolute_error,
+    mean_gamma_deviance,
+    mean_poisson_deviance,
+    mean_squared_error,
+    mean_squared_log_error,
+    mean_tweedie_deviance,
+    median_absolute_error,
+    precision_score,
+    r2_score,
+    recall_score,
+    zero_one_loss,
+)
+
+
+METRICS = {
+    "accuracy_score": (accuracy_score, "classification", "HIGH"),
+    "f1_score": (f1_score, "classification", "HIGH"),
+    "hamming_loss": (hamming_loss, "classification", "LOW"),
+    "hinge_loss": (hinge_loss, "classification", "LOW"),
+    "jaccard_score": (jaccard_score, "classification", "HIGH"),
+    "log_loss": (log_loss, "classification", "LOW"),
+    "matthews_corrcoef": (matthews_corrcoef, "classification", "HIGH"),
+    "precision_score": (precision_score, "classification", "HIGH"),
+    "recall_score": (recall_score, "classification", "HIGH"),
+    "zero_one_loss": (zero_one_loss, "classification", "LOW"),
+    "explained_variance_score": (explained_variance_score, "regression", "HIGH"),
+    "mean_absolute_error": (mean_absolute_error, "regression", "LOW"),
+    "mean_squared_error": (mean_squared_error, "regression", "LOW"),
+    "mean_squared_log_error": (mean_squared_log_error, "regression", "LOW"),
+    "median_absolute_error": (median_absolute_error, "regression", "LOW"),
+    "r2_score": (r2_score, "regression", "HIGH"),
+    "mean_poisson_deviance": (mean_poisson_deviance, "regression", "LOW"),
+    "mean_gamma_deviance": (mean_gamma_deviance, "regression", "LOW"),
+    "mean_tweedie_deviance": (mean_tweedie_deviance, "regression", "LOW"),
+}

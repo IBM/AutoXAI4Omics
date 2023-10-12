@@ -3,7 +3,6 @@ import glob
 import pandas as pd
 import utils.load
 import utils.utils
-import utils.data_processing as dp
 import logging
 import joblib
 import cProfile
@@ -83,7 +82,7 @@ if __name__ == "__main__":
         SS, FS = assert_data_transformers_exists(experiment_folder, config_dict)
 
         omicLogger.info("Applying trained standardising...")
-        x_to_predict = dp.transform_data(x_to_predict, SS)
+        x_to_predict = utils.utils.transform_data(x_to_predict, SS)
 
         if FS is not None:
             omicLogger.info("Applying trained feature selector...")
@@ -118,4 +117,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    dp.prof_to_csv(pr, config_dict)
+    utils.utils.prof_to_csv(pr, config_dict)

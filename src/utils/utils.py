@@ -4,24 +4,21 @@
 # (C) Copyright IBM Corp. 2019, 2020
 # --------------------------------------------------------------------------
 
+import cProfile
+import io
 from pathlib import Path
 import argparse
+import pstats
 import numpy as np
-
-# import scipy.sparse
-# from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 import pandas as pd
+import scipy.sparse
 import shap
-
 from models.custom_model import CustomModel
-
-# import calour as ca
 from datetime import datetime
 import logging
 import yaml
 import os
 import shutil
-
 from utils.load import load_config
 from utils.save import save_config
 import utils.parsers as parsers
@@ -468,3 +465,34 @@ def pretty_names(name, name_type):
     elif name_type == "score":
         new_name = score_dict[name]
     return new_name
+
+
+def prof_to_csv(prof: cProfile.Profile, config_dict: dict):
+    out_stream = io.StringIO()
+    pstats.Stats(prof, stream=out_stream).print_stats()
+    result = out_stream.getvalue()
+    # chop off header lines
+    result = "ncalls" + result.split("ncalls")[-1]
+    lines = [",".join(line.rstrip().split(None, 5)) for line in result.split("\n")]
+    csv_lines = "\n".join(lines)
+
+    with open(
+        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        "w+",
+    ) as f:
+        f.write(csv_lines)
+
+
+def transform_data(data, transformer):
+    omicLogger.debug("Transforming given data according to given transformer...")
+
+    if scipy.sparse.issparse(data):
+        data = data.todense()
+    else:
+        data = data
+
+    try:
+        data = transformer.transform(data)
+        return data
+    except Exception:
+        raise TypeError("Supplied transformer does not have the transform method")

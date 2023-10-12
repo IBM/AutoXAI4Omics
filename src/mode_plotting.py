@@ -12,7 +12,6 @@ import plotting.plots
 import utils.utils as utils
 from models.custom_model import CustomModel
 import cProfile
-import utils.data_processing as data_processing
 import logging
 
 
@@ -227,4 +226,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    data_processing.prof_to_csv(pr, config_dict)
+    utils.prof_to_csv(pr, config_dict)

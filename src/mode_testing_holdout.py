@@ -14,7 +14,6 @@ import utils.utils
 from models.custom_model import CustomModel
 import joblib
 import cProfile
-import utils.data_processing as dp
 import mode_plotting
 import logging
 
@@ -56,7 +55,9 @@ if __name__ == "__main__":
 
         with open(experiment_folder / "transformer_std.pkl", "rb") as f:
             SS = joblib.load(f)
-        x_heldout = dp.transform_data(x_heldout, SS)  # transform the holdout data according to the fitted standardiser
+        x_heldout = utils.utils.transform_data(
+            x_heldout, SS
+        )  # transform the holdout data according to the fitted standardiser
 
         if config_dict["ml"]["feature_selection"] is not None:
             with open(experiment_folder / "transformer_fs.pkl", "rb") as f:
@@ -166,4 +167,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    dp.prof_to_csv(pr, config_dict)
+    utils.utils.prof_to_csv(pr, config_dict)
