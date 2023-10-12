@@ -28,3 +28,5 @@ Change log for the codebase. Initialised from the developments following version
     - removed globals() call
     - extracted funcs from data_processing into appropriate locations, and file fully dispersed
     - changed call of parsing FS entry to correct place
+    - separated problem specific plots into own files
+    - extracted shap and permutation importance plots into their own subfolders given their importance
