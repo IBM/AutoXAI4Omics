@@ -1,12 +1,6 @@
-import json
-import pickle
-from json.decoder import JSONDecodeError
 from pathlib import Path
-import pdb
-import warnings
 
 import numpy as np
-import scipy.sparse
 import pandas as pd
 from sklearn.model_selection import (
     cross_val_score,
@@ -30,7 +24,6 @@ from sklearn.metrics import (
     recall_score,
     f1_score,
     confusion_matrix,
-    make_scorer,
     roc_auc_score,
 )
 import sklearn.metrics as skm
@@ -54,7 +47,6 @@ from utils.save import save_results
 from utils.save import save_model
 
 
-from utils.utils import copy_best_content
 import os
 
 from plotting.plots import plot_model_performance
