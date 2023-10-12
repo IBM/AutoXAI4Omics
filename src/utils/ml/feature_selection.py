@@ -16,7 +16,6 @@ from sklearn.feature_selection import (
     mutual_info_regression,
 )
 
-from utils.parsers import parse_FS_settings
 import logging
 
 omicLogger = logging.getLogger("OmicLogger")
@@ -230,8 +229,11 @@ def feat_selection(experiment_folder, x, y, features_names, problem_type, FS_dic
     omicLogger.debug("Initalising feature selection process...")
 
     # extract out parameters from the feature selection dict
-
-    k, threshold, method_dict, auto_dict = parse_FS_settings(problem_type, FS_dict)
+    # TODO: remove below row and fold into correct FS spot
+    k = FS_dict["k"]
+    threshold = FS_dict["var_threshold"]
+    method_dict = FS_dict["method"]
+    auto_dict = FS_dict["auto"]
 
     # apply variance threholding
     if threshold >= 0:

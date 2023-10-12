@@ -351,9 +351,8 @@ def parse_MLSettings(problemEntry):
         if (problemEntry["test_size"] < 0) or (problemEntry["test_size"] > 1):
             raise ValueError("test_size must be a float between 0 and 1")
 
-    if (
-        "problem_type" not in keys
-    ):  ###################################### MANDITORY ######################################
+    ###################################### MANDITORY ######################################
+    if "problem_type" not in keys:
         raise ValueError('problem_type must be given. Options: "classification" or "regression"')
     else:
         type_check(problemEntry["problem_type"], str, "problem_type")
@@ -442,9 +441,8 @@ def parse_MLSettings(problemEntry):
         "autokeras",
         "fixedkeras",
     }
-    if (
-        "model_list" not in keys
-    ):  ###################################### MANDITORY ######################################
+    ###################################### MANDITORY ######################################
+    if "model_list" not in keys:
         raise ValueError(f"model_list must be a list containg at least one option from: {max_opts}")
     else:
         type_check(problemEntry["model_list"], list, "model_list")
@@ -493,6 +491,10 @@ def parse_MLSettings(problemEntry):
 
     if "feature_selection" not in keys:
         problemEntry["feature_selection"] = None
+    elif problemEntry["feature_selection"] is not None:
+        problemEntry["feature_selection"] = parse_FS_settings(
+            problemEntry["problem_type"], problemEntry["feature_selection"]
+        )
 
     return problemEntry
 
@@ -923,6 +925,7 @@ def parse_config(config):
     return config
 
 
+#################### feature selection ####################
 def validate_FS_models_and_metrics(problem_type, estimator, metric):
     """
     Check if given the problem type that the estimator and evaluation metric chosen is valid or not
@@ -1074,4 +1077,11 @@ def parse_FS_settings(problem_type, FS_dict):
     if method_dict["name"] == "RFE":
         auto_dict["eval_model"] = method_dict["estimator"]
 
-    return k, threshold, method_dict, auto_dict
+    fs_dict = {
+        "k": k,
+        "var_threshold": threshold,
+        "method": method_dict,
+        "auto": auto_dict,
+    }
+
+    return fs_dict

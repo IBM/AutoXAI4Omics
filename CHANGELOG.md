@@ -27,3 +27,4 @@ Change log for the codebase. Initialised from the developments following version
     - streamlined init
     - removed globals() call
     - extracted funcs from data_processing into appropriate locations, and file fully dispersed
+    - changed call of parsing FS entry to correct place
