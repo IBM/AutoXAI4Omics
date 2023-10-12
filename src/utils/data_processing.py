@@ -1,13 +1,15 @@
 # import subprocess
 import plotting.plots
-import utils.utils as utils
+
+# import utils.utils as utils
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, LabelEncoder, QuantileTransformer
 import scipy.sparse
 from sklearn.model_selection import GroupShuffleSplit, GroupKFold, train_test_split
 from sklearn.pipeline import Pipeline
-import models.models as models
+
+# import models.models as models
 import math
 import logging
 
@@ -94,6 +96,66 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 
 ######
+# LIMITATION --- for now only using metrics that take y_true and y_predict
+METRICS = {
+    "accuracy_score": (accuracy_score, "classification", "HIGH"),
+    "f1_score": (f1_score, "classification", "HIGH"),
+    "hamming_loss": (hamming_loss, "classification", "LOW"),
+    "hinge_loss": (hinge_loss, "classification", "LOW"),
+    "jaccard_score": (jaccard_score, "classification", "HIGH"),
+    "log_loss": (log_loss, "classification", "LOW"),
+    "matthews_corrcoef": (matthews_corrcoef, "classification", "HIGH"),
+    "precision_score": (precision_score, "classification", "HIGH"),
+    "recall_score": (recall_score, "classification", "HIGH"),
+    "zero_one_loss": (zero_one_loss, "classification", "LOW"),
+    "explained_variance_score": (explained_variance_score, "regression", "HIGH"),
+    "mean_absolute_error": (mean_absolute_error, "regression", "LOW"),
+    "mean_squared_error": (mean_squared_error, "regression", "LOW"),
+    "mean_squared_log_error": (mean_squared_log_error, "regression", "LOW"),
+    "median_absolute_error": (median_absolute_error, "regression", "LOW"),
+    "r2_score": (r2_score, "regression", "HIGH"),
+    "mean_poisson_deviance": (mean_poisson_deviance, "regression", "LOW"),
+    "mean_gamma_deviance": (mean_gamma_deviance, "regression", "LOW"),
+    "mean_tweedie_deviance": (mean_tweedie_deviance, "regression", "LOW"),
+}
+
+
+MODELS = {
+    "LinearRegression": LinearRegression,
+    "Ridge": Ridge,
+    "RidgeCV": RidgeCV,
+    "SGDRegressor": SGDRegressor,
+    "ElasticNet": ElasticNet,
+    "ElasticNetCV": ElasticNetCV,
+    "Lars": Lars,
+    "LarsCV": LarsCV,
+    "Lasso": Lasso,
+    "LassoCV": LassoCV,
+    "LassoLars": LassoLars,
+    "LassoLarsCV": LassoLarsCV,
+    "RandomForestRegressor": RandomForestRegressor,
+    "KNeighborsRegressor": KNeighborsRegressor,
+    "MLPClassifier": MLPClassifier,
+    "KNeighborsClassifier": KNeighborsClassifier,
+    "SVC": SVC,
+    "GaussianProcessClassifier": GaussianProcessClassifier,
+    "RBF": RBF,
+    "DecisionTreeClassifier": DecisionTreeClassifier,
+    "RandomForestClassifier": RandomForestClassifier,
+    "AdaBoostClassifier": AdaBoostClassifier,
+}
+
+FS_METHODS = {
+    "SelectKBest": SelectKBest,
+    "RFE": RFE,
+}
+
+FS_KBEST_METRICS = {
+    "f_regression": f_regression,
+    "f_classif": f_classif,
+    "mutual_info_regression": mutual_info_regression,
+    "mutual_info_classif": mutual_info_classif,
+}
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -127,7 +189,7 @@ def transform_data(data, transformer):
     try:
         data = transformer.transform(data)
         return data
-    except:
+    except Exception:
         raise TypeError("Supplied transformer does not have the transform method")
 
 
@@ -213,19 +275,21 @@ def std_split(x, y, config_dict):
 # Potential improvements:
 # ability to choose feature selection method --- DONE (TODO: LOAD IN OTHER METHODS WHEN SKLEARN VERSION GETS UPDATED)
 # ability to choose selection model used --- DONE (TODO: LOAD IN EXTRA CLASSIFIERS & TEST)
-# ability to choose selection model evaluation metric --- DONE (TODO: TEST ALL METRICS & LOAD IN EXTRAS WHEN SKLEARN GETS UPDATED)
+# ability to choose selection model evaluation metric --- DONE (TODO: TEST ALL METRICS & LOAD IN EXTRAS WHEN SKLEARN
+#           GETS UPDATED)
 
 
-def manual_feat_selection(x, y, k_select, problem_type, method_dict):
+def manual_feat_selection(x, y, k_select, method_dict):
     """
-    Given trainging data this will select the k best features for predicting the target. we assume data has been split into test-train and standardised
+    Given trainging data this will select the k best features for predicting the target. we assume data has been split
+    into test-train and standardised
     """
     omicLogger.debug(f"Selecting {k_select} features...")
     if method_dict["name"] == "SelectKBest":
-        metric = globals()[method_dict["metric"]]
+        metric = FS_KBEST_METRICS[method_dict["metric"]]
         fs_method = SelectKBest(metric, k=k_select)
     elif method_dict["name"] == "RFE":
-        estimator = globals()[method_dict["estimator"]](random_state=42, n_jobs=-1)
+        estimator = MODELS[method_dict["estimator"]][0](random_state=42, n_jobs=-1)
         fs_method = RFE(estimator, n_features_to_select=k_select, step=1)
     else:
         raise ValueError(f"{method_dict['name']} is not available for use, please select another method.")
@@ -242,14 +306,14 @@ def train_eval_feat_selection_model(x, y, n_feature, problem_type, eval_model=No
     """
     omicLogger.debug("Selecting features, training model and evaluating for given K...")
 
-    x_trans, SKB = manual_feat_selection(x, y, n_feature, problem_type, method_dict)  # select the best k features
+    x_trans, SKB = manual_feat_selection(x, y, n_feature, method_dict)  # select the best k features
 
     # check the combination of model and metric is valid
     # eval_model, eval_metric, _ = parse_model_inputs(problem_type, eval_model, eval_metric)
 
     # init the model and metric functions
-    selection_model = globals()[eval_model]
-    metric = globals()[eval_metric]
+    selection_model = MODELS[eval_model]
+    metric = METRICS[eval_metric][0]
 
     # init the model
     fs_model = selection_model(n_jobs=-1, random_state=42, verbose=0, warm_start=False)
@@ -334,7 +398,8 @@ def auto_feat_selection(
     save=True,
 ):
     """
-    Given data this will automatically find the best number of features, we assume the data provided has already been split into test-train and standardised.
+    Given data this will automatically find the best number of features, we assume the data provided has already been
+    split into test-train and standardised.
     """
     omicLogger.debug("Initialising the automated selection process...")
 
@@ -388,7 +453,7 @@ def auto_feat_selection(
 
     print("transforming data based on optimum k")
     # get the transformed dataset and the transformer
-    x_trans, SKB = manual_feat_selection(x, y, chosen_k, problem_type, method_dict)
+    x_trans, SKB = manual_feat_selection(x, y, chosen_k, method_dict)
 
     return x_trans, SKB
 
@@ -424,7 +489,7 @@ def feat_selection(experiment_folder, x, y, features_names, problem_type, FS_dic
         )
     elif isinstance(k, int):
         print("Beginning feature selection with given k")
-        x_trans, SKB = manual_feat_selection(x_trans, y, k, problem_type, method_dict)
+        x_trans, SKB = manual_feat_selection(x_trans, y, k, method_dict)
     else:
         raise ValueError("k must either be an int or the string 'auto' ")
 
@@ -451,13 +516,13 @@ def validate_models_and_metrics(problem_type, estimator, metric):
     """
     omicLogger.debug("Validating model and metric settings...")
     # check that the estimator is loaded in
-    if estimator not in globals():
+    if estimator not in MODELS.keys():
         raise ValueError(f"{estimator} is not currently available for use")
     else:
-        est = globals()[estimator]
+        est = MODELS[estimator]
 
     # check that the metric is loaded in
-    if metric not in globals():
+    if metric not in METRICS.keys():
         raise ValueError(f"{metric} is not currently available for use")
 
     # check that the estimator selected is appropriate for the problem type
@@ -467,39 +532,11 @@ def validate_models_and_metrics(problem_type, estimator, metric):
     ):
         raise ValueError(f"{estimator} is not a valid method for a {problem_type} problem")
 
-    # LIMITATION --- for now only using metrics that take y_true and y_predict
-    metrics_classifiers = [
-        "accuracy_score",
-        "f1_score",
-        "hamming_loss",
-        "hinge_loss",
-        "jaccard_score",
-        "log_loss",
-        "matthews_corrcoef",
-        "precision_score",
-        "recall_score",
-        "zero_one_loss",
-    ]
-    metrics_regressors = [
-        "explained_variance_score",
-        "mean_absolute_error",
-        "mean_squared_error",
-        "mean_squared_log_error",
-        "median_absolute_error",
-        "r2_score",
-        "mean_poisson_deviance",
-        "mean_gamma_deviance",
-        "mean_tweedie_deviance",
-    ]  #'mean_absolute_percentage_error', 'd2_tweedie_score', 'mean_pinball_loss']
-
     # check that the metric selected is appropriate for the problem types
-    if not (
-        ((problem_type == "regression") and (metric in metrics_regressors))
-        or ((problem_type == "classification") and (metric in metrics_classifiers))
-    ):
+    if not (problem_type == METRICS[metric][1]):
         raise ValueError(f"{metric} is not a valid method for a {problem_type} problem")
 
-    return utils.low_metric_objective(metric)
+    return METRICS[metric][2] == "LOW"
 
 
 def parse_model_inputs(problem_type, eval_model, eval_metric):
@@ -542,7 +579,7 @@ def parse_FS_settings(problem_type, FS_dict):
     if "method" in keys:
         method_dict = FS_dict["method"]
 
-        if method_dict["name"] not in globals():
+        if method_dict["name"] not in FS_METHODS.keys():
             raise ValueError(
                 f"{method_dict['name']} not currently available for use. please select a different method."
             )
@@ -551,7 +588,7 @@ def parse_FS_settings(problem_type, FS_dict):
             if ("metric" not in method_dict.keys()) or (method_dict["metric"] is None):
                 method_dict["metric"] = "f_classif" if problem_type == "classification" else "f_regression"
 
-            elif method_dict["metric"] not in globals():
+            elif method_dict["metric"] not in FS_KBEST_METRICS.keys():
                 raise ValueError(
                     f"{method_dict['metric']} not currently available for use. please select a different metric."
                 )
@@ -570,16 +607,16 @@ def parse_FS_settings(problem_type, FS_dict):
                 method_dict["estimator"] = (
                     "RandomForestClassifier" if problem_type == "classification" else "RandomForestRegressor"
                 )
-            elif method_dict["estimator"] not in globals():
+            elif method_dict["estimator"] not in MODELS.keys():
                 raise ValueError(
                     f"{method_dict['estimator']} not currently available for use. please select a different estimator."
                 )
             else:
                 if (
-                    (globals()[method_dict["estimator"]]._estimator_type == "regressor")
+                    (MODELS[method_dict["estimator"]]._estimator_type == "regressor")
                     and (problem_type == "classification")
                 ) or (
-                    (globals()[method_dict["estimator"]]._estimator_type == "classifier")
+                    (MODELS[method_dict["estimator"]]._estimator_type == "classifier")
                     and (problem_type == "regression")
                 ):
                     raise ValueError(f"{method_dict['estimator']} is not appropriate for problem type {problem_type}.")
@@ -632,7 +669,8 @@ def parse_FS_settings(problem_type, FS_dict):
 
 def oversample_data(x_train, y_train, seed):
     """
-    Given the training set it has a class imbalance problem, this will over sample the training data to balance out the classes
+    Given the training set it has a class imbalance problem, this will over sample the training data to balance out the
+    classes
     """
     omicLogger.debug("Oversampling data...")
     # define oversampling strategy
@@ -647,7 +685,8 @@ def oversample_data(x_train, y_train, seed):
 
 def undersample_data(x_train, y_train, seed):
     """
-    Given the training set it has a class imbalance problem, this will over sample the training data to balance out the classes
+    Given the training set it has a class imbalance problem, this will over sample the training data to balance out the
+    classes
     """
     omicLogger.debug("Undersampling data...")
     # define undersampling strategy
@@ -662,7 +701,8 @@ def undersample_data(x_train, y_train, seed):
 
 # def combisample_data(x_train, y_train,seed):
 #     """
-#     Given the training set it has a class imbalance problem, this will over sample the training data to balance out the classes
+#     Given the training set it has a class imbalance problem, this will over sample the training data to balance out
+#     the classes
 #     """
 #     omicLogger.debug("Combined sampling data...")
 #     # define combinedsampling strategy

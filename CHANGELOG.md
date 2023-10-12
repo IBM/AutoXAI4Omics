@@ -25,3 +25,4 @@ Change log for the codebase. Initialised from the developments following version
     - extracted save funcs from models into utils.save
     - extracted load funcs from data_processing into utils.load
     - streamlined init
+    - removed globals() call

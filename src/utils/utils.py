@@ -388,43 +388,6 @@ def setup_logger(experiment_folder):
     return omicLogger
 
 
-def low_metric_objective(metric):
-    """
-    Given a metric will return a bool representing wether the objective for the metric is as low as possible (True) or
-    high as possible (False)
-    """
-    omicLogger.debug("Getting metric objective (High vs Low)...")
-
-    objective_low = [
-        "hamming_loss",
-        "hinge_loss",
-        "log_loss",
-        "zero_one_loss",
-        "mean_absolute_error",
-        "mean_squared_error",
-        "mean_squared_log_error",
-        "median_absolute_error",
-        "mean_poisson_deviance",
-        "mean_gamma_deviance",
-        "mean_tweedie_deviance",
-    ]
-    objective_high = [
-        "accuracy_score",
-        "f1_score",
-        "jaccard_score",
-        "matthews_corrcoef",
-        "precision_score",
-        "recall_score",
-        "explained_variance_score",
-        "r2_score",
-    ]
-
-    if not ((metric in objective_high) or (metric in objective_low)):
-        raise ValueError(f"{metric} not avalable for use")
-    else:
-        return metric in objective_low
-
-
 def copy_best_content(experiment_folder, best_models, collapse_tax):
     omicLogger.debug("Extracting best model content into unique folder...")
 
