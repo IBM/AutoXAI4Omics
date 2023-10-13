@@ -62,20 +62,20 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
             col_names += [f"class_{i}_prob" for i in range(len(set(y_train)))]
 
         score_dict = {
-            "Accuracy_Train": accuracy_score(y_train, pred_train),
-            "Accuracy_Test": accuracy_score(y_test, pred_test),
-            "F1_score_Train": f1_score(y_train, pred_train, average="weighted"),
-            "F1_score_Test": f1_score(y_test, pred_test, average="weighted"),
-            "F1_score_PerClass_Train": f1_score(y_train, pred_train, average=None),
-            "F1_score_PerClass_Test": f1_score(y_test, pred_test, average=None),
-            "Precision_Train": precision_score(y_train, pred_train, average="weighted"),
-            "Precision_Test": precision_score(y_test, pred_test, average="weighted"),
-            "Precision_PerClass_Train": precision_score(y_train, pred_train, average=None),
-            "Precision_PerClass_Test": precision_score(y_test, pred_test, average=None),
-            "Recall_Train": recall_score(y_train, pred_train, average="weighted"),
-            "Recall_Test": recall_score(y_test, pred_test, average="weighted"),
-            "Recall_PerClass_Train": recall_score(y_train, pred_train, average=None),
-            "Recall_PerClass_Test": recall_score(y_test, pred_test, average=None),
+            "accuracy_score_Train": accuracy_score(y_train, pred_train),
+            "accuracy_score_Test": accuracy_score(y_test, pred_test),
+            "f1_score_Train": f1_score(y_train, pred_train, average="weighted"),
+            "f1_score_Test": f1_score(y_test, pred_test, average="weighted"),
+            "f1_score_PerClass_Train": f1_score(y_train, pred_train, average=None),
+            "f1_score_PerClass_Test": f1_score(y_test, pred_test, average=None),
+            "precision_score_Train": precision_score(y_train, pred_train, average="weighted"),
+            "precision_score_Test": precision_score(y_test, pred_test, average="weighted"),
+            "precision_score_PerClass_Train": precision_score(y_train, pred_train, average=None),
+            "precision_score_PerClass_Test": precision_score(y_test, pred_test, average=None),
+            "recall_score_Train": recall_score(y_train, pred_train, average="weighted"),
+            "recall_score_Test": recall_score(y_test, pred_test, average="weighted"),
+            "recall_score_PerClass_Train": recall_score(y_train, pred_train, average=None),
+            "recall_score_PerClass_Test": recall_score(y_test, pred_test, average=None),
             "Conf_matrix_Train": confusion_matrix(y_train, pred_train),
             "Conf_matrix_Test": confusion_matrix(y_test, pred_test),
             "ROC_auc_score_Train": roc_auc_score(y_train, pred_train_proba, multi_class="ovo"),
@@ -88,17 +88,23 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
             columns=col_names,
         )
     else:
+        # TODO: remove the definition of score_dict and employ the implementation below
+        # score_results_dict={}
+        # for score_name, scorer in score_dict.items():
+        #     score_results_dict[score_name+"_Train"] = scorer._score_func(y_train,pred_train,**scorer._kwargs)
+        #     score_results_dict[score_name+"_Test"] = scorer._score_func(y_test,pred_test,**scorer._kwargs)
+
         score_dict = {
-            "MSE_Train": skm.mean_squared_error(y_train, pred_train),
-            "MSE_Test": skm.mean_squared_error(y_test, pred_test),
-            "Mean_AE_Train": skm.mean_absolute_error(y_train, pred_train),
-            "Mean_AE_Test": skm.mean_absolute_error(y_test, pred_test),
-            "Med_ae_Train": skm.median_absolute_error(y_train, pred_train),
-            "Med_ae_Test": skm.median_absolute_error(y_test, pred_test),
-            "Mean_APE_Train": skm.mean_absolute_percentage_error(y_train, pred_train),
-            "Mean_APE_Test": skm.mean_absolute_percentage_error(y_test, pred_test),
-            "R2_Train": skm.r2_score(y_train, pred_train),
-            "R2_Test": skm.r2_score(y_test, pred_test)
+            "mean_squared_error_Train": skm.mean_squared_error(y_train, pred_train),
+            "mean_squared_error_Test": skm.mean_squared_error(y_test, pred_test),
+            "mean_absolute_error_Train": skm.mean_absolute_error(y_train, pred_train),
+            "mean_absolute_error_Test": skm.mean_absolute_error(y_test, pred_test),
+            "median_absolute_error_Train": skm.median_absolute_error(y_train, pred_train),
+            "median_absolute_error_Test": skm.median_absolute_error(y_test, pred_test),
+            "mean_absolute_percentage_error_Train": skm.mean_absolute_percentage_error(y_train, pred_train),
+            "mean_absolute_percentage_error_Test": skm.mean_absolute_percentage_error(y_test, pred_test),
+            "r2_score_Train": skm.r2_score(y_train, pred_train),
+            "r2_score_Test": skm.r2_score(y_test, pred_test)
             # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='mean_ae', cv=5)
         }
 

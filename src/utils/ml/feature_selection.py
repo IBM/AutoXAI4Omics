@@ -75,8 +75,6 @@ def train_eval_feat_selection_model(
     omicLogger.debug("Fitting and predicting with eval model...")
     fs_model.fit(x_trans, y_true)
     y_pred = fs_model.predict(x_trans)
-    omicLogger.debug(f"y_true: {y_true}")
-    omicLogger.debug(f"y_pre: {y_pred}")
     omicLogger.debug("scoring eval model with eval metic...")
     eval_score = metric._score_func(y_true, y_pred, **metric._kwargs)
 
