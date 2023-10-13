@@ -938,7 +938,7 @@ def validate_FS_models_and_metrics(problem_type, estimator, metric):
         est = MODELS[estimator]
 
     # check that the metric is loaded in
-    if metric not in METRICS.keys():
+    if not (metric in METRICS["regression"].keys() or metric in METRICS["classification"].keys()):
         raise ValueError(f"{metric} is not currently available for use")
 
     # check that the estimator selected is appropriate for the problem type
@@ -949,10 +949,10 @@ def validate_FS_models_and_metrics(problem_type, estimator, metric):
         raise ValueError(f"{estimator} is not a valid method for a {problem_type} problem")
 
     # check that the metric selected is appropriate for the problem types
-    if not (problem_type == METRICS[metric][1]):
+    if metric not in METRICS[problem_type].keys():
         raise ValueError(f"{metric} is not a valid method for a {problem_type} problem")
 
-    return METRICS[metric][2] == "LOW"
+    return METRICS[metric][0]._sign == -1
 
 
 def parse_FS_model_inputs(problem_type, eval_model, eval_metric):

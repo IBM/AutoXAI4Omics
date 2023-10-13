@@ -1,5 +1,6 @@
 ######
 # LIMITATION --- for now only using metrics that take y_true and y_predict
+import numpy as np
 from sklearn.metrics import (
     accuracy_score,
     explained_variance_score,
@@ -20,27 +21,39 @@ from sklearn.metrics import (
     r2_score,
     recall_score,
     zero_one_loss,
+    mean_absolute_percentage_error,
+    make_scorer,
 )
 
 
+def rmse(y_true, y_pred):
+    return np.sqrt(mean_squared_error(y_true, y_pred))
+
+
 METRICS = {
-    "accuracy_score": (accuracy_score, "classification", "HIGH"),
-    "f1_score": (f1_score, "classification", "HIGH"),
-    "hamming_loss": (hamming_loss, "classification", "LOW"),
-    "hinge_loss": (hinge_loss, "classification", "LOW"),
-    "jaccard_score": (jaccard_score, "classification", "HIGH"),
-    "log_loss": (log_loss, "classification", "LOW"),
-    "matthews_corrcoef": (matthews_corrcoef, "classification", "HIGH"),
-    "precision_score": (precision_score, "classification", "HIGH"),
-    "recall_score": (recall_score, "classification", "HIGH"),
-    "zero_one_loss": (zero_one_loss, "classification", "LOW"),
-    "explained_variance_score": (explained_variance_score, "regression", "HIGH"),
-    "mean_absolute_error": (mean_absolute_error, "regression", "LOW"),
-    "mean_squared_error": (mean_squared_error, "regression", "LOW"),
-    "mean_squared_log_error": (mean_squared_log_error, "regression", "LOW"),
-    "median_absolute_error": (median_absolute_error, "regression", "LOW"),
-    "r2_score": (r2_score, "regression", "HIGH"),
-    "mean_poisson_deviance": (mean_poisson_deviance, "regression", "LOW"),
-    "mean_gamma_deviance": (mean_gamma_deviance, "regression", "LOW"),
-    "mean_tweedie_deviance": (mean_tweedie_deviance, "regression", "LOW"),
+    "classification": {
+        "accuracy_score": make_scorer(accuracy_score, greater_is_better=True),
+        "f1_score": make_scorer(f1_score, greater_is_better=True, average="weighted"),
+        "hamming_loss": make_scorer(hamming_loss, greater_is_better=False),
+        "hinge_loss": make_scorer(hinge_loss, greater_is_better=False),
+        "jaccard_score": make_scorer(jaccard_score, greater_is_better=True, average="weighted"),
+        "log_loss": make_scorer(log_loss, greater_is_better=False),
+        "matthews_corrcoef": make_scorer(matthews_corrcoef, greater_is_better=True),
+        "precision_score": make_scorer(precision_score, greater_is_better=True, average="weighted"),
+        "recall_score": make_scorer(recall_score, greater_is_better=True, average="weighted"),
+        "zero_one_loss": make_scorer(zero_one_loss, greater_is_better=False),
+    },
+    "regression": {
+        "explained_variance_score": make_scorer(explained_variance_score, greater_is_better=True),
+        "mean_squared_error": make_scorer(mean_squared_error, greater_is_better=False),
+        "mean_squared_log_error": make_scorer(mean_squared_log_error, greater_is_better=False),
+        "rsme": make_scorer(rmse, greater_is_better=False),
+        "mean_absolute_error": make_scorer(mean_absolute_error, greater_is_better=False),
+        "median_absolute_error": make_scorer(median_absolute_error, greater_is_better=False),
+        "mean_absolute_percentage_error": make_scorer(mean_absolute_percentage_error, greater_is_better=False),
+        "r2_score": make_scorer(r2_score, greater_is_better=True),
+        "mean_poisson_deviance": make_scorer(mean_poisson_deviance, greater_is_better=False),
+        "mean_gamma_deviance": make_scorer(mean_gamma_deviance, greater_is_better=False),
+        "mean_tweedie_deviance": make_scorer(mean_tweedie_deviance, greater_is_better=False),
+    },
 }

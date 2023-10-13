@@ -7,7 +7,7 @@
 from pathlib import Path
 import glob
 import pandas as pd
-import models.models as models
+import metrics.metrics as models
 import utils.load
 import utils.save
 import utils.utils
@@ -64,14 +64,7 @@ if __name__ == "__main__":
                 FS = joblib.load(f)
             x_heldout = FS.transform(x_heldout)
 
-        omicLogger.info("Heldout data transformed. Defining scorers...")
-
-        # Select only the scorers that we want
-        scorer_dict = models.define_scorers(config_dict["ml"]["problem_type"])
-        omicLogger.info("All scorers defined. Extracting chosen scorers...")
-
-        scorer_dict = {k: scorer_dict[k] for k in config_dict["ml"]["scorer_list"]}
-        omicLogger.info("Scorers extracted. Defining plots...")
+        omicLogger.info("Heldout data transformed. Defining plots...")
 
         # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
         # So set that up here
@@ -155,7 +148,6 @@ if __name__ == "__main__":
             y_train,
             x_heldout,
             y_heldout,
-            scorer_dict,
             holdout=True,
         )
         omicLogger.info("Process completed.")

@@ -140,15 +140,7 @@ def main():
 
         # Load the models we have pre-defined
         model_dict = models.define_models(config_dict["ml"]["problem_type"], config_dict["ml"]["hyper_tuning"])
-        omicLogger.info("Models defined. Defining all Scorers...")
-
-        #  Define all the scores
-        scorer_dict = models.define_scorers(config_dict["ml"]["problem_type"])
-        omicLogger.info("All scorers defined. Extracting chosen scorers...")
-
-        #  Select only the scores that you want
-        scorer_dict = {k: scorer_dict[k] for k in config_dict["ml"]["scorer_list"]}
-        omicLogger.info("Scorers extracted. Creating results df holder...")
+        omicLogger.info("Models defined. Creating results df holder...")
 
         # Create dataframes for results
         df_train = pd.DataFrame()
@@ -168,7 +160,6 @@ def main():
             x_test=x_test,
             y_test=y_test,
             experiment_folder=experiment_folder,
-            scorer_dict=scorer_dict,
             fit_scorer=config_dict["ml"]["fit_scorer"],
             hyper_tuning=config_dict["ml"]["hyper_tuning"],
             hyper_budget=config_dict["ml"]["hyper_budget"],
@@ -192,7 +183,6 @@ def main():
                 y_train,
                 x_test,
                 y_test,
-                scorer_dict,
             )
         else:
             omicLogger.info("No plots desired.")

@@ -1,4 +1,3 @@
-import inspect
 from sklearn.pipeline import Pipeline
 from models.model_defs import MODELS
 import plotting.plots
@@ -77,7 +76,7 @@ def train_eval_feat_selection_model(x, y, n_feature, problem_type, eval_model=No
 
     # init the model and metric functions
     selection_model = MODELS[eval_model]
-    metric = METRICS[eval_metric][0]
+    metric = METRICS[eval_metric]
 
     # init the model
     fs_model = selection_model(n_jobs=-1, random_state=42, verbose=0, warm_start=False)
@@ -85,13 +84,7 @@ def train_eval_feat_selection_model(x, y, n_feature, problem_type, eval_model=No
     # fit, predict, score
     fs_model.fit(x_trans, y)
     y_pred = fs_model.predict(x_trans)
-    kwa = {}
-    # if 'pos_label' in inspect.signature(metric).parameters.keys():
-    #     kwa['pos_label'] = sorted(list(set(y)))[0]
-
-    if "average" in inspect.signature(metric).parameters.keys():
-        kwa["average"] = "weighted"
-    eval_score = metric(y, y_pred, **kwa)
+    eval_score = metric(y, y_pred)
 
     return eval_score
 

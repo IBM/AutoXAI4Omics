@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import metrics.metrics
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import (
@@ -18,18 +18,9 @@ from sklearn.ensemble import (
     RandomForestRegressor,
     GradientBoostingRegressor,
 )
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    confusion_matrix,
-    roc_auc_score,
-)
-import sklearn.metrics as skm
-from sklearn.preprocessing import normalize
 
 from xgboost import XGBClassifier, XGBRegressor
+from metrics.metrics import evaluate_model
 
 import models.model_params as model_params
 
@@ -55,38 +46,6 @@ from plotting.plots import plot_model_performance
 ##### Change this to n_jobs = -1 for all-core processing (when we get that working)
 n_jobs = -1
 omicLogger = logging.getLogger("OmicLogger")
-
-
-########## LOAD/DEFINE ##########
-def define_scorers(problem_type):
-    """
-    Define the different measures we can use
-    """
-    omicLogger.debug("Define scores to evaluate the models...")
-
-    if problem_type == "classification":
-        scorer_dict = {
-            "acc": skm.make_scorer(skm.accuracy_score),
-            "f1": skm.make_scorer(skm.f1_score, average="weighted"),
-            # 'f1_class': accuracy_score(true_labels, pred_labels), #just added
-            "prec": skm.make_scorer(skm.precision_score, average="weighted"),
-            # 'prec_class': skm.make_scorer(skm.precision_score, average=None),
-            "recall": skm.make_scorer(skm.recall_score, average="weighted")
-            # 'recall_class': skm.make_scorer(skm.recall_score, average=None)
-            # 'cv_f1': skm.make_scorer(cross_val_score, scoring='f1_weighted', cv=5)
-        }
-    elif problem_type == "regression":
-        scorer_dict = {
-            "mse": skm.make_scorer(skm.mean_squared_error, greater_is_better=False),
-            "mean_ae": skm.make_scorer(skm.mean_absolute_error, greater_is_better=False),
-            "med_ae": skm.make_scorer(skm.median_absolute_error, greater_is_better=False),
-            "rmse": skm.make_scorer(rmse, greater_is_better=False),
-            "mean_ape": skm.make_scorer(skm.mean_absolute_percentage_error, greater_is_better=False),
-            "r2": skm.make_scorer(skm.r2_score, greater_is_better=True),
-        }
-    else:
-        raise ValueError(f"{problem_type} is not recognised, must be either 'regression' or 'classification'")
-    return scorer_dict
 
 
 def select_model_dict(hyper_tuning):
@@ -172,92 +131,6 @@ def define_models(problem_type, hyper_tuning):
 
 
 ########## EVALUATE ##########
-def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test):
-    """
-    Define the different measures we can use and Calculate some of them on the model
-    """
-    omicLogger.debug("Evaluate the model...")
-
-    pred_test = model.predict(x_test)
-    pred_train = model.predict(x_train)
-    pred_out = np.concatenate((pred_train, pred_test))
-
-    if problem_type == "classification":
-        col_names = ["Prediction"]
-        if len(set(y_train)) == 2:
-            pred_test_proba = model.predict_proba(x_test)[:, 1]
-            pred_train_proba = model.predict_proba(x_train)[:, 1]
-            prob_out = np.concatenate((pred_train_proba, pred_test_proba)).reshape(-1, 1)
-            col_names += ["probability"]
-        else:
-            pred_test_proba = normalize(model.predict_proba(x_test), axis=1, norm="l1")
-            pred_train_proba = normalize(model.predict_proba(x_train), axis=1, norm="l1")
-            prob_out = np.concatenate((pred_train_proba, pred_test_proba))
-            col_names += [f"class_{i}_prob" for i in range(len(set(y_train)))]
-
-        score_dict = {
-            "Accuracy_Train": accuracy_score(y_train, pred_train),
-            "Accuracy_Test": accuracy_score(y_test, pred_test),
-            "F1_score_Train": f1_score(y_train, pred_train, average="weighted"),
-            "F1_score_Test": f1_score(y_test, pred_test, average="weighted"),
-            "F1_score_PerClass_Train": f1_score(y_train, pred_train, average=None),
-            "F1_score_PerClass_Test": f1_score(y_test, pred_test, average=None),
-            "Precision_Train": precision_score(y_train, pred_train, average="weighted"),
-            "Precision_Test": precision_score(y_test, pred_test, average="weighted"),
-            "Precision_PerClass_Train": precision_score(y_train, pred_train, average=None),
-            "Precision_PerClass_Test": precision_score(y_test, pred_test, average=None),
-            "Recall_Train": recall_score(y_train, pred_train, average="weighted"),
-            "Recall_Test": recall_score(y_test, pred_test, average="weighted"),
-            "Recall_PerClass_Train": recall_score(y_train, pred_train, average=None),
-            "Recall_PerClass_Test": recall_score(y_test, pred_test, average=None),
-            "Conf_matrix_Train": confusion_matrix(y_train, pred_train),
-            "Conf_matrix_Test": confusion_matrix(y_test, pred_test),
-            "ROC_auc_score_Train": roc_auc_score(y_train, pred_train_proba, multi_class="ovo"),
-            "ROC_auc_score_Test": roc_auc_score(y_test, pred_test_proba, multi_class="ovo"),
-            # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='f1_weighted', cv=5)
-        }
-
-        pred_out = pd.DataFrame(
-            np.concatenate((pred_out.reshape(-1, 1), prob_out), axis=1),
-            columns=col_names,
-        )
-    else:
-        score_dict = {
-            "MSE_Train": skm.mean_squared_error(y_train, pred_train),
-            "MSE_Test": skm.mean_squared_error(y_test, pred_test),
-            "Mean_AE_Train": skm.mean_absolute_error(y_train, pred_train),
-            "Mean_AE_Test": skm.mean_absolute_error(y_test, pred_test),
-            "Med_ae_Train": skm.median_absolute_error(y_train, pred_train),
-            "Med_ae_Test": skm.median_absolute_error(y_test, pred_test),
-            "Mean_APE_Train": skm.mean_absolute_percentage_error(y_train, pred_train),
-            "Mean_APE_Test": skm.mean_absolute_percentage_error(y_test, pred_test),
-            "R2_Train": skm.r2_score(y_train, pred_train),
-            "R2_Test": skm.r2_score(y_test, pred_test)
-            # 'CV_F1Scores': cross_val_score(model, x_train, y_train, scoring='mean_ae', cv=5)
-        }
-
-        pred_out = pd.DataFrame(pred_out, columns=["Prediction"])
-
-    return score_dict, pred_out
-
-
-def eval_scores(problem_type, scorer_dict, model, data, true_labels):
-    omicLogger.debug("Gathering evaluation scores...")
-    scores_dict = {}
-    for score_name, score_func in scorer_dict.items():
-        if problem_type == "regression":
-            scores_dict[score_name] = np.abs(score_func(model, data, true_labels))
-        else:
-            scores_dict[score_name] = score_func(model, data, true_labels)
-
-    return scores_dict
-
-
-def rmse(y_true, y_pred):
-    omicLogger.debug("calculating rmse...")
-    return np.sqrt(skm.mean_squared_error(y_true, y_pred))
-
-
 def best_selector(experiment_folder, problem_type, metric=None, collapse_tax=None):
     """
     Give trained models this will find and select the best one
@@ -328,12 +201,12 @@ def random_search(
     model,
     model_name,
     param_ranges,
-    budget,
+    budget: int,
     x_train,
     y_train,
-    seed_num,
+    seed_num: int,
     scorer_dict,
-    fit_scorer,
+    fit_scorer: str,
 ):
     """
     Wrapper for using sklearn's RandomizedSearchCV
@@ -374,7 +247,16 @@ def random_search(
     return random_search.best_estimator_
 
 
-def grid_search(model, model_name, param_ranges, x_train, y_train, seed_num, scorer_dict, fit_scorer):
+def grid_search(
+    model,
+    model_name,
+    param_ranges,
+    x_train,
+    y_train,
+    seed_num,
+    scorer_dict,
+    fit_scorer: str,
+):
     """
     Wrapper for using sklearn's GridSearchCV
     """
@@ -443,7 +325,6 @@ def run_models(
     x_test,
     y_test,
     experiment_folder,
-    scorer_dict,
     fit_scorer,
     hyper_tuning,
     hyper_budget,
@@ -476,16 +357,22 @@ def run_models(
     # Just need it here for determing tuning logic
     ref_model_dict = select_model_dict(hyper_tuning)
     # So that we can pass the func to the CustomModels
+
+    #  Define all the scores
+    scorer_dict = metrics.metrics.define_scorers(config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"])
     scorer_func = scorer_dict[config_dict["ml"]["fit_scorer"]]
 
     # Run each model
     for model_name in model_list:
         omicLogger.debug(f"Training model: {model_name}")
         print(f"Testing {model_name}")
+
         # Placeholder variable to handle mixed hyperparam tuning logic for MLPEnsemble
         single_model_flag = False
+
         # Load the model and it's parameter path
         model, param_ranges = model_dict[model_name]
+
         # Setup the CustomModels
         if model_name in CustomModel.custom_aliases:
             single_model_flag, param_ranges = model.setup_custom_model(
@@ -498,6 +385,7 @@ def run_models(
                 x_test,
                 y_test,
             )
+
         # Random search
         if hyper_tuning == "random" and not single_model_flag:
             print("Using random search")

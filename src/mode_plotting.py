@@ -6,8 +6,8 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import models.models as models
-from plotting.plots import define_plots
+import metrics.metrics as metrics
+from plotting.plot_utils import define_plots
 import plotting.plots
 import utils.utils as utils
 from models.custom_model import CustomModel
@@ -28,7 +28,6 @@ def plot_graphs(
     y_train,
     x_test,
     y_test,
-    scorer_dict,
     holdout=False,
 ):
     """
@@ -36,6 +35,9 @@ def plot_graphs(
     length and maintenance). Here you can customize whether you want to graph on train or test based on what arguments
     are given for the data and labels.
     """
+    omicLogger.debug("Defining scorers...")
+    scorer_dict = metrics.define_scorers(config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"])
+
     omicLogger.debug("Defining graphs...")
     plot_dict = define_plots(config_dict["ml"]["problem_type"])
 
@@ -194,8 +196,7 @@ if __name__ == "__main__":
         omicLogger.info("Test/train Data Loaded. Defining scorers...")
 
         # Select only the scorers that we want
-        scorer_dict = models.define_scorers(config_dict["ml"]["problem_type"])
-        scorer_dict = {k: scorer_dict[k] for k in config_dict["ml"]["scorer_list"]}
+
         omicLogger.info("All scorers defined. Defining plots...")
 
         # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
@@ -216,7 +217,6 @@ if __name__ == "__main__":
             y_train,
             x_test,
             y_test,
-            scorer_dict,
         )
         omicLogger.info("Process completed.")
     except Exception as e:
