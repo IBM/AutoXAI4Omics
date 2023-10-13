@@ -1,21 +1,15 @@
 from sklearn.pipeline import Pipeline
 from models.model_defs import MODELS
-import plotting.plots
+import plotting.plots_both
 import numpy as np
 import pandas as pd
 import math
 from metrics.metric_defs import METRICS
-from sklearn.feature_selection import (
-    RFE,
-    SelectKBest,
-    VarianceThreshold,
-    f_classif,
-    f_regression,
-    mutual_info_classif,
-    mutual_info_regression,
-)
+from sklearn.feature_selection import VarianceThreshold
 
 import logging
+
+from utils.ml.feature_selection_defs import FS_KBEST_METRICS, FS_METHODS
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -28,20 +22,6 @@ def variance_removal(x, threshold=0):
     return x_trans, selector
 
 
-FS_KBEST_METRICS = {
-    "f_regression": f_regression,
-    "f_classif": f_classif,
-    "mutual_info_regression": mutual_info_regression,
-    "mutual_info_classif": mutual_info_classif,
-}
-
-
-FS_METHODS = {
-    "SelectKBest": SelectKBest,
-    "RFE": RFE,
-}
-
-
 def manual_feat_selection(x, y, k_select, method_dict):
     """
     Given trainging data this will select the k best features for predicting the target. we assume data has been split
@@ -50,10 +30,10 @@ def manual_feat_selection(x, y, k_select, method_dict):
     omicLogger.debug(f"Selecting {k_select} features...")
     if method_dict["name"] == "SelectKBest":
         metric = FS_KBEST_METRICS[method_dict["metric"]]
-        fs_method = SelectKBest(metric, k=k_select)
+        fs_method = FS_METHODS[method_dict["name"]](metric, k=k_select)
     elif method_dict["name"] == "RFE":
         estimator = MODELS[method_dict["estimator"]][0](random_state=42, n_jobs=-1)
-        fs_method = RFE(estimator, n_features_to_select=k_select, step=1)
+        fs_method = FS_METHODS[method_dict["name"]](estimator, n_features_to_select=k_select, step=1)
     else:
         raise ValueError(f"{method_dict['name']} is not available for use, please select another method.")
 
@@ -76,7 +56,7 @@ def train_eval_feat_selection_model(x, y, n_feature, problem_type, eval_model=No
 
     # init the model and metric functions
     selection_model = MODELS[eval_model]
-    metric = METRICS[eval_metric]
+    metric = METRICS[problem_type][eval_metric]
 
     # init the model
     fs_model = selection_model(n_jobs=-1, random_state=42, verbose=0, warm_start=False)
@@ -113,7 +93,7 @@ def k_selector(experiment_folder, acc, top=True, low=True, save=True):
     else:
         sr_n = (sr[["r_m", "r_std"]] - sr[["r_m", "r_std"]].mean()) / sr[["r_m", "r_std"]].std()  # normalise the values
 
-        plotting.plots.opt_k_plot(experiment_folder, sr_n, save)
+        plotting.plots_both.opt_k_plot(experiment_folder, sr_n, save)
 
         if low:
             sr_n = sr_n - math.floor(
@@ -201,7 +181,7 @@ def auto_feat_selection(
         )
 
     # plot feat-acc
-    plotting.plots.feat_acc_plot(experiment_folder, acc, save)
+    plotting.plots_both.feat_acc_plot(experiment_folder, acc, save)
 
     print("Selecting optimum k")
     chosen_k = k_selector(

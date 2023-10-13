@@ -3,17 +3,9 @@ import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit, KFold, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from models.custom_model import CustomModel
-from plotting.importance.perm_imp import permut_importance
-from plotting.plots_clf import conf_matrix_plot, roc_curve_plot
-from plotting.plots_reg import (
-    correlation_plot,
-    distribution_hist,
-    histograms,
-    joint_plot,
-)
-from plotting.shap.plots_shap import shap_force_plots
-from plotting.shap.plots_shap import shap_plots
+from utils.utils import pretty_names
 import utils.load
+from tensorflow.keras import backend as K
 
 # import utils.utils
 from utils.save import save_fig
@@ -21,7 +13,6 @@ import seaborn as sns
 
 import matplotlib.pyplot as plt
 
-from tensorflow.keras import backend as K
 
 import glob
 import time
@@ -66,7 +57,7 @@ def plot_model_performance(experiment_folder, data, metric, low, save=True):
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    tidy_tf()
+    K.clear_session()
 
 
 def opt_k_plot(experiment_folder, sr_n, save=True):
@@ -92,7 +83,7 @@ def opt_k_plot(experiment_folder, sr_n, save=True):
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    tidy_tf()
+    K.clear_session()
 
 
 def feat_acc_plot(experiment_folder, acc, save=True):
@@ -115,41 +106,7 @@ def feat_acc_plot(experiment_folder, acc, save=True):
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    tidy_tf()
-
-
-def pretty_names(name, name_type):
-    omicLogger.debug("Fetching pretty names...")
-    model_dict = {
-        "rf": "RF",
-        "mlp_keras": "DeepNN",
-        "tab_auto": "TabAuto",
-        "autokeras": "A/Keras",
-        "fixedkeras": "Keras",
-        "autolgbm": "A/LGBM",
-        "autoxgboost": "A/XGB",
-        "autosklearn": "A/SKL",
-        "autogluon": "A/Gluon",
-        "svm": "SVM",
-        "knn": "KNN",
-        "xgboost": "XGBoost",
-        "adaboost": "AdaBoost",
-    }
-    score_dict = {
-        "acc": "Accuracy",
-        "f1": "F1-Score",
-        "mean_ae": "Mean Absolute Error",
-        "med_ae": "Median Absolute Error",
-        "rmse": "Root Mean Squared Error",
-        "mean_ape": "Mean Absolute Percentage Error",
-        "r2": "R^2",
-    }
-
-    if name_type == "model":
-        new_name = model_dict[name]
-    elif name_type == "score":
-        new_name = score_dict[name]
-    return new_name
+    K.clear_session()
 
 
 def barplot_scorer(
@@ -185,7 +142,7 @@ def barplot_scorer(
         score = np.abs(scorer_dict[config_dict["ml"]["fit_scorer"]](model, data, true_labels))
         all_scores.append(score)
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()
     pretty_model_names = [pretty_names(name, "model") for name in config_dict["ml"]["model_list"]]
     # Make the barplot
     sns.barplot(x=pretty_model_names, y=all_scores, ax=ax)
@@ -207,7 +164,7 @@ def barplot_scorer(
     plt.close()
 
     # Clear keras and TF sessions/graphs etc.
-    tidy_tf()
+    K.clear_session()
 
 
 def boxplot_scorer_cv_groupby(
@@ -314,7 +271,7 @@ def boxplot_scorer_cv_groupby(
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    tidy_tf()
+    K.clear_session()
 
 
 def boxplot_scorer_cv(
@@ -423,54 +380,7 @@ def boxplot_scorer_cv(
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    tidy_tf()
-
-
-def create_fig(nrows=1, ncols=1, figsize=None):
-    """
-    Universal call to subplots to allow consistent specification of e.g. figsize
-    """
-    omicLogger.debug("Creating figure canvas...")
-    fig, ax = plt.subplots(nrows, ncols, figsize=figsize)
-    return fig, ax
+    K.clear_session()
 
 
 ##########
-
-
-def define_plots(problem_type):
-    """
-    Define the plots for each problem type. This needs to be maintained manually.
-    """
-    omicLogger.debug("Define dict of plots...")
-    # Some plots can only be done for a certain type of ML
-    # Check here that the ones given are valid
-    common_plot_dict = {
-        "barplot_scorer": barplot_scorer,
-        "boxplot_scorer": boxplot_scorer_cv,
-        "boxplot_scorer_cv_groupby": boxplot_scorer_cv_groupby,
-        "shap_plots": shap_plots,
-        "shap_force_plots": shap_force_plots,
-        "permut_imp_test": permut_importance,
-    }
-
-    if problem_type == "classification":
-        plot_dict = {
-            **common_plot_dict,
-            "conf_matrix": conf_matrix_plot,
-            "roc_curve": roc_curve_plot,
-        }
-    elif problem_type == "regression":
-        plot_dict = {
-            **common_plot_dict,
-            "corr": correlation_plot,
-            "hist": distribution_hist,
-            "hist_overlapped": histograms,
-            "joint": joint_plot,
-            "joint_dens": joint_plot,
-        }
-    return plot_dict
-
-
-def tidy_tf():
-    K.clear_session()

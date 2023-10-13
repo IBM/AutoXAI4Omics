@@ -3,7 +3,7 @@ from models.model_defs import MODELS
 from metrics.metric_defs import METRICS
 import logging
 
-from utils.ml.feature_selection import FS_KBEST_METRICS, FS_METHODS
+from utils.ml.feature_selection_defs import FS_METHODS, FS_KBEST_METRICS
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -952,7 +952,7 @@ def validate_FS_models_and_metrics(problem_type, estimator, metric):
     if metric not in METRICS[problem_type].keys():
         raise ValueError(f"{metric} is not a valid method for a {problem_type} problem")
 
-    return METRICS[metric][0]._sign == -1
+    return METRICS[problem_type][metric]._sign == -1
 
 
 def parse_FS_model_inputs(problem_type, eval_model, eval_metric):
