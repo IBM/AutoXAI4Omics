@@ -8,7 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import metrics.metrics as metrics
 from plotting.plot_utils import define_plots
-import plotting.plots
+import plotting.plots_both
 import utils.utils as utils
 from models.custom_model import CustomModel
 import cProfile
@@ -162,7 +162,7 @@ def plot_graphs(
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    plotting.plots.tidy_tf()
+    plotting.plots_both.K.clear_session()
 
 
 if __name__ == "__main__":

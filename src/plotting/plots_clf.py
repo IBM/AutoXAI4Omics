@@ -1,7 +1,7 @@
 import matplotlib.cm as cmx
 import numpy as np
 import utils.load
-from plotting.plots import tidy_tf
+from tensorflow.keras import backend as K
 from utils.save import save_fig
 
 
@@ -84,7 +84,7 @@ def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, ho
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()
 
 
 def conf_matrix_plot(
@@ -169,4 +169,4 @@ def conf_matrix_plot(
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()

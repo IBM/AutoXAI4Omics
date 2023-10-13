@@ -228,3 +228,38 @@ def transform_data(data, transformer):
         return data
     except Exception:
         raise TypeError("Supplied transformer does not have the transform method")
+
+
+def pretty_names(name, name_type):
+    omicLogger.debug("Fetching pretty names...")
+    model_dict = {
+        "rf": "RF",
+        "mlp_keras": "DeepNN",
+        "tab_auto": "TabAuto",
+        "autokeras": "A/Keras",
+        "fixedkeras": "Keras",
+        "autolgbm": "A/LGBM",
+        "autoxgboost": "A/XGB",
+        "autosklearn": "A/SKL",
+        "autogluon": "A/Gluon",
+        "svm": "SVM",
+        "knn": "KNN",
+        "xgboost": "XGBoost",
+        "adaboost": "AdaBoost",
+    }
+    # score_dict = {
+    #     "acc": "Accuracy",
+    #     "f1": "F1-Score",
+    #     "mean_ae": "Mean Absolute Error",
+    #     "med_ae": "Median Absolute Error",
+    #     "rmse": "Root Mean Squared Error",
+    #     "mean_ape": "Mean Absolute Percentage Error",
+    #     "r2": "R^2",
+    # }
+
+    if name_type == "model":
+        new_name = model_dict[name]
+    elif name_type == "score":
+        new_name = name.replace("_", " ").capitalize()
+        # new_name = score_dict[name]
+    return new_name

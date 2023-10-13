@@ -1,8 +1,8 @@
 import utils.load
 from models.custom_model import CustomModel
-from plotting.plots import pretty_names, tidy_tf
+from utils.utils import pretty_names
 from utils.save import save_fig
-
+from tensorflow.keras import backend as K
 
 import eli5
 import matplotlib.pyplot as plt
@@ -140,4 +140,4 @@ def permut_importance(
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()

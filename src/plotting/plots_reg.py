@@ -2,7 +2,7 @@ import numpy as np
 import scipy.stats as sp
 import seaborn as sns
 import utils.load
-from plotting.plots import tidy_tf
+from tensorflow.keras import backend as K
 from utils.save import save_fig
 
 
@@ -57,7 +57,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
         plt.close()
 
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()
 
 
 def correlation_plot(
@@ -118,7 +118,7 @@ def correlation_plot(
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()
 
 
 def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name, save=True, holdout=False):
@@ -168,7 +168,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()
 
 
 def joint_plot(
@@ -256,4 +256,4 @@ def joint_plot(
         plt.clf()
         plt.close()
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()

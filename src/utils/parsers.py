@@ -3,7 +3,7 @@ from models.model_defs import MODELS
 from metrics.metric_defs import METRICS
 import logging
 
-from utils.ml.feature_selection import FS_KBEST_METRICS, FS_METHODS
+from utils.ml.feature_selection_defs import FS_METHODS, FS_KBEST_METRICS
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -401,20 +401,27 @@ def parse_MLSettings(problemEntry):
         if problemEntry["balancing"] not in ["OVER", "UNDER", "NONE"]:
             raise ValueError('balancing must be either "OVER", "UNDER", "NONE"')
 
-    classif = ["acc", "f1", "prec", "recall"]
-    reg = ["mean_ae", "med_ae", "rmse", "mean_ape", "r2"]
-
     if "fit_scorer" not in keys:
-        problemEntry["fit_scorer"] = "f1" if problemEntry["problem_type"] == "classification" else "mean_ape"
+        problemEntry["fit_scorer"] = (
+            "f1_score" if problemEntry["problem_type"] == "classification" else "mean_absolute_percentage_error"
+        )
     else:
         type_check(problemEntry["fit_scorer"], str, "fit_scorer")
 
-        valid = classif if problemEntry["problem_type"] == "classification" else reg
+        valid = (
+            list(METRICS["classification"].keys())
+            if problemEntry["problem_type"] == "classification"
+            else list(METRICS["regression"].keys())
+        )
         if problemEntry["fit_scorer"] not in valid:
             raise ValueError(f"fit_scorer must be one of: {valid}")
 
     if "scorer_list" not in keys:
-        problemEntry["scorer_list"] = classif if problemEntry["problem_type"] == "classification" else reg
+        problemEntry["scorer_list"] = (
+            list(METRICS["classification"].keys())
+            if problemEntry["problem_type"] == "classification"
+            else list(METRICS["regression"].keys())
+        )
     else:
         type_check(problemEntry["scorer_list"], list, "scorer_list")
         list_type_check(problemEntry["scorer_list"], str, "scorer_list")
@@ -423,7 +430,11 @@ def parse_MLSettings(problemEntry):
             problemEntry["scorer_list"].append(problemEntry["fit_scorer"])
 
         given_opts = set(problemEntry["scorer_list"])
-        max_opts = set(classif if problemEntry["problem_type"] == "classification" else reg)
+        max_opts = set(
+            METRICS["classification"].keys()
+            if problemEntry["problem_type"] == "classification"
+            else METRICS["regression"].keys()
+        )
 
         if not given_opts.issubset(max_opts):
             raise ValueError(
@@ -952,7 +963,7 @@ def validate_FS_models_and_metrics(problem_type, estimator, metric):
     if metric not in METRICS[problem_type].keys():
         raise ValueError(f"{metric} is not a valid method for a {problem_type} problem")
 
-    return METRICS[metric][0]._sign == -1
+    return METRICS[problem_type][metric]._sign == -1
 
 
 def parse_FS_model_inputs(problem_type, eval_model, eval_metric):

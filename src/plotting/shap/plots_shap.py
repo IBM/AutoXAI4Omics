@@ -1,5 +1,6 @@
+from tensorflow.keras import backend as K
 import utils.load
-from plotting.plots import pretty_names, tidy_tf
+from utils.utils import pretty_names
 from utils.save import save_fig
 
 
@@ -208,7 +209,7 @@ def shap_force_plots(
                 plt.close()
                 # Clear everything
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()
 
 
 def summary_SHAPdotplot_perclass(
@@ -648,7 +649,7 @@ def shap_plots(
             plt.clf()
             plt.close()
             # Clear keras and TF sessions/graphs etc.
-            tidy_tf()
+            K.clear_session()
 
         # Regression
         else:
@@ -701,7 +702,7 @@ def shap_plots(
             plt.clf()
             plt.close()
             # Clear keras and TF sessions/graphs etc.
-            tidy_tf()
+            K.clear_session()
 
             #  #Produce and save dot plot for regression
 
@@ -731,7 +732,7 @@ def shap_plots(
             plt.close()
 
             # Clear keras and TF sessions/graphs etc.
-            tidy_tf()
+            K.clear_session()
 
             # Plot abundance bar plot feature from SHAP
             class_names = []
@@ -789,7 +790,7 @@ def shap_plots(
         plt.close()
 
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()
 
 
 def shap_summary_plot(
@@ -857,4 +858,4 @@ def shap_summary_plot(
         plt.close()
 
         # Clear keras and TF sessions/graphs etc.
-        tidy_tf()
+        K.clear_session()

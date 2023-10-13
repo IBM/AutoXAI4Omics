@@ -220,13 +220,19 @@ def config_model_list():
 def config_scorers(problem_type):
     if problem_type == "regression":
         outdict = {
-            "fit_scorer": "mean_ape",
-            "scorer_list": ["mean_ae", "med_ae", "rmse", "mean_ape", "r2"],
+            "fit_scorer": "mean_absolute_percentage_error",
+            "scorer_list": [
+                "mean_absolute_error",
+                "median_absolute_error",
+                "rmse",
+                "mean_absolute_percentage_error",
+                "r2_score",
+            ],
         }
     elif problem_type == "classification":
         outdict = {
-            "fit_scorer": "f1",
-            "scorer_list": ["acc", "f1"],
+            "fit_scorer": "f1_score",
+            "scorer_list": ["accuracy_score", "f1_score"],
         }
     return outdict
 

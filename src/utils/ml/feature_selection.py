@@ -1,45 +1,25 @@
 from sklearn.pipeline import Pipeline
 from models.model_defs import MODELS
-import plotting.plots
+import plotting.plots_both
 import numpy as np
 import pandas as pd
 import math
 from metrics.metric_defs import METRICS
-from sklearn.feature_selection import (
-    RFE,
-    SelectKBest,
-    VarianceThreshold,
-    f_classif,
-    f_regression,
-    mutual_info_classif,
-    mutual_info_regression,
-)
+from sklearn.feature_selection import VarianceThreshold
 
 import logging
+
+from utils.ml.feature_selection_defs import FS_KBEST_METRICS, FS_METHODS
 
 omicLogger = logging.getLogger("OmicLogger")
 
 
 def variance_removal(x, threshold=0):
-    omicLogger.debug("Applying variance thresholding...")
+    omicLogger.debug(f"Applying varience threshold, using {threshold} as the threshold...")
     selector = VarianceThreshold(threshold)
     x_trans = selector.fit_transform(x)
 
     return x_trans, selector
-
-
-FS_KBEST_METRICS = {
-    "f_regression": f_regression,
-    "f_classif": f_classif,
-    "mutual_info_regression": mutual_info_regression,
-    "mutual_info_classif": mutual_info_classif,
-}
-
-
-FS_METHODS = {
-    "SelectKBest": SelectKBest,
-    "RFE": RFE,
-}
 
 
 def manual_feat_selection(x, y, k_select, method_dict):
@@ -49,11 +29,14 @@ def manual_feat_selection(x, y, k_select, method_dict):
     """
     omicLogger.debug(f"Selecting {k_select} features...")
     if method_dict["name"] == "SelectKBest":
+        omicLogger.debug(f"Using {method_dict['name']} with {method_dict['metric']}...")
         metric = FS_KBEST_METRICS[method_dict["metric"]]
-        fs_method = SelectKBest(metric, k=k_select)
+        fs_method = FS_METHODS[method_dict["name"]](metric, k=k_select)
+
     elif method_dict["name"] == "RFE":
+        omicLogger.debug(f"Using {method_dict['name']} with {method_dict['estimator']}...")
         estimator = MODELS[method_dict["estimator"]][0](random_state=42, n_jobs=-1)
-        fs_method = RFE(estimator, n_features_to_select=k_select, step=1)
+        fs_method = FS_METHODS[method_dict["name"]](estimator, n_features_to_select=k_select, step=1)
     else:
         raise ValueError(f"{method_dict['name']} is not available for use, please select another method.")
 
@@ -63,28 +46,39 @@ def manual_feat_selection(x, y, k_select, method_dict):
     return x_trans, fs_method
 
 
-def train_eval_feat_selection_model(x, y, n_feature, problem_type, eval_model=None, eval_metric=None, method_dict=None):
+def train_eval_feat_selection_model(
+    x,
+    y_true,
+    n_feature: int,
+    problem_type: str,
+    eval_model: str = None,
+    eval_metric: str = None,
+    method_dict: dict = None,
+):
     """
     Train and score a model if it were to only use n_feature
     """
     omicLogger.debug("Selecting features, training model and evaluating for given K...")
 
-    x_trans, SKB = manual_feat_selection(x, y, n_feature, method_dict)  # select the best k features
-
-    # check the combination of model and metric is valid
-    # eval_model, eval_metric, _ = parse_model_inputs(problem_type, eval_model, eval_metric)
+    # select the best k features
+    x_trans, SKB = manual_feat_selection(x, y_true, n_feature, method_dict)
 
     # init the model and metric functions
+    omicLogger.debug(f"Init model {eval_model} and metric {eval_metric}")
     selection_model = MODELS[eval_model]
-    metric = METRICS[eval_metric]
+    metric = METRICS[problem_type][eval_metric]
 
     # init the model
     fs_model = selection_model(n_jobs=-1, random_state=42, verbose=0, warm_start=False)
 
     # fit, predict, score
-    fs_model.fit(x_trans, y)
+    omicLogger.debug("Fitting and predicting with eval model...")
+    fs_model.fit(x_trans, y_true)
     y_pred = fs_model.predict(x_trans)
-    eval_score = metric(y, y_pred)
+    omicLogger.debug(f"y_true: {y_true}")
+    omicLogger.debug(f"y_pre: {y_pred}")
+    omicLogger.debug("scoring eval model with eval metic...")
+    eval_score = metric._score_func(y_true, y_pred, **metric._kwargs)
 
     return eval_score
 
@@ -113,7 +107,7 @@ def k_selector(experiment_folder, acc, top=True, low=True, save=True):
     else:
         sr_n = (sr[["r_m", "r_std"]] - sr[["r_m", "r_std"]].mean()) / sr[["r_m", "r_std"]].std()  # normalise the values
 
-        plotting.plots.opt_k_plot(experiment_folder, sr_n, save)
+        plotting.plots_both.opt_k_plot(experiment_folder, sr_n, save)
 
         if low:
             sr_n = sr_n - math.floor(
@@ -160,32 +154,7 @@ def auto_feat_selection(
     """
     omicLogger.debug("Initialising the automated selection process...")
 
-    print("Generating logarithmic selection for k")
-    if max_features is None:
-        max_features = x.shape[1]
-    elif max_features > x.shape[1]:
-        print(f"Max features {max_features} is more than the columns in dataset, defaulting to full number of columns")
-        max_features = x.shape[1]
-
-    # if the max number of features is infact smaller than min_features, set min_features to 1
-    if max_features - 3 <= min_features:
-        print("Min features more than given number of features, setting min_features to 1.")
-        min_features = 1
-
-    # get a logarithmic spaced selction of potential k
-    n_feature_candicates = (
-        (
-            10
-            ** np.arange(
-                np.log10(min_features),
-                np.log10(max_features) // (10**-interval) / (10**interval),
-                (10**-interval),
-            )
-            // 1
-        )
-        .astype(int)
-        .tolist()
-    )
+    n_feature_candicates = generate_k_candicates(x, min_features, max_features, interval)
 
     # parse the model evaluation settings
     # eval_model, eval_metric, low = parse_model_inputs(problem_type, eval_model, eval_metric)
@@ -201,7 +170,7 @@ def auto_feat_selection(
         )
 
     # plot feat-acc
-    plotting.plots.feat_acc_plot(experiment_folder, acc, save)
+    plotting.plots_both.feat_acc_plot(experiment_folder, acc, save)
 
     print("Selecting optimum k")
     chosen_k = k_selector(
@@ -215,6 +184,41 @@ def auto_feat_selection(
     return x_trans, SKB
 
 
+def generate_k_candicates(x, min_features: int, max_features: int, interval: int) -> list[int]:
+    if max_features is None:
+        max_features = x.shape[1]
+    elif max_features > x.shape[1]:
+        omicLogger.warning(
+            f"Max features {max_features} is more than the columns in dataset, defaulting to full number of columns"
+        )
+        max_features = x.shape[1]
+    omicLogger.info(f"Max number of features set to: {max_features}")
+
+    # if the max number of features is infact smaller than min_features, set min_features to 1
+    if max_features - 3 <= min_features:
+        omicLogger.warn("Min features more than given number of features, setting min_features to 1.")
+        min_features = 1
+    omicLogger.info(f"Min number of features set to: {min_features}")
+
+    # get a logarithmic spaced selction of potential k
+    omicLogger.info("Generating logarithmic selection for k...")
+    n_feature_candicates = (
+        (
+            10
+            ** np.arange(
+                np.log10(min_features),
+                np.log10(max_features) // (10**-interval) / (10**interval),
+                (10**-interval),
+            )
+            // 1
+        )
+        .astype(int)
+        .tolist()
+    )
+    omicLogger.info(f"Selection for k created: {n_feature_candicates}")
+    return n_feature_candicates
+
+
 def feat_selection(experiment_folder, x, y, features_names, problem_type, FS_dict, save=True):
     """
     A function to activate manual or auto feature selection
@@ -222,7 +226,6 @@ def feat_selection(experiment_folder, x, y, features_names, problem_type, FS_dic
     omicLogger.debug("Initalising feature selection process...")
 
     # extract out parameters from the feature selection dict
-    # TODO: remove below row and fold into correct FS spot
     k = FS_dict["k"]
     threshold = FS_dict["var_threshold"]
     method_dict = FS_dict["method"]
@@ -230,14 +233,12 @@ def feat_selection(experiment_folder, x, y, features_names, problem_type, FS_dic
 
     # apply variance threholding
     if threshold >= 0:
-        print("Applying varience threshold")
         x_trans, VT = variance_removal(x, threshold)
     else:
         raise ValueError("Threshold must be greater than or equal to 0")
 
     # begin either the automated FS process or the manual one
     if k == "auto":
-        print("Beginning Automatic feature selection")
         x_trans, SKB = auto_feat_selection(
             experiment_folder,
             x_trans,
