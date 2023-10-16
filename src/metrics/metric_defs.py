@@ -14,7 +14,7 @@ from sklearn.metrics import (
     mean_poisson_deviance,
     mean_squared_error,
     # mean_squared_log_error,
-    mean_tweedie_deviance,
+    # mean_tweedie_deviance,
     median_absolute_error,
     precision_score,
     r2_score,
@@ -54,6 +54,11 @@ METRICS = {
         "r2_score": make_scorer(r2_score, greater_is_better=True),
         "mean_poisson_deviance": make_scorer(mean_poisson_deviance, greater_is_better=False),
         "mean_gamma_deviance": make_scorer(mean_gamma_deviance, greater_is_better=False),
-        "mean_tweedie_deviance": make_scorer(mean_tweedie_deviance, greater_is_better=False),
+        # "mean_tweedie_deviance": make_scorer(mean_tweedie_deviance, greater_is_better=False),
     },
 }
+
+# NOTES:
+# The following have been removed/commented out for now as they can only work with non negative y values:
+#           - mean_squared_log_error
+#           - mean_tweedie_deviance

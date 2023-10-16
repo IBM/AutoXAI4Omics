@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
+import models.model_defs
 import utils.ml.class_balancing
 import utils.ml.feature_selection
 import utils.load
 import utils.ml.standardisation
 import utils.utils
-import models.models as models
+import models.models
 import mode_plotting
 import utils.ml.data_split as ds
 import logging
@@ -139,7 +140,9 @@ def main():
         print("----------------------------------------------------------")
 
         # Load the models we have pre-defined
-        model_dict = models.define_models(config_dict["ml"]["problem_type"], config_dict["ml"]["hyper_tuning"])
+        model_dict = models.model_defs.define_models(
+            config_dict["ml"]["problem_type"], config_dict["ml"]["hyper_tuning"]
+        )
         omicLogger.info("Models defined. Creating results df holder...")
 
         # Create dataframes for results
@@ -149,7 +152,7 @@ def main():
 
         # Run the models
         print("Beginning to run the models")
-        models.run_models(
+        models.models.run_models(
             config_dict=config_dict,
             model_list=config_dict["ml"]["model_list"],
             model_dict=model_dict,
@@ -188,7 +191,7 @@ def main():
             omicLogger.info("No plots desired.")
 
         # Select Best Model
-        best_models = models.best_selector(
+        best_models = models.models.select_best_model(
             experiment_folder,
             config_dict["ml"]["problem_type"],
             config_dict["ml"]["fit_scorer"],

@@ -31,3 +31,4 @@ Change log for the codebase. Initialised from the developments following version
     - separated problem specific plots into own files
     - extracted shap and permutation importance plots into their own subfolders given their importance
     - consolidate metric functions into one location
+    - consolidate model defs into one location

@@ -28,13 +28,6 @@ sk_random = {
         "learning_rate": np.arange(0.05, 0.91, 0.05),
         "n_estimators": sp.randint(50, 500),
     },
-    # "mlp_ens": {
-    #     "n_estimators": sp.randint(5, 50),
-    #     "n_epochs": sp.randint(5, 20),
-    #     "batch_size": [10],
-    #     "lr": sp.uniform(0.001, 0.049),
-    #     "layer_sizes": [sp.randint(5, 20)]
-    # },
     # "mlp_keras": {
     #     "n_epochs": sp.randint(10, 50),
     #     "batch_size": [20],
@@ -111,7 +104,6 @@ single_model = {
     "autolgbm": {},
     "autoxgboost": {},
     "autosklearn": {},
-    "autogluon": {},
 }
 
 
@@ -159,9 +151,3 @@ boaas_dict = {
     "svm": {}  # This cannot be defined adequately until boaas accepts non-uniform ranges
     # See https://github.ibm.com/machine-learning-daresbury/boaas/issues/13
 }
-
-# unsupervised = {
-#     "spectral": {
-
-#     }
-# }

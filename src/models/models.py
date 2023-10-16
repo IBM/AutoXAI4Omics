@@ -2,44 +2,13 @@ from pathlib import Path
 import metrics.metrics
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import (
-    cross_val_score,
-    RandomizedSearchCV,
-    GridSearchCV,
-)  # , KFold, StratifiedKFold
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
-from sklearn.svm import SVC, SVR
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.ensemble import (
-    AdaBoostClassifier,
-    RandomForestClassifier,
-    GradientBoostingClassifier,
-    AdaBoostRegressor,
-    RandomForestRegressor,
-    GradientBoostingRegressor,
-)
-
-from xgboost import XGBClassifier, XGBRegressor
-from metrics.metrics import evaluate_model
-
-import models.model_params as model_params
-
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+from models.model_defs import select_model_dict
 from models.custom_model import CustomModel
-from models.custom_model import (
-    FixedKeras,
-    AutoKeras,
-    AutoSKLearn,
-    AutoLGBM,
-    AutoXGBoost,
-)  # , AutoGluon
-
 import logging
 from utils.save import save_results
 from utils.save import save_model
-
-
 import os
-
 from plotting.plots_both import plot_model_performance
 
 ##### Fix for each thread spawning its own GUI is to use 1 thread
@@ -48,90 +17,8 @@ n_jobs = -1
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def select_model_dict(hyper_tuning):
-    """
-    Select what parameter range specific we are using based on the given hyper_tuning method.
-    """
-    omicLogger.debug("Get tunning settings...")
-
-    if hyper_tuning == "random":
-        ref_model_dict = model_params.sk_random
-    elif hyper_tuning == "grid":
-        ref_model_dict = model_params.sk_grid
-    elif hyper_tuning is None:
-        ref_model_dict = model_params.single_model
-    else:
-        raise ValueError(f"{hyper_tuning} is not a valid option")
-    return ref_model_dict
-
-
-def define_models(problem_type, hyper_tuning):
-    """
-    Define the models to be run.
-
-    The name is the key, the value is a tuple with the model function, and defined params
-    """
-    omicLogger.debug("Defining the set of models...")
-    ref_model_dict = select_model_dict(hyper_tuning)
-
-    if problem_type == "classification":
-        try:
-            # Specific modifications for problem type
-            if hyper_tuning is None or hyper_tuning == "boaas":
-                ref_model_dict["svm"]["probability"] = True
-            else:
-                ref_model_dict["svm"]["probability"] = [True]
-        # Otherwise pass - models may not always be defined for every tuning method
-        except KeyError:
-            pass
-        # Define dict
-        model_dict = {
-            "rf": (RandomForestClassifier, ref_model_dict["rf"]),
-            "svm": (SVC, ref_model_dict["svm"]),
-            "knn": (KNeighborsClassifier, ref_model_dict["knn"]),
-            "adaboost": (AdaBoostClassifier, ref_model_dict["adaboost"]),
-            "xgboost": (XGBClassifier, ref_model_dict["xgboost"]),
-        }
-    elif problem_type == "regression":
-        # Specific modifications for problem type
-
-        # Define dict
-        model_dict = {
-            "rf": (RandomForestRegressor, ref_model_dict["rf"]),
-            "svm": (SVR, ref_model_dict["svm"]),
-            "knn": (KNeighborsRegressor, ref_model_dict["knn"]),
-            "adaboost": (AdaBoostRegressor, ref_model_dict["adaboost"]),
-            "xgboost": (XGBRegressor, ref_model_dict["xgboost"]),
-        }
-    else:
-        raise ValueError(f"{problem_type} is not recognised, must be either 'regression' or 'classification'")
-    # The CustomModels handle classification and regression themselves so put outside
-    # For mixing tuning types, default to using the single model for mlp_ens
-    try:
-        model_dict["fixedkeras"] = (FixedKeras, ref_model_dict["fixedkeras"])
-        model_dict["autokeras"] = (AutoKeras, ref_model_dict["autokeras"])
-        model_dict["autolgbm"] = (AutoLGBM, ref_model_dict["autolgbm"])
-        model_dict["autoxgboost"] = (AutoXGBoost, ref_model_dict["autoxgboost"])
-        model_dict["autosklearn"] = (AutoSKLearn, ref_model_dict["autosklearn"])
-        # model_dict["autogluon"] = (AutoGluon, ref_model_dict['autogluon'])
-    except KeyError:
-        model_dict["fixedkeras"] = (FixedKeras, model_params.single_model["fixedkeras"])
-        model_dict["autokeras"] = (AutoKeras, model_params.single_model["autokeras"])
-        model_dict["autolgbm"] = (AutoLGBM, model_params.single_model["autolgbm"])
-        model_dict["autoxgboost"] = (
-            AutoXGBoost,
-            model_params.single_model["autoxgboost"],
-        )
-        model_dict["autosklearn"] = (
-            AutoSKLearn,
-            model_params.single_model["autosklearn"],
-        )
-        # model_dict["autogluon"] = (AutoGluon, model_params.single_model['autogluon'])
-    return model_dict
-
-
 ########## EVALUATE ##########
-def best_selector(experiment_folder, problem_type, metric=None, collapse_tax=None):
+def select_best_model(experiment_folder, problem_type, metric=None, collapse_tax=None):
     """
     Give trained models this will find and select the best one
     """
@@ -435,7 +322,7 @@ def run_models(
         save_model(experiment_folder, trained_model, model_name)
 
         # Evaluate the best model using all the scores and CV
-        performance_results_dict, predictions = evaluate_model(
+        performance_results_dict, predictions = metrics.metrics.evaluate_model(
             trained_model,
             config_dict["ml"]["problem_type"],
             x_train,
