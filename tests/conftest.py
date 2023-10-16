@@ -230,9 +230,9 @@ def config_scorers(problem_type):
                 "median_absolute_error",
                 "mean_absolute_percentage_error",
                 "r2_score",
-                "mean_poisson_deviance",
-                "mean_gamma_deviance",
-                "mean_tweedie_deviance",
+                # "mean_poisson_deviance",
+                # "mean_gamma_deviance",
+                # "mean_tweedie_deviance",
             ],
         }
     elif problem_type == "classification":
