@@ -7,7 +7,7 @@
 from pathlib import Path
 import glob
 import pandas as pd
-import metrics.metrics as models
+import metrics.metrics
 import utils.load
 import utils.save
 import utils.utils
@@ -108,14 +108,18 @@ if __name__ == "__main__":
             model = utils.load.load_model(model_name, model_path)
 
             omicLogger.debug("Evaluating...")
+
             # Evaluate the best model using all the scores and CV
-            performance_results_dict, predictions = models.evaluate_model(
+            performance_results_dict, predictions = metrics.metrics.evaluate_model(
                 model,
                 config_dict["ml"]["problem_type"],
                 x_train,
                 y_train,
                 x_heldout,
                 y_heldout,
+                score_dict=metrics.metrics.define_scorers(
+                    config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"]
+                ),
             )
             predictions.to_csv(results_folder / f"{model_name}_holdout_predictions.csv", index=False)
 

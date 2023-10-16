@@ -442,6 +442,7 @@ def run_models(
             y_train,
             x_test,
             y_test,
+            scorer_dict,
         )
         predictions.to_csv(results_folder / f"{model_name}_predictions.csv", index=False)
 

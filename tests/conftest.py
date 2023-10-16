@@ -222,17 +222,33 @@ def config_scorers(problem_type):
         outdict = {
             "fit_scorer": "mean_absolute_percentage_error",
             "scorer_list": [
+                "explained_variance_score",
+                "mean_squared_error",
+                # "mean_squared_log_error",
+                "rmse",
                 "mean_absolute_error",
                 "median_absolute_error",
-                "rmse",
                 "mean_absolute_percentage_error",
                 "r2_score",
+                "mean_poisson_deviance",
+                "mean_gamma_deviance",
+                "mean_tweedie_deviance",
             ],
         }
     elif problem_type == "classification":
         outdict = {
             "fit_scorer": "f1_score",
-            "scorer_list": ["accuracy_score", "f1_score"],
+            "scorer_list": [
+                "accuracy_score",
+                "f1_score",
+                "hamming_loss",
+                "jaccard_score",
+                "matthews_corrcoef",
+                "precision_score",
+                "recall_score",
+                "zero_one_loss",
+                "roc_auc_score",
+            ],
         }
     return outdict
 
@@ -362,7 +378,10 @@ RUNS = 1
 
 @pytest.fixture(
     params=[pytest.param(("classification", i), marks=pytest.mark.classification) for i in range(STARTS + 1, RUNS + 1)]
-    + [pytest.param(("multi", i), marks=pytest.mark.classification) for i in range(STARTS + 1, RUNS + 1)]
+    + [
+        pytest.param(("multi", i), marks=[pytest.mark.classification, pytest.mark.multi])
+        for i in range(STARTS + 1, RUNS + 1)
+    ]
     + [pytest.param(("regression", i), marks=pytest.mark.regression) for i in range(STARTS + 1, RUNS + 1)],
     scope="session",
 )

@@ -3,6 +3,7 @@
 import numpy as np
 from sklearn.metrics import (
     accuracy_score,
+    roc_auc_score,
     explained_variance_score,
     f1_score,
     hamming_loss,
@@ -12,7 +13,7 @@ from sklearn.metrics import (
     mean_gamma_deviance,
     mean_poisson_deviance,
     mean_squared_error,
-    mean_squared_log_error,
+    # mean_squared_log_error,
     mean_tweedie_deviance,
     median_absolute_error,
     precision_score,
@@ -38,11 +39,14 @@ METRICS = {
         "precision_score": make_scorer(precision_score, greater_is_better=True, average="weighted"),
         "recall_score": make_scorer(recall_score, greater_is_better=True, average="weighted"),
         "zero_one_loss": make_scorer(zero_one_loss, greater_is_better=False),
+        "roc_auc_score": make_scorer(roc_auc_score, greater_is_better=True, needs_proba=True, multi_class="ovo"),
+        # confusion matrix not included here as it can not be used to optimise models, but it is calculate regardless
+        # in metrics:evaluate_model
     },
     "regression": {
         "explained_variance_score": make_scorer(explained_variance_score, greater_is_better=True),
         "mean_squared_error": make_scorer(mean_squared_error, greater_is_better=False),
-        "mean_squared_log_error": make_scorer(mean_squared_log_error, greater_is_better=False),
+        # "mean_squared_log_error": make_scorer(mean_squared_log_error, greater_is_better=False),
         "rmse": make_scorer(rmse, greater_is_better=False),
         "mean_absolute_error": make_scorer(mean_absolute_error, greater_is_better=False),
         "median_absolute_error": make_scorer(median_absolute_error, greater_is_better=False),
