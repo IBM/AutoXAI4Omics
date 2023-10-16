@@ -70,21 +70,13 @@ def permut_importance(
                 model.data_test = None
             if model.labels_test is not None:
                 model.labels_test = None
-        # Handle the CustomModel to avoid resaving
-        if model_name in CustomModel.custom_aliases:
-            importances = eli5.sklearn.PermutationImportance(
-                model,
-                scoring=scorer_func,
-                random_state=config_dict["ml"]["seed_num"],
-                cv=cv,
-            ).fit(data, labels, save_best=False)
-        else:
-            importances = eli5.sklearn.PermutationImportance(
-                model,
-                scoring=scorer_func,
-                random_state=config_dict["ml"]["seed_num"],
-                cv=cv,
-            ).fit(data, labels)
+
+        importances = eli5.sklearn.PermutationImportance(
+            model,
+            scoring=scorer_func,
+            random_state=config_dict["ml"]["seed_num"],
+            cv=cv,
+        ).fit(data, labels)
 
         a = np.asarray(importances.results_)
 

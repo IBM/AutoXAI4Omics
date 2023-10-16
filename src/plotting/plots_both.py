@@ -332,12 +332,8 @@ def boxplot_scorer_cv(
                     model.data_test = None
                 if model.labels_test is not None:
                     model.labels_test = None
-            # For CustomModels, we do not want to save the model
-            if model_name in CustomModel.custom_aliases:
-                model.fit(data[train_idx], true_labels[train_idx], save_best=False)
-            # Otherwise fit the model as normal
-            else:
-                model.fit(data[train_idx], true_labels[train_idx])
+
+            model.fit(data[train_idx], true_labels[train_idx])
             # Calculate the score
             # Need to take the absolute value because of the make_scorer sklearn convention
             score = np.abs(scorer_func(model, data[test_idx], true_labels[test_idx]))
