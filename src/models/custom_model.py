@@ -12,6 +12,10 @@ import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 import sys
+import logging
+from utils.vars import CLASSIFICATION, REGRESSION
+
+omicLogger = logging.getLogger("OmicLogger")
 
 
 class CustomModel:
@@ -111,7 +115,7 @@ class CustomModel:
         config_dict,
         experiment_folder,
         model_name,
-        ref_model_dict,
+        # ref_model_dict,
         param_ranges,
         scorer_func,
         x_test=None,
@@ -129,16 +133,15 @@ class CustomModel:
 
         param_ranges["scorer_func"] = scorer_func
         # Determine whether we can use hyper_tuning or not
-        try:
-            ref_model_dict[model_name]
-            single_model_flag = False
-        except KeyError:
-            single_model_flag = True
-            print(
-                f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model \
-                instead"
-            )
-        return single_model_flag, param_ranges
+
+        # single_model_flag = False if ref_model_dict.get(model_name) else True
+        # if single_model_flag:
+        #     omicLogger.debug(
+        #         f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model \
+        #         instead"
+        #     )
+        # return single_model_flag, param_ranges
+        return param_ranges
 
     @classmethod
     def setup_cls_vars(cls, config_dict, experiment_folder):
@@ -153,7 +156,7 @@ class CustomModel:
 
 
 class TabAuto(CustomModel):
-    nickname = "tab_auto"
+    nickname = "TabAuto"
     # Attributes from the config
     config_dict = None
     verbose = False
@@ -179,17 +182,17 @@ class TabAuto(CustomModel):
         raise NotImplementedError()
 
     def predict(self, data):
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             pred_inds = np.argmax(self.model.predict_proba(data), axis=1)
             preds = self.onehot_encode_obj.categories_[0][pred_inds]
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             preds = self.model.predict(data)
         else:
             raise NotImplementedError()
         return preds.flatten()
 
     def predict_proba(self, data):
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             return self.model.predict_proba(data)
         else:
             raise NotImplementedError()
@@ -249,16 +252,16 @@ class TabAuto(CustomModel):
             if isinstance(self.labels_test, (pd.DataFrame, pd.Series)):
                 self.labels_test = self.labels_test.values
         # Check if we need to one-hot encode
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             self._onehot_encode()
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             self.labels = self.labels.reshape(-1, 1)
             if self.labels_test is not None:
                 self.labels_test = self.labels_test.reshape(-1, 1)
 
 
 class FixedKeras(TabAuto):
-    nickname = "fixedkeras"
+    nickname = "FixedKeras"
     # Attributes from the config
     config_dict = None
 
@@ -319,10 +322,10 @@ class FixedKeras(TabAuto):
         # Set up the needed things for training now we have access to the data and labels
         self._preparation()
         # Determine the number of classes
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             # One-hot encoding has already been done, so take the info from there
             self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             self.n_classes = 1
         # Define the model
         self._define_model()
@@ -368,24 +371,24 @@ class FixedKeras(TabAuto):
         self.model = model
 
     def predict(self, data):
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             yp = self.model.predict(data)
             pred_inds = np.argmax(yp, axis=1)
             preds = self.onehot_encode_obj.categories_[0][pred_inds]
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             preds = self.model.predict(data)
         else:
             raise NotImplementedError()
         return preds.flatten()
 
     def predict_proba(self, data):
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             return self.model.predict(data)
         else:
             raise NotImplementedError()
 
     def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'fixedkeras_best'}"
+        fname = f"{self.experiment_folder / 'models' / 'FixedKeras_best'}"
         print("custom save_model: {}".format(fname))
         self.model.save(fname + ".h5")
         self._pickle_member(fname)
@@ -402,7 +405,7 @@ class FixedKeras(TabAuto):
 
 
 class AutoKeras(TabAuto):
-    nickname = "autokeras"
+    nickname = "AutoKeras"
     # Attributes from the config
     config_dict = None
 
@@ -449,10 +452,10 @@ class AutoKeras(TabAuto):
         # Set up the needed things for training now we have access to the data and labels
         self._preparation()
         # Determine the number of classes
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             # One-hot encoding has already been done, so take the info from there
             self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             self.n_classes = 1
         # Define the model
         self._define_model()
@@ -499,23 +502,23 @@ class AutoKeras(TabAuto):
         self.model = model
 
     def predict_proba(self, data):
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             return self.model.predict(data)
         else:
             raise NotImplementedError()
 
     def predict(self, data):
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             pred_inds = np.argmax(self.model.predict(data), axis=1)
             preds = self.onehot_encode_obj.categories_[0][pred_inds]
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             preds = self.model.predict(data)
         else:
             raise NotImplementedError()
         return preds.flatten()
 
     def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'autokeras_best'}"
+        fname = f"{self.experiment_folder / 'models' / 'AutoKeras_best'}"
         print("custom save_model: {}".format(fname))
         self.model.save(fname + ".h5")
         self._pickle_member(fname)
@@ -535,7 +538,7 @@ class AutoKeras(TabAuto):
 
 
 class AutoSKLearn(TabAuto):
-    nickname = "autosklearn"
+    nickname = "AutoSKLearn"
     # Attributes from the config
     config_dict = None
 
@@ -582,10 +585,10 @@ class AutoSKLearn(TabAuto):
         # Set up the needed things for training now we have access to the data and labels
         self._preparation()
         # Determine the number of classes
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             # One-hot encoding has already been done, so take the info from there
             self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             self.n_classes = 1
         # Define the model
         self._define_model()
@@ -630,7 +633,7 @@ class AutoSKLearn(TabAuto):
         self.model = model
 
     def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'autosklearn_best'}"
+        fname = f"{self.experiment_folder / 'models' / 'AutoSKLearn_best'}"
         print("custom save_model: {}".format(fname))
         self.model.save(fname + ".h5")
         self._pickle_member(fname)
@@ -648,7 +651,7 @@ class AutoSKLearn(TabAuto):
 
 
 class AutoLGBM(TabAuto):
-    nickname = "autolgbm"
+    nickname = "AutoLGBM"
     # Attributes from the config
     config_dict = None
 
@@ -695,10 +698,10 @@ class AutoLGBM(TabAuto):
         # Set up the needed things for training now we have access to the data and labels
         self._preparation()
         # Determine the number of classes
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             # One-hot encoding has already been done, so take the info from there
             self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             self.n_classes = 1
         # Define the model
         self._define_model()
@@ -743,7 +746,7 @@ class AutoLGBM(TabAuto):
         self.model = model
 
     def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'autolgbm_best'}"
+        fname = f"{self.experiment_folder / 'models' / 'AutoLGBM_best'}"
         print("custom save_model: {}".format(fname))
         self.model.save(fname + ".h5")
         self._pickle_member(fname)
@@ -761,7 +764,7 @@ class AutoLGBM(TabAuto):
 
 
 class AutoXGBoost(TabAuto):
-    nickname = "autoxgboost"
+    nickname = "AutoXGBoost"
     # Attributes from the config
     config_dict = None
 
@@ -808,10 +811,10 @@ class AutoXGBoost(TabAuto):
         # Set up the needed things for training now we have access to the data and labels
         self._preparation()
         # Determine the number of classes
-        if self.config_dict["problem_type"] == "classification":
+        if self.config_dict["problem_type"] == CLASSIFICATION:
             # One-hot encoding has already been done, so take the info from there
             self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == "regression":
+        elif self.config_dict["problem_type"] == REGRESSION:
             self.n_classes = 1
         # Define the model
         self._define_model()
@@ -856,7 +859,7 @@ class AutoXGBoost(TabAuto):
         self.model = model
 
     def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'autoxgboost_best'}"
+        fname = f"{self.experiment_folder / 'models' / 'AutoXGBoost_best'}"
         print("custom save_model: {}".format(fname))
         self.model.save(fname + ".h5")
         self._pickle_member(fname)

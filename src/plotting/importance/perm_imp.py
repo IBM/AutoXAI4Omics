@@ -3,7 +3,7 @@ from models.custom_model import CustomModel
 from utils.utils import pretty_names
 from utils.save import save_fig
 from tensorflow.keras import backend as K
-
+from utils.vars import CLASSIFICATION
 import eli5
 import matplotlib.pyplot as plt
 import numpy as np
@@ -109,7 +109,7 @@ def permut_importance(
 
         # Make a horizontal boxplot ordered by the magnitude
         ax = sns.boxplot(x=top_values, y=top_features, orient="h", ax=ax)
-        if config_dict["ml"]["problem_type"] == "classification":
+        if config_dict["ml"]["problem_type"] == CLASSIFICATION:
             ax.set_xlabel(f"{pretty_names(config_dict['ml']['fit_scorer'], 'score')} Decrease")
         else:
             ax.set_xlabel(f"{pretty_names(config_dict['ml']['fit_scorer'], 'score')} Increase")

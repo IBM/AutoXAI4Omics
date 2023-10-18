@@ -16,10 +16,16 @@ sk_random = {
         "min_samples_leaf": [1, 2, 4],
         "bootstrap": [True, False],
     },
-    "svm": {
+    "svr": {
         "C": 10.0 ** np.arange(-4, 8),
         "gamma": 10.0 ** np.arange(-5, 5),
         "kernel": ["linear", "rbf"],
+    },
+    "svc": {
+        "C": 10.0 ** np.arange(-4, 8),
+        "gamma": 10.0 ** np.arange(-5, 5),
+        "kernel": ["linear", "rbf"],
+        "probability": [True],
     },
     "knn": {"n_neighbors": sp.randint(2, 20), "metric": ["euclidean", "manhattan"]},
     "adaboost": {"n_estimators": sp.randint(10, 200)},
@@ -47,10 +53,16 @@ sk_grid = {
         "min_samples_leaf": [1, 2, 4],
         "bootstrap": [True, False],
     },
-    "svm": {
+    "svr": {
         "C": 10.0 ** np.arange(-3, 8),
         "gamma": 10.0 ** np.arange(-5, 4),
         "kernel": ["linear", "rbf"],
+    },
+    "svc": {
+        "C": 10.0 ** np.arange(-3, 8),
+        "gamma": 10.0 ** np.arange(-5, 4),
+        "kernel": ["linear", "rbf"],
+        "probability": [True],
     },
     "knn": {"n_neighbors": range(1, 21, 2), "metric": ["euclidean", "manhattan"]},
     "adaboost": {"n_estimators": range(50, 201, 50)},
@@ -77,7 +89,8 @@ single_model = {
         "min_samples_leaf": 1,
         "bootstrap": True,
     },
-    "svm": {"C": 1.0, "gamma": "scale", "kernel": "rbf"},
+    "svr": {"C": 1.0, "gamma": "scale", "kernel": "rbf"},
+    "svc": {"C": 1.0, "gamma": "scale", "kernel": "rbf", "probability": True},
     "knn": {"n_neighbors": 5, "metric": "minkowski"},
     "gradboost": {"learning_rate": 0.1, "n_estimators": 100},
     "adaboost": {"learning_rate": 1.0, "n_estimators": 50},
@@ -91,7 +104,7 @@ single_model = {
         "n_blocks": 4,
         "dropout": 0.4,
     },
-    "fixedkeras": {
+    "FixedKeras": {
         "n_epochs": 10,
         "batch_size": 80,
         "lr": 0.001,
@@ -100,10 +113,6 @@ single_model = {
         "n_blocks": 4,
         "dropout": 0.4,
     },
-    "autokeras": {},
-    "autolgbm": {},
-    "autoxgboost": {},
-    "autosklearn": {},
 }
 
 
@@ -148,6 +157,6 @@ boaas_dict = {
         "metric": "euclidean",  # To make this searchable you need a container to allow categorical (integer) selection
     },
     "adaboost": {"domain": [{"name": "n_estimators", "min": 10, "max": 500, "step": 10}]},
-    "svm": {}  # This cannot be defined adequately until boaas accepts non-uniform ranges
+    "svr": {}  # This cannot be defined adequately until boaas accepts non-uniform ranges
     # See https://github.ibm.com/machine-learning-daresbury/boaas/issues/13
 }

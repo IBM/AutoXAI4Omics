@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from autogluon.tabular import TabularDataset, TabularPredictor
 from .base_model import BaseModel
+from utils.vars import CLASSIFICATION, REGRESSION
 
 # To avoid the conflict with autogluon, which uses newer versions of some common packages,
 # we can disable the package verification procedure in the following files:
@@ -15,12 +16,19 @@ def to_matrix(data, n):
 
 
 class AutogluonModel(BaseModel):
-    def __init__(self, input_dim, output_dim, dataset_type, method="train_ml_autogluon", config=None):
+    def __init__(
+        self,
+        input_dim,
+        output_dim,
+        dataset_type,
+        method="train_ml_autogluon",
+        config=None,
+    ):
         self.method = method
         self.savedir = None
         self.config = config if config else {}
         super().__init__(input_dim, output_dim, dataset_type)
-        if dataset_type == "regression":
+        if dataset_type == REGRESSION:
             if output_dim > 1:
                 raise NotImplementedError
 
@@ -28,7 +36,7 @@ class AutogluonModel(BaseModel):
 
     def fit_data(self, trainX, trainY, testX=None, testY=None, input_list=None):
         print("training Autogluon model...")
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             trainY = np.argmax(trainY, axis=-1)
             if testY is not None:
                 testY = np.argmax(testY, axis=-1)
@@ -68,7 +76,7 @@ class AutogluonModel(BaseModel):
         excluded_model_types = ["NN", "CAT", "FASTAI", "GBM", "XGB"]
         # excluded_model_types=['CAT', 'FASTAI', 'GBM', 'XGB']
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             self.model = TabularPredictor(label=label_column, path=savedir, problem_type="multiclass").fit(
                 train_data=train_data,
                 excluded_model_types=excluded_model_types,
@@ -87,7 +95,7 @@ class AutogluonModel(BaseModel):
             self.model = TabularPredictor(
                 label=label_column,
                 path=savedir,
-                problem_type="regression",
+                problem_type=REGRESSION,
                 eval_metric="mean_absolute_error",
             ).fit(
                 train_data=train_data,

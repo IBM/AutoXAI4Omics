@@ -6,6 +6,7 @@ import utils.ml.feature_selection
 import utils.load
 import utils.ml.standardisation
 import utils.utils
+from utils.vars import CLASSIFICATION
 import models.models
 import mode_plotting
 import utils.ml.data_split as ds
@@ -82,7 +83,7 @@ def main():
             omicLogger.info("Skipping feature selection. Re-combining data...")
 
         # perform class balancing if it is desired
-        if config_dict["ml"]["problem_type"] == "classification":
+        if config_dict["ml"]["problem_type"] == CLASSIFICATION:
             # if (config_dict['ml']["oversampling"] == "Y"):
             #     x_train, y_train, re_sampled_idxs = oversample_data(x_train, y_train,config_dict['ml']["seed_num"])
             #     x_ind_train = x_ind_train[re_sampled_idxs]
@@ -140,9 +141,7 @@ def main():
         print("----------------------------------------------------------")
 
         # Load the models we have pre-defined
-        model_dict = models.model_defs.define_models(
-            config_dict["ml"]["problem_type"], config_dict["ml"]["hyper_tuning"]
-        )
+
         omicLogger.info("Models defined. Creating results df holder...")
 
         # Create dataframes for results
@@ -155,7 +154,6 @@ def main():
         models.models.run_models(
             config_dict=config_dict,
             model_list=config_dict["ml"]["model_list"],
-            model_dict=model_dict,
             df_train=df_train,
             df_test=df_test,
             x_train=x_train,

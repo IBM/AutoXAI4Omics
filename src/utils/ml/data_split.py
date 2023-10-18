@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import GroupShuffleSplit, GroupKFold, train_test_split
 import logging
+from utils.vars import CLASSIFICATION, REGRESSION
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -63,7 +64,7 @@ def std_split(x, y, config_dict):
     seed_num = config_dict["ml"]["seed_num"]
     problem_type = config_dict["ml"]["problem_type"]
 
-    if problem_type == "classification":
+    if problem_type == CLASSIFICATION:
         try:
             x_train, x_test, y_train, y_test = train_test_split(
                 x, y, test_size=test_size, random_state=seed_num, stratify=y
@@ -73,7 +74,7 @@ def std_split(x, y, config_dict):
             raise
 
     # Don't stratify for regression (sklearn can't currently handle it with e.g. binning)
-    elif problem_type == "regression":
+    elif problem_type == REGRESSION:
         try:
             x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=seed_num)
         except:

@@ -3,13 +3,14 @@ import metrics.metrics
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
-from models.model_defs import select_model_dict
+from models.model_defs import form_model_dict
 from models.custom_model import CustomModel
 import logging
 from utils.save import save_results
 from utils.save import save_model
 import os
 from plotting.plots_both import plot_model_performance
+from utils.vars import CLASSIFICATION
 
 ##### Fix for each thread spawning its own GUI is to use 1 thread
 ##### Change this to n_jobs = -1 for all-core processing (when we get that working)
@@ -35,7 +36,7 @@ def select_best_model(experiment_folder, problem_type, metric=None, collapse_tax
     df = pd.read_csv(filepath)
     df = df.set_index("model")
 
-    if problem_type == "classification":
+    if problem_type == CLASSIFICATION:
         if metric is None:
             omicLogger.info("Best selection metric is None, Defaulting to F1_score...")
             metric = "f1"
@@ -181,6 +182,7 @@ def single_model(model, param_ranges, x_train, y_train, seed_num):
         param_ranges["random_state"] = seed_num
     except TypeError:
         pass
+    omicLogger.debug(f"Setting parameters: {param_ranges}")
     print(model().set_params(**param_ranges))
     trained_model = model().set_params(**param_ranges).fit(x_train, y_train)
     return trained_model
@@ -204,7 +206,6 @@ def predict_model(model, x_train, y_train, x_test=None):
 def run_models(
     config_dict,
     model_list,
-    model_dict,
     df_train,
     df_test,
     x_train,
@@ -242,31 +243,35 @@ def run_models(
             fname += "_merge"
 
     # Just need it here for determing tuning logic
-    ref_model_dict = select_model_dict(hyper_tuning)
+    # ref_model_dict = select_model_dict(hyper_tuning)
     # So that we can pass the func to the CustomModels
 
     #  Define all the scores
-    scorer_dict = metrics.metrics.define_scorers(config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"])
+    scorer_dict = metrics.metrics.define_scorers(problem_type, config_dict["ml"]["scorer_list"])
     scorer_func = scorer_dict[config_dict["ml"]["fit_scorer"]]
+
+    model_dict = form_model_dict(problem_type, hyper_tuning, model_list)
 
     # Run each model
     for model_name in model_list:
         omicLogger.debug(f"Training model: {model_name}")
-        print(f"Testing {model_name}")
+        print(f"Training {model_name}")
 
         # Placeholder variable to handle mixed hyperparam tuning logic for MLPEnsemble
-        single_model_flag = False
+        # single_model_flag = False
 
         # Load the model and it's parameter path
-        model, param_ranges = model_dict[model_name]
+        model, param_ranges, single_model_flag = model_dict[model_name]
 
         # Setup the CustomModels
+        # FIXME: I think the following if block can be removed
         if model_name in CustomModel.custom_aliases:
-            single_model_flag, param_ranges = model.setup_custom_model(
+            # single_model_flag, param_ranges = model.setup_custom_model(
+            param_ranges = model.setup_custom_model(
                 config_dict["ml"],
                 experiment_folder,
                 model_name,
-                ref_model_dict,
+                # ref_model_dict,
                 param_ranges,
                 scorer_func,
                 x_test,

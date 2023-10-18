@@ -24,13 +24,15 @@ from sklearn.metrics import (
     make_scorer,
 )
 
+from utils.vars import CLASSIFICATION, REGRESSION
+
 
 def rmse(y_true, y_pred):
     return np.sqrt(mean_squared_error(y_true, y_pred))
 
 
 METRICS = {
-    "classification": {
+    CLASSIFICATION: {
         "accuracy_score": make_scorer(accuracy_score, greater_is_better=True),
         "f1_score": make_scorer(f1_score, greater_is_better=True, average="weighted"),
         "hamming_loss": make_scorer(hamming_loss, greater_is_better=False),
@@ -43,7 +45,7 @@ METRICS = {
         # confusion matrix not included here as it can not be used to optimise models, but it is calculate regardless
         # in metrics:evaluate_model
     },
-    "regression": {
+    REGRESSION: {
         "explained_variance_score": make_scorer(explained_variance_score, greater_is_better=True),
         "mean_squared_error": make_scorer(mean_squared_error, greater_is_better=False),
         # "mean_squared_log_error": make_scorer(mean_squared_log_error, greater_is_better=False),

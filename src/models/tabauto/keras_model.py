@@ -10,7 +10,7 @@ from tensorflow.keras.callbacks import (
     ModelCheckpoint,
     TerminateOnNaN,
 )
-
+from utils.vars import CLASSIFICATION, REGRESSION
 import autokeras as ak
 from .base_model import BaseModel
 from .batch_generator_seq_array import BatchGeneratorSeqArray
@@ -59,7 +59,7 @@ class KerasModel(BaseModel):
         tmp_path = "/tmp/autokeras_{}".format(os.getpid())
         os.system("rm -rf /tmp/autokeras_{}".format(os.getpid()))
 
-        if self.dataset_type == "regression":
+        if self.dataset_type == REGRESSION:
             input_node = ak.Input()
             output_node = input_node
             output_node = ak.DenseBlock(
@@ -89,7 +89,7 @@ class KerasModel(BaseModel):
                                                objective = "val_loss",
                                                tuner = self.tuner)
             """
-        else:  # "classification"
+        else:
             input_node = ak.Input()
             output_node = input_node
             output_node = ak.DenseBlock(
@@ -141,7 +141,7 @@ class KerasModel(BaseModel):
             initializer = "normal"
 
             # choose neural network architecture: number of layers, neurons per layer, activation function
-            if self.dataset_type == "regression":
+            if self.dataset_type == REGRESSION:
                 if output_dim > 10:
                     model.add(
                         Dense(
@@ -224,7 +224,7 @@ class KerasModel(BaseModel):
         opt = optimizers.Adam()
 
         # choose loss function
-        if self.dataset_type == "regression":
+        if self.dataset_type == REGRESSION:
             # loss = losses.logcosh  # napoli
             # loss = losses.mean_squared_error
             loss = losses.mean_absolute_error  # torino, company, uom
@@ -234,7 +234,7 @@ class KerasModel(BaseModel):
 
         # Compile the model
         metrics = []
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             metrics.append("accuracy")
 
         model.compile(loss=loss, optimizer=opt, metrics=metrics)
@@ -357,7 +357,7 @@ class KerasModel(BaseModel):
         if self.conv1d:
             x = x.reshape((x.shape[0], x.shape[1], 1))
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             y = self.model.predict(x)
             # y_pred = np.argmax(y, axis=-1)
             y_pred = y

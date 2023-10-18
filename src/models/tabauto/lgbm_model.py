@@ -5,6 +5,7 @@ import joblib
 import lightgbm as lgb_core
 import optuna
 from .base_model import BaseModel
+from utils.vars import CLASSIFICATION, REGRESSION
 
 
 def to_matrix(data, n):
@@ -38,7 +39,7 @@ class LGBMObjective(object):
             "random_state": self.random_state,
         }
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             """
             bst = lgb_core.LGBMClassifier(**param)
             print("train_y=", train_y)
@@ -67,7 +68,7 @@ class LGBMObjective(object):
 
         else:
             """
-            param["objective"] = "regression"
+            param["objective"] = REGRESSION
             param["metric"] = "l1"
             bst = lgb_core.LGBMRegressor(**param)
             bst.fit(train_x, train_y)
@@ -81,7 +82,7 @@ class LGBMObjective(object):
             kf = KFold(n_splits=5, shuffle=True, random_state=55)
             scores = []
             for train_index, test_index in kf.split(train_x):
-                param["objective"] = "regression"
+                param["objective"] = REGRESSION
                 param["metric"] = "l1"
 
                 lgb_model = lgb_core.LGBMRegressor(**param)
@@ -104,7 +105,11 @@ class LGBMObjective(object):
             )
         )
         cv_stats = dict(
-            scores=scores, min_score=min_score, max_score=max_score, avg_score=avg_score, std_score=std_score
+            scores=scores,
+            min_score=min_score,
+            max_score=max_score,
+            avg_score=avg_score,
+            std_score=std_score,
         )
         trial.set_user_attr("cv_stats", cv_stats)
         score = avg_score
@@ -113,7 +118,15 @@ class LGBMObjective(object):
 
 
 class LGBMModel(BaseModel):
-    def __init__(self, input_dim, output_dim, dataset_type, method="train_ml_lgbm", config=None, random_state=123):
+    def __init__(
+        self,
+        input_dim,
+        output_dim,
+        dataset_type,
+        method="train_ml_lgbm",
+        config=None,
+        random_state=123,
+    ):
         super().__init__(input_dim, output_dim, dataset_type)
         self.method = method
         self.config = config if config else {}
@@ -124,7 +137,7 @@ class LGBMModel(BaseModel):
             self.__init_optuna__(input_dim, output_dim, dataset_type)
 
     def __init_fx__(self, input_dim, output_dim, dataset_type):
-        if dataset_type == "classification":
+        if dataset_type == CLASSIFICATION:
             base_model = lgb_core.LGBMClassifier(random_state=self.random_state)
             model = base_model
         else:
@@ -137,7 +150,7 @@ class LGBMModel(BaseModel):
         self.model = model
 
     def __init_optuna__(self, input_dim, output_dim, dataset_type):
-        if dataset_type == "classification":
+        if dataset_type == CLASSIFICATION:
             model = None
         else:
             if output_dim > 1:
@@ -154,7 +167,7 @@ class LGBMModel(BaseModel):
 
     def fit_data_fx(self, trainX, trainY, testX=None, testY=None):
         print("training LGBM model...")
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             trainY = np.argmax(trainY, axis=-1)
             if testY is not None:
                 testY = np.argmax(testY, axis=-1)
@@ -165,30 +178,40 @@ class LGBMModel(BaseModel):
     def fit_data_optuna(self, trainX, trainY, testX=None, testY=None):
         print("training LGBM model...")
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             trainY = np.argmax(trainY, axis=-1)
             if testY is not None:
                 testY = np.argmax(testY, axis=-1)
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             direction = "maximize"
         else:
             direction = "minimize"
 
         optuna.logging.set_verbosity(optuna.logging.ERROR)
-        study = optuna.create_study(direction=direction, sampler=optuna.samplers.TPESampler(seed=self.random_state))
-        objective = LGBMObjective(self.dataset_type, trainX, trainY, testX, testY, random_state=self.random_state)
+        study = optuna.create_study(
+            direction=direction,
+            sampler=optuna.samplers.TPESampler(seed=self.random_state),
+        )
+        objective = LGBMObjective(
+            self.dataset_type,
+            trainX,
+            trainY,
+            testX,
+            testY,
+            random_state=self.random_state,
+        )
 
         study.optimize(objective, n_trials=self.n_trials, timeout=self.timeout)
         print("best_trial=", study.best_trial)
         print("best_params=", study.best_params)
         cv_stats = study.best_trial.user_attrs["cv_stats"]
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             self.model = lgb_core.LGBMClassifier(random_state=self.random_state, **study.best_params)
         else:
             param = study.best_params
-            param["objective"] = "regression"
+            param["objective"] = REGRESSION
             param["metric"] = "l1"
             self.model = lgb_core.LGBMRegressor(random_state=self.random_state, **param)
         self.model.fit(trainX, trainY)
@@ -208,7 +231,7 @@ class LGBMModel(BaseModel):
     def predict(self, x):
         # make predictions on the testing data
         print("lgbm: predict...")
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             y_pred = self.model.predict_proba(x)
         else:
             y_pred = self.model.predict(x)

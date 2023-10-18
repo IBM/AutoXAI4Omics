@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
-
+from utils.vars import CLASSIFICATION, REGRESSION
 
 import glob
 import time
@@ -28,17 +28,17 @@ def select_explainer(model, model_name, df_train, problem_type):
         explainer = shap.TreeExplainer(model)
     elif model_name in ["mlp_keras"]:
         explainer = shap.DeepExplainer(model.model, df_train.values)
-    elif model_name in ["autolgbm", "autoxgboost"]:
+    elif model_name in ["AutoLGBM", "AutoXGBoost"]:
         explainer = shap.TreeExplainer(model.model.model)
     else:
         # KernelExplainer can be very slow, so use their KMeans to speed it up
         # Results are approximate
         df_train_km = shap.kmeans(df_train, 5)
         # For classification we use the predict_proba
-        if problem_type == "classification":
+        if problem_type == CLASSIFICATION:
             explainer = shap.KernelExplainer(model.predict_proba, df_train_km)
         # Otherwise just use predict
-        elif problem_type == "regression":
+        elif problem_type == REGRESSION:
             explainer = shap.KernelExplainer(model.predict, df_train_km)
     return explainer
 
@@ -90,7 +90,7 @@ def shap_force_plots(
         shap_values = explainer.shap_values(data)
 
         # Handle classification and regression differently
-        if config_dict["ml"]["problem_type"] == "classification":
+        if config_dict["ml"]["problem_type"] == CLASSIFICATION:
             # Try to get the class names
             try:
                 class_names = model.classes_.tolist()
@@ -149,7 +149,7 @@ def shap_force_plots(
                 plt.close()
 
         # Different exemplar calc for regression
-        elif config_dict["ml"]["problem_type"] == "regression":
+        elif config_dict["ml"]["problem_type"] == REGRESSION:
             # Containers to avoid repetition with calling graph func
             names = []
             exemplar_indices = []
@@ -336,13 +336,13 @@ def get_exemplars(x_test, y_test, model, config_dict, pcAgreementLevel):
     # Handle classification and regression differently
 
     # Classification
-    if config_dict["ml"]["problem_type"] == "classification":
-        print("Classification")
+    if config_dict["ml"]["problem_type"] == CLASSIFICATION:
+        print(CLASSIFICATION)
         # Return indices of equal elements between two arrays
         exemplar_indices = np.equal(pred_y, test_y)
 
     # Regression
-    elif config_dict["ml"]["problem_type"] == "regression":
+    elif config_dict["ml"]["problem_type"] == REGRESSION:
         print("Regression - Percentage Agreement Level:", pcAgreementLevel)
 
         if pcAgreementLevel == 0:
@@ -390,7 +390,7 @@ def compute_average_abundance_top_features(
 
     # Deal with classification differently, classification has shap values for each class
     # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
-    if config_dict["ml"]["problem_type"] == "classification":
+    if config_dict["ml"]["problem_type"] == CLASSIFICATION:
         # XGBoost for binary classification seems to return the SHAP values only for class 1
         if model_name == "xgboost" and len(class_names) == 2:
             feature_order = np.argsort(np.mean(np.abs(shap_values_selected), axis=0))
@@ -553,7 +553,7 @@ def shap_plots(
         # Handle regression and classification differently and store the shap_values in shap_values_selected
 
         # Classification
-        if config_dict["ml"]["problem_type"] == "classification":
+        if config_dict["ml"]["problem_type"] == CLASSIFICATION:
             # For classification there is not difference between data structure returned by SHAP
             shap_values_selected = shap_values
 
@@ -825,7 +825,7 @@ def shap_summary_plot(
         # Calculate the shap values
         shap_values = shap_dict[model_name][1]
         # Handle regression and classification differently
-        if config_dict["ml"]["problem_type"] == "classification":
+        if config_dict["ml"]["problem_type"] == CLASSIFICATION:
             # Try to get the class names
             try:
                 class_names = model.classes_.tolist()
@@ -841,7 +841,7 @@ def shap_summary_plot(
                 show=False,
                 class_names=class_names,
             )
-        elif config_dict["ml"]["problem_type"] == "regression":
+        elif config_dict["ml"]["problem_type"] == REGRESSION:
             shap.summary_plot(shap_values, df_test, plot_type="violin", show=False)
         # Get the figure object
         fig = plt.gcf()

@@ -1,11 +1,12 @@
 import numpy as np
 from abc import ABCMeta, abstractmethod
+from utils.vars import CLASSIFICATION, REGRESSION
 
 
 class BaseModel:
     __metaclass__ = ABCMeta
 
-    def __init__(self, input_dim, output_dim, dataset_type="regression"):
+    def __init__(self, input_dim, output_dim, dataset_type=REGRESSION):
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.model = None
@@ -45,7 +46,7 @@ class BaseModel:
         if self.output_dim == 1:
             y_pred = y_pred.reshape(-1, 1)
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             y_pred = np.argmax(y_pred, axis=-1)
 
         return y_pred

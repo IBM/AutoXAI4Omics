@@ -5,6 +5,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import normalize
 from metrics.metric_defs import METRICS
 import logging
+from utils.vars import CLASSIFICATION, REGRESSION
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -23,7 +24,7 @@ def eval_scores(problem_type, scorer_dict, model, data, true_labels):
     omicLogger.debug("Gathering evaluation scores...")
     scores_dict = {}
     for score_name, score_func in scorer_dict.items():
-        if problem_type == "regression":
+        if problem_type == REGRESSION:
             scores_dict[score_name] = np.abs(score_func(model, data, true_labels))
         else:
             scores_dict[score_name] = score_func(model, data, true_labels)
@@ -41,7 +42,7 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test, score_
     pred_train = model.predict(x_train)
     pred_out = np.concatenate((pred_train, pred_test))
 
-    if problem_type == "classification":
+    if problem_type == CLASSIFICATION:
         col_names = ["Prediction"]
         omicLogger.debug("calculating prediction probabilities...")
         if len(set(y_train)) == 2:

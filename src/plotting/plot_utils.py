@@ -15,6 +15,7 @@ from plotting.plots_reg import (
 from plotting.shap.plots_shap import shap_force_plots, shap_plots
 
 import logging
+from utils.vars import CLASSIFICATION, REGRESSION
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -35,13 +36,13 @@ def define_plots(problem_type):
         "permut_imp_test": permut_importance,
     }
 
-    if problem_type == "classification":
+    if problem_type == CLASSIFICATION:
         plot_dict = {
             **common_plot_dict,
             "conf_matrix": conf_matrix_plot,
             "roc_curve": roc_curve_plot,
         }
-    elif problem_type == "regression":
+    elif problem_type == REGRESSION:
         plot_dict = {
             **common_plot_dict,
             "corr": correlation_plot,

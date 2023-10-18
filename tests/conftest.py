@@ -3,6 +3,7 @@ from sklearn.datasets import make_regression, make_classification
 import pandas as pd
 import os
 import json
+
 import shutil
 
 ##################### DATA SET CREATION #####################
@@ -201,19 +202,26 @@ def config_feature_selection():
     return outdict
 
 
-def config_model_list():
-    outdict = {
-        "model_list": [
-            "rf",
-            "adaboost",
-            "knn",
-            "autoxgboost",
-            "autolgbm",
-            "autosklearn",
-            "autokeras",
-            "fixedkeras",
-        ],
-    }
+def config_model_list(problem_type):
+    if problem_type == "regression":
+        ml = [
+            "RandomForestRegressor",
+            "SVR",
+            "KNeighborsRegressor",
+            "AdaBoostRegressor",
+            "XGBRegressor",
+        ]
+    elif problem_type == "classification":
+        ml = [
+            "RandomForestClassifier",
+            "SVC",
+            "KNeighborsClassifier",
+            "AdaBoostClassifier",
+            "XGBClassifier",
+        ]
+    else:
+        raise ValueError(f"Unexpected problem type: {problem_type}")
+    outdict = {"model_list": ml + ["AutoKeras", "AutoLGBM", "AutoSKLearn", "AutoXGBoost", "FixedKeras"]}
     return outdict
 
 
@@ -293,7 +301,7 @@ def config_define_ml(problem_type):
         "ml": {
             **config_define_problem(problem_type),  # Define the Problem and general parameters            # [EXP/AUTO]
             **config_scorers(problem_type),  # Define scorers to be used depending on problem type  # [HIDDEN]
-            **config_model_list(),  # Define the models to be trained                      # [ADV]
+            **config_model_list(problem_type),  # Define the models to be trained                      # [ADV]
             **config_all_auto_methods(),  # Define auto methods setting                          # [HIDDEN]
             **config_feature_selection(),  # Define the feature selection settings                # [ADV/AUTO]
         }

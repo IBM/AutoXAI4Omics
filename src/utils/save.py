@@ -1,6 +1,6 @@
 import json
 import joblib
-
+from utils.vars import CLASSIFICATION
 import pandas as pd
 
 import logging
@@ -30,7 +30,7 @@ def save_exemplars_SHAP_values(
 ):
     # Deal with classification differently, classification has shap values for each class
     # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
-    if config_dict["ml"]["problem_type"] == "classification":
+    if config_dict["ml"]["problem_type"] == CLASSIFICATION:
         # XGBoost for binary classification seems to return the SHAP values only for class 1
         if model_name == "xgboost" and len(class_names) == 2:
             df_exemplars = pd.DataFrame(data=exemplars_selected, columns=feature_names)

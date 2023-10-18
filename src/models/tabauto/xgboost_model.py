@@ -5,6 +5,7 @@ import joblib
 import xgboost as xgb
 import optuna
 from .base_model import BaseModel
+from utils.vars import CLASSIFICATION
 
 
 def to_matrix(data, n):
@@ -13,7 +14,16 @@ def to_matrix(data, n):
 
 # (https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args).
 class XGBoostObjective(object):
-    def __init__(self, dataset_type, train_x, train_y, test_x=None, test_y=None, num_class=0, random_state=123):
+    def __init__(
+        self,
+        dataset_type,
+        train_x,
+        train_y,
+        test_x=None,
+        test_y=None,
+        num_class=0,
+        random_state=123,
+    ):
         # Hold this implementation specific arguments as the fields of the class.
         self.dataset_type = dataset_type
         self.train_x = train_x
@@ -49,14 +59,17 @@ class XGBoostObjective(object):
             param["rate_drop"] = trial.suggest_float("rate_drop", 1e-8, 1.0, log=True)
             param["skip_drop"] = trial.suggest_float("skip_drop", 1e-8, 1.0, log=True)
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             from sklearn.model_selection import KFold
 
             kf = KFold(n_splits=5, shuffle=True, random_state=55)
             scores = []
             for train_index, test_index in kf.split(train_x):
                 xgb_model = xgb.XGBClassifier(
-                    objective="multi:softmax", num_class=self.num_class, n_jobs=-1, random_state=self.random_state
+                    objective="multi:softmax",
+                    num_class=self.num_class,
+                    n_jobs=-1,
+                    random_state=self.random_state,
                 )
                 xgb_model.set_params(**param)
                 xgb_model.fit(train_x[train_index], train_y[train_index])
@@ -75,7 +88,11 @@ class XGBoostObjective(object):
             kf = KFold(n_splits=5, shuffle=True, random_state=55)
             scores = []
             for train_index, test_index in kf.split(train_x):
-                xgb_model = xgb.XGBRegressor(objective="reg:squarederror", n_jobs=-1, random_state=self.random_state)
+                xgb_model = xgb.XGBRegressor(
+                    objective="reg:squarederror",
+                    n_jobs=-1,
+                    random_state=self.random_state,
+                )
                 xgb_model.set_params(**param)
                 xgb_model.fit(train_x[train_index], train_y[train_index])
                 predictions = xgb_model.predict(train_x[test_index])
@@ -91,7 +108,15 @@ class XGBoostObjective(object):
 
 
 class XGBoostModel(BaseModel):
-    def __init__(self, input_dim, output_dim, dataset_type, method="train_ml_xgboost", config=None, random_state=123):
+    def __init__(
+        self,
+        input_dim,
+        output_dim,
+        dataset_type,
+        method="train_ml_xgboost",
+        config=None,
+        random_state=123,
+    ):
         super().__init__(input_dim, output_dim, dataset_type)
         self.method = method
         self.config = config if config else {}
@@ -102,7 +127,7 @@ class XGBoostModel(BaseModel):
             self.__init_optuna__(input_dim, output_dim, dataset_type)
 
     def __init_fx__(self, input_dim, output_dim, dataset_type):
-        if dataset_type == "classification":
+        if dataset_type == CLASSIFICATION:
             base_model = xgb.XGBClassifier(
                 max_depth=10,
                 learning_rate=0.1,
@@ -146,7 +171,7 @@ class XGBoostModel(BaseModel):
         self.model = model
 
     def __init_optuna__(self, input_dim, output_dim, dataset_type):
-        if dataset_type == "classification":
+        if dataset_type == CLASSIFICATION:
             model = None
         else:
             if output_dim > 1:
@@ -165,7 +190,7 @@ class XGBoostModel(BaseModel):
     def fit_data_fx(self, trainX, trainY, testX=None, testY=None):
         print("training XGBoost model...")
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             n_classes = trainY.shape[1]
             trainY = np.argmax(trainY, axis=-1)
             params = self.model.get_params()
@@ -175,28 +200,37 @@ class XGBoostModel(BaseModel):
         self.model.fit(trainX, trainY)
 
     def fit_data_optuna(self, trainX, trainY, testX, testY):
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             trainY.shape[1]
             trainY = np.argmax(trainY, axis=-1)
             if testY is not None:
                 testY = np.argmax(testY, axis=-1)
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             direction = "maximize"
         else:
             direction = "minimize"
 
-        study = optuna.create_study(direction=direction, sampler=optuna.samplers.TPESampler(seed=self.random_state))
+        study = optuna.create_study(
+            direction=direction,
+            sampler=optuna.samplers.TPESampler(seed=self.random_state),
+        )
         # DOES THE BELOW NEED TO HAVE RANDOM STATE SET??
         objective = XGBoostObjective(
-            self.dataset_type, trainX, trainY, testX, testY, num_class=self.output_dim, random_state=self.random_state
+            self.dataset_type,
+            trainX,
+            trainY,
+            testX,
+            testY,
+            num_class=self.output_dim,
+            random_state=self.random_state,
         )
 
         study.optimize(objective, n_trials=self.n_trials, timeout=self.timeout)
         print("best_trial=", study.best_trial)
         print("best_params=", study.best_params)
 
-        if self.dataset_type == "classification":
+        if self.dataset_type == CLASSIFICATION:
             self.model = xgb.XGBClassifier(
                 objective="multi:softmax",
                 num_class=self.output_dim,

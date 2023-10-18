@@ -22,7 +22,7 @@ def variance_removal(x, threshold=0):
     return x_trans, selector
 
 
-def manual_feat_selection(x, y, k_select, method_dict):
+def manual_feat_selection(x, y, k_select, method_dict, problem_type):
     """
     Given trainging data this will select the k best features for predicting the target. we assume data has been split
     into test-train and standardised
@@ -35,7 +35,7 @@ def manual_feat_selection(x, y, k_select, method_dict):
 
     elif method_dict["name"] == "RFE":
         omicLogger.debug(f"Using {method_dict['name']} with {method_dict['estimator']}...")
-        estimator = MODELS[method_dict["estimator"]][0](random_state=42, n_jobs=-1)
+        estimator = MODELS[problem_type][method_dict["estimator"]]["model"](random_state=42, n_jobs=-1)
         fs_method = FS_METHODS[method_dict["name"]](estimator, n_features_to_select=k_select, step=1)
     else:
         raise ValueError(f"{method_dict['name']} is not available for use, please select another method.")
@@ -61,11 +61,11 @@ def train_eval_feat_selection_model(
     omicLogger.debug("Selecting features, training model and evaluating for given K...")
 
     # select the best k features
-    x_trans, SKB = manual_feat_selection(x, y_true, n_feature, method_dict)
+    x_trans, SKB = manual_feat_selection(x, y_true, n_feature, method_dict, problem_type)
 
     # init the model and metric functions
     omicLogger.debug(f"Init model {eval_model} and metric {eval_metric}")
-    selection_model = MODELS[eval_model]
+    selection_model = MODELS[problem_type][eval_model]["model"]
     metric = METRICS[problem_type][eval_metric]
 
     # init the model
@@ -177,7 +177,7 @@ def auto_feat_selection(
 
     print("transforming data based on optimum k")
     # get the transformed dataset and the transformer
-    x_trans, SKB = manual_feat_selection(x, y, chosen_k, method_dict)
+    x_trans, SKB = manual_feat_selection(x, y, chosen_k, method_dict, problem_type)
 
     return x_trans, SKB
 
@@ -248,7 +248,7 @@ def feat_selection(experiment_folder, x, y, features_names, problem_type, FS_dic
         )
     elif isinstance(k, int):
         print("Beginning feature selection with given k")
-        x_trans, SKB = manual_feat_selection(x_trans, y, k, method_dict)
+        x_trans, SKB = manual_feat_selection(x_trans, y, k, method_dict, problem_type)
     else:
         raise ValueError("k must either be an int or the string 'auto' ")
 

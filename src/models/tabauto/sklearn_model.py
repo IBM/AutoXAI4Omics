@@ -20,6 +20,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.multioutput import MultiOutputRegressor
 import joblib
+from utils.vars import CLASSIFICATION, REGRESSION
 
 
 def to_matrix(data, n):
@@ -31,7 +32,7 @@ class SKLearnModel(BaseModel):
         self,
         input_dim,
         output_dim,
-        dataset_type="regression",
+        dataset_type=REGRESSION,
         method="RandomForest",
         multi=True,
         config=None,
@@ -44,7 +45,7 @@ class SKLearnModel(BaseModel):
         self.config = config if config else {}
         self.random_state = random_state
 
-        if dataset_type == "classification":
+        if dataset_type == CLASSIFICATION:
             if method == "KNeighbors".lower():
                 # KNN (works for multiple outputs)
                 base_model = KNeighborsClassifier(3, random_state=self.random_state)
@@ -118,7 +119,10 @@ class SKLearnModel(BaseModel):
                     per_run_time_limit=per_run_time_limit,
                     memory_limit=memory_limit,
                     n_jobs=n_jobs,
-                    include={"classifier": estimators_to_use, "feature_preprocessor": preprocessing_to_use},
+                    include={
+                        "classifier": estimators_to_use,
+                        "feature_preprocessor": preprocessing_to_use,
+                    },
                     # exclude={
                     #     'classifier':estimators_to_exclude,
                     #     'feature_preprocessor':None
@@ -138,7 +142,7 @@ class SKLearnModel(BaseModel):
 
             model = base_model
 
-        elif dataset_type == "regression":
+        elif dataset_type == REGRESSION:
             if method == "KNeighbors".lower():
                 # KNN (works for multiple outputs)
                 base_model = KNeighborsRegressor(n_neighbors=2, weights="distance", random_state=self.random_state)
@@ -186,7 +190,10 @@ class SKLearnModel(BaseModel):
                     per_run_time_limit=per_run_time_limit,
                     memory_limit=memory_limit,
                     n_jobs=n_jobs,
-                    include={"regressor": estimators_to_use, "feature_preprocessor": preprocessing_to_use},
+                    include={
+                        "regressor": estimators_to_use,
+                        "feature_preprocessor": preprocessing_to_use,
+                    },
                     # exclude={
                     #     'regressor':estimators_to_exclude,
                     #     'feature_preprocessor':None

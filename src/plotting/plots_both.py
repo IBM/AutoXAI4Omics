@@ -6,6 +6,7 @@ from models.custom_model import CustomModel
 from utils.utils import pretty_names
 import utils.load
 from tensorflow.keras import backend as K
+from utils.vars import CLASSIFICATION, REGRESSION
 
 # import utils.utils
 from utils.save import save_fig
@@ -297,9 +298,9 @@ def boxplot_scorer_cv(
     all_scores = []
     print(f"Size of data for boxplot: {data.shape}")
     # Create the fold object for CV
-    if config_dict["ml"]["problem_type"] == "classification":
+    if config_dict["ml"]["problem_type"] == CLASSIFICATION:
         fold_obj = StratifiedKFold(n_splits=nsplits, shuffle=True, random_state=config_dict["ml"]["seed_num"])
-    elif config_dict["ml"]["problem_type"] == "regression":
+    elif config_dict["ml"]["problem_type"] == REGRESSION:
         fold_obj = KFold(n_splits=nsplits, shuffle=True, random_state=config_dict["ml"]["seed_num"])
     # Loop over the models
     for model_name in config_dict["ml"]["model_list"]:

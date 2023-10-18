@@ -8,16 +8,11 @@ from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.linear_model import (
     ElasticNet,
-    ElasticNetCV,
     Lars,
-    LarsCV,
     Lasso,
-    LassoCV,
     LassoLars,
-    LassoLarsCV,
     LinearRegression,
     Ridge,
-    RidgeCV,
     SGDRegressor,
 )
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
@@ -34,124 +29,205 @@ from models.custom_model import (
 from xgboost import XGBClassifier, XGBRegressor
 from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
 import models.model_params as model_params
-
+from utils.vars import CLASSIFICATION, REGRESSION
 import logging
 
 omicLogger = logging.getLogger("OmicLogger")
 
 
 MODELS = {
-    "LinearRegression": LinearRegression,
-    "Ridge": Ridge,
-    "RidgeCV": RidgeCV,
-    "SGDRegressor": SGDRegressor,
-    "ElasticNet": ElasticNet,
-    "ElasticNetCV": ElasticNetCV,
-    "Lars": Lars,
-    "LarsCV": LarsCV,
-    "Lasso": Lasso,
-    "LassoCV": LassoCV,
-    "LassoLars": LassoLars,
-    "LassoLarsCV": LassoLarsCV,
-    "RandomForestRegressor": RandomForestRegressor,
-    "KNeighborsRegressor": KNeighborsRegressor,
-    "DecisionTreeRegressor": DecisionTreeRegressor,
-    "GradientBoostingRegressor": GradientBoostingRegressor,
-    "GradientBoostingClassifier": GradientBoostingClassifier,
-    "MLPClassifier": MLPClassifier,
-    "KNeighborsClassifier": KNeighborsClassifier,
-    "SVC": SVC,
-    "GaussianProcessClassifier": GaussianProcessClassifier,
-    "RBF": RBF,
-    "DecisionTreeClassifier": DecisionTreeClassifier,
-    "RandomForestClassifier": RandomForestClassifier,
-    "AdaBoostClassifier": AdaBoostClassifier,
+    REGRESSION: {
+        "LinearRegression": {
+            "model": LinearRegression,
+        },
+        "Ridge": {
+            "model": Ridge,
+        },
+        "SGDRegressor": {
+            "model": SGDRegressor,
+        },
+        "ElasticNet": {
+            "model": ElasticNet,
+        },
+        "Lars": {
+            "model": Lars,
+        },
+        "Lasso": {
+            "model": Lasso,
+        },
+        "LassoLars": {
+            "model": LassoLars,
+        },
+        "RandomForestRegressor": {
+            "model": RandomForestRegressor,
+            "random": model_params.sk_random.get("rf"),
+            "grid": model_params.sk_grid.get("rf"),
+            "single": model_params.single_model.get("rf"),
+        },
+        "KNeighborsRegressor": {
+            "model": KNeighborsRegressor,
+            "random": model_params.sk_random.get("knn"),
+            "grid": model_params.sk_grid.get("knn"),
+            "single": model_params.single_model.get("knn"),
+        },
+        "DecisionTreeRegressor": {
+            "model": DecisionTreeRegressor,
+        },
+        "GradientBoostingRegressor": {
+            "model": GradientBoostingRegressor,
+        },
+        "AdaBoostRegressor": {
+            "model": AdaBoostRegressor,
+            "random": model_params.sk_random.get("adaboost"),
+            "grid": model_params.sk_grid.get("adaboost"),
+            "single": model_params.single_model.get("adaboost"),
+        },
+        "XGBRegressor": {
+            "model": XGBRegressor,
+            "random": model_params.sk_random.get("xgboost"),
+            "grid": model_params.sk_grid.get("xgboost"),
+            "single": model_params.single_model.get("xgboost"),
+        },
+        "SVR": {
+            "model": SVR,
+            "random": model_params.sk_random.get("svr"),
+            "grid": model_params.sk_grid.get("svr"),
+            "single": model_params.single_model.get("svr"),
+        },
+    },
+    CLASSIFICATION: {
+        "XGBClassifier": {
+            "model": XGBClassifier,
+            "random": model_params.sk_random.get("xgboost"),
+            "grid": model_params.sk_grid.get("xgboost"),
+            "single": model_params.single_model.get("xgboost"),
+        },
+        "GradientBoostingClassifier": {
+            "model": GradientBoostingClassifier,
+        },
+        "MLPClassifier": {
+            "model": MLPClassifier,
+        },
+        "KNeighborsClassifier": {
+            "model": KNeighborsClassifier,
+            "random": model_params.sk_random.get("knn"),
+            "grid": model_params.sk_grid.get("knn"),
+            "single": model_params.single_model.get("knn"),
+        },
+        "SVC": {
+            "model": SVC,
+            "random": model_params.sk_random.get("svc"),
+            "grid": model_params.sk_grid.get("svc"),
+            "single": model_params.single_model.get("svc"),
+        },
+        "GaussianProcessClassifier": {
+            "model": GaussianProcessClassifier,
+        },
+        "RBF": {
+            "model": RBF,
+        },
+        "DecisionTreeClassifier": {
+            "model": DecisionTreeClassifier,
+        },
+        "RandomForestClassifier": {
+            "model": RandomForestClassifier,
+            "random": model_params.sk_random.get("rf"),
+            "grid": model_params.sk_random.get("rf"),
+            "single": model_params.single_model.get("rf"),
+        },
+        "AdaBoostClassifier": {
+            "model": AdaBoostClassifier,
+            "random": model_params.sk_random.get("adaboost"),
+            "grid": model_params.sk_grid.get("adaboost"),
+            "single": model_params.single_model.get("adaboost"),
+        },
+    },
+    "both": {
+        "AutoKeras": {
+            "model": AutoKeras,
+        },
+        "AutoLGBM": {
+            "model": AutoLGBM,
+        },
+        "AutoSKLearn": {
+            "model": AutoSKLearn,
+        },
+        "AutoXGBoost": {
+            "model": AutoXGBoost,
+        },
+        "FixedKeras": {
+            "model": FixedKeras,
+            "single": model_params.single_model.get("FixedKeras"),
+        },
+    },
 }
 
 
-def select_model_dict(hyper_tuning):
+def form_model_dict(
+    problem_type: str, hyper_tunning: [str, None], model_list: list[str]
+) -> dict[str, tuple[object, dict, bool]]:
     """
-    Select what parameter range specific we are using based on the given hyper_tuning method.
+    A function to form a dict with the model names as keys and the nessicary items to instansiate the object.
+
+    Returns
+    -------
+    dict
+        chosen model names are the keys and the values is a tuple containing the model object, the paramaters for the
+        hyper tunning (defaulting to single if none found) and a boolean flag indicating if the parameter are for a
+        single model
+
+    Raises
+    ------
+    ValueError
+        Is raised if problem type is not 'classification' or 'regression'
+    ValueError
+        Is raised if hyper_tunning is not one of 'grid', 'random' or None
+    ValueError
+        Is raised if the model specified in model_name is not available for training
     """
-    omicLogger.debug("Get tunning settings...")
 
-    if hyper_tuning == "random":
-        ref_model_dict = model_params.sk_random
-    elif hyper_tuning == "grid":
-        ref_model_dict = model_params.sk_grid
-    elif hyper_tuning is None:
-        ref_model_dict = model_params.single_model
-    else:
-        raise ValueError(f"{hyper_tuning} is not a valid option")
-    return ref_model_dict
+    # check that the problem type is one of the accepted entries
+    if problem_type not in [CLASSIFICATION, REGRESSION]:
+        raise ValueError(f"problem_type must be one of classification or regression, provided: {problem_type}")
 
+    # check that the hyper_tunning is one of the accepted entries
+    if hyper_tunning not in ["grid", "random", None]:
+        raise ValueError(f"hyper_tuning must be one of 'grid', 'random' or None. Provided {hyper_tunning}")
 
-def define_models(problem_type, hyper_tuning):
-    """
-    Define the models to be run.
+    # if hyper_tunning is none set to 'single' to access appropriate entries
+    if hyper_tunning is None:
+        hyper_tunning = "single"
 
-    The name is the key, the value is a tuple with the model function, and defined params
-    """
-    omicLogger.debug("Defining the set of models...")
-    ref_model_dict = select_model_dict(hyper_tuning)
+    # create empty out dict
+    model_dict = {}
 
-    if problem_type == "classification":
-        try:
-            # Specific modifications for problem type
-            if hyper_tuning is None or hyper_tuning == "boaas":
-                ref_model_dict["svm"]["probability"] = True
-            else:
-                ref_model_dict["svm"]["probability"] = [True]
-        # Otherwise pass - models may not always be defined for every tuning method
-        except KeyError:
-            pass
-        # Define dict
-        model_dict = {
-            "rf": (RandomForestClassifier, ref_model_dict["rf"]),
-            "svm": (SVC, ref_model_dict["svm"]),
-            "knn": (KNeighborsClassifier, ref_model_dict["knn"]),
-            "adaboost": (AdaBoostClassifier, ref_model_dict["adaboost"]),
-            "xgboost": (XGBClassifier, ref_model_dict["xgboost"]),
-        }
-    elif problem_type == "regression":
-        # Specific modifications for problem type
+    # combine problem specific models and flexible models into one dict
+    combi = {**MODELS[problem_type], **MODELS["both"]}
 
-        # Define dict
-        model_dict = {
-            "rf": (RandomForestRegressor, ref_model_dict["rf"]),
-            "svm": (SVR, ref_model_dict["svm"]),
-            "knn": (KNeighborsRegressor, ref_model_dict["knn"]),
-            "adaboost": (AdaBoostRegressor, ref_model_dict["adaboost"]),
-            "xgboost": (XGBRegressor, ref_model_dict["xgboost"]),
-        }
-    else:
-        raise ValueError(f"{problem_type} is not recognised, must be either 'regression' or 'classification'")
-    # The CustomModels handle classification and regression themselves so put outside
-    # For mixing tuning types, default to using the single model for mlp_ens
+    # for each model name in our model list
+    for model_name in model_list:
+        # check that the model name is valid
+        if model_name not in combi.keys():
+            raise ValueError(
+                f"{model_name} is not available for the given problem type ({problem_type}). Available \
+                             models are {','.join(combi.keys())}"
+            )
 
-    model_dict["fixedkeras"] = (
-        FixedKeras,
-        ref_model_dict.get("fixedkeras", model_params.single_model.get("fixedkeras")),
-    )
+        # get the model object
+        mdl = combi[model_name]["model"]
 
-    model_dict["autokeras"] = (
-        AutoKeras,
-        ref_model_dict.get("autokeras", model_params.single_model.get("autokeras")),
-    )
+        # get the parameters for the specified hyper tunning, will be none if does not exist
+        hyper_tunning_params = combi[model_name].get(hyper_tunning)
 
-    model_dict["autolgbm"] = (
-        AutoLGBM,
-        ref_model_dict.get("autolgbm", model_params.single_model.get("autolgbm")),
-    )
+        # get the single model params as the backup and default to empty dict if none found
+        single_tunning_params = combi[model_name].get("single", {})
 
-    model_dict["autoxgboost"] = (
-        AutoXGBoost,
-        ref_model_dict.get("autoxgboost", model_params.single_model.get("autoxgboost")),
-    )
-
-    model_dict["autosklearn"] = (
-        AutoSKLearn,
-        ref_model_dict.get("autosklearn", model_params.single_model.get("autosklearn")),
-    )
+        # if the hyper_tunning specified is not none
+        if hyper_tunning_params:
+            # then return the hyper parameters chosen
+            model_dict[model_name] = (mdl, hyper_tunning_params, False)
+        else:
+            # else return the single model parameters
+            model_dict[model_name] = (mdl, single_tunning_params, True)
 
     return model_dict

@@ -2,7 +2,7 @@ from os.path import exists
 from models.model_defs import MODELS
 from metrics.metric_defs import METRICS
 import logging
-
+from utils.vars import CLASSIFICATION, REGRESSION
 from utils.ml.feature_selection_defs import FS_METHODS, FS_KBEST_METRICS
 
 omicLogger = logging.getLogger("OmicLogger")
@@ -34,7 +34,7 @@ def parser_plotting(plotting_entry, problem):
         reg = ["hist_overlapped", "joint", "joint_dens", "corr"]
         both = ["barplot_scorer", "boxplot_scorer", "shap_plots", "permut_imp_test"]
 
-        max_opts = set(both + (reg if problem == "regression" else classif))
+        max_opts = set(both + (reg if problem == REGRESSION else classif))
         given_opts = set(plotting_entry["plot_method"])
 
         if not given_opts.issubset(max_opts):
@@ -302,7 +302,7 @@ def parse_autosklearn(sklearnEntry, problem_type):
         type_check(sklearnEntry["estimators"], list, "autosklearn_config:estimators")
         list_type_check(sklearnEntry["estimators"], str, "autosklearn_config:estimators")
 
-        maxopt = set(class_opts) if problem_type == "classification" else set(reg_opt)
+        maxopt = set(class_opts) if problem_type == CLASSIFICATION else set(reg_opt)
         givenopt = set(sklearnEntry["estimators"])
 
         if not givenopt.issubset(maxopt):
@@ -353,12 +353,12 @@ def parse_MLSettings(problemEntry):
 
     ###################################### MANDITORY ######################################
     if "problem_type" not in keys:
-        raise ValueError('problem_type must be given. Options: "classification" or "regression"')
+        raise ValueError("problem_type must be given. Options: CLASSIFICATION or REGRESSION")
     else:
         type_check(problemEntry["problem_type"], str, "problem_type")
-        if problemEntry["problem_type"] not in ["classification", "regression"]:
+        if problemEntry["problem_type"] not in [CLASSIFICATION, REGRESSION]:
             raise ValueError(
-                f'problem_type not valid: {problemEntry["problem_type"]}. Must be "classification" or "regression"'
+                f'problem_type not valid: {problemEntry["problem_type"]}. Must be CLASSIFICATION or REGRESSION'
             )
 
     if "hyper_tuning" not in keys:
@@ -403,24 +403,24 @@ def parse_MLSettings(problemEntry):
 
     if "fit_scorer" not in keys:
         problemEntry["fit_scorer"] = (
-            "f1_score" if problemEntry["problem_type"] == "classification" else "mean_absolute_percentage_error"
+            "f1_score" if problemEntry["problem_type"] == CLASSIFICATION else "mean_absolute_percentage_error"
         )
     else:
         type_check(problemEntry["fit_scorer"], str, "fit_scorer")
 
         valid = (
-            list(METRICS["classification"].keys())
-            if problemEntry["problem_type"] == "classification"
-            else list(METRICS["regression"].keys())
+            list(METRICS[CLASSIFICATION].keys())
+            if problemEntry["problem_type"] == CLASSIFICATION
+            else list(METRICS[REGRESSION].keys())
         )
         if problemEntry["fit_scorer"] not in valid:
             raise ValueError(f"fit_scorer must be one of: {valid}")
 
     if "scorer_list" not in keys:
         problemEntry["scorer_list"] = (
-            list(METRICS["classification"].keys())
-            if problemEntry["problem_type"] == "classification"
-            else list(METRICS["regression"].keys())
+            list(METRICS[CLASSIFICATION].keys())
+            if problemEntry["problem_type"] == CLASSIFICATION
+            else list(METRICS[REGRESSION].keys())
         )
     else:
         type_check(problemEntry["scorer_list"], list, "scorer_list")
@@ -430,46 +430,37 @@ def parse_MLSettings(problemEntry):
             problemEntry["scorer_list"].append(problemEntry["fit_scorer"])
 
         given_opts = set(problemEntry["scorer_list"])
-        max_opts = set(
-            METRICS["classification"].keys()
-            if problemEntry["problem_type"] == "classification"
-            else METRICS["regression"].keys()
+        metric_max_opts = set(
+            METRICS[CLASSIFICATION].keys()
+            if problemEntry["problem_type"] == CLASSIFICATION
+            else METRICS[REGRESSION].keys()
         )
 
-        if not given_opts.issubset(max_opts):
+        if not given_opts.issubset(metric_max_opts):
             raise ValueError(
-                f'Non-valid options given for scorer_list: {",".join(list(given_opts-max_opts))}. Possible options: \
-                    {max_opts}'
+                f'Non-valid options given for scorer_list: {",".join(list(given_opts-metric_max_opts))}. Possible \
+                    options: {metric_max_opts}'
             )
 
-    max_opts = {
-        "rf",
-        "adaboost",
-        "knn",
-        "autoxgboost",
-        "autolgbm",
-        "autosklearn",
-        "autokeras",
-        "fixedkeras",
-    }
+    model_max_opts = set(list(MODELS[problemEntry["problem_type"]].keys()) + list(MODELS["both"].keys()))
     ###################################### MANDITORY ######################################
     if "model_list" not in keys:
-        raise ValueError(f"model_list must be a list containg at least one option from: {max_opts}")
+        raise ValueError(f"model_list must be a list containg at least one option from: {model_max_opts}")
     else:
         type_check(problemEntry["model_list"], list, "model_list")
         list_type_check(problemEntry["model_list"], str, "model_list")
 
         if problemEntry["model_list"] == []:
-            raise ValueError(f"model_list must contain at least one option from: {max_opts}")
+            raise ValueError(f"model_list must contain at least one option from: {model_max_opts}")
         else:
             given_opts = set(problemEntry["model_list"])
-            if not given_opts.issubset(max_opts):
+            if not given_opts.issubset(model_max_opts):
                 raise ValueError(
-                    f'Non-valid options given for model_list: {",".join(list(given_opts-max_opts))}. Possible options: \
-                        {max_opts}'
+                    f'Non-valid options given for model_list: {",".join(list(given_opts-model_max_opts))}. Possible \
+                        options: {model_max_opts}'
                 )
 
-    if problemEntry["problem_type"] == "classification":
+    if problemEntry["problem_type"] == CLASSIFICATION:
         if "encoding" not in keys:
             problemEntry["encoding"] = None
         else:
@@ -480,22 +471,22 @@ def parse_MLSettings(problemEntry):
                         f'Encoding entry ({problemEntry["encoding"]}) not valid, must be None or "label" or "onehot"'
                     )
 
-    if "autosklearn" in problemEntry["model_list"]:
+    if "AutoSKLearn" in problemEntry["model_list"]:
         autoEnt = problemEntry.get("autosklearn_config")
         autoEnt = {} if autoEnt is None else autoEnt
         problemEntry["autosklearn_config"] = parse_autosklearn(autoEnt, problemEntry["problem_type"])
 
-    if "autokeras" in problemEntry["model_list"]:
+    if "AutoKeras" in problemEntry["model_list"]:
         autoEnt = problemEntry.get("autokeras_config")
         autoEnt = {} if autoEnt is None else autoEnt
         problemEntry["autokeras_config"] = parse_autokeras(autoEnt)
 
-    if "autolgbm" in problemEntry["model_list"]:
+    if "AutoLGBM" in problemEntry["model_list"]:
         autoEnt = problemEntry.get("autolgbm_config")
         autoEnt = {} if autoEnt is None else autoEnt
         problemEntry["autolgbm_config"] = parse_autolgbm(autoEnt)
 
-    if "autoxgboost" in problemEntry["model_list"]:
+    if "AutoXGBoost" in problemEntry["model_list"]:
         autoEnt = problemEntry.get("autoxgboost_config")
         autoEnt = {} if autoEnt is None else autoEnt
         problemEntry["autoxgboost_config"] = parse_autoxgboost(autoEnt)
@@ -943,19 +934,19 @@ def validate_FS_models_and_metrics(problem_type, estimator, metric):
     """
     omicLogger.debug("Validating model and metric settings...")
     # check that the estimator is loaded in
-    if estimator not in MODELS.keys():
+    if estimator not in MODELS[problem_type].keys():
         raise ValueError(f"{estimator} is not currently available for use")
     else:
-        est = MODELS[estimator]
+        est = MODELS[problem_type][estimator]["model"]
 
     # check that the metric is loaded in
-    if not (metric in METRICS["regression"].keys() or metric in METRICS["classification"].keys()):
+    if not (metric in METRICS[REGRESSION].keys() or metric in METRICS[CLASSIFICATION].keys()):
         raise ValueError(f"{metric} is not currently available for use")
 
     # check that the estimator selected is appropriate for the problem type
     if not (
-        ((problem_type == "regression") and (est._estimator_type == "regressor"))
-        or ((problem_type == "classification") and (est._estimator_type == "classifier"))
+        ((problem_type == REGRESSION) and (est._estimator_type == "regressor"))
+        or ((problem_type == CLASSIFICATION) and (est._estimator_type == "classifier"))
     ):
         raise ValueError(f"{estimator} is not a valid method for a {problem_type} problem")
 
@@ -969,15 +960,15 @@ def validate_FS_models_and_metrics(problem_type, estimator, metric):
 def parse_FS_model_inputs(problem_type, eval_model, eval_metric):
     omicLogger.debug("Parsing model inputs...")
     # check we have a valid problem type
-    if not ((problem_type == "classification") or (problem_type == "regression")):
+    if not ((problem_type == CLASSIFICATION) or (problem_type == REGRESSION)):
         raise ValueError("PROBLEM TYPE IS NOT CLASSIFICATION OR REGRESSION")
 
     # set the evaluation model and metric if we have been given None
     if eval_model is None:
-        eval_model = "RandomForestClassifier" if problem_type == "classification" else "RandomForestRegressor"
+        eval_model = "RandomForestClassifier" if problem_type == CLASSIFICATION else "RandomForestRegressor"
 
     if eval_metric is None:
-        eval_metric = "f1_score" if problem_type == "classification" else "mean_squared_error"
+        eval_metric = "f1_score" if problem_type == CLASSIFICATION else "mean_squared_error"
 
     # check the combination of model and metric is valid
     low = validate_FS_models_and_metrics(problem_type, eval_model, eval_metric)
@@ -1013,7 +1004,7 @@ def parse_FS_settings(problem_type, FS_dict):
 
         elif method_dict["name"] == "SelectKBest":
             if ("metric" not in method_dict.keys()) or (method_dict["metric"] is None):
-                method_dict["metric"] = "f_classif" if problem_type == "classification" else "f_regression"
+                method_dict["metric"] = "f_classif" if problem_type == CLASSIFICATION else "f_regression"
 
             elif method_dict["metric"] not in FS_KBEST_METRICS.keys():
                 raise ValueError(
@@ -1024,33 +1015,22 @@ def parse_FS_settings(problem_type, FS_dict):
                 metrics_reg = ["f_regression", "mutual_info_regression"]
                 metrics_clf = ["f_classif", "mutual_info_classif"]
 
-                if ((problem_type == "classification") and (method_dict["metric"] not in metrics_clf)) or (
-                    (problem_type == "regression") and (method_dict["metric"] not in metrics_reg)
+                if ((problem_type == CLASSIFICATION) and (method_dict["metric"] not in metrics_clf)) or (
+                    (problem_type == REGRESSION) and (method_dict["metric"] not in metrics_reg)
                 ):
                     raise ValueError(f"{method_dict['metric']} is not appropriate for problem type {problem_type}.")
 
         elif method_dict["name"] == "RFE":
             if ("estimator" not in method_dict.keys()) or (method_dict["estimator"] is None):
                 method_dict["estimator"] = (
-                    "RandomForestClassifier" if problem_type == "classification" else "RandomForestRegressor"
+                    "RandomForestClassifier" if problem_type == CLASSIFICATION else "RandomForestRegressor"
                 )
-            elif method_dict["estimator"] not in MODELS.keys():
-                raise ValueError(
-                    f"{method_dict['estimator']} not currently available for use. please select a different estimator."
-                )
-            else:
-                if (
-                    (MODELS[method_dict["estimator"]]._estimator_type == "regressor")
-                    and (problem_type == "classification")
-                ) or (
-                    (MODELS[method_dict["estimator"]]._estimator_type == "classifier")
-                    and (problem_type == "regression")
-                ):
-                    raise ValueError(f"{method_dict['estimator']} is not appropriate for problem type {problem_type}.")
+            elif method_dict["estimator"] not in MODELS[problem_type].keys():
+                raise ValueError(f"{method_dict['estimator']} is not appropriate for problem type {problem_type}.")
     else:
         method_dict = {
             "name": "SelectKBest",
-            "metric": "f_classif" if problem_type == "classification" else "f_regression",
+            "metric": "f_classif" if problem_type == CLASSIFICATION else "f_regression",
         }
 
     if "auto" in keys:
@@ -1080,9 +1060,9 @@ def parse_FS_settings(problem_type, FS_dict):
             "min_features": 10,
             "max_features": None,
             "interval": 1,
-            "eval_model": "RandomForestClassifier" if problem_type == "classification" else "RandomForestRegressor",
-            "eval_metric": "f1_score" if problem_type == "classification" else "mean_squared_error",
-            "low": problem_type != "classification",
+            "eval_model": "RandomForestClassifier" if problem_type == CLASSIFICATION else "RandomForestRegressor",
+            "eval_metric": "f1_score" if problem_type == CLASSIFICATION else "mean_squared_error",
+            "low": problem_type != CLASSIFICATION,
         }
 
     if method_dict["name"] == "RFE":
