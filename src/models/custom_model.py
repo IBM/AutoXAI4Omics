@@ -169,7 +169,11 @@ class TabAuto(CustomModel):
         raise NotImplementedError()
 
     def save_model(self):
-        raise NotImplementedError()
+        path = self.experiment_folder / "models" / f"{self.nickname}_best"
+        fname = f"{path}"
+        print("custom save_model: {}".format(fname))
+        self.model.save(fname + ".h5")
+        self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
@@ -387,11 +391,11 @@ class FixedKeras(TabAuto):
         else:
             raise NotImplementedError()
 
-    def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'FixedKeras_best'}"
-        print("custom save_model: {}".format(fname))
-        self.model.save(fname + ".h5")
-        self._pickle_member(fname)
+    # def save_model(self):
+    #     fname = f"{self.experiment_folder / 'models' / 'FixedKeras_best'}"
+    #     print("custom save_model: {}".format(fname))
+    #     self.model.save(fname + ".h5")
+    #     self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
@@ -517,11 +521,11 @@ class AutoKeras(TabAuto):
             raise NotImplementedError()
         return preds.flatten()
 
-    def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'AutoKeras_best'}"
-        print("custom save_model: {}".format(fname))
-        self.model.save(fname + ".h5")
-        self._pickle_member(fname)
+    # def save_model(self):
+    #     fname = f"{self.experiment_folder / 'models' / 'AutoKeras_best'}"
+    #     print("custom save_model: {}".format(fname))
+    #     self.model.save(fname + ".h5")
+    #     self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
@@ -632,11 +636,11 @@ class AutoSKLearn(TabAuto):
         # Assign the model
         self.model = model
 
-    def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'AutoSKLearn_best'}"
-        print("custom save_model: {}".format(fname))
-        self.model.save(fname + ".h5")
-        self._pickle_member(fname)
+    # def save_model(self):
+    #     fname = f"{self.experiment_folder / 'models' / 'AutoSKLearn_best'}"
+    #     print("custom save_model: {}".format(fname))
+    #     self.model.save(fname + ".h5")
+    #     self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
@@ -745,11 +749,11 @@ class AutoLGBM(TabAuto):
         # Assign the model
         self.model = model
 
-    def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'AutoLGBM_best'}"
-        print("custom save_model: {}".format(fname))
-        self.model.save(fname + ".h5")
-        self._pickle_member(fname)
+    # def save_model(self):
+    #     fname = f"{self.experiment_folder / 'models' / 'AutoLGBM_best'}"
+    #     print("custom save_model: {}".format(fname))
+    #     self.model.save(fname + ".h5")
+    #     self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):
@@ -858,11 +862,11 @@ class AutoXGBoost(TabAuto):
         # Assign the model
         self.model = model
 
-    def save_model(self):
-        fname = f"{self.experiment_folder / 'models' / 'AutoXGBoost_best'}"
-        print("custom save_model: {}".format(fname))
-        self.model.save(fname + ".h5")
-        self._pickle_member(fname)
+    # def save_model(self):
+    #     fname = f"{self.experiment_folder / 'models' / 'AutoXGBoost_best'}"
+    #     print("custom save_model: {}".format(fname))
+    #     self.model.save(fname + ".h5")
+    #     self._pickle_member(fname)
 
     @classmethod
     def load_model(cls, model_path):

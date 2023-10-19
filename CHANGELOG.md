@@ -33,3 +33,4 @@ Change log for the codebase. Initialised from the developments following version
     - consolidate metric functions into one location
     - consolidate model defs into one location
     - custom model clean up
+    - shifted repeated save_model code from TabAuto children into TabAuto

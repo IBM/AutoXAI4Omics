@@ -204,24 +204,16 @@ def config_feature_selection():
 
 def config_model_list(problem_type):
     if problem_type == "regression":
-        ml = [
-            "RandomForestRegressor",
-            "SVR",
-            "KNeighborsRegressor",
-            "AdaBoostRegressor",
-            "XGBRegressor",
-        ]
+        pass
     elif problem_type == "classification":
-        ml = [
-            "RandomForestClassifier",
-            "SVC",
-            "KNeighborsClassifier",
-            "AdaBoostClassifier",
-            "XGBClassifier",
-        ]
+        pass
     else:
         raise ValueError(f"Unexpected problem type: {problem_type}")
-    outdict = {"model_list": ml + ["AutoKeras", "AutoLGBM", "AutoSKLearn", "AutoXGBoost", "FixedKeras"]}
+    outdict = {
+        "model_list":
+        # ml+
+        ["AutoKeras", "AutoLGBM", "AutoSKLearn", "AutoXGBoost", "FixedKeras"]
+    }
     return outdict
 
 
@@ -357,16 +349,14 @@ def config_tabular():
 
 def config_create(problem_type, file_path, meta_path, multi=False, run=1):
     outdict = {
-        **config_data_paths(
-            file_path, meta_path, problem_type, multi
-        ),  # Define the paths to where the data is stored         # [EXP/AUTO]
-        **config_all_plotting(problem_type),  # Define what plots to do                              # [HIDDEN]
+        **config_data_paths(file_path, meta_path, problem_type, multi),  # Define the paths to where the data is stored
+        # **config_all_plotting(problem_type),  # Define what plots to do
         **config_define_ml(problem_type),
         **config_prediction(file_path),
-        # **config_microbiome(),                      # settings for the corresponding data type             # [?]
-        # **config_gene_expression(),                 # settings for the corresponding data type             # [?]
-        # **config_metabolmic(),                      # settings for the corresponding data type             # [?]
-        # **config_tabular(),                         # settings for the corresponding data type             # [?]
+        # **config_microbiome(),                      # settings for the corresponding data type
+        # **config_gene_expression(),                 # settings for the corresponding data type
+        # **config_metabolmic(),                      # settings for the corresponding data type
+        # **config_tabular(),                         # settings for the corresponding data type
     }
 
     outdict["data"]["name"] += str(run).zfill(len(str(RUNS)))
