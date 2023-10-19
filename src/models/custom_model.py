@@ -177,7 +177,14 @@ class TabAuto(CustomModel):
 
     @classmethod
     def load_model(cls, model_path):
-        raise NotImplementedError()
+        model_path = str(model_path)
+        # Load the pickled instance
+        with open(model_path + ".pkl", "rb") as f:
+            model = joblib.load(f)
+        # Load the model and set this to the relevant attribute
+        print("loading: {}.h5".format(model_path))
+        model.model = joblib.load(model_path + ".h5")
+        return model
 
     def _define_model(self):
         """
@@ -391,12 +398,6 @@ class FixedKeras(TabAuto):
         else:
             raise NotImplementedError()
 
-    # def save_model(self):
-    #     fname = f"{self.experiment_folder / 'models' / 'FixedKeras_best'}"
-    #     print("custom save_model: {}".format(fname))
-    #     self.model.save(fname + ".h5")
-    #     self._pickle_member(fname)
-
     @classmethod
     def load_model(cls, model_path):
         model_path = str(model_path)
@@ -404,6 +405,7 @@ class FixedKeras(TabAuto):
         with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
+        print("loading:", model_path + ".h5")
         model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 
@@ -521,12 +523,6 @@ class AutoKeras(TabAuto):
             raise NotImplementedError()
         return preds.flatten()
 
-    # def save_model(self):
-    #     fname = f"{self.experiment_folder / 'models' / 'AutoKeras_best'}"
-    #     print("custom save_model: {}".format(fname))
-    #     self.model.save(fname + ".h5")
-    #     self._pickle_member(fname)
-
     @classmethod
     def load_model(cls, model_path):
         model_path = str(model_path)
@@ -535,8 +531,6 @@ class AutoKeras(TabAuto):
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
         print("loading:", model_path + ".h5")
-        # custom_objects = {"cast_to_float32": autokeras.keras_layers.CastToFloat32}
-        # model.model = tensorflow.keras.models.load_model(model_path+".h5", custom_objects=custom_objects)
         model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 
@@ -636,23 +630,6 @@ class AutoSKLearn(TabAuto):
         # Assign the model
         self.model = model
 
-    # def save_model(self):
-    #     fname = f"{self.experiment_folder / 'models' / 'AutoSKLearn_best'}"
-    #     print("custom save_model: {}".format(fname))
-    #     self.model.save(fname + ".h5")
-    #     self._pickle_member(fname)
-
-    @classmethod
-    def load_model(cls, model_path):
-        model_path = str(model_path)
-        # Load the pickled instance
-        with open(model_path + ".pkl", "rb") as f:
-            model = joblib.load(f)
-        # Load the model and set this to the relevant attribute
-        print("loading: {}.h5".format(model_path))
-        model.model = joblib.load(model_path + ".h5")
-        return model
-
 
 class AutoLGBM(TabAuto):
     nickname = "AutoLGBM"
@@ -749,23 +726,6 @@ class AutoLGBM(TabAuto):
         # Assign the model
         self.model = model
 
-    # def save_model(self):
-    #     fname = f"{self.experiment_folder / 'models' / 'AutoLGBM_best'}"
-    #     print("custom save_model: {}".format(fname))
-    #     self.model.save(fname + ".h5")
-    #     self._pickle_member(fname)
-
-    @classmethod
-    def load_model(cls, model_path):
-        model_path = str(model_path)
-        # Load the pickled instance
-        with open(model_path + ".pkl", "rb") as f:
-            model = joblib.load(f)
-        # Load the model and set this to the relevant attribute
-        print("loading: {}.h5".format(model_path))
-        model.model = joblib.load(model_path + ".h5")
-        return model
-
 
 class AutoXGBoost(TabAuto):
     nickname = "AutoXGBoost"
@@ -861,20 +821,3 @@ class AutoXGBoost(TabAuto):
 
         # Assign the model
         self.model = model
-
-    # def save_model(self):
-    #     fname = f"{self.experiment_folder / 'models' / 'AutoXGBoost_best'}"
-    #     print("custom save_model: {}".format(fname))
-    #     self.model.save(fname + ".h5")
-    #     self._pickle_member(fname)
-
-    @classmethod
-    def load_model(cls, model_path):
-        model_path = str(model_path)
-        # Load the pickled instance
-        with open(model_path + ".pkl", "rb") as f:
-            model = joblib.load(f)
-        # Load the model and set this to the relevant attribute
-        print("loading: {}.h5".format(model_path))
-        model.model = joblib.load(model_path + ".h5")
-        return model
