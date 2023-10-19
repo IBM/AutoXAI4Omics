@@ -166,7 +166,37 @@ class TabAuto(CustomModel):
         raise NotImplementedError()
 
     def fit(self, data, labels, save_best=True):
-        raise NotImplementedError()
+        """
+        Fit to provided data and labels
+        """
+        # Setup some of the attributes from the data
+        self.data = data
+        self.labels = labels
+        self.n_examples = data.shape[0]
+        self.n_dims = data.shape[1]
+        # Set up the needed things for training now we have access to the data and labels
+        self._preparation()
+        # Determine the number of classes
+        if self.config_dict["problem_type"] == CLASSIFICATION:
+            # One-hot encoding has already been done, so take the info from there
+            self.n_classes = self.labels.shape[1]
+        elif self.config_dict["problem_type"] == REGRESSION:
+            self.n_classes = 1
+        # Define the model
+        self._define_model()
+
+        # x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
+        x_train = self.data
+        y_train = self.labels
+        x_val = self.data_test
+        y_val = self.labels_test
+
+        self.model.fit_data(x_train, y_train, x_val, y_val)
+
+        if self.verbose:
+            print("Model Summary:")
+            print(self.model.summary())
+        return self
 
     def save_model(self):
         path = self.experiment_folder / "models" / f"{self.nickname}_best"
@@ -321,45 +351,6 @@ class FixedKeras(TabAuto):
         # Keras attributes
         self.model = model
 
-    def fit(self, data, labels, save_best=True):
-        """
-        Fit to provided data and labels
-        """
-        # Setup some of the attributes from the data
-        self.data = data
-        self.labels = labels
-        self.n_examples = data.shape[0]
-        self.n_dims = data.shape[1]
-        # Set up the needed things for training now we have access to the data and labels
-        self._preparation()
-        # Determine the number of classes
-        if self.config_dict["problem_type"] == CLASSIFICATION:
-            # One-hot encoding has already been done, so take the info from there
-            self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == REGRESSION:
-            self.n_classes = 1
-        # Define the model
-        self._define_model()
-
-        # Set the verbosity level
-        if self.verbose:
-            verbose = 1
-        else:
-            verbose = 0
-
-        # x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
-        x_train = self.data
-        y_train = self.labels
-        x_val = self.data_test
-        y_val = self.labels_test
-
-        self.model.fit_data(x_train, y_train, x_val, y_val)
-
-        if verbose:
-            print("Model Summary:")
-            print(self.model.summary())
-        return self
-
     def _define_model(self):
         """
         Define underlying mode/method
@@ -445,41 +436,6 @@ class AutoKeras(TabAuto):
         self.classes_ = classes_
         # Keras attributes
         self.model = model
-
-    def fit(self, data, labels, save_best=True):
-        """
-        Fit to provided data and labels
-        """
-        # Setup some of the attributes from the data
-        self.data = data
-        self.labels = labels
-        self.n_examples = data.shape[0]
-        self.n_dims = data.shape[1]
-        # Set up the needed things for training now we have access to the data and labels
-        self._preparation()
-        # Determine the number of classes
-        if self.config_dict["problem_type"] == CLASSIFICATION:
-            # One-hot encoding has already been done, so take the info from there
-            self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == REGRESSION:
-            self.n_classes = 1
-        # Define the model
-        self._define_model()
-
-        # Set the verbosity level
-        if self.verbose:
-            verbose = 1
-        else:
-            verbose = 0
-
-        x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
-
-        self.model.fit_data(x_train, y_train, x_val, y_val)
-
-        if verbose:
-            print("Model Summary:")
-            print(self.model.summary())
-        return self
 
     def _define_model(self):
         """
@@ -571,39 +527,6 @@ class AutoSKLearn(TabAuto):
         # Keras attributes
         self.model = model
 
-    def fit(self, data, labels, save_best=True):
-        """
-        Fit to provided data and labels
-        """
-        # Setup some of the attributes from the data
-        self.data = data
-        self.labels = labels
-        self.n_examples = data.shape[0]
-        self.n_dims = data.shape[1]
-        # Set up the needed things for training now we have access to the data and labels
-        self._preparation()
-        # Determine the number of classes
-        if self.config_dict["problem_type"] == CLASSIFICATION:
-            # One-hot encoding has already been done, so take the info from there
-            self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == REGRESSION:
-            self.n_classes = 1
-        # Define the model
-        self._define_model()
-
-        # x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
-        x_train = self.data
-        y_train = self.labels
-        x_val = self.data_test
-        y_val = self.labels_test
-
-        self.model.fit_data(x_train, y_train, x_val, y_val)
-
-        if self.verbose:
-            print("Model Summary:")
-            print(self.model.summary())
-        return self
-
     def _define_model(self):
         """
         Define underlying mode/method
@@ -667,39 +590,6 @@ class AutoLGBM(TabAuto):
         #
         self.model = model
 
-    def fit(self, data, labels, save_best=True):
-        """
-        Fit to provided data and labels
-        """
-        # Setup some of the attributes from the data
-        self.data = data
-        self.labels = labels
-        self.n_examples = data.shape[0]
-        self.n_dims = data.shape[1]
-        # Set up the needed things for training now we have access to the data and labels
-        self._preparation()
-        # Determine the number of classes
-        if self.config_dict["problem_type"] == CLASSIFICATION:
-            # One-hot encoding has already been done, so take the info from there
-            self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == REGRESSION:
-            self.n_classes = 1
-        # Define the model
-        self._define_model()
-
-        # x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
-        x_train = self.data
-        y_train = self.labels
-        x_val = self.data_test
-        y_val = self.labels_test
-
-        self.model.fit_data(x_train, y_train, x_val, y_val)
-
-        if self.verbose:
-            print("Model Summary:")
-            print(self.model.summary())
-        return self
-
     def _define_model(self):
         """
         Define underlying mode/method
@@ -762,39 +652,6 @@ class AutoXGBoost(TabAuto):
         self.classes_ = classes_
         #
         self.model = model
-
-    def fit(self, data, labels, save_best=True):
-        """
-        Fit to provided data and labels
-        """
-        # Setup some of the attributes from the data
-        self.data = data
-        self.labels = labels
-        self.n_examples = data.shape[0]
-        self.n_dims = data.shape[1]
-        # Set up the needed things for training now we have access to the data and labels
-        self._preparation()
-        # Determine the number of classes
-        if self.config_dict["problem_type"] == CLASSIFICATION:
-            # One-hot encoding has already been done, so take the info from there
-            self.n_classes = self.labels.shape[1]
-        elif self.config_dict["problem_type"] == REGRESSION:
-            self.n_classes = 1
-        # Define the model
-        self._define_model()
-
-        # x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
-        x_train = self.data
-        y_train = self.labels
-        x_val = self.data_test
-        y_val = self.labels_test
-
-        self.model.fit_data(x_train, y_train, x_val, y_val)
-
-        if self.verbose:
-            print("Model Summary:")
-            print(self.model.summary())
-        return self
 
     def _define_model(self):
         """
