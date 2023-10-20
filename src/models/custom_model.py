@@ -162,8 +162,36 @@ class TabAuto(CustomModel):
     verbose = False
     model = None
 
-    def __init__(self, **kwargs):
-        raise NotImplementedError()
+    def __init__(
+        self,
+        random_state=None,
+        scorer_func=None,
+        data=None,
+        data_test=None,
+        labels=None,
+        labels_test=None,
+        n_classes=None,
+        n_examples=None,
+        n_dims=None,
+        onehot_encode_obj=None,
+        classes_=None,
+        model=None,
+    ):
+        # Param attributes
+        self.random_state = random_state
+        self.scorer_func = scorer_func
+        # Attributes for the model
+        self.data = data
+        self.data_test = data_test  # To track performance over epochs
+        self.labels = labels
+        self.labels_test = labels_test
+        self.n_classes = n_classes
+        self.n_examples = n_examples
+        self.n_dims = n_dims
+        self.onehot_encode_obj = onehot_encode_obj
+        self.classes_ = classes_
+        # Keras attributes
+        self.model = model
 
     def fit(self, data, labels, save_best=True):
         """
@@ -308,14 +336,7 @@ class FixedKeras(TabAuto):
 
     def __init__(
         self,
-        n_epochs=None,
-        batch_size=None,
-        lr=None,
-        layer_dict=None,
-        verbose=None,
         random_state=None,
-        n_blocks=None,
-        dropout=None,
         scorer_func=None,
         data=None,
         data_test=None,
@@ -327,29 +348,37 @@ class FixedKeras(TabAuto):
         onehot_encode_obj=None,
         classes_=None,
         model=None,
+        n_epochs=None,
+        batch_size=None,
+        lr=None,
+        layer_dict=None,
+        verbose=None,
+        n_blocks=None,
+        dropout=None,
     ):
+        super().__init__(
+            random_state,
+            scorer_func,
+            data,
+            data_test,
+            labels,
+            labels_test,
+            n_classes,
+            n_examples,
+            n_dims,
+            onehot_encode_obj,
+            classes_,
+            model,
+        )
+
         # Param attributes
         self.n_epochs = n_epochs
         self.batch_size = batch_size
         self.lr = lr  # Learning rate
         self.layer_dict = layer_dict
         self.verbose = verbose
-        self.random_state = random_state
         self.n_blocks = n_blocks
         self.dropout = dropout
-        self.scorer_func = scorer_func
-        # Attributes for the model
-        self.data = data
-        self.data_test = data_test  # To track performance over epochs
-        self.labels = labels
-        self.labels_test = labels_test
-        self.n_classes = n_classes
-        self.n_examples = n_examples
-        self.n_dims = n_dims
-        self.onehot_encode_obj = onehot_encode_obj
-        self.classes_ = classes_
-        # Keras attributes
-        self.model = model
 
     def _define_model(self):
         """
@@ -405,37 +434,6 @@ class AutoKeras(TabAuto):
     nickname = "AutoKeras"
     # Attributes from the config
     config_dict = None
-
-    def __init__(
-        self,
-        random_state=None,
-        scorer_func=None,
-        data=None,
-        data_test=None,
-        labels=None,
-        labels_test=None,
-        n_classes=None,
-        n_examples=None,
-        n_dims=None,
-        onehot_encode_obj=None,
-        classes_=None,
-        model=None,
-    ):
-        # Param attributes
-        self.random_state = random_state
-        self.scorer_func = scorer_func
-        # Attributes for the model
-        self.data = data
-        self.data_test = data_test  # To track performance over epochs
-        self.labels = labels
-        self.labels_test = labels_test
-        self.n_classes = n_classes
-        self.n_examples = n_examples
-        self.n_dims = n_dims
-        self.onehot_encode_obj = onehot_encode_obj
-        self.classes_ = classes_
-        # Keras attributes
-        self.model = model
 
     def _define_model(self):
         """
@@ -496,37 +494,6 @@ class AutoSKLearn(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def __init__(
-        self,
-        random_state=None,
-        scorer_func=None,
-        data=None,
-        data_test=None,
-        labels=None,
-        labels_test=None,
-        n_classes=None,
-        n_examples=None,
-        n_dims=None,
-        onehot_encode_obj=None,
-        classes_=None,
-        model=None,
-    ):
-        # Param attributes
-        self.random_state = random_state
-        self.scorer_func = scorer_func
-        # Attributes for the model
-        self.data = data
-        self.data_test = data_test  # To track performance over epochs
-        self.labels = labels
-        self.labels_test = labels_test
-        self.n_classes = n_classes
-        self.n_examples = n_examples
-        self.n_dims = n_dims
-        self.onehot_encode_obj = onehot_encode_obj
-        self.classes_ = classes_
-        # Keras attributes
-        self.model = model
-
     def _define_model(self):
         """
         Define underlying mode/method
@@ -559,37 +526,6 @@ class AutoLGBM(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def __init__(
-        self,
-        random_state=None,
-        scorer_func=None,
-        data=None,
-        data_test=None,
-        labels=None,
-        labels_test=None,
-        n_classes=None,
-        n_examples=None,
-        n_dims=None,
-        onehot_encode_obj=None,
-        classes_=None,
-        model=None,
-    ):
-        # Param attributes
-        self.random_state = random_state
-        self.scorer_func = scorer_func
-        # Attributes for the model
-        self.data = data
-        self.data_test = data_test  # To track performance over epochs
-        self.labels = labels
-        self.labels_test = labels_test
-        self.n_classes = n_classes
-        self.n_examples = n_examples
-        self.n_dims = n_dims
-        self.onehot_encode_obj = onehot_encode_obj
-        self.classes_ = classes_
-        #
-        self.model = model
-
     def _define_model(self):
         """
         Define underlying mode/method
@@ -621,37 +557,6 @@ class AutoXGBoost(TabAuto):
     nickname = "AutoXGBoost"
     # Attributes from the config
     config_dict = None
-
-    def __init__(
-        self,
-        random_state=None,
-        scorer_func=None,
-        data=None,
-        data_test=None,
-        labels=None,
-        labels_test=None,
-        n_classes=None,
-        n_examples=None,
-        n_dims=None,
-        onehot_encode_obj=None,
-        classes_=None,
-        model=None,
-    ):
-        # Param attributes
-        self.random_state = random_state
-        self.scorer_func = scorer_func
-        # Attributes for the model
-        self.data = data
-        self.data_test = data_test  # To track performance over epochs
-        self.labels = labels
-        self.labels_test = labels_test
-        self.n_classes = n_classes
-        self.n_examples = n_examples
-        self.n_dims = n_dims
-        self.onehot_encode_obj = onehot_encode_obj
-        self.classes_ = classes_
-        #
-        self.model = model
 
     def _define_model(self):
         """

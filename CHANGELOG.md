@@ -36,3 +36,4 @@ Change log for the codebase. Initialised from the developments following version
     - shifted repeated save_model code from TabAuto children into TabAuto
     - shifted repeated load_model code from TabAuto children into TabAuto, except for FixedKeras & AutoKeras being keras based they load in a different was so have left their re-implementation of load model
     - shifted repeated fit code from TabAuto children into TabAuto
+    - shifted repeated init code from TabAuto children into TabAuto
