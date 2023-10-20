@@ -292,18 +292,6 @@ class TabAuto(CustomModel):
         else:
             raise NotImplementedError()
 
-    def set_params(self, **params):
-        """
-        Required function (in sklearn BaseEstimator) used for setting parameters in both a tuning and single model
-        setting
-        """
-        for key, value in params.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                omicLogger.debug(f"{key} is not a valid attribute of {self}")
-        return self
-
     def _pickle_member(self, fname):
         """
         Custom function to pickle an instance.
@@ -358,7 +346,6 @@ class TabAuto(CustomModel):
 class FixedKeras(TabAuto):
     nickname = "FixedKeras"
     # Attributes from the config
-    config_dict = None
 
     def __init__(
         self,
@@ -438,7 +425,6 @@ class FixedKeras(TabAuto):
 class AutoKeras(TabAuto):
     nickname = "AutoKeras"
     # Attributes from the config
-    config_dict = None
 
     def predict_proba(self, data):
         if self.config_dict["problem_type"] == CLASSIFICATION:
@@ -471,19 +457,16 @@ class AutoKeras(TabAuto):
 class AutoSKLearn(TabAuto):
     nickname = "AutoSKLearn"
     # Attributes from the config
-    config_dict = None
 
 
 class AutoLGBM(TabAuto):
     nickname = "AutoLGBM"
     # Attributes from the config
-    config_dict = None
 
 
 class AutoXGBoost(TabAuto):
     nickname = "AutoXGBoost"
     # Attributes from the config
-    config_dict = None
 
 
 METHOD_REF = {
