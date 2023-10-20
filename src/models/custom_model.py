@@ -7,11 +7,14 @@
 import numpy as np
 import pandas as pd
 import tensorflow
-import autokeras
+
+# import autokeras
 import joblib
-from sklearn.model_selection import train_test_split
+
+# from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
-import sys
+
+# import sys
 import logging
 from utils.vars import CLASSIFICATION, REGRESSION
 
@@ -417,7 +420,7 @@ class FixedKeras(TabAuto):
         with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
-        omicLogger.debug("loading:", model_path + ".h5")
+        omicLogger.debug(f"loading: {model_path}.h5")
         model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 
@@ -449,7 +452,7 @@ class AutoKeras(TabAuto):
         with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
-        omicLogger.debug("loading:", model_path + ".h5")
+        omicLogger.debug("loading: {model_path}.h5")
         model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 

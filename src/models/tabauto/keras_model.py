@@ -269,19 +269,25 @@ class KerasModel(BaseModel):
         epochs = self.epochs
         batch_size = self.batch_size
 
+        if testX is None and testY is None:
+            vd = None
+        else:
+            vd = (testX, testY)
+
         self.model.fit(
             x=trainX,
             y=trainY,
             batch_size=batch_size,
             epochs=epochs,
-            validation_data=(testX, testY),
+            validation_data=vd,
             callbacks=callbacks,
         )
         exported_model = self.model.export_model()
         print(exported_model)
         exported_model.summary()
         print("Evaluating...")
-        self.model.evaluate(testX, y=testY)
+        if vd:
+            self.model.evaluate(testX, y=testY)
         print("Evaluated...")
 
         del self.model
