@@ -15,6 +15,11 @@ import sys
 import logging
 from utils.vars import CLASSIFICATION, REGRESSION
 
+from models.tabauto.keras_model import KerasModel
+from models.tabauto.sklearn_model import SKLearnModel
+from models.tabauto.lgbm_model import LGBMModel
+from models.tabauto.xgboost_model import XGBoostModel
+
 omicLogger = logging.getLogger("OmicLogger")
 
 
@@ -85,7 +90,7 @@ class CustomModel:
             if hasattr(self, key):
                 setattr(self, key, value)
             else:
-                print(f"{key} is not a valid attribute of {self}")
+                omicLogger.debug(f"{key} is not a valid attribute of {self}")
         return self
 
     def get_params(self, deep=False):
@@ -222,14 +227,14 @@ class TabAuto(CustomModel):
         self.model.fit_data(x_train, y_train, x_val, y_val)
 
         if self.verbose:
-            print("Model Summary:")
-            print(self.model.summary())
+            omicLogger.debug("Model Summary:")
+            omicLogger.debug(self.model.summary())
         return self
 
     def save_model(self):
         path = self.experiment_folder / "models" / f"{self.nickname}_best"
         fname = f"{path}"
-        print("custom save_model: {}".format(fname))
+        omicLogger.debug("custom save_model: {}".format(fname))
         self.model.save(fname + ".h5")
         self._pickle_member(fname)
 
@@ -240,7 +245,7 @@ class TabAuto(CustomModel):
         with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model and set this to the relevant attribute
-        print("loading: {}.h5".format(model_path))
+        omicLogger.debug("loading: {}.h5".format(model_path))
         model.model = joblib.load(model_path + ".h5")
         return model
 
@@ -248,7 +253,28 @@ class TabAuto(CustomModel):
         """
         Define underlying mode/method
         """
-        raise NotImplementedError()
+
+        num_inputs = self.n_dims
+        num_outputs = self.n_classes
+        dataset_type = self.config_dict["problem_type"]
+
+        config = self.config_dict.get(f"{self.nickname.lower()}_config", None)
+        omicLogger.debug(f"{self.nickname.lower()}_config = {config}")
+
+        if config:
+            self.verbose = config.get("verbose", False)
+
+        model = MODEL_REF[self.nickname](
+            num_inputs,
+            num_outputs,
+            dataset_type=dataset_type,
+            method=METHOD_REF[self.nickname],
+            config=config,
+            random_state=self.random_state,
+        )
+
+        # Assign the model
+        self.model = model
 
     def predict(self, data):
         if self.config_dict["problem_type"] == CLASSIFICATION:
@@ -275,7 +301,7 @@ class TabAuto(CustomModel):
             if hasattr(self, key):
                 setattr(self, key, value)
             else:
-                print(f"{key} is not a valid attribute of {self}")
+                omicLogger.debug(f"{key} is not a valid attribute of {self}")
         return self
 
     def _pickle_member(self, fname):
@@ -380,27 +406,6 @@ class FixedKeras(TabAuto):
         self.n_blocks = n_blocks
         self.dropout = dropout
 
-    def _define_model(self):
-        """
-        Define underlying mode/method
-        """
-        from models.tabauto.keras_model import KerasModel
-
-        num_inputs = self.n_dims
-        num_outputs = self.n_classes
-        dataset_type = self.config_dict["problem_type"]
-
-        model = KerasModel(
-            num_inputs,
-            num_outputs,
-            dataset_type=dataset_type,
-            method="train_dnn_keras",
-            random_state=self.random_state,
-        )
-
-        # Assign the model
-        self.model = model
-
     def predict(self, data):
         if self.config_dict["problem_type"] == CLASSIFICATION:
             yp = self.model.predict(data)
@@ -425,7 +430,7 @@ class FixedKeras(TabAuto):
         with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
-        print("loading:", model_path + ".h5")
+        omicLogger.debug("loading:", model_path + ".h5")
         model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 
@@ -434,32 +439,6 @@ class AutoKeras(TabAuto):
     nickname = "AutoKeras"
     # Attributes from the config
     config_dict = None
-
-    def _define_model(self):
-        """
-        Define underlying mode/method
-        """
-        from models.tabauto.keras_model import KerasModel
-
-        num_inputs = self.n_dims
-        num_outputs = self.n_classes
-        dataset_type = self.config_dict["problem_type"]
-
-        config = self.config_dict.get("autokeras_config", None)
-        print("autokeras_config=", config)
-        if config:
-            self.verbose = config.get("verbose", False)
-        model = KerasModel(
-            num_inputs,
-            num_outputs,
-            dataset_type=dataset_type,
-            method="train_dnn_autokeras",
-            config=config,
-            random_state=self.random_state,
-        )
-
-        # Assign the model
-        self.model = model
 
     def predict_proba(self, data):
         if self.config_dict["problem_type"] == CLASSIFICATION:
@@ -484,7 +463,7 @@ class AutoKeras(TabAuto):
         with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
-        print("loading:", model_path + ".h5")
+        omicLogger.debug("loading:", model_path + ".h5")
         model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 
@@ -494,63 +473,11 @@ class AutoSKLearn(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def _define_model(self):
-        """
-        Define underlying mode/method
-        """
-        from models.tabauto.sklearn_model import SKLearnModel
-
-        num_inputs = self.n_dims
-        num_outputs = self.n_classes
-        dataset_type = self.config_dict["problem_type"]
-
-        config = self.config_dict.get("autosklearn_config", None)
-        print("autosklearn_config=", config)
-        if config:
-            self.verbose = config.get("verbose", False)
-        model = SKLearnModel(
-            num_inputs,
-            num_outputs,
-            dataset_type=dataset_type,
-            method="auto",
-            config=config,
-            random_state=self.random_state,
-        )
-
-        # Assign the model
-        self.model = model
-
 
 class AutoLGBM(TabAuto):
     nickname = "AutoLGBM"
     # Attributes from the config
     config_dict = None
-
-    def _define_model(self):
-        """
-        Define underlying mode/method
-        """
-        from models.tabauto.lgbm_model import LGBMModel
-
-        num_inputs = self.n_dims
-        num_outputs = self.n_classes
-        dataset_type = self.config_dict["problem_type"]
-
-        config = self.config_dict.get("autolgbm_config", None)
-        print("autolgbm_config=", config)
-        if config:
-            self.verbose = config.get("verbose", False)
-        model = LGBMModel(
-            num_inputs,
-            num_outputs,
-            dataset_type=dataset_type,
-            method="train_ml_lgbm_auto",
-            config=config,
-            random_state=self.random_state,
-        )
-
-        # Assign the model
-        self.model = model
 
 
 class AutoXGBoost(TabAuto):
@@ -558,28 +485,19 @@ class AutoXGBoost(TabAuto):
     # Attributes from the config
     config_dict = None
 
-    def _define_model(self):
-        """
-        Define underlying mode/method
-        """
-        from models.tabauto.xgboost_model import XGBoostModel
 
-        num_inputs = self.n_dims
-        num_outputs = self.n_classes
-        dataset_type = self.config_dict["problem_type"]
+METHOD_REF = {
+    "AutoXGBoost": "train_ml_xgboost_auto",
+    "AutoLGBM": "train_ml_lgbm_auto",
+    "AutoSKLearn": "auto",
+    "AutoKeras": "train_dnn_autokeras",
+    "FixedKeras": "train_dnn_keras",
+}
 
-        config = self.config_dict.get("autoxgboost_config", None)
-        print("autoxgboost_config=", config)
-        if config:
-            self.verbose = config.get("verbose", False)
-        model = XGBoostModel(
-            num_inputs,
-            num_outputs,
-            dataset_type=dataset_type,
-            method="train_ml_xgboost_auto",
-            config=config,
-            random_state=self.random_state,
-        )
-
-        # Assign the model
-        self.model = model
+MODEL_REF = {
+    "AutoXGBoost": XGBoostModel,
+    "AutoLGBM": LGBMModel,
+    "AutoSKLearn": SKLearnModel,
+    "AutoKeras": KerasModel,
+    "FixedKeras": KerasModel,
+}
