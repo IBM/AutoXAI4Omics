@@ -44,3 +44,4 @@ Change log for the codebase. Initialised from the developments following version
     - extract repeated getting model_path code to function
     - streamlined custom model setup
     - TabAuto Class merged with CustomModel Class
+    - Deleted autogulon src code, as was depreciated ages ago
