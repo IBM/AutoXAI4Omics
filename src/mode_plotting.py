@@ -10,7 +10,6 @@ import metrics.metrics as metrics
 from plotting.plot_utils import define_plots
 import plotting.plots_both
 import utils.utils as utils
-from models.custom_model import CustomModel
 import cProfile
 import logging
 
@@ -225,9 +224,7 @@ if __name__ == "__main__":
         # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
         # So set that up here
         # Other option is to modify cls.__getstate__
-        for model_name in config_dict["ml"]["model_list"]:
-            if model_name in CustomModel.custom_aliases:
-                CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict["ml"], experiment_folder)
+
         omicLogger.info("Plots defined. Begin creating plots...")
         # Central func to define the args for the plots
         plot_graphs(

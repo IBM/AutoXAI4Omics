@@ -11,7 +11,6 @@ import metrics.metrics
 import utils.load
 import utils.save
 import utils.utils
-from models.custom_model import CustomModel
 import joblib
 import cProfile
 import mode_plotting
@@ -69,9 +68,6 @@ if __name__ == "__main__":
         # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
         # So set that up here
         # Other option is to modify cls.__getstate__
-        for model_name in config_dict["ml"]["model_list"]:
-            if model_name in CustomModel.custom_aliases:
-                CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict["ml"], experiment_folder)
 
         omicLogger.debug("Plots defined. Creating results DataFrame...")
         # Create dataframe for performance results

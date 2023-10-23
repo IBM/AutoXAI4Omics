@@ -120,9 +120,6 @@ def initial_setup():
     # load and parse the config located at the path
     config_dict = parsers.parse_config(load_config(config_path))
 
-    # Setup the CustomModel
-    CustomModel.custom_aliases = {k.nickname: k for k in all_subclasses(CustomModel)}
-
     # set the random seed
     set_random_seed(config_dict["ml"]["seed_num"])
 
@@ -132,7 +129,18 @@ def initial_setup():
     # setup logger
     omicLogger = setup_logger(experiment_folder)
 
+    # Setup the CustomModel
+    setup_CustoeModel(config_dict, experiment_folder)
+
     return config_path, config_dict, experiment_folder, omicLogger
+
+
+def setup_CustoeModel(config_dict, experiment_folder):
+    CustomModel.custom_aliases = {k.nickname: k for k in all_subclasses(CustomModel)}
+
+    for model_name in config_dict["ml"]["model_list"]:
+        if model_name in CustomModel.custom_aliases:
+            CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict["ml"], experiment_folder)
 
 
 def set_random_seed(seed: int):

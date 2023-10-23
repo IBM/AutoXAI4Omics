@@ -4,7 +4,6 @@ import utils.load
 import utils.utils
 import logging
 import cProfile
-from models.custom_model import CustomModel
 from utils.utils import assert_best_model_exists, assert_data_transformers_exists
 
 
@@ -44,10 +43,6 @@ if __name__ == "__main__":
         if FS is not None:
             omicLogger.info("Applying trained feature selector...")
             x_to_predict = FS.transform(x_to_predict)
-
-        for model_name in config_dict["ml"]["model_list"]:
-            if model_name in CustomModel.custom_aliases:
-                CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict["ml"], experiment_folder)
 
         model_name = os.path.basename(model_path).split("_")[0]
         omicLogger.debug("Loading model...")
