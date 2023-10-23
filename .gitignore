@@ -13,3 +13,5 @@ experiments
 data
 .vscode/settings.json
 playground.ipynb
+coverage.xml
+.coverage
