@@ -39,133 +39,11 @@ class CustomModel:
     All of these methods are required. All of the attributes put here are required. All future subclasses need these.
     """
 
-    # Easy reference to the config dict
-    config_dict = None
     # Aliases for model names for this class
     # Easier to maintain this manually for now
     custom_aliases = {}
     # Having a reference to the experiment folder is useful
     experiment_folder = None
-
-    def __init__(self, **kwargs):
-        # References to test data
-        # This is useful for tracking NN performance during training
-        # and the sklearn .fit does not take two sets of data, so you cannot track test while training
-        # this circumvents that if provided
-        self.data_test = None
-        self.labels_test = None
-        self.scorer_func = None  # For tracking performance
-        # Required attribute for confusion matrix and other things in sklearn
-        self.classes_ = None
-        # Useful to have
-        self.n_dims = None
-        self.n_classes = None
-        self.n_examples = None
-
-    def fit(self, data, labels, save_best=True):
-        """
-        sklearn style fit function
-
-        We add an additional argument "save_best" so that we can save a model during training, and then switch saving
-        off for plotting
-        """
-        raise NotImplementedError()
-
-    def predict(self, data):
-        """
-        Function to predict labels or values
-        """
-        raise NotImplementedError()
-
-    def predict_proba(self, data):
-        """
-        Function for classification to predict class probabilities
-        """
-        raise NotImplementedError()
-
-    def set_params(self, **params):
-        """
-        Function used for setting parameters in both a tuning and single model setting.
-
-        Universal so can implement here.
-        """
-        for key, value in params.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                omicLogger.debug(f"{key} is not a valid attribute of {self}")
-        return self
-
-    def get_params(self, deep=False):
-        """
-        Getter function. Vastly inferior to sklearn's, but we don't really use it.
-
-        If issues occur, then inheriting from the BaseEstimator
-        """
-        return self.__dict__
-
-    def save_model(self):
-        """
-        Save the model. This may require some additional functions to deal with pickle (especially for TF).
-        """
-        raise NotImplementedError()
-
-    @classmethod
-    def load_model(cls, model_path):
-        """
-        Load the pickle'd model from the given path.
-        """
-        raise NotImplementedError()
-
-    @classmethod
-    def setup_custom_model(
-        cls,
-        config_dict,
-        experiment_folder,
-        model_name,
-        # ref_model_dict,
-        param_ranges,
-        scorer_func,
-        x_test=None,
-        y_test=None,
-    ):
-        """ "
-        Some initial preprocessing is needed for the class to set some attributes and determine tuning type.
-        """
-        cls.setup_cls_vars(config_dict, experiment_folder)
-        # Add the test data if provided
-        if x_test is not None:
-            param_ranges["data_test"] = x_test
-        if y_test is not None:
-            param_ranges["labels_test"] = y_test
-
-        param_ranges["scorer_func"] = scorer_func
-        # Determine whether we can use hyper_tuning or not
-
-        # single_model_flag = False if ref_model_dict.get(model_name) else True
-        # if single_model_flag:
-        #     omicLogger.debug(
-        #         f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model \
-        #         instead"
-        #     )
-        # return single_model_flag, param_ranges
-        return param_ranges
-
-    @classmethod
-    def setup_cls_vars(cls, config_dict, experiment_folder):
-        # Refer to the config_dict in the class
-        cls.config_dict = config_dict
-        # Give access to the experiment_folder
-        cls.experiment_folder = experiment_folder
-
-    def __repr__(self):
-        return f"{self.__class__.__name__} model with params:\
-            { {k:v for k,v in self.__dict__.items() if 'data' not in k if 'label' not in k} }"
-
-
-class TabAuto(CustomModel):
-    nickname = "TabAuto"
-    # Attributes from the config
     config_dict = None
     verbose = False
     model = None
@@ -234,6 +112,43 @@ class TabAuto(CustomModel):
             omicLogger.debug(self.model.summary())
         return self
 
+    def predict(self, data):
+        if self.config_dict["problem_type"] == CLASSIFICATION:
+            pred_inds = np.argmax(self.model.predict_proba(data), axis=1)
+            preds = self.onehot_encode_obj.categories_[0][pred_inds]
+        elif self.config_dict["problem_type"] == REGRESSION:
+            preds = self.model.predict(data)
+        else:
+            raise NotImplementedError()
+        return preds.flatten()
+
+    def predict_proba(self, data):
+        if self.config_dict["problem_type"] == CLASSIFICATION:
+            return self.model.predict_proba(data)
+        else:
+            raise NotImplementedError()
+
+    def set_params(self, **params):
+        """
+        Function used for setting parameters in both a tuning and single model setting.
+
+        Universal so can implement here.
+        """
+        for key, value in params.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+            else:
+                omicLogger.debug(f"{key} is not a valid attribute of {self}")
+        return self
+
+    def get_params(self, deep=False):
+        """
+        Getter function. Vastly inferior to sklearn's, but we don't really use it.
+
+        If issues occur, then inheriting from the BaseEstimator
+        """
+        return self.__dict__
+
     def save_model(self):
         path = self.experiment_folder / "models" / f"{self.nickname}_best"
         fname = f"{path}"
@@ -251,6 +166,51 @@ class TabAuto(CustomModel):
         omicLogger.debug("loading: {}.h5".format(model_path))
         model.model = joblib.load(model_path + ".h5")
         return model
+
+    @classmethod
+    def setup_custom_model(
+        cls,
+        config_dict,
+        experiment_folder,
+        model_name,
+        # ref_model_dict,
+        param_ranges,
+        scorer_func,
+        x_test=None,
+        y_test=None,
+    ):
+        """ "
+        Some initial preprocessing is needed for the class to set some attributes and determine tuning type.
+        """
+        cls.setup_cls_vars(config_dict, experiment_folder)
+        # Add the test data if provided
+        if x_test is not None:
+            param_ranges["data_test"] = x_test
+        if y_test is not None:
+            param_ranges["labels_test"] = y_test
+
+        param_ranges["scorer_func"] = scorer_func
+        # Determine whether we can use hyper_tuning or not
+
+        # single_model_flag = False if ref_model_dict.get(model_name) else True
+        # if single_model_flag:
+        #     omicLogger.debug(
+        #         f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model \
+        #         instead"
+        #     )
+        # return single_model_flag, param_ranges
+        return param_ranges
+
+    @classmethod
+    def setup_cls_vars(cls, config_dict, experiment_folder):
+        # Refer to the config_dict in the class
+        cls.config_dict = config_dict
+        # Give access to the experiment_folder
+        cls.experiment_folder = experiment_folder
+
+    def __repr__(self):
+        return f"{self.__class__.__name__} model with params:\
+            { {k:v for k,v in self.__dict__.items() if 'data' not in k if 'label' not in k} }"
 
     def _define_model(self):
         """
@@ -278,22 +238,6 @@ class TabAuto(CustomModel):
 
         # Assign the model
         self.model = model
-
-    def predict(self, data):
-        if self.config_dict["problem_type"] == CLASSIFICATION:
-            pred_inds = np.argmax(self.model.predict_proba(data), axis=1)
-            preds = self.onehot_encode_obj.categories_[0][pred_inds]
-        elif self.config_dict["problem_type"] == REGRESSION:
-            preds = self.model.predict(data)
-        else:
-            raise NotImplementedError()
-        return preds.flatten()
-
-    def predict_proba(self, data):
-        if self.config_dict["problem_type"] == CLASSIFICATION:
-            return self.model.predict_proba(data)
-        else:
-            raise NotImplementedError()
 
     def _pickle_member(self, fname):
         """
@@ -346,7 +290,7 @@ class TabAuto(CustomModel):
                 self.labels_test = self.labels_test.reshape(-1, 1)
 
 
-class FixedKeras(TabAuto):
+class FixedKeras(CustomModel):
     nickname = "FixedKeras"
     # Attributes from the config
 
@@ -425,7 +369,7 @@ class FixedKeras(TabAuto):
         return model
 
 
-class AutoKeras(TabAuto):
+class AutoKeras(CustomModel):
     nickname = "AutoKeras"
     # Attributes from the config
 
@@ -457,17 +401,17 @@ class AutoKeras(TabAuto):
         return model
 
 
-class AutoSKLearn(TabAuto):
+class AutoSKLearn(CustomModel):
     nickname = "AutoSKLearn"
     # Attributes from the config
 
 
-class AutoLGBM(TabAuto):
+class AutoLGBM(CustomModel):
     nickname = "AutoLGBM"
     # Attributes from the config
 
 
-class AutoXGBoost(TabAuto):
+class AutoXGBoost(CustomModel):
     nickname = "AutoXGBoost"
     # Attributes from the config
 
