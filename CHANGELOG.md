@@ -45,3 +45,4 @@ Change log for the codebase. Initialised from the developments following version
     - streamlined custom model setup
     - TabAuto Class merged with CustomModel Class
     - Deleted autogulon src code, as was depreciated ages ago
+    - Custom SKLearnModel code only ever instansiated in auto mode for AutoSklearn so removed redundant code

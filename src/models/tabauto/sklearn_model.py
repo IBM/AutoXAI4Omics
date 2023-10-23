@@ -1,10 +1,4 @@
 from .base_model import BaseModel
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
-
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.naive_bayes import GaussianNB
 
 # To avoid the conflict with autogluon, which uses newer versions of some common packages,
 # we can disable the package verification procedure in the following files:
@@ -14,10 +8,6 @@ from sklearn.naive_bayes import GaussianNB
 import autosklearn.classification
 import autosklearn.regression
 
-# Multioutput regression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.multioutput import MultiOutputRegressor
 import joblib
 from utils.vars import CLASSIFICATION, REGRESSION
@@ -33,7 +23,7 @@ class SKLearnModel(BaseModel):
         input_dim,
         output_dim,
         dataset_type=REGRESSION,
-        method="RandomForest",
+        method="Auto",
         multi=True,
         config=None,
         random_state=123,
@@ -46,54 +36,7 @@ class SKLearnModel(BaseModel):
         self.random_state = random_state
 
         if dataset_type == CLASSIFICATION:
-            if method == "KNeighbors".lower():
-                # KNN (works for multiple outputs)
-                base_model = KNeighborsClassifier(3, random_state=self.random_state)
-            elif method == "DecisionTree".lower():
-                # DecisionTree (works for multiple outputs)
-                max_depth = 30
-                base_model = DecisionTreeClassifier(
-                    max_depth=max_depth,
-                    class_weight=None,
-                    criterion="entropy",
-                    max_features=None,
-                    max_leaf_nodes=None,
-                    min_impurity_decrease=0.0,
-                    min_impurity_split=None,
-                    min_samples_leaf=1,
-                    min_samples_split=10,
-                    min_weight_fraction_leaf=0.0,
-                    presort=False,
-                    random_state=self.random_state,
-                    splitter="best",
-                )
-            elif method == "RandomForest".lower():
-                # Random Forest (works for multiple outputs)
-                print("RandomForestClassifier....")
-                base_model = RandomForestClassifier(
-                    n_estimators=300,
-                    max_depth=25,
-                    random_state=self.random_state,
-                    bootstrap=True,
-                    class_weight=None,
-                    criterion="gini",
-                    max_features="auto",
-                    max_leaf_nodes=None,
-                    min_impurity_decrease=0.0,
-                    min_impurity_split=None,
-                    min_samples_leaf=1,
-                    min_samples_split=10,
-                    min_weight_fraction_leaf=0.0,
-                    n_jobs=1,
-                    oob_score=False,
-                    verbose=0,
-                    warm_start=False,
-                )
-            elif method == "AdaBoost".lower():
-                base_model = AdaBoostClassifier(random_state=self.random_state)
-            elif method == "NaiveBayes".lower():
-                base_model = GaussianNB(random_state=self.random_state)
-            elif method == "Auto".lower():
+            if method == "Auto".lower():
                 print("AutoSKLearn: self.config=", self.config)
                 estimators_to_use = self.config.get("estimators", ["random_forest"])
                 time_left_for_this_task = self.config.get("time_left_for_this_task", 120)
@@ -143,28 +86,7 @@ class SKLearnModel(BaseModel):
             model = base_model
 
         elif dataset_type == REGRESSION:
-            if method == "KNeighbors".lower():
-                # KNN (works for multiple outputs)
-                base_model = KNeighborsRegressor(n_neighbors=2, weights="distance", random_state=self.random_state)
-            elif method == "DecisionTree".lower():
-                # DecisionTree (works for multiple outputs)
-                base_model = DecisionTreeRegressor(random_state=self.random_state)
-            elif method == "RandomForest".lower():
-                # Random Forest (works for multiple outputs)
-                base_model = RandomForestRegressor(n_estimators=300, criterion="mse", random_state=self.random_state)
-                """
-                base_model = RandomForestRegressor(bootstrap=True,
-                                                    max_depth=100, max_features='auto', max_leaf_nodes=None,
-                                                    min_impurity_decrease=0.0, min_impurity_split=None,
-                                                    min_samples_leaf=1, min_samples_split=10,
-                                                    min_weight_fraction_leaf=0.0, n_estimators=300, n_jobs=None,
-                                                    oob_score=False, random_state=None, verbose=0,
-                                                    warm_start=False)
-                """
-
-            elif method == "ExtraTrees".lower():
-                base_model = ExtraTreesRegressor(n_estimators=10, max_features=None, random_state=self.random_state)
-            elif method == "Auto".lower():
+            if method == "Auto".lower():
                 print("AutoSKLearn: self.config=", self.config)
                 estimators_to_use = self.config.get("estimators", ["random_forest"])
                 time_left_for_this_task = self.config.get("time_left_for_this_task", 120)
