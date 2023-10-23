@@ -131,7 +131,10 @@ def plot_graphs(
         elif plot_method == "permut_imp_test":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["seed_num"],
+                config_dict["ml"]["model_list"],
+                config_dict["ml"]["fit_scorer"],
+                config_dict["ml"]["problem_type"],
                 scorer_dict,
                 feature_names,
                 x_test,

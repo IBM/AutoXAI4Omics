@@ -21,7 +21,10 @@ omicLogger = logging.getLogger("OmicLogger")
 
 def permut_importance(
     experiment_folder,
-    config_dict,
+    seed_num: int,
+    model_list: list[str],
+    fit_scorer: str,
+    problem_type: str,
     scorer_dict,
     feature_names,
     data,
@@ -42,7 +45,7 @@ def permut_importance(
     print(type(feature_names))
 
     # Loop over the defined models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         if model_name == "mlp_ens":
             continue
         # Define the figure object
@@ -62,7 +65,7 @@ def permut_importance(
 
         model = utils.load.load_model(model_name, model_path)
         # Select the scoring function
-        scorer_func = scorer_dict[config_dict["ml"]["fit_scorer"]]
+        scorer_func = scorer_dict[fit_scorer]
         # Handle the custom model
         if isinstance(model, tuple(CustomModel.__subclasses__())):
             # Remove the test data to avoid any saving
@@ -74,7 +77,7 @@ def permut_importance(
         importances = eli5.sklearn.PermutationImportance(
             model,
             scoring=scorer_func,
-            random_state=config_dict["ml"]["seed_num"],
+            random_state=seed_num,
             cv=cv,
         ).fit(data, labels)
 
@@ -109,10 +112,10 @@ def permut_importance(
 
         # Make a horizontal boxplot ordered by the magnitude
         ax = sns.boxplot(x=top_values, y=top_features, orient="h", ax=ax)
-        if config_dict["ml"]["problem_type"] == CLASSIFICATION:
-            ax.set_xlabel(f"{pretty_names(config_dict['ml']['fit_scorer'], 'score')} Decrease")
+        if problem_type == CLASSIFICATION:
+            ax.set_xlabel(f"{pretty_names(fit_scorer, 'score')} Decrease")
         else:
-            ax.set_xlabel(f"{pretty_names(config_dict['ml']['fit_scorer'], 'score')} Increase")
+            ax.set_xlabel(f"{pretty_names(fit_scorer, 'score')} Increase")
             ax.set_ylabel("Features")
 
         # Do a np.any(<0) check to see if we get negative values
