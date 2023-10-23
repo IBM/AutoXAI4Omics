@@ -74,7 +74,7 @@ def plot_graphs(
         elif plot_method == "corr":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["model_list"],
                 x_test,
                 y_test,
                 config_dict["data"]["target"],
@@ -83,7 +83,7 @@ def plot_graphs(
         elif plot_method == "hist":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["model_list"],
                 x_test,
                 y_test,
                 config_dict["data"]["target"],
@@ -92,7 +92,7 @@ def plot_graphs(
         elif plot_method == "hist_overlapped":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["model_list"],
                 x_test,
                 y_test,
                 config_dict["data"]["target"],
@@ -101,7 +101,7 @@ def plot_graphs(
         elif plot_method == "joint":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["model_list"],
                 x_test,
                 y_test,
                 config_dict["data"]["target"],
@@ -110,7 +110,7 @@ def plot_graphs(
         elif plot_method == "joint_dens":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["model_list"],
                 x_test,
                 y_test,
                 config_dict["data"]["target"],

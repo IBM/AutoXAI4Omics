@@ -17,7 +17,7 @@ import logging
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=True, holdout=False):
+def histograms(experiment_folder, model_list, x_test, y_test, class_name, save=True, holdout=False):
     """
     Shows the histogram distribution of the true and predicted labels/values.
 
@@ -25,7 +25,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
     """
     omicLogger.debug("Creating histograms...")
     # Loop over the defined models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -62,7 +62,7 @@ def histograms(experiment_folder, config_dict, x_test, y_test, class_name, save=
 
 def correlation_plot(
     experiment_folder,
-    config_dict,
+    model_list,
     x_test,
     y_test,
     class_name,
@@ -75,7 +75,7 @@ def correlation_plot(
     """
     omicLogger.debug("Creating correlation_plot...")
     # Loop over the defined models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         # Define the figure object
         fig, ax = plt.subplots()
 
@@ -121,7 +121,7 @@ def correlation_plot(
         K.clear_session()
 
 
-def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name, save=True, holdout=False):
+def distribution_hist(experiment_folder, model_list, x_test, y_test, class_name, save=True, holdout=False):
     """
     Shows the histogram distribution of the true and predicted labels/values.
 
@@ -129,7 +129,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
     """
     omicLogger.debug("Creating distribution_hist...")
     # Loop over the defined models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         # Define the figure object
         fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(18, 10))
 
@@ -173,7 +173,7 @@ def distribution_hist(experiment_folder, config_dict, x_test, y_test, class_name
 
 def joint_plot(
     experiment_folder,
-    config_dict,
+    model_list,
     x_test,
     y_test,
     class_name,
@@ -186,7 +186,7 @@ def joint_plot(
     """
     omicLogger.debug("Creating joint_plot...")
     # Loop over the defined models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         # Load the model
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
