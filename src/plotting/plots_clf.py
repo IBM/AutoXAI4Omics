@@ -3,13 +3,10 @@ import numpy as np
 import utils.load
 from tensorflow.keras import backend as K
 from utils.save import save_fig
-
+from utils.utils import get_model_path
 
 import matplotlib.pyplot as plt
 from sklearn.metrics import auc, confusion_matrix, roc_curve
-
-
-import glob
 import time
 from itertools import cycle
 import logging
@@ -27,11 +24,7 @@ def roc_curve_plot(experiment_folder, model_list, x_test, y_test, save=True, hol
         # Define the figure object
         fig, ax = plt.subplots()
         # Load the model
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting ROC Curve for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -105,11 +98,7 @@ def conf_matrix_plot(
         # Define the figure object
         fig, ax = plt.subplots()
         # Load the model
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting Confusion Matrix for {model_name}")
         model = utils.load.load_model(model_name, model_path)

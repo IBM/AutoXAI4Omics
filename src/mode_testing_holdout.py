@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 
 from pathlib import Path
-import glob
+from utils.utils import get_model_path
 import pandas as pd
 import metrics.metrics
 import utils.load
@@ -97,11 +97,7 @@ if __name__ == "__main__":
         for model_name in config_dict["ml"]["model_list"]:
             omicLogger.debug(f"Evaluate model: {model_name}")
             # Load the model
-            try:
-                model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-            except IndexError as e:
-                omicLogger.error("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-                raise e
+            model_path = get_model_path(experiment_folder, model_name)
 
             print(f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}")
             omicLogger.debug("Loading...")

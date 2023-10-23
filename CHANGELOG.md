@@ -41,3 +41,4 @@ Change log for the codebase. Initialised from the developments following version
     - removed repeated set_params from TabAuto
     - removed unnessicary data being passed to plot_reg, plot_clf, perm_imp and most of plot_both functions
     - removed unnessicary data being passed to plots_shap functions and separated out problem specific logic into separate function.
+    - extract repeated getting model_path code to function

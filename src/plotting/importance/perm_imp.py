@@ -9,9 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-
-
-import glob
+from utils.utils import get_model_path
 import time
 
 import logging
@@ -51,11 +49,7 @@ def permut_importance(
         # Define the figure object
         fig, ax = plt.subplots()
         # Load the model
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
         print(f"Plotting permutation importance for {model_name}")
 
         print("Model path")

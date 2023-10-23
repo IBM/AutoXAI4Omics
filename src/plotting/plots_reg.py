@@ -4,14 +4,9 @@ import seaborn as sns
 import utils.load
 from tensorflow.keras import backend as K
 from utils.save import save_fig
-
-
+from utils.utils import get_model_path
 import matplotlib.pyplot as plt
-
-
-import glob
 import time
-
 import logging
 
 omicLogger = logging.getLogger("OmicLogger")
@@ -27,11 +22,7 @@ def histograms(experiment_folder, model_list, x_test, y_test, class_name, save=T
     # Loop over the defined models
     for model_name in model_list:
         # Load the model
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting histogram for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -79,11 +70,7 @@ def correlation_plot(
         # Define the figure object
         fig, ax = plt.subplots()
 
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting Correlation Plot for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -134,11 +121,7 @@ def distribution_hist(experiment_folder, model_list, x_test, y_test, class_name,
         fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(18, 10))
 
         # Load the model
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting histogram for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -188,11 +171,7 @@ def joint_plot(
     # Loop over the defined models
     for model_name in model_list:
         # Load the model
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting joint plot for {model_name}")
         model = utils.load.load_model(model_name, model_path)

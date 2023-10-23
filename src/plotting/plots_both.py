@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit, KFold, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from models.custom_model import CustomModel
-from utils.utils import pretty_names
+from utils.utils import get_model_path, pretty_names
 import utils.load
 from tensorflow.keras import backend as K
 from utils.vars import CLASSIFICATION, REGRESSION
@@ -13,9 +13,6 @@ from utils.save import save_fig
 import seaborn as sns
 
 import matplotlib.pyplot as plt
-
-
-import glob
 import time
 
 
@@ -132,11 +129,7 @@ def barplot_scorer(
     for model_name in model_list:
         # Load the model
 
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting barplot for {model_name} using {fit_scorer}")
         model = utils.load.load_model(model_name, model_path)
@@ -204,11 +197,7 @@ def boxplot_scorer_cv_groupby(
     # Loop over the models
     for model_name in config_dict["ml"]["model_list"]:
         # Load the model if trained
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(
             f"Plotting boxplot for {model_name} using {config_dict['ml']['fit_scorer']} - Grouped By "
@@ -309,11 +298,7 @@ def boxplot_scorer_cv(
     # Loop over the models
     for model_name in model_list:
         # Load the model if trained
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting boxplot for {model_name} using {fit_scorer}")
         # Select the scorer

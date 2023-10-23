@@ -2,17 +2,13 @@ from tensorflow.keras import backend as K
 import utils.load
 from utils.utils import pretty_names
 from utils.save import save_fig
-
-
+from utils.utils import get_model_path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
 from utils.vars import CLASSIFICATION, REGRESSION
-
-import glob
 import time
-
 import logging
 
 omicLogger = logging.getLogger("OmicLogger")
@@ -77,11 +73,7 @@ def shap_force_plots(
 
     # Get the model paths
     for model_name in model_list:
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting SHAP for {model_name}")
         model = utils.load.load_model(model_name, model_path)
@@ -539,11 +531,7 @@ def shap_plots(
     # Loop over the defined models
     for model_name in model_list:
         # Load the model
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print("Model path")
         print(model_path)
@@ -664,11 +652,7 @@ def shap_summary_plot(
     df_test = pd.DataFrame(data=x_test, columns=feature_names)
     # Get the model paths
     for model_name in model_list:
-        try:
-            model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
-        except IndexError as e:
-            print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
-            raise e
+        model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting SHAP for {model_name}")
         model = utils.load.load_model(model_name, model_path)

@@ -5,10 +5,12 @@
 # --------------------------------------------------------------------------
 
 import cProfile
+import glob
 import io
 from pathlib import Path
 import argparse
 import pstats
+import joblib
 import numpy as np
 import pandas as pd
 import scipy.sparse
@@ -245,3 +247,54 @@ def pretty_names(name, name_type):
         new_name = name.replace("_", " ").capitalize()
 
     return new_name
+
+
+def assert_best_model_exists(folder):
+    path = folder / "best_model"
+
+    if not os.path.exists(str(path)):
+        omicLogger.info("No best model folder detected")
+        raise ValueError("No best model folder detected please train model before running prediction")
+
+    found_models = glob.glob(str(path / "*.pkl")) + glob.glob(str(path / "*.h5"))
+    if len(found_models) == 0:
+        omicLogger.info("No model files detected")
+        raise ValueError("No model files detected (.pkl or .h5). Can not perform prediction.")
+
+    omicLogger.info("Best model found ")
+    return found_models[0]
+
+
+def assert_data_transformers_exists(folder, config_dict):
+    std = folder / "transformer_std.pkl"
+
+    if not os.path.exists(str(std)):
+        omicLogger.info("No data transformer file detected (transformer_std.pkl)")
+        raise ValueError("No data transformer file detected (transformer_std.pkl)")
+    else:
+        with open(std, "rb") as f:
+            SS = joblib.load(f)
+        omicLogger.info("transformer loaded.")
+
+    if config_dict["ml"]["feature_selection"] is not None:
+        fs = folder / "transformer_fs.pkl"
+        if not os.path.exists(str(fs)):
+            omicLogger.info("No data feature selection file detected (transformer_fs.pkl)")
+            raise ValueError("No data feature selection file detected (transformer_fs.pkl)")
+        else:
+            with open(fs, "rb") as f:
+                FS = joblib.load(f)
+            omicLogger.info("transformer loaded.")
+    else:
+        FS = None
+
+    return SS, FS
+
+
+def get_model_path(experiment_folder, model_name):
+    try:
+        model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
+    except IndexError as e:
+        print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
+        raise e
+    return model_path
