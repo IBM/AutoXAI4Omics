@@ -146,7 +146,9 @@ def plot_graphs(
         elif plot_method == "shap_plots":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["problem_type"],
+                config_dict["ml"]["model_list"],
+                config_dict["plotting"]["explanations_data"],
                 feature_names,
                 x,
                 x_test,
@@ -165,7 +167,8 @@ def plot_graphs(
             )
 
         # elif plot_method == "shap_force_plots":
-        #     plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train,
+        #     plot_func(experiment_folder, config_dict["ml"]["model_list"],config_dict["ml"]["problem_type"], x_test,
+        #               y_test, feature_names, x, y, x_train,
         #                       data_forexplanations="all", top_exemplars=0.4, save=True)
         # elif plot_method == "permut_imp_alldata":
         #     plot_func(experiment_folder, config_dict, scorer_dict, feature_names, x, y,
