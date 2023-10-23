@@ -65,7 +65,7 @@ def plot_graphs(
         elif plot_method == "conf_matrix":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["model_list"],
                 x_test,
                 y_test,
                 normalize=False,
@@ -142,7 +142,13 @@ def plot_graphs(
                 holdout=holdout,
             )
         elif plot_method == "roc_curve":
-            plot_func(experiment_folder, config_dict, x_test, y_test, holdout=holdout)
+            plot_func(
+                experiment_folder,
+                config_dict["ml"]["model_list"],
+                x_test,
+                y_test,
+                holdout=holdout,
+            )
 
         # elif plot_method == "shap_force_plots":
         #     plot_func(experiment_folder, config_dict, x_test, y_test, feature_names, x, y, x_train,

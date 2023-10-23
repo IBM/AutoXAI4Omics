@@ -39,4 +39,4 @@ Change log for the codebase. Initialised from the developments following version
     - shifted repeated init code from TabAuto children into TabAuto
     - generalised repeated _define_model code and shifted from TabAuto children into TabAuto
     - removed repeated set_params from TabAuto
-    - removed unnessicary data being passed to plot_regression functions
+    - removed unnessicary data being passed to plot_reg and plot_clf functions

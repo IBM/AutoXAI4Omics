@@ -17,13 +17,13 @@ import logging
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, holdout=False):
+def roc_curve_plot(experiment_folder, model_list, x_test, y_test, save=True, holdout=False):
     """
     Creates a ROC curve plot for each model. Saves them in separate files.
     """
     omicLogger.debug("Creating roc_curve_plot...")
     # Loop over the defined models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         # Define the figure object
         fig, ax = plt.subplots()
         # Load the model
@@ -89,7 +89,7 @@ def roc_curve_plot(experiment_folder, config_dict, x_test, y_test, save=True, ho
 
 def conf_matrix_plot(
     experiment_folder,
-    config_dict,
+    model_list,
     x_test,
     y_test,
     normalize=False,
@@ -101,7 +101,7 @@ def conf_matrix_plot(
     """
     omicLogger.debug("Creating conf_matrix_plot...")
     # Loop over the defined models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         # Define the figure object
         fig, ax = plt.subplots()
         # Load the model
