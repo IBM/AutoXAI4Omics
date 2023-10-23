@@ -112,7 +112,8 @@ def feat_acc_plot(experiment_folder, acc, save=True):
 
 def barplot_scorer(
     experiment_folder,
-    config_dict,
+    model_list: list[str],
+    fit_scorer: str,
     scorer_dict,
     data,
     true_labels,
@@ -128,7 +129,7 @@ def barplot_scorer(
     # Container for the scores
     all_scores = []
     # Loop over the models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         # Load the model
 
         try:
@@ -137,22 +138,22 @@ def barplot_scorer(
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
             raise e
 
-        print(f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}")
+        print(f"Plotting barplot for {model_name} using {fit_scorer}")
         model = utils.load.load_model(model_name, model_path)
         # Get our single score
-        score = np.abs(scorer_dict[config_dict["ml"]["fit_scorer"]](model, data, true_labels))
+        score = np.abs(scorer_dict[fit_scorer](model, data, true_labels))
         all_scores.append(score)
         # Clear keras and TF sessions/graphs etc.
         K.clear_session()
-    pretty_model_names = [pretty_names(name, "model") for name in config_dict["ml"]["model_list"]]
+    pretty_model_names = [pretty_names(name, "model") for name in model_list]
     # Make the barplot
     sns.barplot(x=pretty_model_names, y=all_scores, ax=ax)
     # ax.set_xticklabels(pretty_model_names)
-    ax.set_ylabel(pretty_names(config_dict["ml"]["fit_scorer"], "score"))
+    ax.set_ylabel(pretty_names(fit_scorer, "score"))
     ax.set_xlabel("Model")
     ax.set_title("Performance on test data")
     if save:
-        fname = f"{experiment_folder / 'graphs' / 'barplot'}_{config_dict['ml']['fit_scorer']}"
+        fname = f"{experiment_folder / 'graphs' / 'barplot'}_{fit_scorer}"
         fname += "_holdout" if holdout else ""
         save_fig(fig, fname)
 
@@ -277,7 +278,10 @@ def boxplot_scorer_cv_groupby(
 
 def boxplot_scorer_cv(
     experiment_folder,
-    config_dict,
+    model_list: list[str],
+    problem_type: str,
+    seed_num: int,
+    fit_scorer: str,
     scorer_dict,
     data,
     true_labels,
@@ -298,12 +302,12 @@ def boxplot_scorer_cv(
     all_scores = []
     print(f"Size of data for boxplot: {data.shape}")
     # Create the fold object for CV
-    if config_dict["ml"]["problem_type"] == CLASSIFICATION:
-        fold_obj = StratifiedKFold(n_splits=nsplits, shuffle=True, random_state=config_dict["ml"]["seed_num"])
-    elif config_dict["ml"]["problem_type"] == REGRESSION:
-        fold_obj = KFold(n_splits=nsplits, shuffle=True, random_state=config_dict["ml"]["seed_num"])
+    if problem_type == CLASSIFICATION:
+        fold_obj = StratifiedKFold(n_splits=nsplits, shuffle=True, random_state=seed_num)
+    elif problem_type == REGRESSION:
+        fold_obj = KFold(n_splits=nsplits, shuffle=True, random_state=seed_num)
     # Loop over the models
-    for model_name in config_dict["ml"]["model_list"]:
+    for model_name in model_list:
         # Load the model if trained
         try:
             model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
@@ -311,9 +315,9 @@ def boxplot_scorer_cv(
             print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
             raise e
 
-        print(f"Plotting boxplot for {model_name} using {config_dict['ml']['fit_scorer']}")
+        print(f"Plotting boxplot for {model_name} using {fit_scorer}")
         # Select the scorer
-        scorer_func = scorer_dict[config_dict["ml"]["fit_scorer"]]
+        scorer_func = scorer_dict[fit_scorer]
         # Container for scores for this cross-val for this model
         scores = []
         num_testsamples_list = []
@@ -352,7 +356,7 @@ def boxplot_scorer_cv(
         df = pd.DataFrame(d)
         df.to_csv(fname + ".csv")
 
-    pretty_model_names = [pretty_names(name, "model") for name in config_dict["ml"]["model_list"]]
+    pretty_model_names = [pretty_names(name, "model") for name in model_list]
 
     # Make a dataframe
     # df_cv_scores = pd.DataFrame(all_scores, columns=pretty_model_names)
@@ -369,7 +373,7 @@ def boxplot_scorer_cv(
     fig = plt.gcf()
     # Save the graph
     if save:
-        fname = f"{experiment_folder / 'graphs' / 'boxplot'}_{config_dict['ml']['fit_scorer']}"
+        fname = f"{experiment_folder / 'graphs' / 'boxplot'}_{fit_scorer}"
         fname += "_holdout" if holdout else ""
         save_fig(fig, fname)
 

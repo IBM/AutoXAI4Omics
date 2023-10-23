@@ -52,14 +52,25 @@ def plot_graphs(
         if plot_method == "barplot_scorer":
             plot_func(
                 experiment_folder,
-                config_dict,
+                config_dict["ml"]["model_list"],
+                config_dict["ml"]["fit_scorer"],
                 scorer_dict,
                 x_test,
                 y_test,
                 holdout=holdout,
             )
         elif plot_method == "boxplot_scorer":
-            plot_func(experiment_folder, config_dict, scorer_dict, x, y, holdout=holdout)
+            plot_func(
+                experiment_folder,
+                config_dict["ml"]["model_list"],
+                config_dict["ml"]["problem_type"],
+                config_dict["ml"]["seed_num"],
+                config_dict["ml"]["fit_scorer"],
+                scorer_dict,
+                x,
+                y,
+                holdout=holdout,
+            )
         elif plot_method == "boxplot_scorer_cv_groupby":
             plot_func(experiment_folder, config_dict, scorer_dict, x, y, holdout=holdout)
         elif plot_method == "conf_matrix":
