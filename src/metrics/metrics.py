@@ -12,10 +12,56 @@ omicLogger = logging.getLogger("OmicLogger")
 
 def define_scorers(problem_type: str, scorer_list: list[str]) -> dict[str, object]:
     """
-    Define the different measures we can use
+    Create a dict with the keywords being the scorers we can use and the values being the object itself
+
+
+    Parameters
+    ----------
+    problem_type : str
+        Either 'classification' or 'regression'
+    scorer_list : list[str]
+        Must be a list of str corresponding to names of scorers that the user wishes to be calculated
+
+    Returns
+    -------
+    dict[str, object]
+        a dict with the scorer names as keys and the scoring function/object as the value
+
+    Raises
+    ------
+    TypeError
+        is raised if problem_type is not a str
+    ValueError
+        is raised if problem_type is not one of 'classification' or 'regression'
+    TypeError
+        is raised if scorer_list is not a str
+    ValueError
+        is raised if scorer_list is empty
+    TypeError
+        is raised if any entry of scorer_list is not a str
+    ValueError
+        is raised if any entry of scorer_list is not a valid scorer name
     """
+    if not isinstance(problem_type, str):
+        raise TypeError("problem_type must be of type str")
+    elif problem_type not in [CLASSIFICATION, REGRESSION]:
+        raise ValueError(f"problem_type must be one of {CLASSIFICATION} or {REGRESSION}")
+
+    if not isinstance(scorer_list, list):
+        raise TypeError("scorer_list must be a list")
+    elif len(scorer_list) < 1:
+        raise ValueError("scorer_list can not be empty")
+    elif not all([isinstance(x, str) for x in scorer_list]):
+        raise TypeError("all entries of scorer_list must be a str")
+
     omicLogger.debug("Collecting model scorers specified in config...")
-    scorer_dict_filtered = {k: METRICS[problem_type][k] for k in scorer_list}
+    try:
+        scorer_dict_filtered = {k: METRICS[problem_type][k] for k in scorer_list}
+    except KeyError as e:
+        raise ValueError(
+            f"For {problem_type} problems, entries of scorer_list must be a subset of: \
+                         {METRICS[problem_type].keys()}, recived invalid entry of: {e}"
+        )
 
     return scorer_dict_filtered
 
