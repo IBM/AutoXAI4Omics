@@ -47,5 +47,7 @@ Change log for the codebase. Initialised from the developments following version
     - Deleted autogulon src code, as was depreciated ages ago
     - Custom SKLearnModel code only ever instansiated in auto mode for AutoSklearn so removed redundant code
     - added test coverage config
-    - tests, type hinting and docstring created for metrics.define_scorers
-    - tests, type hinting and docstring created for utils.ml.class_balancing
+    - tests, type hinting and docstring created for:
+        - metrics.define_scorers
+        - utils.ml.class_balancing
+        - utils.ml.data_split.std_split
