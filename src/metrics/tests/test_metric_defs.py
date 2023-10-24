@@ -10,6 +10,13 @@ CLF_Y_TRUE = [0] * 4 + [1] * 4 + [2] * 2
 CLF_Y_PRED = CLF_Y_TRUE.copy()
 CLF_Y_PRED.reverse()
 
+PROB = {
+    0: [1, 0, 0],
+    1: [0, 1, 0],
+    2: [0, 0, 1],
+}
+
+CLF_Y_PRED_PROB = [PROB[x] for x in CLF_Y_PRED]
 
 RESULTS = {
     REGRESSION: {
@@ -34,6 +41,7 @@ RESULTS = {
         "precision_score": 0.2,
         "recall_score": 0.2,
         "zero_one_loss": 0.8,
+        "roc_auc_score": 0.375,
     },
 }
 
@@ -52,5 +60,8 @@ def test_regression_metrics(metric_name):
 @pytest.mark.parametrize("metric_name", METRICS[CLASSIFICATION].keys())
 def test_classification_metrics(metric_name):
     metric_instance = METRICS[CLASSIFICATION][metric_name]
-    score = metric_instance._score_func(CLF_Y_TRUE, CLF_Y_PRED, **metric_instance._kwargs)
+    if metric_name != "roc_auc_score":
+        score = metric_instance._score_func(CLF_Y_TRUE, CLF_Y_PRED, **metric_instance._kwargs)
+    else:
+        score = metric_instance._score_func(CLF_Y_TRUE, CLF_Y_PRED_PROB, **metric_instance._kwargs)
     assert score == RESULTS[CLASSIFICATION][metric_name]
