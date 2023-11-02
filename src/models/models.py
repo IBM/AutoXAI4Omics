@@ -39,12 +39,12 @@ def select_best_model(experiment_folder, problem_type, metric=None, collapse_tax
     if problem_type == CLASSIFICATION:
         if metric is None:
             omicLogger.info("Best selection metric is None, Defaulting to F1_score...")
-            metric = "f1"
+            metric = "f1_score"
         low = False
     else:
         if metric is None:
             omicLogger.info("Best selection metric is None, Defaulting to Mean_AE...")
-            metric = "mean_ae"
+            metric = "mean_absolute_error"
         low = True
 
     df_cols = list(

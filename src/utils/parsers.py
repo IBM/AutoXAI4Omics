@@ -414,7 +414,7 @@ def parse_MLSettings(problemEntry):
             else list(METRICS[REGRESSION].keys())
         )
         if problemEntry["fit_scorer"] not in valid:
-            raise ValueError(f"fit_scorer must be one of: {valid}")
+            raise ValueError(f"fit_scorer must be one of: {valid}, provided: {problemEntry['fit_scorer']}")
 
     if "scorer_list" not in keys:
         problemEntry["scorer_list"] = (
@@ -1039,7 +1039,7 @@ def parse_FS_settings(problem_type, FS_dict):
             auto_dict["min_features"] = 10
 
         if "max_features" not in auto_dict.keys():
-            auto_dict["min_features"] = None
+            auto_dict["max_features"] = None
 
         if "interval" not in auto_dict.keys():
             auto_dict["interval"] = 1

@@ -34,9 +34,9 @@ def split_data(x, y, config_dict):
         x_train, x_test, y_train, y_test = std_split(
             x,
             y,
+            config_dict["ml"]["problem_type"],
             config_dict["ml"]["test_size"],
             config_dict["ml"]["seed_num"],
-            config_dict["ml"]["problem_type"],
         )
 
     return x_train, x_test, y_train, y_test

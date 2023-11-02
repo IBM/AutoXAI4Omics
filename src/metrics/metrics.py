@@ -66,6 +66,7 @@ def define_scorers(problem_type: str, scorer_list: list[str]) -> dict[str, objec
     return scorer_dict_filtered
 
 
+## TODO: finish creating test for these, other tests need to be done first
 def eval_scores(problem_type, scorer_dict, model, data, true_labels):
     omicLogger.debug("Gathering evaluation scores...")
     scores_dict = {}
