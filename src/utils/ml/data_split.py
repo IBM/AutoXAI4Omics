@@ -6,6 +6,7 @@ from utils.vars import CLASSIFICATION, REGRESSION
 from typing import Union
 from numpy import ndarray
 from pandas.core.frame import DataFrame
+import os
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -24,10 +25,10 @@ def split_data(x, y, config_dict):
         x_train, x_test, y_train, y_test = strat_split(
             x,
             y,
-            config_dict["ml"]["test_size"],
-            config_dict["ml"]["seed_num"],
             config_dict["data"]["metadata_file"],
             config_dict["ml"]["groups"],
+            config_dict["ml"]["test_size"],
+            config_dict["ml"]["seed_num"],
         )
 
     else:
@@ -42,10 +43,94 @@ def split_data(x, y, config_dict):
     return x_train, x_test, y_train, y_test
 
 
-def strat_split(x, y, test_size, seed, meta_file, group_name):
+def strat_split(
+    x: Union[ndarray, DataFrame],
+    y: Union[ndarray, DataFrame],
+    meta_file: str,
+    group_name: str,
+    test_size: float = 0.2,
+    seed: int = 29292,
+) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+    """split the data according to stratification
+
+    Parameters
+    ----------
+    x : Union[ndarray, DataFrame]
+        The data to be split
+    y : Union[ndarray, DataFrame]
+        The corresponding labels of the data to be split
+    meta_file : str
+        a str file path to the meta data to be used for the stratification
+    group_name : str
+        the group (column name) to split the data by in the metadata file
+    test_size : float
+        a float to determine the size of the test set, by default 0.2
+    seed : int
+        the seed to control the randomisation, by default 29292
+
+    Returns
+    -------
+    tuple[ndarray, ndarray, ndarray, ndarray]
+        returns the x_train, x_test, y_train and y_test to be used
+
+    Raises
+    ------
+    TypeError
+        is raised if x_full or y_full is not a ndarray of Dataframe
+    ValueError
+        is raised if x_full and y_full dont have the same number of rows
+    TypeError
+        is rasied if test_size is not a float
+    ValueError
+        is raised if test_size is not between 0.0 and 1.0
+    TypeError
+        is raised if seed is not an int
+    TypeError
+        is raised if meta_file is not a str
+    FileNotFoundError
+        is raised if the file given in meta_file does not exist
+    IsADirectoryError
+        is raised if the file given in meta_file is actually a directory
+    TypeError
+        is raised if group_name is not a str
+    ValueError
+        is raised if group_name is not present in the columns of the meta_file
     """
-    split the data according to stratification
-    """
+    if not isinstance(x, (ndarray, DataFrame)):
+        raise TypeError(f"x must be either a ndarray or a DataFrame. Recieved: {type(x)}")
+
+    if not isinstance(y, (ndarray, DataFrame)):
+        raise TypeError(f"x must be either a ndarray or a DataFrame. Recieved: {type(y)}")
+
+    if x.shape[0] != y.shape[0]:
+        raise ValueError(
+            f"x and y have different numbers of rows - \
+                         x: ({x.shape[0]}) and y: ({y.shape[0]})"
+        )
+
+    if not isinstance(test_size, float):
+        raise TypeError(f"test_size must be an float, recieved {type(test_size)}")
+    elif test_size < 0 or test_size > 1:
+        raise ValueError(f"test_size must be between 0.0 and 1.0. Gave: {test_size}")
+
+    if not isinstance(seed, int):
+        raise TypeError(f"seed_num must be an int, recieved {type(seed)}")
+
+    if not isinstance(meta_file, str):
+        raise TypeError(f"meta_file must be a str, recieved, {type(meta_file)}")
+    elif not os.path.exists(meta_file):
+        raise FileNotFoundError(f"file: {meta_file} does not exist")
+    elif not os.path.isfile(meta_file):
+        raise IsADirectoryError(f"meta_file ({meta_file}) points to a directory and not a file ")
+
+    if not isinstance(group_name, str):
+        raise TypeError(f"group_name must be a str, provided: {type(group_name)}")
+
+    metadata = pd.read_csv(meta_file, index_col=0)
+
+    if group_name not in metadata.columns:
+        raise ValueError(f"group_name ({group_name}) not present in the meta_data_file ({meta_file})")
+
     omicLogger.debug("Splitting according to stratification...")
 
     gss = GroupShuffleSplit(
@@ -55,17 +140,24 @@ def strat_split(x, y, test_size, seed, meta_file, group_name):
     )
     # gss = GroupKFold(n_splits=7)
 
-    metadata = pd.read_csv(meta_file, index_col=0)
     le = LabelEncoder()
     groups = le.fit_transform(metadata[group_name])
 
     for train_idx, test_idx in gss.split(x, y, groups):
-        x_train, x_test, y_train, y_test = (
-            x[train_idx],
-            x[test_idx],
-            y[train_idx],
-            y[test_idx],
-        )
+        if isinstance(x, DataFrame):
+            x_train, x_test, y_train, y_test = (
+                x.iloc[train_idx, :],
+                x.iloc[test_idx, :],
+                y.iloc[train_idx, :],
+                y.iloc[test_idx, :],
+            )
+        else:
+            x_train, x_test, y_train, y_test = (
+                x[train_idx],
+                x[test_idx],
+                y[train_idx],
+                y[test_idx],
+            )
 
     return x_train, x_test, y_train, y_test
 
