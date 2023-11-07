@@ -45,7 +45,7 @@ def get_data_tabular(config_dict, holdout=False):
     metout_file += "_holdout" if holdout else ""
 
     filtered_data, genestokeep = rrep.preprocessing_LO(
-        config_dict,
+        config_dict["data"],
         filtergene1=filter_genes1,
         filtergene2=filter_genes2,
         filter_sample=filter_samples,
@@ -104,8 +104,14 @@ def get_data_tabular_trained(config_dict, holdout=False, prediction=False):
     x,y, feature names (in correct format format for ML)
 
     """
+    prediction_file = config_dict["prediction"]["file_path"] if prediction else None
 
-    filtered_data = rrep.apply_learned_processing(config_dict, holdout=holdout, prediction=prediction)
+    filtered_data = rrep.apply_learned_processing(
+        config_dict["data"],
+        holdout=holdout,
+        prediction=prediction,
+        prediction_file=prediction_file,
+    )
     print("data type = ", config_dict["data"]["data_type"])
 
     # add metadata output file from config_dict that is required

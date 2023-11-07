@@ -4,14 +4,14 @@ from bioinfokit.analys import norm
 import conorm as cn
 
 
-def preprocessing_LO(config_dict, filtergene1, filtergene2, filter_sample, holdout):
+def preprocessing_LO(data_dict, filtergene1, filtergene2, filter_sample, holdout):
     """
     Note - this function is replacing Run_LO.R
     ---------
 
     Parameters
     -------
-    config_dict: config dictionary
+    data_dict: data section dictionary of the config
     filtergene1 & 2 : filtering paramters : keep genes > 'filtergene1' expression in "filtergene2" or more samples
                     : Default values are set filtergene1=0 (default expression) and filtergene2=1 (default # samples).
     filter_sample : filtering parameter : remove samples with the number of expressed genes above or below
@@ -26,12 +26,12 @@ def preprocessing_LO(config_dict, filtergene1, filtergene2, filter_sample, holdo
     """
     # omicLogger.debug('Filtering gene expression data...')
     file = "file_path" + ("_holdout_data" if holdout else "")
-    data_file = pd.read_csv(config_dict["data"][file], index_col=0)  # sampleID as index
+    data_file = pd.read_csv(data_dict[file], index_col=0)  # sampleID as index
 
     # If metadata not provided, drop target prior to filtering
     metafile = "metadata_file" + ("_holdout_data" if holdout else "")
-    if config_dict["data"][metafile] == "":
-        data_drop = data_file.drop(config_dict["data"]["target"], axis=0)
+    if data_dict[metafile] == "":
+        data_drop = data_file.drop(data_dict["target"], axis=0)
         data = data_drop.loc[
             (data_drop != 0).any(axis=1), (data_drop != 0).any(axis=0)
         ]  # Remove any samples/rows with all zeros
@@ -96,25 +96,24 @@ def preprocessing_LO(config_dict, filtergene1, filtergene2, filter_sample, holdo
 # ---------------------------------------------------------------------------------------------------#
 
 
-def apply_learned_processing(config_dict, holdout, prediction=False, tmm=False):
+def apply_learned_processing(data_dict, holdout, prediction=False, tmm=False, prediction_file=None):
     if holdout is False and prediction is False:
         raise ValueError("One of holdout or prediction need to be true")
 
     if holdout:
         file = "file_path" + ("_holdout_data" if holdout else "")
-        data_file = pd.read_csv(config_dict["data"][file], index_col=0)  # sampleID as index
+        data_file = pd.read_csv(data_dict[file], index_col=0)  # sampleID as index
 
         # If metadata not provided, drop target prior to filtering
         metafile = "metadata_file" + ("_holdout_data" if holdout else "")
-        if config_dict["data"][metafile] == "":
-            data_file = data_file.drop(config_dict["data"]["target"], axis=0)
+        if data_dict[metafile] == "":
+            data_file = data_file.drop(data_dict["target"], axis=0)
 
     elif prediction:
-        file = config_dict["prediction"]["file_path"]
-        data_file = pd.read_csv(file, index_col=0)  # sampleID as index
+        data_file = pd.read_csv(prediction_file, index_col=0)  # sampleID as index
 
     # save list of genes kept
-    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes\
+    save_name = f'/experiments/results/{data_dict["name"]}/omics_{data_dict["data_type"]}_keptGenes\
         .pkl'
     with open(save_name, "rb") as f:
         genestokeep = joblib.load(f)
@@ -144,7 +143,7 @@ def apply_learned_processing(config_dict, holdout, prediction=False, tmm=False):
 # ---------------------------------------------------------------------------------------------------#
 
 
-def preprocessing_others(config_dict, filtergene1, filtergene2, filter_sample, holdout):
+def preprocessing_others(data_dict, filtergene1, filtergene2, filter_sample, holdout):
     """
     Note - this function is replacing Run_others.R (note this is the same as Run_LO.R, but without converting to
     absolute values)
@@ -168,12 +167,12 @@ def preprocessing_others(config_dict, filtergene1, filtergene2, filter_sample, h
 
     # omicLogger.debug('Filtering gene expression data...')
     file = "file_path" + ("_holdout_data" if holdout else "")
-    data_file = pd.read_csv(config_dict["data"][file], index_col=0)  # sampleID as index
+    data_file = pd.read_csv(data_dict[file], index_col=0)  # sampleID as index
 
     # If metadata not provided, drop target prior to filtering
     metafile = "metadata_file" + ("_holdout_data" if holdout else "")
-    if config_dict["data"][metafile] == "":
-        data_drop = data_file.drop(config_dict["data"]["target"], axis=0)
+    if data_dict[metafile] == "":
+        data_drop = data_file.drop(data_dict["target"], axis=0)
         data = data_drop.loc[
             (data_drop != 0).any(axis=1), (data_drop != 0).any(axis=0)
         ]  # Remove any samples/rows with all zeros
@@ -235,7 +234,7 @@ def preprocessing_others(config_dict, filtergene1, filtergene2, filter_sample, h
 # ---------------------------------------------------------------------------------------------------#
 
 
-def preprocessing_TMM(config_dict, filtergene1, filtergene2, filter_sample, holdout):
+def preprocessing_TMM(data_dict, filtergene1, filtergene2, filter_sample, holdout):
     """
     Note - this function is replacing Run_TMM.R
          - this function transforms to CPM values to filter genes
@@ -262,12 +261,12 @@ def preprocessing_TMM(config_dict, filtergene1, filtergene2, filter_sample, hold
 
     # omicLogger.debug('Filtering gene expression data...')
     file = "file_path" + ("_holdout_data" if holdout else "")
-    data_file = pd.read_csv(config_dict["data"][file], index_col=0)  # sampleID as index
+    data_file = pd.read_csv(data_dict[file], index_col=0)  # sampleID as index
 
     # If metadata not provided, drop target prior to filtering
     metafile = "metadata_file" + ("_holdout_data" if holdout else "")
-    if config_dict["data"][metafile] == "":
-        data_drop = data_file.drop(config_dict["data"]["target"], axis=0)
+    if data_dict[metafile] == "":
+        data_drop = data_file.drop(data_dict["target"], axis=0)
         data = data_drop.loc[
             (data_drop != 0).any(axis=1), (data_drop != 0).any(axis=0)
         ]  # Remove any samples/rows with all zeros

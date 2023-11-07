@@ -51,3 +51,5 @@ Change log for the codebase. Initialised from the developments following version
         - metrics.define_scorers
         - utils.ml.class_balancing
         - utils.ml.data_split.std_split
+    - reduce ussage of full config dict in:
+        - R_replacement.py

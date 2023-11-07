@@ -47,7 +47,7 @@ def get_data_gene_expression(config_dict, holdout=False):
 
     if config_dict["gene_expression"]["expression_type"] == "COUNTS":
         filtered_data, genestokeep = rrep.preprocessing_TMM(
-            config_dict,
+            config_dict["data"],
             filtergene1=filter_genes1,
             filtergene2=filter_genes2,
             filter_sample=filter_samples,
@@ -62,7 +62,7 @@ def get_data_gene_expression(config_dict, holdout=False):
         "TMM",
     ]:
         filtered_data, genestokeep = rrep.preprocessing_others(
-            config_dict,
+            config_dict["data"],
             filtergene1=filter_genes1,
             filtergene2=filter_genes2,
             filter_sample=filter_samples,
@@ -77,7 +77,7 @@ def get_data_gene_expression(config_dict, holdout=False):
         "TAB",
     ]:
         filtered_data, genestokeep = rrep.preprocessing_LO(
-            config_dict,
+            config_dict["data"],
             filtergene1=filter_genes1,
             filtergene2=filter_genes2,
             filter_sample=filter_samples,
@@ -87,7 +87,7 @@ def get_data_gene_expression(config_dict, holdout=False):
 
     else:  # it's defined as 'OTHER'
         filtered_data, genestokeep = rrep.preprocessing_LO(
-            config_dict,
+            config_dict["data"],
             filtergene1=filter_genes1,
             filtergene2=filter_genes2,
             filter_sample=filter_samples,
@@ -147,8 +147,15 @@ def get_data_gene_expression_trained(config_dict, holdout=False, prediction=Fals
     """
 
     tmm = True if config_dict["gene_expression"]["expression_type"] == "COUNTS" else False
+    prediction_file = config_dict["prediction"]["file_path"] if prediction else None
 
-    filtered_data = rrep.apply_learned_processing(config_dict, holdout=holdout, prediction=prediction, tmm=tmm)
+    filtered_data = rrep.apply_learned_processing(
+        config_dict["data"],
+        holdout=holdout,
+        prediction=prediction,
+        tmm=tmm,
+        prediction_file=prediction_file,
+    )
     print("data type = ", config_dict["data"]["data_type"])
 
     # add metadata output file from config_dict that is required
