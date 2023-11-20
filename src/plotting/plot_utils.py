@@ -20,10 +20,31 @@ from utils.vars import CLASSIFICATION, REGRESSION
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def define_plots(problem_type):
+def define_plots(problem_type: str) -> dict[str:object]:
+    """Define the plots for each problem type. This needs to be maintained manually.
+
+    Returns
+    -------
+    problem_type : str
+        a str that is either regression or classification
+
+    Raises
+    ------
+    TypeError
+        is raised if problem_type is not a str
+    ValueError
+        is raised if problem_type is not regresison or classification
     """
-    Define the plots for each problem type. This needs to be maintained manually.
-    """
+
+    if not isinstance(problem_type, str):
+        raise TypeError(
+            f"problem_type must be a str equal to {REGRESSION} or {CLASSIFICATION}"
+        )
+    if problem_type not in [REGRESSION, CLASSIFICATION]:
+        raise ValueError(
+            f"problem_type must be equal to {REGRESSION} or {CLASSIFICATION}"
+        )
+
     omicLogger.debug("Define dict of plots...")
     # Some plots can only be done for a certain type of ML
     # Check here that the ones given are valid

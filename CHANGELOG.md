@@ -51,5 +51,6 @@ Change log for the codebase. Initialised from the developments following version
         - metrics.define_scorers
         - utils.ml.class_balancing
         - utils.ml.data_split.std_split & strat_split
+        - plotting.plot_utils.define_plots
     - reduce ussage of full config dict in:
         - R_replacement.py
