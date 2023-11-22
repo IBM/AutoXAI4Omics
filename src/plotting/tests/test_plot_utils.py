@@ -1,4 +1,4 @@
-from ..plot_utils import define_plots
+from ..plot_utils import define_plots, create_fig
 import pytest
 from utils.vars import CLASSIFICATION, REGRESSION
 
@@ -51,3 +51,83 @@ class Test_define_plots:
                 "roc_curve",
             }
             assert clf_set.issubset(set(plot_dict.keys()))
+
+
+class Test_create_fig:
+    def test_nrows_type(self):
+        try:
+            create_fig(nrows="False", ncols=1, figsize=(1, 2))
+            assert False
+        except TypeError:
+            assert True
+        except Exception:
+            assert False
+
+    def test_nrows_values(self):
+        try:
+            create_fig(nrows=-1, ncols=1, figsize=(1, 2))
+            assert False
+        except ValueError:
+            assert True
+        except Exception:
+            assert False
+
+    def test_ncols_type(self):
+        try:
+            create_fig(ncols="False", nrows=1, figsize=(1, 2))
+            assert False
+        except TypeError:
+            assert True
+        except Exception:
+            assert False
+
+    def test_ncols_values(self):
+        try:
+            create_fig(ncols=-1, nrows=1, figsize=(1, 2))
+            assert False
+        except ValueError:
+            assert True
+        except Exception:
+            assert False
+
+    def test_figsize_type(self):
+        try:
+            create_fig(ncols=1, nrows=1, figsize=bool)
+            assert False
+        except TypeError:
+            assert True
+        except Exception:
+            assert False
+
+    def test_figzise_tuple_type(self):
+        try:
+            create_fig(ncols=1, nrows=1, figsize=("WRONG", "WRONG"))
+            assert False
+        except TypeError:
+            assert True
+        except Exception:
+            assert False
+
+    def test_figzise_tuple_value(self):
+        try:
+            create_fig(ncols=1, nrows=1, figsize=(-1, 1))
+            assert False
+        except ValueError:
+            assert True
+        except Exception:
+            assert False
+
+    def test_figzise_tuple_value_quant(self):
+        try:
+            create_fig(ncols=1, nrows=1, figsize=(1,))
+            assert False
+        except ValueError:
+            assert True
+        except Exception:
+            assert False
+
+    def test_output(self):
+        fig, ax = create_fig(ncols=2, nrows=2, figsize=(100, 100))
+
+        assert ax.shape == (2, 2)
+        assert all(fig.get_size_inches() == [100, 100])
