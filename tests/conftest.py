@@ -19,7 +19,9 @@ def dataset_create_data(problem_type, **kwargs):
         return x, y
 
     else:
-        raise ValueError(f"problem_type is not regression or classification. value given: {problem_type}")
+        raise ValueError(
+            f"problem_type is not regression or classification. value given: {problem_type}"
+        )
 
 
 def dataset_std_def_reg():
@@ -66,13 +68,19 @@ def dataset_create_files(problem_type, multi=False):
         else:
             x, y = make_classification(**dataset_std_def_clf_bin())
     else:
-        raise ValueError(f"problem_type is not regression or classification. value given: {problem_type}")
+        raise ValueError(
+            f"problem_type is not regression or classification. value given: {problem_type}"
+        )
 
     x_fname = f"data/generated_training_{problem_type}"
     y_fname = f"data/generated_target_{problem_type}"
 
-    x_fname += "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
-    y_fname += "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
+    x_fname += (
+        "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
+    )
+    y_fname += (
+        "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
+    )
 
     pd.DataFrame(x).to_csv(x_fname)
     pd.DataFrame(y, columns=["target"]).to_csv(y_fname)
@@ -221,7 +229,16 @@ def config_model_list(problem_type):
         ]
     else:
         raise ValueError(f"Unexpected problem type: {problem_type}")
-    outdict = {"model_list": ml + ["AutoKeras", "AutoLGBM", "AutoSKLearn", "AutoXGBoost", "FixedKeras"]}
+    outdict = {
+        "model_list": ml
+        + [
+            "AutoKeras",
+            "AutoLGBM",
+            "AutoSKLearn",
+            "AutoXGBoost",
+            "FixedKeras",
+        ]
+    }
     return outdict
 
 
@@ -264,7 +281,10 @@ def config_scorers(problem_type):
 def config_data_paths(file_path, meta_path, problem_type, multi=False):
     outdict = {
         "data": {
-            "name": "generated_test_" + problem_type + ("_multi" if multi else "") + "_run1_",
+            "name": "generated_test_"
+            + problem_type
+            + ("_multi" if multi else "")
+            + "_run1_",
             "file_path": "/" + file_path,
             "metadata_file": "/" + meta_path,
             "file_path_holdout_data": "/" + file_path,
@@ -299,9 +319,15 @@ def config_define_problem(problem_type):
 def config_define_ml(problem_type):
     outdict = {
         "ml": {
-            **config_define_problem(problem_type),  # Define the Problem and general parameters            # [EXP/AUTO]
-            **config_scorers(problem_type),  # Define scorers to be used depending on problem type  # [HIDDEN]
-            **config_model_list(problem_type),  # Define the models to be trained                      # [ADV]
+            **config_define_problem(
+                problem_type
+            ),  # Define the Problem and general parameters            # [EXP/AUTO]
+            **config_scorers(
+                problem_type
+            ),  # Define scorers to be used depending on problem type  # [HIDDEN]
+            **config_model_list(
+                problem_type
+            ),  # Define the models to be trained                      # [ADV]
             **config_all_auto_methods(),  # Define auto methods setting                          # [HIDDEN]
             **config_feature_selection(),  # Define the feature selection settings                # [ADV/AUTO]
         }
@@ -357,7 +383,9 @@ def config_tabular():
 
 def config_create(problem_type, file_path, meta_path, multi=False, run=1):
     outdict = {
-        **config_data_paths(file_path, meta_path, problem_type, multi),  # Define the paths to where the data is stored
+        **config_data_paths(
+            file_path, meta_path, problem_type, multi
+        ),  # Define the paths to where the data is stored
         **config_all_plotting(problem_type),  # Define what plots to do
         **config_define_ml(problem_type),
         **config_prediction(file_path),
@@ -369,7 +397,9 @@ def config_create(problem_type, file_path, meta_path, multi=False, run=1):
 
     outdict["data"]["name"] += str(run).zfill(len(str(RUNS)))
     fname = f"configs/generated_test_{problem_type}"
-    fname += "_multi.json" if (multi and (problem_type == "classification")) else ".json"
+    fname += (
+        "_multi.json" if (multi and (problem_type == "classification")) else ".json"
+    )
 
     with open(fname, "w") as outfile:
         json.dump(outdict, outfile, indent=4)
@@ -383,12 +413,20 @@ RUNS = 1
 
 
 @pytest.fixture(
-    params=[pytest.param(("classification", i), marks=pytest.mark.classification) for i in range(STARTS + 1, RUNS + 1)]
-    + [
-        pytest.param(("multi", i), marks=[pytest.mark.classification, pytest.mark.multi])
+    params=[
+        pytest.param(("classification", i), marks=pytest.mark.classification)
         for i in range(STARTS + 1, RUNS + 1)
     ]
-    + [pytest.param(("regression", i), marks=pytest.mark.regression) for i in range(STARTS + 1, RUNS + 1)],
+    + [
+        pytest.param(
+            ("multi", i), marks=[pytest.mark.classification, pytest.mark.multi]
+        )
+        for i in range(STARTS + 1, RUNS + 1)
+    ]
+    + [
+        pytest.param(("regression", i), marks=pytest.mark.regression)
+        for i in range(STARTS + 1, RUNS + 1)
+    ],
     scope="session",
 )
 def problem_create(request):
