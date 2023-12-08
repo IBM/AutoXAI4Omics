@@ -8,7 +8,9 @@ import joblib
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def create_microbiome_calourexp(fpath_biom, fpath_meta, norm_reads=1000, min_reads=1000):
+def create_microbiome_calourexp(
+    fpath_biom, fpath_meta, norm_reads=1000, min_reads=1000
+):
     """
     Create the experiment from calour using the given minimum number of reads and the number of reads to normalize to
     """
@@ -21,7 +23,6 @@ def create_microbiome_calourexp(fpath_biom, fpath_meta, norm_reads=1000, min_rea
         )
     except Exception as e:
         omicLogger.error("error with reading amplicon")
-        # print("!!! ERROR: THE IMPORTED DATA FILES ARE NOT VALID!!!")
         raise e
 
     return exp
@@ -42,9 +43,7 @@ def filter_biom(config_dict, amp_exp, abundance=10, prevalence=0.01, collapse_ta
 
     # save list of ml features kept
     featureToKeep = list(amp_exp.feature_metadata["_feature_id"])
-    save_name = (
-        f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptFeatures.pkl'
-    )
+    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptFeatures.pkl'
     with open(save_name, "wb") as f:
         joblib.dump(featureToKeep, f)
 
@@ -57,9 +56,14 @@ def filter_biom(config_dict, amp_exp, abundance=10, prevalence=0.01, collapse_ta
             if nrows_after < nrows:
                 print(f"Reduced number of samples from {nrows} to {nrows_after}")
         except ValueError:
-            print(f"{collapse_tax} is not a valid taxonomy level, must be 'k', 'p', 'c', 'o', 'f', 'g', or 's'")
+            print(
+                f"{collapse_tax} is not a valid taxonomy level, must be 'k', 'p', 'c', 'o', 'f', 'g', or 's'"
+            )
             raise
-    print("Data dimension after collapsing and filtering OTUs by abundance and prevalence: " + str(amp_exp.data.shape))
+    print(
+        "Data dimension after collapsing and filtering OTUs by abundance and prevalence: "
+        + str(amp_exp.data.shape)
+    )
 
     return amp_exp
 
@@ -85,7 +89,9 @@ def filter_multiple(amp_exp, filter_list, axis=0, negate=True):
         # Then we check which rows match the conditions
         # Then we use all (by row, or axis, 1) to select the rows where all conditions are met (all True)
         # Use .values to get the boolean array
-        select = amp_exp.sample_metadata[filter_dict.keys()].isin(filter_dict).all(1).values
+        select = (
+            amp_exp.sample_metadata[filter_dict.keys()].isin(filter_dict).all(1).values
+        )
         # If negate is true, we want to discard/filter the rows which match our conditions
         if negate is True:
             select = ~select
@@ -95,7 +101,9 @@ def filter_multiple(amp_exp, filter_list, axis=0, negate=True):
 
 
 def filter_metadata(amp_exp, col_name, to_filter):
-    return amp_exp.filter_by_metadata(field=col_name, select=to_filter, axis=0, negate=True)
+    return amp_exp.filter_by_metadata(
+        field=col_name, select=to_filter, axis=0, negate=True
+    )
 
 
 def modify_classes(amp_exp, class_col_name, remove_class=None, merge_by=None):
@@ -178,7 +186,9 @@ def get_feature_names_calourexp(amp_exp, config_dict):
     """
     if config_dict["collapse_tax"] == "species":
         feature_names = amp_exp.feature_metadata["taxonomy"].apply(
-            lambda x: " ".join([x.split(";")[-2], x.split(";")[-1]]).replace("[", "").replace("]", "")
+            lambda x: " ".join([x.split(";")[-2], x.split(";")[-1]])
+            .replace("[", "")
+            .replace("]", "")
         )
     else:
         feature_names = amp_exp.feature_metadata["taxonomy"].apply(
@@ -210,7 +220,6 @@ def get_feature_names_calourexp(amp_exp, config_dict):
 def get_feature_names_alternative(amp_exp):
     inputFeatureData = amp_exp.feature_metadata
     """ Get simple names for taxonomy """
-    # OTUs = inputFeatureData['_feature_id']
     taxons = inputFeatureData["taxonomy"]
     names = []
     for taxon in taxons:
@@ -225,14 +234,11 @@ def get_feature_names_alternative(amp_exp):
 def get_feature_names_for_abundance(amp_exp):
     inputFeatureData = amp_exp.feature_metadata
     """ Get simple names for taxonomy """
-    # OTUs = inputFeatureData['_feature_id']
     taxons = inputFeatureData["taxonomy"]
     names = []
     for taxon in taxons:
         tmpSplit = str.split(taxon, ";")
         name = tmpSplit[len(tmpSplit) - 1]
-        # if 'unresolved' in name:
-        #    name = tmpSplit[len(tmpSplit)-3]#+tmpSplit[len(tmpSplit)-1]
         names.append(name)
     return names
 
@@ -247,7 +253,9 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     # Use calour to create an experiment
     print("Path file: " + path_file)
     print("Metadata file: " + metadata_path)
-    if (microbiome_config["norm_reads"] is None) and (microbiome_config["min_reads"] is None):
+    if (microbiome_config["norm_reads"] is None) and (
+        microbiome_config["min_reads"] is None
+    ):
         amp_exp = create_microbiome_calourexp(path_file, metadata_path, None, None)
     else:
         amp_exp = create_microbiome_calourexp(
@@ -271,11 +279,15 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
         prevalence=microbiome_config["filter_prevalence"],
         collapse_tax=microbiome_config["collapse_tax"],
     )
-    print(f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}")
+    print(
+        f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}"
+    )
 
     # Filter any data that needs it
     if microbiome_config["filter_microbiome_samples"] is not None:
-        amp_exp = filter_samples(amp_exp, microbiome_config["filter_microbiome_samples"])
+        amp_exp = filter_samples(
+            amp_exp, microbiome_config["filter_microbiome_samples"]
+        )
 
     # Modify the classes if need be
     amp_exp = modify_classes(
@@ -299,25 +311,17 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     print(x.shape)
 
     # save normaliser
-    save_name = (
-        f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_scaler.pkl'
-    )
+    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_scaler.pkl'
     with open(save_name, "wb") as f:
         joblib.dump(SS, f)
 
-    # print(amp_exp.sample_metadata.shape)
-    # print(amp_exp.sample_metadata.columns)
-
-    # try:
     # Select the labels
     ml_config: dict = config_dict["ml"]
     y = select_class_col(
         amp_exp,
         encoding=ml_config.get("encoding"),
-        name=config_dict["data"]["target"],  # from Cameron
+        name=config_dict["data"]["target"],
     )
-    # except:
-    #   print("!!! ERROR: PLEASE SELECT TARGET TO PREDICT FROM METADATA FILE !!!")
 
     features_names = get_feature_names_calourexp(amp_exp, microbiome_config)
 
@@ -339,9 +343,7 @@ def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
     print(f"Original data size: {amp_exp.data.shape}")
 
     # save list of genes kept
-    save_name = (
-        f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptFeatures.pkl'
-    )
+    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptFeatures.pkl'
     with open(save_name, "rb") as f:
         featureToKeep = joblib.load(f)
 
@@ -353,7 +355,9 @@ def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
     # TODO
 
     #### keep the features that we want
-    amp_exp.filter_by_metadata(field="_feature_id", select=featureToKeep, axis="f", inplace=True)
+    amp_exp.filter_by_metadata(
+        field="_feature_id", select=featureToKeep, axis="f", inplace=True
+    )
 
     # Collapse taxonomy
     if collapse_tax is not None:
@@ -364,9 +368,14 @@ def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
             if nrows_after < nrows:
                 print(f"Reduced number of samples from {nrows} to {nrows_after}")
         except ValueError:
-            print(f"{collapse_tax} is not a valid taxonomy level, must be 'k', 'p', 'c', 'o', 'f', 'g', or 's'")
+            print(
+                f"{collapse_tax} is not a valid taxonomy level, must be 'k', 'p', 'c', 'o', 'f', 'g', or 's'"
+            )
             raise
-    print("Data dimension after collapsing and filtering OTUs by abundance and prevalence: " + str(amp_exp.data.shape))
+    print(
+        "Data dimension after collapsing and filtering OTUs by abundance and prevalence: "
+        + str(amp_exp.data.shape)
+    )
 
     return amp_exp
 
@@ -392,7 +401,9 @@ def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
     # Use calour to create an experiment
     print("Path file: " + path_file)
     print("Metadata file: " + metadata_path)
-    if (microbiome_config["norm_reads"] is None) and (microbiome_config["min_reads"] is None):
+    if (microbiome_config["norm_reads"] is None) and (
+        microbiome_config["min_reads"] is None
+    ):
         amp_exp = create_microbiome_calourexp(path_file, metadata_path, None, None)
     else:
         amp_exp = create_microbiome_calourexp(
@@ -407,9 +418,13 @@ def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
     print(f"Original data dimension: {amp_exp.data.shape}")
     # Use calour to filter the data
 
-    amp_exp = apply_biom_filtering(config_dict, amp_exp, collapse_tax=microbiome_config["collapse_tax"])
+    amp_exp = apply_biom_filtering(
+        config_dict, amp_exp, collapse_tax=microbiome_config["collapse_tax"]
+    )
 
-    print(f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}")
+    print(
+        f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}"
+    )
 
     # Modify the classes if need be
     amp_exp = modify_classes(
@@ -420,9 +435,7 @@ def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
     )
 
     # load scaler
-    save_name = (
-        f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_scaler.pkl'
-    )
+    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_scaler.pkl'
     with open(save_name, "rb") as f:
         SS = joblib.load(f)
 
@@ -442,7 +455,7 @@ def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
         y = select_class_col(
             amp_exp,
             encoding=ml_config.get("encoding"),
-            name=config_dict["data"]["target"],  # from Cameron
+            name=config_dict["data"]["target"],
         )
 
     features_names = get_feature_names_calourexp(amp_exp, microbiome_config)

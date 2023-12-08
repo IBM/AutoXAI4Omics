@@ -93,15 +93,19 @@ def permut_importance(
             "Features_importance_value": top_values,
         }
 
-        df_topfeature_info = pd.DataFrame(top_feature_info, columns=["Features_names", "Features_importance_value"])
+        df_topfeature_info = pd.DataFrame(
+            top_feature_info, columns=["Features_names", "Features_importance_value"]
+        )
 
         if cv == "prefit":
             df_topfeature_info.to_csv(
-                f"{experiment_folder / 'results' / 'permutimp_TopFeatures_info'}_{model_name}" + ".csv"
+                f"{experiment_folder / 'results' / 'permutimp_TopFeatures_info'}_{model_name}"
+                + ".csv"
             )
         else:
             df_topfeature_info.to_csv(
-                f"{experiment_folder / 'results' / 'permutimp_TopFeatures_info'}_{model_name}_cv-{cv}" + ".csv"
+                f"{experiment_folder / 'results' / 'permutimp_TopFeatures_info'}_{model_name}_cv-{cv}"
+                + ".csv"
             )
 
         # Make a horizontal boxplot ordered by the magnitude
@@ -112,8 +116,6 @@ def permut_importance(
             ax.set_xlabel(f"{pretty_names(fit_scorer, 'score')} Increase")
             ax.set_ylabel("Features")
 
-        # Do a np.any(<0) check to see if we get negative values
-        # These indicate that shuffling the feature actually improves performance
         # Save the plot
         if save:
             fname = f"{experiment_folder / 'graphs' / 'permutimp'}_{model_name}"

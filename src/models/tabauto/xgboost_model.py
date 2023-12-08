@@ -40,8 +40,6 @@ class XGBoostObjective(object):
 
         param = {
             "verbosity": 1,
-            # "silent": 1,
-            # "booster": trial.suggest_categorical("booster", ["gbtree", "gblinear"]),  # , "dart"]),
             "booster": trial.suggest_categorical("booster", ["gbtree"]),
             "lambda": trial.suggest_float("lambda", 1e-8, 1.0, log=True),
             "alpha": trial.suggest_float("alpha", 1e-8, 1.0, log=True),
@@ -52,10 +50,16 @@ class XGBoostObjective(object):
             param["max_depth"] = trial.suggest_int("max_depth", 1, 9)
             param["eta"] = trial.suggest_float("eta", 1e-8, 1.0, log=True)
             param["gamma"] = trial.suggest_float("gamma", 1e-8, 1.0, log=True)
-            param["grow_policy"] = trial.suggest_categorical("grow_policy", ["depthwise", "lossguide"])
+            param["grow_policy"] = trial.suggest_categorical(
+                "grow_policy", ["depthwise", "lossguide"]
+            )
         if param["booster"] == "dart":
-            param["sample_type"] = trial.suggest_categorical("sample_type", ["uniform", "weighted"])
-            param["normalize_type"] = trial.suggest_categorical("normalize_type", ["tree", "forest"])
+            param["sample_type"] = trial.suggest_categorical(
+                "sample_type", ["uniform", "weighted"]
+            )
+            param["normalize_type"] = trial.suggest_categorical(
+                "normalize_type", ["tree", "forest"]
+            )
             param["rate_drop"] = trial.suggest_float("rate_drop", 1e-8, 1.0, log=True)
             param["skip_drop"] = trial.suggest_float("skip_drop", 1e-8, 1.0, log=True)
 
@@ -102,8 +106,6 @@ class XGBoostObjective(object):
                 scores.append(s)
             score = sum(scores) / len(scores)
 
-            # xgb.cv does not work for regression
-
         return score
 
 
@@ -135,7 +137,6 @@ class XGBoostModel(BaseModel):
                 verbosity=0,
                 silent=True,
                 objective="multi:softmax",
-                # objective="binary:logistic",
                 booster="gbtree",
                 n_jobs=-1,
                 nthread=-1,
@@ -151,7 +152,6 @@ class XGBoostModel(BaseModel):
                 scale_pos_weight=1,
                 base_score=0.5,
                 random_state=self.random_state,
-                # seed=0
             )
             model = base_model
         else:
@@ -215,7 +215,7 @@ class XGBoostModel(BaseModel):
             direction=direction,
             sampler=optuna.samplers.TPESampler(seed=self.random_state),
         )
-        # DOES THE BELOW NEED TO HAVE RANDOM STATE SET??
+
         objective = XGBoostObjective(
             self.dataset_type,
             trainX,
@@ -239,7 +239,9 @@ class XGBoostModel(BaseModel):
             )
         else:
             self.model = xgb.XGBRegressor(
-                objective="reg:squarederror", random_state=self.random_state, **study.best_params
+                objective="reg:squarederror",
+                random_state=self.random_state,
+                **study.best_params
             )
 
         self.model.fit(trainX, trainY)

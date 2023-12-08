@@ -308,7 +308,9 @@ def summary_SHAPdotplot_perclass(
         if not holdout:
             fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
             # saving the shapley values to dataframe
-            df_shapley_values = pd.DataFrame(data=exemplars_selected, columns=feature_names, index=data_indx)
+            df_shapley_values = pd.DataFrame(
+                data=exemplars_selected, columns=feature_names, index=data_indx
+            )
             # df_shapley_values.sort_index(inplace=True)
             df_shapley_values.index.name = "SampleID"
             df_shapley_values.to_csv(fname + ".csv")
@@ -326,7 +328,9 @@ def summary_SHAPdotplot_perclass(
                 fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_\
                     {class_name}_{i}"
                 # saving the shapley values to dataframe
-                df_shapley_values = pd.DataFrame(data=exemplars_selected[i], columns=feature_names, index=data_indx)
+                df_shapley_values = pd.DataFrame(
+                    data=exemplars_selected[i], columns=feature_names, index=data_indx
+                )
                 # df_shapley_values.sort_index(inplace=True)
                 df_shapley_values.index.name = "SampleID"
                 df_shapley_values.to_csv(fname_df + ".csv")
@@ -374,10 +378,6 @@ def get_exemplars(x_test, y_test, model, problem_type, pcAgreementLevel):
     pred_y = model.predict(x_test).flatten()
 
     test_y = y_test
-    # test_y = y_test.values - previous version
-
-    # Get the predicted probabilities
-    # probs = model.predict_proba(x_test)
 
     # Create empty array of indices
     exemplar_indices = []
@@ -434,16 +434,15 @@ def compute_average_abundance_top_features(
     dfMaster = pd.DataFrame(data, columns=names)
     print(dfMaster.head())
 
-    # Order the feature based on SHAP values
-    # feature_order = np.argsort(np.sum(np.abs(exemplars_selected), axis=0)) #Sean's version
-
     # Deal with classification differently, classification has shap values for each class
     # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
     if problem_type == CLASSIFICATION:
         # XGBoost for binary classification seems to return the SHAP values only for class 1
         if model_name == "xgboost" and len(class_names) == 2:
             feature_order = np.argsort(np.mean(np.abs(shap_values_selected), axis=0))
-            shap_values_mean_sorted = np.flip(np.sort(np.mean(np.abs(shap_values_selected), axis=0)))
+            shap_values_mean_sorted = np.flip(
+                np.sort(np.mean(np.abs(shap_values_selected), axis=0))
+            )
         # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices.
         # One for each class.
         else:
@@ -453,7 +452,9 @@ def compute_average_abundance_top_features(
             shap_values_selected_class = []
             for i in range(len(shap_values_selected)):
                 print("Class: " + str(i))
-                shap_values_selected_class.append(np.mean(np.abs(shap_values_selected[i]), axis=0))
+                shap_values_selected_class.append(
+                    np.mean(np.abs(shap_values_selected[i]), axis=0)
+                )
             a = np.array(shap_values_selected_class)
             a_mean = np.mean(a, axis=0)
             feature_order = np.argsort(a_mean)
@@ -463,7 +464,9 @@ def compute_average_abundance_top_features(
     else:
         # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
         feature_order = np.argsort(np.mean(np.abs(shap_values_selected), axis=0))
-        shap_values_mean_sorted = np.flip(np.sort(np.mean(np.abs(shap_values_selected), axis=0)))
+        shap_values_mean_sorted = np.flip(
+            np.sort(np.mean(np.abs(shap_values_selected), axis=0))
+        )
 
     # In all cases flip feature order anyway to agree with shap_values_mean_sorted
     feature_order = np.flip(feature_order)
@@ -547,7 +550,9 @@ def shap_plots(
         explainer = select_explainer(model, model_name, df_train, problem_type)
 
         # Get the exemplars on the test set -- maybe to modify to include probability
-        exemplar_X_test = get_exemplars(x_test, y_test, model, problem_type, pcAgreementLevel)
+        exemplar_X_test = get_exemplars(
+            x_test, y_test, model, problem_type, pcAgreementLevel
+        )
 
         shap_values, data, data_indx = compute_shap_vals(
             experiment_folder,
@@ -668,7 +673,9 @@ def shap_summary_plot(
             try:
                 class_names = model.classes_.tolist()
             except AttributeError:
-                print("Unable to get class names automatically - classes will be encoded")
+                print(
+                    "Unable to get class names automatically - classes will be encoded"
+                )
                 class_names = None
 
             # Use SHAP's summary plot
@@ -879,7 +886,9 @@ def shap_plot_reg(
     if not holdout:
         fname = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}"
         # saving the shapley values to dataframe
-        df_shapley_values = pd.DataFrame(data=shap_values_selected, columns=feature_names, index=data_indx)
+        df_shapley_values = pd.DataFrame(
+            data=shap_values_selected, columns=feature_names, index=data_indx
+        )
         # df_shapley_values.sort_index(inplace=True)
         df_shapley_values.index.name = "SampleID"
         df_shapley_values.to_csv(fname + ".csv")
@@ -895,19 +904,12 @@ def shap_plot_reg(
         show=False,
     )
     fig = plt.gcf()
-    # fig.set_size_inches(30,30, forward=True)
-    # Setup the title
-    # fig.suptitle(f"SHAP Summary Plot for top features {pretty_names(model_name, 'model')} for {class_col} \
-    # ({name})", fontsize=16, y=1.4)
 
     # Save the plot
     if save:
         fname = f"{experiment_folder / 'graphs' / 'shap_bar_plot'}_{data_forexplanations}_{model_name}"
         fname += "_holdout" if holdout else ""
         save_fig(fig, fname)
-
-        # img = mp_img.imread(fname+'.png')
-    # plt.imshow(img)
 
     plt.tight_layout()
     plt.draw()

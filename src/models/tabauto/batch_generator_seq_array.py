@@ -1,8 +1,5 @@
 import numpy as np
 from tensorflow.keras.utils import Sequence
-
-# from tensorflow.keras.utils import to_categorical
-
 import logging
 
 _log = logging.getLogger(__name__)
@@ -50,8 +47,6 @@ class BatchGeneratorSeqArray(Sequence):
         self.preprocessing_config = None
 
         assert self.dataset_x.shape[0] == self.dataset_y.shape[0]
-
-        # the ordering in the container
 
         # Preload all the labels.
         self.labels = self.dataset_y[:]

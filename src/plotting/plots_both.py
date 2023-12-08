@@ -7,8 +7,6 @@ from utils.utils import get_model_path, pretty_names
 import utils.load
 from tensorflow.keras import backend as K
 from utils.vars import CLASSIFICATION, REGRESSION
-
-# import utils.utils
 from utils.save import save_fig
 import seaborn as sns
 
@@ -64,7 +62,9 @@ def opt_k_plot(experiment_folder, sr_n, save=True):
     """
     omicLogger.debug("Creating opt_k_plot...")
 
-    ax = sns.scatterplot(x=sr_n["r_m"].tolist(), y=sr_n["r_std"].tolist(), hue=np.log10(sr_n.index))
+    ax = sns.scatterplot(
+        x=sr_n["r_m"].tolist(), y=sr_n["r_std"].tolist(), hue=np.log10(sr_n.index)
+    )
     ax.set_title("Performance of various k features")
 
     m = round(abs(sr_n).max().max() * 1.1, 1)
@@ -181,7 +181,6 @@ def boxplot_scorer_cv_groupby(
     all_scores = []
     print(f"Size of data for boxplot: {data.shape}")
 
-    # GroupBy Subject ID -- TO FINISH CODING
     metadata = pd.read_csv(config_dict["data"]["metadata_file"], index_col=0)
     le = LabelEncoder()
     groups = le.fit_transform(metadata[config_dict["ml"]["groups"]])
@@ -191,8 +190,6 @@ def boxplot_scorer_cv_groupby(
         test_size=config_dict["ml"]["test_size"],
         random_state=config_dict["ml"]["seed_num"],
     )
-
-    # fold_obj = GroupKFold(n_splits=5)
 
     # Loop over the models
     for model_name in config_dict["ml"]["model_list"]:
@@ -243,12 +240,13 @@ def boxplot_scorer_cv_groupby(
         df = pd.DataFrame(d)
         df.to_csv(fname + ".csv")
 
-    pretty_model_names = [pretty_names(name, "model") for name in config_dict["ml"]["model_list"]]
+    pretty_model_names = [
+        pretty_names(name, "model") for name in config_dict["ml"]["model_list"]
+    ]
 
     # Make the boxplot
     sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
     # Format the graph
-    # ax.set_xticklabels(pretty_names(config_dict['ml']["model_list"], "score"))
     ax.set_xlabel("ML Methods")
 
     fig = plt.gcf()
@@ -292,7 +290,9 @@ def boxplot_scorer_cv(
     print(f"Size of data for boxplot: {data.shape}")
     # Create the fold object for CV
     if problem_type == CLASSIFICATION:
-        fold_obj = StratifiedKFold(n_splits=nsplits, shuffle=True, random_state=seed_num)
+        fold_obj = StratifiedKFold(
+            n_splits=nsplits, shuffle=True, random_state=seed_num
+        )
     elif problem_type == REGRESSION:
         fold_obj = KFold(n_splits=nsplits, shuffle=True, random_state=seed_num)
     # Loop over the models
@@ -343,16 +343,9 @@ def boxplot_scorer_cv(
 
     pretty_model_names = [pretty_names(name, "model") for name in model_list]
 
-    # Make a dataframe
-    # df_cv_scores = pd.DataFrame(all_scores, columns=pretty_model_names)
-    # fname_all_cv = f"{experiment_folder / 'results' / 'scores_CV_allmodels'}"
-    # df_cv_scores.to_csv(fname_all_cv+".csv")
-    # print(df_cv_scores)
-
     # Make the boxplot
     sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
     # Format the graph
-    # ax.set_xticklabels(pretty_names(config_dict['ml']["model_list"], "score"))
     ax.set_xlabel("ML Methods")
 
     fig = plt.gcf()
@@ -367,6 +360,3 @@ def boxplot_scorer_cv(
     plt.close()
     # Clear keras and TF sessions/graphs etc.
     K.clear_session()
-
-
-##########

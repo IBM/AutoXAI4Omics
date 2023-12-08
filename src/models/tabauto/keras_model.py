@@ -67,7 +67,9 @@ class KerasModel(BaseModel):
                 dropout=self.dropout,
                 use_batchnorm=self.use_batchnorm,
             )(output_node)
-            output_node = ak.RegressionHead(dropout=self.dropout, metrics=["mae"])(output_node)
+            output_node = ak.RegressionHead(dropout=self.dropout, metrics=["mae"])(
+                output_node
+            )
             model = ak.AutoModel(
                 inputs=input_node,
                 outputs=output_node,
@@ -78,17 +80,6 @@ class KerasModel(BaseModel):
                 seed=self.random_state,
             )
 
-            """
-            # The following code is not supported well yet by Autokeras :(
-            metrics = ["mean_absolute_error"]  # "mean_squared_error"]
-            model = ak.StructuredDataRegressor(output_dim=output_dim,
-                                               directory=tmp_path,
-                                               loss="mean_absolute_error",
-                                               max_trials=self.max_trials,
-                                               metrics = metrics,
-                                               objective = "val_loss",
-                                               tuner = self.tuner)
-            """
         else:
             input_node = ak.Input()
             output_node = input_node
@@ -97,9 +88,9 @@ class KerasModel(BaseModel):
                 dropout=self.dropout,
                 use_batchnorm=self.use_batchnorm,
             )(output_node)
-            output_node = ak.ClassificationHead(multi_label=True, dropout=self.dropout, metrics=["accuracy"])(
-                output_node
-            )
+            output_node = ak.ClassificationHead(
+                multi_label=True, dropout=self.dropout, metrics=["accuracy"]
+            )(output_node)
             model = ak.AutoModel(
                 inputs=input_node,
                 outputs=output_node,
@@ -113,9 +104,6 @@ class KerasModel(BaseModel):
         self.model = model
 
     def __init_fx__(self, input_dim, output_dim, dataset_type):
-        # import os
-        # os.environ['PYTHONHASHSEED']=str(self.random_state)
-        # os.environ['TF_CUDNN_DETERMINISTIC'] = str(self.random_state)
         from tensorflow.random import set_seed
 
         set_seed(self.random_state)
@@ -127,17 +115,11 @@ class KerasModel(BaseModel):
         random.seed(self.random_state)
 
         if self.init_model is not None:
-            # init_model = self.init_model
-            # init_model.summary()
-            # config = init_model.get_config()
-            # model = keras.Model.from_config(config)
             model = self.init_model
         else:
             # create model
             model = Sequential()
-
             # choose weight initializer (not important)
-            # initializer = 'he_uniform'
             initializer = "normal"
 
             # choose neural network architecture: number of layers, neurons per layer, activation function
@@ -151,9 +133,15 @@ class KerasModel(BaseModel):
                             activation="relu",
                         )
                     )
-                    model.add(Dense(256, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(256, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(256, kernel_initializer=initializer, activation="relu"))
+                    model.add(
+                        Dense(256, kernel_initializer=initializer, activation="relu")
+                    )
+                    model.add(
+                        Dense(256, kernel_initializer=initializer, activation="relu")
+                    )
+                    model.add(
+                        Dense(256, kernel_initializer=initializer, activation="relu")
+                    )
                     model.add(
                         Dense(
                             output_dim,
@@ -170,9 +158,15 @@ class KerasModel(BaseModel):
                             activation="relu",
                         )
                     )
-                    model.add(Dense(128, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(64, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(32, kernel_initializer=initializer, activation="relu"))
+                    model.add(
+                        Dense(128, kernel_initializer=initializer, activation="relu")
+                    )
+                    model.add(
+                        Dense(64, kernel_initializer=initializer, activation="relu")
+                    )
+                    model.add(
+                        Dense(32, kernel_initializer=initializer, activation="relu")
+                    )
                     model.add(
                         Dense(
                             output_dim,
@@ -190,8 +184,12 @@ class KerasModel(BaseModel):
                             activation="relu",
                         )
                     )
-                    model.add(Dense(128, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(32, kernel_initializer=initializer, activation="relu"))
+                    model.add(
+                        Dense(128, kernel_initializer=initializer, activation="relu")
+                    )
+                    model.add(
+                        Dense(32, kernel_initializer=initializer, activation="relu")
+                    )
                     model.add(
                         Dense(
                             output_dim,
@@ -210,8 +208,12 @@ class KerasModel(BaseModel):
                     )
                     model.add(Conv1D(filters=8, kernel_size=1, activation="relu"))
                     model.add(Flatten())
-                    model.add(Dense(64, kernel_initializer=initializer, activation="relu"))
-                    model.add(Dense(32, kernel_initializer=initializer, activation="relu"))
+                    model.add(
+                        Dense(64, kernel_initializer=initializer, activation="relu")
+                    )
+                    model.add(
+                        Dense(32, kernel_initializer=initializer, activation="relu")
+                    )
                     model.add(
                         Dense(
                             output_dim,
@@ -225,10 +227,7 @@ class KerasModel(BaseModel):
 
         # choose loss function
         if self.dataset_type == REGRESSION:
-            # loss = losses.logcosh  # napoli
-            # loss = losses.mean_squared_error
             loss = losses.mean_absolute_error  # torino, company, uom
-            # loss = losses.mean_absolute_percentage_error
         else:
             loss = "categorical_crossentropy"
 
@@ -365,7 +364,6 @@ class KerasModel(BaseModel):
 
         if self.dataset_type == CLASSIFICATION:
             y = self.model.predict(x)
-            # y_pred = np.argmax(y, axis=-1)
             y_pred = y
         else:
             y_pred = self.model.predict(x)

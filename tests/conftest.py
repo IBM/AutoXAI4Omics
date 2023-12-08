@@ -141,17 +141,6 @@ def config_autoxgboost():
     return outdict
 
 
-# def config_autogluon():
-#     outdict = {
-#         "autogluon_config": {
-#             "verbose": True,
-#             "auto_stack": False,
-#             "time_limits": 120
-#         },
-#     }
-#     return outdict
-
-
 def config_all_auto_methods():
     outdict = {
         **config_autosklearn(),
@@ -249,15 +238,11 @@ def config_scorers(problem_type):
             "scorer_list": [
                 "explained_variance_score",
                 "mean_squared_error",
-                # "mean_squared_log_error",
                 "rmse",
                 "mean_absolute_error",
                 "median_absolute_error",
                 "mean_absolute_percentage_error",
                 "r2_score",
-                # "mean_poisson_deviance",
-                # "mean_gamma_deviance",
-                # "mean_tweedie_deviance",
             ],
         }
     elif problem_type == "classification":
@@ -319,17 +304,11 @@ def config_define_problem(problem_type):
 def config_define_ml(problem_type):
     outdict = {
         "ml": {
-            **config_define_problem(
-                problem_type
-            ),  # Define the Problem and general parameters            # [EXP/AUTO]
-            **config_scorers(
-                problem_type
-            ),  # Define scorers to be used depending on problem type  # [HIDDEN]
-            **config_model_list(
-                problem_type
-            ),  # Define the models to be trained                      # [ADV]
-            **config_all_auto_methods(),  # Define auto methods setting                          # [HIDDEN]
-            **config_feature_selection(),  # Define the feature selection settings                # [ADV/AUTO]
+            **config_define_problem(problem_type),
+            **config_scorers(problem_type),
+            **config_model_list(problem_type),
+            **config_all_auto_methods(),
+            **config_feature_selection(),
         }
     }
 
@@ -338,55 +317,53 @@ def config_define_ml(problem_type):
 
 def config_microbiome():
     outdict = {
-        "collapse_tax": None,  # opt: ["genus" or "species"], list of strs, dft None
-        "min_reads": None,  # dft: 1000, int >= 0 (can be None?)
-        "norm_reads": None,  # dft: 1000, int >= 0 (can be None?)
-        "filter_abundance": None,  # dft: 10, int >=0 (can be None?)
-        "filter_prevalence": None,  # float: 0<=x<=1, dft: 0.01 (can be None?)
-        "filter_microbiome_samples": None,  # list of dict with col as keys and list of strs to remove as values ------------------- check if understood correctly
-        "remove_classes": None,  # list of strs, dft none
-        "merge_classes": None,  # dict with keys & list of strs for values, dft none
+        "collapse_tax": None,
+        "min_reads": None,
+        "norm_reads": None,
+        "filter_abundance": None,
+        "filter_prevalence": None,
+        "filter_microbiome_samples": None,
+        "remove_classes": None,
+        "merge_classes": None,
     }
     return outdict
 
 
 def config_gene_expression():
     outdict = {
-        "expression_type": None,  # one of [FPKM,RPKM,TMM,TPM,Log2FC,COUNTS,OTHER] MANDITORY
-        "filter_sample": None,  # dft: 100000, numeric >0 (can be None?)
-        "filter_genes": None,  # list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
-        "output_file_ge": None,  # str file name, dft None
-        "output_metadata": None,  # str file name, dft None
+        "expression_type": None,
+        "filter_sample": None,
+        "filter_genes": None,
+        "output_file_ge": None,
+        "output_metadata": None,
     }
     return outdict
 
 
 def config_metabolmic():
     outdict = {
-        "filter_metabolomic_sample": None,  # numeric >=0, dft: 100000 (can be None?)
-        "filter_measurements": None,  # list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
-        "output_file_met": None,  # str file name, dft None
-        "output_metadata": None,  # str file name, dft None
+        "filter_metabolomic_sample": None,
+        "filter_measurements": None,
+        "output_file_met": None,
+        "output_metadata": None,
     }
     return outdict
 
 
 def config_tabular():
     outdict = {
-        "filter_tabular_sample": None,  # numeric >=0, dft: 100000 (can be None?)
-        "filter_tabular_measurements": None,  # list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
-        "output_file_tab": None,  # str file name, dft None
-        "output_metadata": None,  # str file name, dft None
+        "filter_tabular_sample": None,
+        "filter_tabular_measurements": None,
+        "output_file_tab": None,
+        "output_metadata": None,
     }
     return outdict
 
 
 def config_create(problem_type, file_path, meta_path, multi=False, run=1):
     outdict = {
-        **config_data_paths(
-            file_path, meta_path, problem_type, multi
-        ),  # Define the paths to where the data is stored
-        **config_all_plotting(problem_type),  # Define what plots to do
+        **config_data_paths(file_path, meta_path, problem_type, multi),
+        **config_all_plotting(problem_type),
         **config_define_ml(problem_type),
         **config_prediction(file_path),
         # **config_microbiome(),                      # settings for the corresponding data type
@@ -412,6 +389,7 @@ STARTS = 0
 RUNS = 1
 
 
+# Fixture for creating datasets & jsons to test on
 @pytest.fixture(
     params=[
         pytest.param(("classification", i), marks=pytest.mark.classification)

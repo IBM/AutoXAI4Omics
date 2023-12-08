@@ -2,9 +2,6 @@ import pandas as pd
 from omics import R_replacement as rrep
 import joblib
 
-# import logging # uncomment this when incorporated in AO
-# omicLogger = logging.getLogger("OmicLogger") #uncommment this when incorporated in AO
-
 
 def get_data_gene_expression(config_dict, holdout=False):
     """
@@ -43,7 +40,6 @@ def get_data_gene_expression(config_dict, holdout=False):
     metout_file += "_holdout" if holdout else ""
 
     # Based on GE data type, perform ge preprocessing (functions in preprocessing.py)
-    # omicLogger.debug('Loading Gene Expression data...')
 
     if config_dict["gene_expression"]["expression_type"] == "COUNTS":
         filtered_data, genestokeep = rrep.preprocessing_TMM(
@@ -107,7 +103,9 @@ def get_data_gene_expression(config_dict, holdout=False):
     # If metadata file is present (assume target in metadata), remove any samples removed during filtering, save as
     # metout and extract target from metadata. If metadata not present, assume target in data file.
     metafile = "metadata_file" + ("_holdout_data" if holdout else "")
-    if (config_dict["data"][metafile] != "") and (config_dict["data"][metafile] is not None):
+    if (config_dict["data"][metafile] != "") and (
+        config_dict["data"][metafile] is not None
+    ):
         metadata = pd.read_csv(config_dict["data"]["metadata_file"], index_col=0)
         mask = metadata.index.isin(filtered_data.index)
         filtered_metadata = metadata.loc[mask]
@@ -146,7 +144,9 @@ def get_data_gene_expression_trained(config_dict, holdout=False, prediction=Fals
 
     """
 
-    tmm = True if config_dict["gene_expression"]["expression_type"] == "COUNTS" else False
+    tmm = (
+        True if config_dict["gene_expression"]["expression_type"] == "COUNTS" else False
+    )
     prediction_file = config_dict["prediction"]["file_path"] if prediction else None
 
     filtered_data = rrep.apply_learned_processing(
@@ -169,7 +169,9 @@ def get_data_gene_expression_trained(config_dict, holdout=False, prediction=Fals
     # metout and extract target from metadata. If metadata not present, assume target in data file.
     if holdout:
         metafile = "metadata_file" + ("_holdout_data" if holdout else "")
-        if (config_dict["data"][metafile] != "") and (config_dict["data"][metafile] is not None):
+        if (config_dict["data"][metafile] != "") and (
+            config_dict["data"][metafile] is not None
+        ):
             metadata = pd.read_csv(config_dict["data"][metafile], index_col=0)
             mask = metadata.index.isin(filtered_data.index)
             filtered_metadata = metadata.loc[mask]

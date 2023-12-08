@@ -50,8 +50,12 @@ def main():
         x_ind_test = x_test.index
 
         # standardise data
-        x_train, SS = utils.ml.standardisation.standardize_data(x_train)  # fit the standardiser to the training data
-        x_test = utils.utils.transform_data(x_test, SS)  # transform the test data according to the fitted standardiser
+        x_train, SS = utils.ml.standardisation.standardize_data(
+            x_train
+        )  # fit the standardiser to the training data
+        x_test = utils.utils.transform_data(
+            x_test, SS
+        )  # transform the test data according to the fitted standardiser
 
         # save the standardiser transformer
         save_name = experiment_folder / "transformer_std.pkl"
@@ -77,33 +81,33 @@ def main():
             with open(save_name, "wb") as f:
                 joblib.dump(FS, f)
 
-            omicLogger.info("Features selected, transformer saved. Re-combining data...")
+            omicLogger.info(
+                "Features selected, transformer saved. Re-combining data..."
+            )
         else:
             print("Skipping Feature selection.")
             omicLogger.info("Skipping feature selection. Re-combining data...")
 
         # perform class balancing if it is desired
         if config_dict["ml"]["problem_type"] == CLASSIFICATION:
-            # if (config_dict['ml']["oversampling"] == "Y"):
-            #     x_train, y_train, re_sampled_idxs = oversample_data(x_train, y_train,config_dict['ml']["seed_num"])
-            #     x_ind_train = x_ind_train[re_sampled_idxs]
             if config_dict["ml"]["balancing"] == "OVER":
                 (
                     x_train,
                     y_train,
                     re_sampled_idxs,
-                ) = utils.ml.class_balancing.oversample_data(x_train, y_train, config_dict["ml"]["seed_num"])
+                ) = utils.ml.class_balancing.oversample_data(
+                    x_train, y_train, config_dict["ml"]["seed_num"]
+                )
                 x_ind_train = x_ind_train[re_sampled_idxs]
             elif config_dict["ml"]["balancing"] == "UNDER":
                 (
                     x_train,
                     y_train,
                     re_sampled_idxs,
-                ) = utils.ml.class_balancing.undersample_data(x_train, y_train, config_dict["ml"]["seed_num"])
+                ) = utils.ml.class_balancing.undersample_data(
+                    x_train, y_train, config_dict["ml"]["seed_num"]
+                )
                 x_ind_train = x_ind_train[re_sampled_idxs]
-            # elif (config_dict['ml']["balancing"] == "BOTH"):
-            #     x_train, y_train, re_sampled_idxs = combisample_data(x_train, y_train,config_dict['ml']["seed_num"])
-            #     x_ind_train = x_ind_train[re_sampled_idxs]
 
         # concatenate both test and train into test
         x = np.concatenate((x_train, x_test))

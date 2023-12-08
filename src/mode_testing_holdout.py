@@ -37,16 +37,22 @@ if __name__ == "__main__":
     try:
         omicLogger.info("Loading data...")
 
-        x_heldout, y_heldout, features_names = utils.load.load_data(config_dict, load_holdout=None)
+        x_heldout, y_heldout, features_names = utils.load.load_data(
+            config_dict, load_holdout=None
+        )
         omicLogger.info("Heldout Data Loaded. Loading test/train data...")
 
-        x_df = pd.read_csv(experiment_folder / "transformed_model_input_data.csv", index_col=0)
+        x_df = pd.read_csv(
+            experiment_folder / "transformed_model_input_data.csv", index_col=0
+        )
         x_train = x_df[x_df["set"] == "Train"].iloc[:, :-1].values
         x_test = x_df[x_df["set"] == "Test"].iloc[:, :-1].values
         x = x_df.iloc[:, :-1].values
         features_names = x_df.columns[:-1]
 
-        y_df = pd.read_csv(experiment_folder / "transformed_model_target_data.csv", index_col=0)
+        y_df = pd.read_csv(
+            experiment_folder / "transformed_model_target_data.csv", index_col=0
+        )
         y_train = y_df[y_df["set"] == "Train"].iloc[:, :-1].values.ravel()
         y_test = y_df[y_df["set"] == "Test"].iloc[:, :-1].values.ravel()
         y = y_df.iloc[:, :-1].values.ravel()
@@ -63,13 +69,7 @@ if __name__ == "__main__":
                 FS = joblib.load(f)
             x_heldout = FS.transform(x_heldout)
 
-        omicLogger.info("Heldout data transformed. Defining plots...")
-
-        # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
-        # So set that up here
-        # Other option is to modify cls.__getstate__
-
-        omicLogger.debug("Plots defined. Creating results DataFrame...")
+        omicLogger.info("Heldout data transformed. Creating results DataFrame...")
         # Create dataframe for performance results
         df_performance_results = pd.DataFrame()
 
@@ -95,7 +95,9 @@ if __name__ == "__main__":
             # Load the model
             model_path = get_model_path(experiment_folder, model_name)
 
-            print(f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}")
+            print(
+                f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}"
+            )
             omicLogger.debug("Loading...")
             model = utils.load.load_model(model_name, model_path)
 
@@ -113,7 +115,9 @@ if __name__ == "__main__":
                     config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"]
                 ),
             )
-            predictions.to_csv(results_folder / f"{model_name}_holdout_predictions.csv", index=False)
+            predictions.to_csv(
+                results_folder / f"{model_name}_holdout_predictions.csv", index=False
+            )
 
             omicLogger.debug("Saving...")
             # Save the results

@@ -100,19 +100,26 @@ def load_data_prediction(config_dict):
     omicLogger.debug("Loading prediction data")
 
     if config_dict["data"]["data_type"] == "microbiome":
-        x, _, features_names = microbiome.get_data_microbiome_trained(config_dict, holdout=False, prediction=True)
+        x, _, features_names = microbiome.get_data_microbiome_trained(
+            config_dict, holdout=False, prediction=True
+        )
 
     elif config_dict["data"]["data_type"] == "gene_expression":
-        x, _, features_names = geneExp.get_data_gene_expression_trained(config_dict, holdout=False, prediction=True)
+        x, _, features_names = geneExp.get_data_gene_expression_trained(
+            config_dict, holdout=False, prediction=True
+        )
 
     elif config_dict["data"]["data_type"] == "metabolomic":
-        x, _, features_names = metabolomic.get_data_metabolomic_trained(config_dict, holdout=False, prediction=True)
+        x, _, features_names = metabolomic.get_data_metabolomic_trained(
+            config_dict, holdout=False, prediction=True
+        )
 
     elif config_dict["data"]["data_type"] == "tabular":
-        x, _, features_names = tabular.get_data_tabular_trained(config_dict, holdout=False, prediction=True)
+        x, _, features_names = tabular.get_data_tabular_trained(
+            config_dict, holdout=False, prediction=True
+        )
 
     else:
-        # TODO should work for prediction for now, but if not edit
         x, _, features_names = get_non_omic_data(
             config_dict["prediction"]["file_path"],
             config_dict["data"]["target"],
@@ -136,11 +143,17 @@ def load_data_holdout(config_dict):
     elif config_dict["data"]["data_type"] == "gene_expression":
         # This reads and preprocesses microbiome data using calour library --
         # it would be better to change this preprocessing so that it is not dependent from calour
-        x_heldout, y_heldout, features_names = geneExp.get_data_gene_expression(config_dict, holdout=True)
+        x_heldout, y_heldout, features_names = geneExp.get_data_gene_expression(
+            config_dict, holdout=True
+        )
     elif config_dict["data"]["data_type"] == "metabolomic":
-        x_heldout, y_heldout, features_names = metabolomic.get_data_metabolomic(config_dict, holdout=True)
+        x_heldout, y_heldout, features_names = metabolomic.get_data_metabolomic(
+            config_dict, holdout=True
+        )
     elif config_dict["data"]["data_type"] == "tabular":
-        x_heldout, y_heldout, features_names = tabular.get_data_tabular(config_dict, holdout=True)
+        x_heldout, y_heldout, features_names = tabular.get_data_tabular(
+            config_dict, holdout=True
+        )
     else:
         # At the moment for all the other data types, for example metabolomics, we have not implemented preprocessing
         # except for standardisation with StandardScaler()

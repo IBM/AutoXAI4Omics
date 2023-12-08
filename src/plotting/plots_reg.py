@@ -12,7 +12,9 @@ import logging
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def histograms(experiment_folder, model_list, x_test, y_test, class_name, save=True, holdout=False):
+def histograms(
+    experiment_folder, model_list, x_test, y_test, class_name, save=True, holdout=False
+):
     """
     Shows the histogram distribution of the true and predicted labels/values.
 
@@ -108,7 +110,9 @@ def correlation_plot(
         K.clear_session()
 
 
-def distribution_hist(experiment_folder, model_list, x_test, y_test, class_name, save=True, holdout=False):
+def distribution_hist(
+    experiment_folder, model_list, x_test, y_test, class_name, save=True, holdout=False
+):
     """
     Shows the histogram distribution of the true and predicted labels/values.
 
@@ -133,8 +137,6 @@ def distribution_hist(experiment_folder, model_list, x_test, y_test, class_name,
         # Right histograms (exactly the same, just different zorder)
         ax_right.hist(y_test, bins=20, zorder=2, color="black", label="True")
         ax_right.hist(y_pred, bins=20, zorder=1, color="grey", label="Predicted")
-        # Set the title
-        # fig.suptitle(f"Histogram for {class_name} using {pretty_names(model_name, 'model')}", fontsize='xx-large')
         # Create a single legend
         handles, labels = ax_right.get_legend_handles_labels()
         # Add the legend
@@ -186,10 +188,6 @@ def joint_plot(
             kind=kind,
             # Space between the marginal and main axes
             space=0,
-            # Limit on the axis
-            # xlim=(15, 75), ylim=(15, 75),
-            # if(kind='kde'):
-            #    shade_lowest=False, #gives error for regular joint
             # Control scatter properties
             scatter_kws={"s": 4},
             # Control line properties

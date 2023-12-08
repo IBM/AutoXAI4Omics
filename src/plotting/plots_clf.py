@@ -14,7 +14,9 @@ import logging
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def roc_curve_plot(experiment_folder, model_list, x_test, y_test, save=True, holdout=False):
+def roc_curve_plot(
+    experiment_folder, model_list, x_test, y_test, save=True, holdout=False
+):
     """
     Creates a ROC curve plot for each model. Saves them in separate files.
     """
@@ -33,8 +35,6 @@ def roc_curve_plot(experiment_folder, model_list, x_test, y_test, save=True, hol
 
         try:
             class_names = model.classes_.tolist()
-            # plt.setp(
-            #     ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
         except AttributeError:
             print("Unable to get class names automatically")
             class_names = None
@@ -44,7 +44,9 @@ def roc_curve_plot(experiment_folder, model_list, x_test, y_test, save=True, hol
         tpr = dict()
         roc_auc = dict()
         for i in range(len(class_names)):
-            fpr[i], tpr[i], _ = roc_curve(y_test, y_pred[:, i], pos_label=class_names[i])
+            fpr[i], tpr[i], _ = roc_curve(
+                y_test, y_pred[:, i], pos_label=class_names[i]
+            )
             roc_auc[i] = auc(fpr[i], tpr[i])
 
         ourcolors = cycle(["aqua", "darkorange", "cornflowerblue"])
@@ -53,7 +55,9 @@ def roc_curve_plot(experiment_folder, model_list, x_test, y_test, save=True, hol
                 fpr[i],
                 tpr[i],
                 color=color,
-                label="ROC curve of class {0} (area = {1:0.2f})".format(class_names[i], roc_auc[i]),
+                label="ROC curve of class {0} (area = {1:0.2f})".format(
+                    class_names[i], roc_auc[i]
+                ),
             )
 
         plt.plot([0, 1], [0, 1], color="navy", linestyle="--")
@@ -110,7 +114,9 @@ def conf_matrix_plot(
         conf_matrix = confusion_matrix(y_test, y_pred)
         # Normalize the confusion matrix
         if normalize:
-            conf_matrix = conf_matrix.astype("float") / conf_matrix.sum(axis=1)[:, np.newaxis]
+            conf_matrix = (
+                conf_matrix.astype("float") / conf_matrix.sum(axis=1)[:, np.newaxis]
+            )
         # Plot the confusion matrix
         im = ax.imshow(conf_matrix, interpolation="nearest", cmap=cmx.binary)
         ax.figure.colorbar(im, ax=ax)
@@ -119,8 +125,6 @@ def conf_matrix_plot(
             class_names = model.classes_.tolist()
             ax.set_xticklabels(class_names)
             ax.set_yticklabels(class_names)
-            # plt.setp(
-            #     ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
         except AttributeError:
             print("Unable to get class names automatically")
             class_names = None

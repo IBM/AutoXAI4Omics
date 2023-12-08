@@ -97,10 +97,14 @@ def strat_split(
         is raised if group_name is not present in the columns of the meta_file
     """
     if not isinstance(x, (ndarray, DataFrame)):
-        raise TypeError(f"x must be either a ndarray or a DataFrame. Recieved: {type(x)}")
+        raise TypeError(
+            f"x must be either a ndarray or a DataFrame. Recieved: {type(x)}"
+        )
 
     if not isinstance(y, (ndarray, DataFrame)):
-        raise TypeError(f"x must be either a ndarray or a DataFrame. Recieved: {type(y)}")
+        raise TypeError(
+            f"x must be either a ndarray or a DataFrame. Recieved: {type(y)}"
+        )
 
     if x.shape[0] != y.shape[0]:
         raise ValueError(
@@ -121,7 +125,9 @@ def strat_split(
     elif not os.path.exists(meta_file):
         raise FileNotFoundError(f"file: {meta_file} does not exist")
     elif not os.path.isfile(meta_file):
-        raise IsADirectoryError(f"meta_file ({meta_file}) points to a directory and not a file ")
+        raise IsADirectoryError(
+            f"meta_file ({meta_file}) points to a directory and not a file "
+        )
 
     if not isinstance(group_name, str):
         raise TypeError(f"group_name must be a str, provided: {type(group_name)}")
@@ -129,7 +135,9 @@ def strat_split(
     metadata = pd.read_csv(meta_file, index_col=0)
 
     if group_name not in metadata.columns:
-        raise ValueError(f"group_name ({group_name}) not present in the meta_data_file ({meta_file})")
+        raise ValueError(
+            f"group_name ({group_name}) not present in the meta_data_file ({meta_file})"
+        )
 
     omicLogger.debug("Splitting according to stratification...")
 
@@ -138,7 +146,6 @@ def strat_split(
         test_size=test_size,
         random_state=seed,
     )
-    # gss = GroupKFold(n_splits=7)
 
     le = LabelEncoder()
     groups = le.fit_transform(metadata[group_name])
@@ -223,10 +230,14 @@ def std_split(
         raise ValueError(f"problem_type either {CLASSIFICATION} or {REGRESSION}")
 
     if not isinstance(x_full, (ndarray, DataFrame)):
-        raise TypeError(f"x_full must be either a ndarray or a DataFrame. Recieved: {type(x_full)}")
+        raise TypeError(
+            f"x_full must be either a ndarray or a DataFrame. Recieved: {type(x_full)}"
+        )
 
     if not isinstance(y_full, (ndarray, DataFrame)):
-        raise TypeError(f"y_full must be either a ndarray or a DataFrame. Recieved: {type(y_full)}")
+        raise TypeError(
+            f"y_full must be either a ndarray or a DataFrame. Recieved: {type(y_full)}"
+        )
 
     if x_full.shape[0] != y_full.shape[0]:
         raise ValueError(
@@ -245,8 +256,9 @@ def std_split(
             stratify=y_full,
         )
 
-    # Don't stratify for regression (sklearn can't currently handle it with e.g. binning)
     elif problem_type == REGRESSION:
-        x_train, x_test, y_train, y_test = train_test_split(x_full, y_full, test_size=test_size, random_state=seed_num)
+        x_train, x_test, y_train, y_test = train_test_split(
+            x_full, y_full, test_size=test_size, random_state=seed_num
+        )
 
     return x_train, x_test, y_train, y_test

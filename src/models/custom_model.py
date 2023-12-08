@@ -7,14 +7,8 @@
 import numpy as np
 import pandas as pd
 import tensorflow
-
-# import autokeras
 import joblib
-
-# from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
-
-# import sys
 import logging
 from utils.vars import CLASSIFICATION, REGRESSION
 
@@ -99,7 +93,6 @@ class CustomModel:
         # Define the model
         self._define_model()
 
-        # x_train, x_val, y_train, y_val = train_test_split(self.data, self.labels, test_size=0.20, random_state=42)
         x_train = self.data
         y_train = self.labels
         x_val = self.data_test
@@ -173,7 +166,6 @@ class CustomModel:
         config_dict,
         experiment_folder,
         model_name,
-        # ref_model_dict,
         param_ranges,
         scorer_func,
         x_test=None,
@@ -190,15 +182,6 @@ class CustomModel:
             param_ranges["labels_test"] = y_test
 
         param_ranges["scorer_func"] = scorer_func
-        # Determine whether we can use hyper_tuning or not
-
-        # single_model_flag = False if ref_model_dict.get(model_name) else True
-        # if single_model_flag:
-        #     omicLogger.debug(
-        #         f"No parameter definition for {model_name} using {config_dict['hyper_tuning']}, using single model \
-        #         instead"
-        #     )
-        # return single_model_flag, param_ranges
         return param_ranges
 
     @classmethod
@@ -266,12 +249,16 @@ class CustomModel:
             self.onehot_encode_obj = OneHotEncoder(categories="auto", sparse=False)
             # Fit transform the labels that we have
             # Reshape the labels just in case (if they are, it has no effect)
-            self.labels = self.onehot_encode_obj.fit_transform(self.labels.reshape(-1, 1))
+            self.labels = self.onehot_encode_obj.fit_transform(
+                self.labels.reshape(-1, 1)
+            )
             # Set the classes for the model (useful for the plotting e.g. confusion matrix)
             self.classes_ = self.onehot_encode_obj.categories_[0]
             # Transform the test labels if we have them
             if self.labels_test is not None:
-                self.labels_test = self.onehot_encode_obj.transform(self.labels_test.reshape(-1, 1))
+                self.labels_test = self.onehot_encode_obj.transform(
+                    self.labels_test.reshape(-1, 1)
+                )
 
     def _preparation(self):
         # Convert the labels if a DataFrame/Series
