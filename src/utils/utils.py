@@ -56,7 +56,9 @@ def unique_subjects(df):
     Useful in exploratory data analysis
     """
     df["Subject"] = df["Subject"].astype(str)
-    df["unique_subject"] = df["StudyID"] + "_" + df["Subject"].str[-2:].astype(int).astype(str)
+    df["unique_subject"] = (
+        df["StudyID"] + "_" + df["Subject"].str[-2:].astype(int).astype(str)
+    )
     return df
 
 
@@ -70,7 +72,9 @@ def create_experiment_folders(config_dict, config_path):
     Create the folder for the given config and the relevant subdirectories
     """
     # Create the folder for this experiment
-    experiment_folder = Path(config_dict["data"]["save_path"]) / "results" / config_dict["data"]["name"]
+    experiment_folder = (
+        Path(config_dict["data"]["save_path"]) / "results" / config_dict["data"]["name"]
+    )
     # Provide a warning if the folder already exists
     if experiment_folder.is_dir():
         print(f"{experiment_folder} exists - results may be overwritten!")
@@ -99,7 +103,9 @@ def create_cli_parser():
 
 
 def all_subclasses(cls):
-    return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)]
+    )
 
 
 def get_config_path_from_cli():
@@ -140,7 +146,9 @@ def setup_CustoeModel(config_dict, experiment_folder):
 
     for model_name in config_dict["ml"]["model_list"]:
         if model_name in CustomModel.custom_aliases:
-            CustomModel.custom_aliases[model_name].setup_cls_vars(config_dict["ml"], experiment_folder)
+            CustomModel.custom_aliases[model_name].setup_cls_vars(
+                config_dict["ml"], experiment_folder
+            )
 
 
 def set_random_seed(seed: int):
@@ -152,7 +160,8 @@ def setup_logger(experiment_folder):
         lg_file = yaml.safe_load(file)
 
     lg_file["handlers"]["file"]["filename"] = str(
-        experiment_folder / f"AutoOmicLog_{str(int(datetime.timestamp(datetime.utcnow())))}.log"
+        experiment_folder
+        / f"AutoOmicLog_{str(int(datetime.timestamp(datetime.utcnow())))}.log"
     )
     logging.config.dictConfig(lg_file)
     omicLogger = logging.getLogger("OmicLogger")
@@ -176,8 +185,14 @@ def copy_best_content(experiment_folder, best_models, collapse_tax):
 
     os.mkdir(experiment_folder / "best_model/")
 
-    fnames = [os.path.join(path, name) for path, subdirs, files in os.walk(str(experiment_folder)) for name in files]
-    sl_fnames = sorted([x for x in fnames if (best in x) and (".ipynb_checkpoints" not in x)])
+    fnames = [
+        os.path.join(path, name)
+        for path, subdirs, files in os.walk(str(experiment_folder))
+        for name in files
+    ]
+    sl_fnames = sorted(
+        [x for x in fnames if (best in x) and (".ipynb_checkpoints" not in x)]
+    )
     sl_fnames += [
         x
         for x in fnames
@@ -203,11 +218,17 @@ def copy_best_content(experiment_folder, best_models, collapse_tax):
         with open(experiment_folder / "best_model/alternatives.txt", "w") as fp:
             fp.write("\n".join(alternatives))
 
-    filepath = experiment_folder / f"results/scores_{collapse_tax}_performance_results_testset.csv"
+    filepath = (
+        experiment_folder
+        / f"results/scores_{collapse_tax}_performance_results_testset.csv"
+    )
     df = pd.read_csv(filepath)
     df.set_index("model", inplace=True)
     df = df.loc[best]
-    df.to_csv(experiment_folder / f"best_model/scores_{collapse_tax}_performance_results_testset.csv")
+    df.to_csv(
+        experiment_folder
+        / f"best_model/scores_{collapse_tax}_performance_results_testset.csv"
+    )
 
 
 def prof_to_csv(prof: cProfile.Profile, config_dict: dict):
@@ -262,12 +283,16 @@ def assert_best_model_exists(folder):
 
     if not os.path.exists(str(path)):
         omicLogger.info("No best model folder detected")
-        raise ValueError("No best model folder detected please train model before running prediction")
+        raise ValueError(
+            "No best model folder detected please train model before running prediction"
+        )
 
     found_models = glob.glob(str(path / "*.pkl")) + glob.glob(str(path / "*.h5"))
     if len(found_models) == 0:
         omicLogger.info("No model files detected")
-        raise ValueError("No model files detected (.pkl or .h5). Can not perform prediction.")
+        raise ValueError(
+            "No model files detected (.pkl or .h5). Can not perform prediction."
+        )
 
     omicLogger.info("Best model found ")
     return found_models[0]
@@ -287,8 +312,12 @@ def assert_data_transformers_exists(folder, config_dict):
     if config_dict["ml"]["feature_selection"] is not None:
         fs = folder / "transformer_fs.pkl"
         if not os.path.exists(str(fs)):
-            omicLogger.info("No data feature selection file detected (transformer_fs.pkl)")
-            raise ValueError("No data feature selection file detected (transformer_fs.pkl)")
+            omicLogger.info(
+                "No data feature selection file detected (transformer_fs.pkl)"
+            )
+            raise ValueError(
+                "No data feature selection file detected (transformer_fs.pkl)"
+            )
         else:
             with open(fs, "rb") as f:
                 FS = joblib.load(f)
@@ -301,8 +330,12 @@ def assert_data_transformers_exists(folder, config_dict):
 
 def get_model_path(experiment_folder, model_name):
     try:
-        model_path = glob.glob(f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}")[0]
+        model_path = glob.glob(
+            f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}"
+        )[0]
     except IndexError as e:
-        print("The trained model " + str("*" + model_name + "*.pkl") + " is not present")
+        print(
+            "The trained model " + str("*" + model_name + "*.pkl") + " is not present"
+        )
         raise e
     return model_path

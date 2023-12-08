@@ -108,8 +108,7 @@ def strat_split(
 
     if x.shape[0] != y.shape[0]:
         raise ValueError(
-            f"x and y have different numbers of rows - \
-                         x: ({x.shape[0]}) and y: ({y.shape[0]})"
+            f"x and y have different numbers of rows - x: ({x.shape[0]}) and y: ({y.shape[0]})"
         )
 
     if not isinstance(test_size, float):
@@ -241,8 +240,7 @@ def std_split(
 
     if x_full.shape[0] != y_full.shape[0]:
         raise ValueError(
-            f"x_full and y_full have different numbers of rows - \
-                         x_full: ({x_full.shape[0]}) and y_full: ({y_full.shape[0]})"
+            f"x_full and y_full have different numbers of rows - x_full: ({x_full.shape[0]}) and y_full: ({y_full.shape[0]})"
         )
 
     omicLogger.debug("Split according to standard methods...")

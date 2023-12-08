@@ -56,3 +56,4 @@ Change log for the codebase. Initialised from the developments following version
         - R_replacement.py
     - added probabilities for predictions when doing classification problems
     - code comment clean up
+    - multiline strings causing extra space fixed

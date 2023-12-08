@@ -54,8 +54,10 @@ def get_data_metabolomic(config_dict, holdout=False):
     filtered_data.to_csv(output_file)
 
     # save list of genes kept
-    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes\
-        .pkl'
+    save_name = (
+        f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}'
+        + "_keptGenes.pkl"
+    )
     with open(save_name, "wb") as f:
         joblib.dump(genestokeep, f)
 

@@ -192,8 +192,10 @@ class CustomModel:
         cls.experiment_folder = experiment_folder
 
     def __repr__(self):
-        return f"{self.__class__.__name__} model with params:\
-            { {k:v for k,v in self.__dict__.items() if 'data' not in k if 'label' not in k} }"
+        return (
+            f"{self.__class__.__name__} model with params:"
+            + f"{ {k:v for k,v in self.__dict__.items() if 'data' not in k if 'label' not in k} }"
+        )
 
     def _define_model(self):
         """

@@ -122,8 +122,10 @@ def apply_learned_processing(
         data_file = pd.read_csv(prediction_file, index_col=0)  # sampleID as index
 
     # save list of genes kept
-    save_name = f'/experiments/results/{data_dict["name"]}/omics_{data_dict["data_type"]}_keptGenes\
-        .pkl'
+    save_name = (
+        f'/experiments/results/{data_dict["name"]}/omics_{data_dict["data_type"]}'
+        + "_keptGenes.pkl"
+    )
     with open(save_name, "rb") as f:
         genestokeep = joblib.load(f)
 

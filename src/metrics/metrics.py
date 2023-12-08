@@ -61,8 +61,8 @@ def define_scorers(problem_type: str, scorer_list: list[str]) -> dict[str, objec
         scorer_dict_filtered = {k: METRICS[problem_type][k] for k in scorer_list}
     except KeyError as e:
         raise ValueError(
-            f"For {problem_type} problems, entries of scorer_list must be a subset of: \
-                         {METRICS[problem_type].keys()}, recived invalid entry of: {e}"
+            f"For {problem_type} problems, entries of scorer_list must be a subset of: "
+            f"{METRICS[problem_type].keys()}, recived invalid entry of: {e}"
         )
 
     return scorer_dict_filtered

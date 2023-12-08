@@ -50,8 +50,8 @@ def save_exemplars_SHAP_values(
                 df_exemplars = pd.DataFrame(
                     data=exemplars_selected[i], columns=feature_names
                 )
-                fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_\
-                    {class_names[i]}_{i}_{fold_id}"
+                fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_"
+                +f"{class_names[i]}_{i}_{fold_id}"
                 df_exemplars.to_csv(fname_exemplars + ".txt")
 
     # Deal with regression

@@ -173,8 +173,8 @@ def shap_force_reg(
         )
         # Setup the title
         fig.suptitle(
-            f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} for {class_col} \
-                        ({name})",
+            f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} for {class_col}"
+            + f"({name})",
             fontsize=16,
             y=1.4,
         )
@@ -242,8 +242,8 @@ def shap_force_clf(
         # Need to add label/text on the side for the class name
         print(f"{pretty_names(model_name, 'model')}")
         fig.suptitle(
-            f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} with class \
-                        {class_name}",
+            f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} with class "
+            + f"{class_name}",
             fontsize=16,
             y=1.4,
         )
@@ -282,8 +282,8 @@ def summary_SHAPdotplot_perclass(
         if holdout:
             fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_holdout"
         else:
-            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_\
-                {model_name}_{class_name}"
+            fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_"
+            +f"{model_name}_{class_name}"
 
         # Plot shap bar plot
         shap.summary_plot(
@@ -325,8 +325,8 @@ def summary_SHAPdotplot_perclass(
             print("Type exemplars_selected: " + str(type(exemplars_selected)))
 
             if not holdout:
-                fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_\
-                    {class_name}_{i}"
+                fname_df = f"{experiment_folder / 'results' / 'shapley_values'}_{data_forexplanations}_{model_name}_"
+                +f"{class_name}_{i}"
                 # saving the shapley values to dataframe
                 df_shapley_values = pd.DataFrame(
                     data=exemplars_selected[i], columns=feature_names, index=data_indx
@@ -336,11 +336,11 @@ def summary_SHAPdotplot_perclass(
                 df_shapley_values.to_csv(fname_df + ".csv")
 
             if holdout:
-                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_\
-                    {'holdout'}_{i}"
+                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_"
+                +f"{'holdout'}_{i}"
             else:
-                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_\
-                    {model_name}_{class_name}_{i}"
+                fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{data_forexplanations}_"
+                +f"{model_name}_{class_name}_{i}"
 
             # Plot shap bar plot
             shap.summary_plot(
@@ -605,8 +605,8 @@ def shap_plots(
             "Average abundance": list(abundance),
         }
 
-        fname = f"{experiment_folder / 'results' / 'top_features_AbsMeanSHAP_Abundance'}_{data_forexplanations}_\
-            {model_name}"
+        fname = f"{experiment_folder / 'results' / 'top_features_AbsMeanSHAP_Abundance'}_{data_forexplanations}_"
+        +f"{model_name}"
         fname += "_holdout" if holdout else ""
         df = pd.DataFrame(d)
         df.to_csv(fname + ".csv")
@@ -622,8 +622,8 @@ def shap_plots(
         fig = plt.gcf()
 
         if save:
-            fname = f"{experiment_folder / 'graphs' / 'abundance_top_features_exemplars'}_{data_forexplanations}_\
-                {model_name}"
+            fname = f"{experiment_folder / 'graphs' / 'abundance_top_features_exemplars'}_{data_forexplanations}_"
+            +f"{model_name}"
             fname += "_holdout" if holdout else ""
             save_fig(fig, fname)
 
