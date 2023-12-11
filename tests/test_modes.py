@@ -48,6 +48,7 @@ def test_modes(mode, problem_create):
             "classification",
             marks=[
                 pytest.mark.classification,
+                pytest.mark.binary,
                 pytest.mark.skipif(
                     exists(
                         "/experiments/results/generated_test_classification_run1_1/best_model/"
@@ -60,6 +61,7 @@ def test_modes(mode, problem_create):
             "multi",
             marks=[
                 pytest.mark.classification,
+                pytest.mark.multi,
                 pytest.mark.skipif(
                     exists(
                         "/experiments/results/generated_test_classification_multi_run1_1/best_model/"
@@ -139,8 +141,8 @@ def test_model_outputs(problem):
 @pytest.mark.parametrize(
     "problem",
     [
-        pytest.param("binary", marks=pytest.mark.classification),
-        pytest.param("multi", marks=pytest.mark.classification),
+        pytest.param("binary", marks=[pytest.mark.classification, pytest.mark.binary]),
+        pytest.param("multi", marks=[pytest.mark.classification, pytest.mark.multi]),
         pytest.param("reg", marks=pytest.mark.regression),
     ],
 )

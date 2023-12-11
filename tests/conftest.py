@@ -392,7 +392,10 @@ RUNS = 1
 # Fixture for creating datasets & jsons to test on
 @pytest.fixture(
     params=[
-        pytest.param(("classification", i), marks=pytest.mark.classification)
+        pytest.param(
+            ("classification", i),
+            marks=[pytest.mark.classification, pytest.mark.binary],
+        )
         for i in range(STARTS + 1, RUNS + 1)
     ]
     + [

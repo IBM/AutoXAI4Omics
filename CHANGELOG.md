@@ -57,3 +57,4 @@ Change log for the codebase. Initialised from the developments following version
     - added probabilities for predictions when doing classification problems
     - code comment clean up
     - multiline strings causing extra space fixed
+    - added pytest marks to distinguish binary classiification problems
