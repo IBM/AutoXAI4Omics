@@ -94,9 +94,6 @@ def get_non_omic_data(path_file, target, metadata_path, prediction=False):
 
 
 def load_data_prediction(config_dict):
-    """
-    TODO - INPROGRESS
-    """
     omicLogger.debug("Loading prediction data")
 
     if config_dict["data"]["data_type"] == "microbiome":

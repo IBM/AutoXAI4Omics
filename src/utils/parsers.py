@@ -706,8 +706,6 @@ def parse_microbiome(omicEntry):
         omicEntry["filter_microbiome_samples"] = None
     else:
         if omicEntry["filter_microbiome_samples"] is not None:
-            # TODO
-            # type_check(omicEntry['filter_microbiome_samples'],,'microbiome:filter_microbiome_samples')
             pass
 
     if "remove_classes" not in keys:

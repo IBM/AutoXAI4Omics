@@ -351,9 +351,6 @@ def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
     missingFeatures = set(featureToKeep) - set(amp_exp.feature_metadata["_feature_id"])
     print(f"Missing Features: {missingFeatures}")
 
-    #### add in features that are missing
-    # TODO
-
     #### keep the features that we want
     amp_exp.filter_by_metadata(
         field="_feature_id", select=featureToKeep, axis="f", inplace=True
