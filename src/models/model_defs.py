@@ -188,11 +188,15 @@ def form_model_dict(
 
     # check that the problem type is one of the accepted entries
     if problem_type not in [CLASSIFICATION, REGRESSION]:
-        raise ValueError(f"problem_type must be one of classification or regression, provided: {problem_type}")
+        raise ValueError(
+            f"problem_type must be one of classification or regression, provided: {problem_type}"
+        )
 
     # check that the hyper_tunning is one of the accepted entries
     if hyper_tunning not in ["grid", "random", None]:
-        raise ValueError(f"hyper_tuning must be one of 'grid', 'random' or None. Provided {hyper_tunning}")
+        raise ValueError(
+            f"hyper_tuning must be one of 'grid', 'random' or None. Provided {hyper_tunning}"
+        )
 
     # if hyper_tunning is none set to 'single' to access appropriate entries
     if hyper_tunning is None:
@@ -209,8 +213,8 @@ def form_model_dict(
         # check that the model name is valid
         if model_name not in combi.keys():
             raise ValueError(
-                f"{model_name} is not available for the given problem type ({problem_type}). Available \
-                             models are {','.join(combi.keys())}"
+                f"{model_name} is not available for the given problem type ({problem_type}). Available "
+                f"models are {','.join(combi.keys())}"
             )
 
         # get the model object

@@ -5,6 +5,8 @@ import utils.utils
 import logging
 import cProfile
 from utils.utils import assert_best_model_exists, assert_data_transformers_exists
+import numpy as np
+from sklearn.preprocessing import normalize
 
 
 if __name__ == "__main__":
@@ -31,7 +33,9 @@ if __name__ == "__main__":
         model_path = assert_best_model_exists(experiment_folder)
 
         omicLogger.info("Loading Data...")
-        x_to_predict, features_names = utils.load.load_data(config_dict, load_prediction=True)
+        x_to_predict, features_names = utils.load.load_data(
+            config_dict, load_prediction=True
+        )
         x_indexes = x_to_predict.index
 
         omicLogger.info("Loading data transformers...")
@@ -50,9 +54,18 @@ if __name__ == "__main__":
 
         omicLogger.info("Predicting on data...")
         predictions = model.predict(x_to_predict)
+        col_names = ["Prediction"]
+        if config_dict["ml"]["problem_type"] == "classification":
+            predict_proba = normalize(
+                model.predict_proba(x_to_predict), axis=1, norm="l1"
+            )
+            col_names += [f"class_{i}" for i in range(0, predict_proba.shape[1])]
+            predictions = np.concatenate(
+                (predictions.reshape(-1, 1), predict_proba), axis=1
+            )
 
         omicLogger.info("Saving predictions...")
-        predictions = pd.DataFrame(predictions, columns=["Prediction"])
+        predictions = pd.DataFrame(predictions, columns=col_names)
         predictions.index = x_indexes
         predictions.index.name = "SampleID"
         predictions.to_csv(

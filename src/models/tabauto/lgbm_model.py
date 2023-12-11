@@ -13,7 +13,9 @@ def to_matrix(data, n):
 
 
 class LGBMObjective(object):
-    def __init__(self, dataset_type, train_x, train_y, test_x, test_y, random_state=123):
+    def __init__(
+        self, dataset_type, train_x, train_y, test_x, test_y, random_state=123
+    ):
         # Hold this implementation specific arguments as the fields of the class.
         self.dataset_type = dataset_type
         self.train_x = train_x
@@ -63,7 +65,6 @@ class LGBMObjective(object):
                 predictions = np.rint(predictions)
                 actuals = train_y[test_index]
                 s = accuracy_score(actuals, predictions)
-                # print(s)
                 scores.append(s)
 
         else:
@@ -86,7 +87,6 @@ class LGBMObjective(object):
                 param["metric"] = "l1"
 
                 lgb_model = lgb_core.LGBMRegressor(**param)
-                # lgb_model.set_params(**param)
                 lgb_model.fit(train_x[train_index], train_y[train_index])
                 predictions = lgb_model.predict(train_x[test_index])
                 actuals = train_y[test_index]
@@ -172,7 +172,6 @@ class LGBMModel(BaseModel):
             if testY is not None:
                 testY = np.argmax(testY, axis=-1)
 
-        # self.model.fit(trainX, trainY, eval_set=[(testX, testY)], eval_metric='l1', early_stopping_rounds=5)
         self.model.fit(trainX, trainY, eval_metric="l1")
 
     def fit_data_optuna(self, trainX, trainY, testX=None, testY=None):
@@ -208,7 +207,9 @@ class LGBMModel(BaseModel):
         cv_stats = study.best_trial.user_attrs["cv_stats"]
 
         if self.dataset_type == CLASSIFICATION:
-            self.model = lgb_core.LGBMClassifier(random_state=self.random_state, **study.best_params)
+            self.model = lgb_core.LGBMClassifier(
+                random_state=self.random_state, **study.best_params
+            )
         else:
             param = study.best_params
             param["objective"] = REGRESSION
@@ -227,22 +228,6 @@ class LGBMModel(BaseModel):
         elif self.method == "train_ml_lgbm_auto":
             self.fit_data_optuna(trainX, trainY, testX, testY)
 
-    """
-    def predict(self, x):
-        # make predictions on the testing data
-        print("lgbm: predict...")
-        if self.dataset_type == CLASSIFICATION:
-            y_pred = self.model.predict_proba(x)
-        else:
-            y_pred = self.model.predict(x)
-
-        if self.output_dim == 1:
-            y_pred = y_pred.reshape(-1, 1)
-
-        return y_pred
-    """
-
     def save(self, path):
         if path:
-            # joblib.dump(self.model, '{}'.format(path))
             joblib.dump(self, "{}".format(path))

@@ -39,8 +39,8 @@ def parser_plotting(plotting_entry, problem):
 
         if not given_opts.issubset(max_opts):
             raise ValueError(
-                f'Non-valid plot options given for plot_method: {",".join(list(given_opts-max_opts))}. Possible options\
-                    : {max_opts}'
+                f'Non-valid plot options given for plot_method: {",".join(list(given_opts-max_opts))}. Possible options: '
+                f"{max_opts}"
             )
 
     # check to see if permut_imp_test is correctly configured
@@ -66,7 +66,9 @@ def parser_plotting(plotting_entry, problem):
         else:
             type_check(plotting_entry["explanations_data"], str, "explanations_data")
             if plotting_entry["explanations_data"] not in ["test", "exemplars", "all"]:
-                raise ValueError('explanations_data must one of: "test", "exemplars", "all"')
+                raise ValueError(
+                    'explanations_data must one of: "test", "exemplars", "all"'
+                )
 
     return plotting_entry
 
@@ -76,7 +78,9 @@ def parse_autoxgboost(xgbEntry):
     keys = xgbEntry.keys()
     validKeys = {"verbose", "n_trials", "timeout"}
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for autoxgboost_config: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for autoxgboost_config: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "verbose" not in keys:
         xgbEntry["verbose"] = False
@@ -103,7 +107,9 @@ def parse_autolgbm(lgbmEntry):
     keys = lgbmEntry.keys()
     validKeys = {"verbose", "n_trials", "timeout"}
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for autolgbm_config: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for autolgbm_config: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "verbose" not in keys:
         lgbmEntry["verbose"] = False
@@ -140,7 +146,9 @@ def parse_autokeras(kerasEntry):
     }
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for autokeras_config: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for autokeras_config: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "verbose" not in keys:
         kerasEntry["verbose"] = False
@@ -193,7 +201,9 @@ def parse_autokeras(kerasEntry):
         type_check(kerasEntry["tuner"], str, "autokeras_config:tuner")
         valid = ["bayesian", "greedy", "hyperband", "random"]
         if kerasEntry["tuner"] not in valid:
-            raise ValueError(f'autokeras:tuner not valid: {kerasEntry["tuner"]}. Valid options: {valid}')
+            raise ValueError(
+                f'autokeras:tuner not valid: {kerasEntry["tuner"]}. Valid options: {valid}'
+            )
 
     return kerasEntry
 
@@ -211,7 +221,9 @@ def parse_autosklearn(sklearnEntry, problem_type):
     }
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for autosklearn_config: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for autosklearn_config: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "verbose" not in keys:
         sklearnEntry["verbose"] = False
@@ -227,7 +239,9 @@ def parse_autosklearn(sklearnEntry, problem_type):
             "autosklearn_config:time_left_for_this_task",
         )
         if sklearnEntry["time_left_for_this_task"] < 1:
-            raise ValueError("autosklearn:time_left_for_this_task must be an int greater than 0")
+            raise ValueError(
+                "autosklearn:time_left_for_this_task must be an int greater than 0"
+            )
 
     if "per_run_time_limit" not in keys:
         sklearnEntry["per_run_time_limit"] = 30
@@ -238,7 +252,9 @@ def parse_autosklearn(sklearnEntry, problem_type):
             "autosklearn_config:per_run_time_limit",
         )
         if sklearnEntry["per_run_time_limit"] < 1:
-            raise ValueError("autosklearn:per_run_time_limit must be an int greater than 0")
+            raise ValueError(
+                "autosklearn:per_run_time_limit must be an int greater than 0"
+            )
 
     if "n_jobs" not in keys:
         sklearnEntry["n_jobs"] = 1
@@ -250,7 +266,9 @@ def parse_autosklearn(sklearnEntry, problem_type):
     if "ensemble_size" not in keys:
         sklearnEntry["ensemble_size"] = 1
     else:
-        type_check(sklearnEntry["ensemble_size"], int, "autosklearn_config:ensemble_size")
+        type_check(
+            sklearnEntry["ensemble_size"], int, "autosklearn_config:ensemble_size"
+        )
         if sklearnEntry["ensemble_size"] < 1:
             raise ValueError("autosklearn:ensemble_size must be an int greater than 0")
 
@@ -258,9 +276,13 @@ def parse_autosklearn(sklearnEntry, problem_type):
         sklearnEntry["memory_limit"] = None
     else:
         if sklearnEntry["memory_limit"] is not None:
-            type_check(sklearnEntry["memory_limit"], int, "autosklearn_config:memory_limit")
+            type_check(
+                sklearnEntry["memory_limit"], int, "autosklearn_config:memory_limit"
+            )
             if sklearnEntry["memory_limit"] < 0:
-                raise ValueError("autosklearn:memory_limit must be None or an int greater than 0")
+                raise ValueError(
+                    "autosklearn:memory_limit must be None or an int greater than 0"
+                )
 
     class_opts = [
         "bernoulli_nb",
@@ -300,13 +322,17 @@ def parse_autosklearn(sklearnEntry, problem_type):
         ]
     else:
         type_check(sklearnEntry["estimators"], list, "autosklearn_config:estimators")
-        list_type_check(sklearnEntry["estimators"], str, "autosklearn_config:estimators")
+        list_type_check(
+            sklearnEntry["estimators"], str, "autosklearn_config:estimators"
+        )
 
         maxopt = set(class_opts) if problem_type == CLASSIFICATION else set(reg_opt)
         givenopt = set(sklearnEntry["estimators"])
 
         if not givenopt.issubset(maxopt):
-            raise ValueError(f"autosklearn:estimators option not valid: {givenopt-maxopt}. Valid options: {maxopt}")
+            raise ValueError(
+                f"autosklearn:estimators option not valid: {givenopt-maxopt}. Valid options: {maxopt}"
+            )
 
     return sklearnEntry
 
@@ -335,7 +361,9 @@ def parse_MLSettings(problemEntry):
     keys = set(problemEntry.keys())
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for problemEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for problemEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "seed_num" not in keys:
         problemEntry["seed_num"] = 29292
@@ -353,7 +381,9 @@ def parse_MLSettings(problemEntry):
 
     ###################################### MANDITORY ######################################
     if "problem_type" not in keys:
-        raise ValueError("problem_type must be given. Options: CLASSIFICATION or REGRESSION")
+        raise ValueError(
+            "problem_type must be given. Options: CLASSIFICATION or REGRESSION"
+        )
     else:
         type_check(problemEntry["problem_type"], str, "problem_type")
         if problemEntry["problem_type"] not in [CLASSIFICATION, REGRESSION]:
@@ -403,7 +433,9 @@ def parse_MLSettings(problemEntry):
 
     if "fit_scorer" not in keys:
         problemEntry["fit_scorer"] = (
-            "f1_score" if problemEntry["problem_type"] == CLASSIFICATION else "mean_absolute_percentage_error"
+            "f1_score"
+            if problemEntry["problem_type"] == CLASSIFICATION
+            else "mean_absolute_percentage_error"
         )
     else:
         type_check(problemEntry["fit_scorer"], str, "fit_scorer")
@@ -414,7 +446,9 @@ def parse_MLSettings(problemEntry):
             else list(METRICS[REGRESSION].keys())
         )
         if problemEntry["fit_scorer"] not in valid:
-            raise ValueError(f"fit_scorer must be one of: {valid}, provided: {problemEntry['fit_scorer']}")
+            raise ValueError(
+                f"fit_scorer must be one of: {valid}, provided: {problemEntry['fit_scorer']}"
+            )
 
     if "scorer_list" not in keys:
         problemEntry["scorer_list"] = (
@@ -438,26 +472,32 @@ def parse_MLSettings(problemEntry):
 
         if not given_opts.issubset(metric_max_opts):
             raise ValueError(
-                f'Non-valid options given for scorer_list: {",".join(list(given_opts-metric_max_opts))}. Possible \
-                    options: {metric_max_opts}'
+                f'Non-valid options given for scorer_list: {",".join(list(given_opts-metric_max_opts))}. Possible '
+                f"options: {metric_max_opts}"
             )
 
-    model_max_opts = set(list(MODELS[problemEntry["problem_type"]].keys()) + list(MODELS["both"].keys()))
+    model_max_opts = set(
+        list(MODELS[problemEntry["problem_type"]].keys()) + list(MODELS["both"].keys())
+    )
     ###################################### MANDITORY ######################################
     if "model_list" not in keys:
-        raise ValueError(f"model_list must be a list containg at least one option from: {model_max_opts}")
+        raise ValueError(
+            f"model_list must be a list containg at least one option from: {model_max_opts}"
+        )
     else:
         type_check(problemEntry["model_list"], list, "model_list")
         list_type_check(problemEntry["model_list"], str, "model_list")
 
         if problemEntry["model_list"] == []:
-            raise ValueError(f"model_list must contain at least one option from: {model_max_opts}")
+            raise ValueError(
+                f"model_list must contain at least one option from: {model_max_opts}"
+            )
         else:
             given_opts = set(problemEntry["model_list"])
             if not given_opts.issubset(model_max_opts):
                 raise ValueError(
-                    f'Non-valid options given for model_list: {",".join(list(given_opts-model_max_opts))}. Possible \
-                        options: {model_max_opts}'
+                    f'Non-valid options given for model_list: {",".join(list(given_opts-model_max_opts))}. Possible '
+                    f"options: {model_max_opts}"
                 )
 
     if problemEntry["problem_type"] == CLASSIFICATION:
@@ -474,7 +514,9 @@ def parse_MLSettings(problemEntry):
     if "AutoSKLearn" in problemEntry["model_list"]:
         autoEnt = problemEntry.get("autosklearn_config")
         autoEnt = {} if autoEnt is None else autoEnt
-        problemEntry["autosklearn_config"] = parse_autosklearn(autoEnt, problemEntry["problem_type"])
+        problemEntry["autosklearn_config"] = parse_autosklearn(
+            autoEnt, problemEntry["problem_type"]
+        )
 
     if "AutoKeras" in problemEntry["model_list"]:
         autoEnt = problemEntry.get("autokeras_config")
@@ -516,14 +558,20 @@ def parse_data(dataEntry):
     keys = set(dataEntry.keys())
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
-    if "name" not in keys:  ###################################### MANDITORY ######################################
+    if (
+        "name" not in keys
+    ):  ###################################### MANDITORY ######################################
         raise ValueError("name must be given")
     else:
         type_check(dataEntry["name"], str, "name")
 
-    if "file_path" not in keys:  ###################################### MANDITORY ######################################
+    if (
+        "file_path" not in keys
+    ):  ###################################### MANDITORY ######################################
         raise ValueError("file_path must be defined")
     else:
         type_check(dataEntry["file_path"], str, "file_path")
@@ -549,7 +597,9 @@ def parse_data(dataEntry):
     if "metadata_file_holdout_data" not in keys:
         dataEntry["metadata_file_holdout_data"] = None
     else:
-        type_check(dataEntry["metadata_file_holdout_data"], str, "metadata_file_holdout_data")
+        type_check(
+            dataEntry["metadata_file_holdout_data"], str, "metadata_file_holdout_data"
+        )
         if not exists(dataEntry["metadata_file_holdout_data"]):
             raise ValueError("File given in metadata_file_holdout_data does not exist")
 
@@ -558,18 +608,24 @@ def parse_data(dataEntry):
     else:
         type_check(dataEntry["save_path"], str, "save_path")
 
-    if "target" not in keys:  ###################################### MANDITORY ######################################
+    if (
+        "target" not in keys
+    ):  ###################################### MANDITORY ######################################
         raise ValueError("target must be defined")
     else:
         type_check(dataEntry["target"], str, "target")
 
-    if "data_type" not in keys:  ###################################### MANDITORY ######################################
+    if (
+        "data_type" not in keys
+    ):  ###################################### MANDITORY ######################################
         raise ValueError("data_type must be defined")
     else:
         type_check(dataEntry["data_type"], str, "data_type")
         valid = ["tabular", "gene_expression", "microbiome", "metabolomic", "other"]
         if dataEntry["data_type"] not in valid:
-            raise ValueError(f'data_type option not valid: {dataEntry["data_type"]}. Valid options: {valid}')
+            raise ValueError(
+                f'data_type option not valid: {dataEntry["data_type"]}. Valid options: {valid}'
+            )
 
     return dataEntry
 
@@ -589,7 +645,9 @@ def parse_microbiome(omicEntry):
     keys = set(omicEntry.keys())
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "collapse_tax" not in keys:
         omicEntry["collapse_tax"] = None
@@ -598,8 +656,8 @@ def parse_microbiome(omicEntry):
             type_check(omicEntry["collapse_tax"], str, "collapse_tax")
             if omicEntry["collapse_tax"] not in ["genus", "species"]:
                 raise ValueError(
-                    f'microbiome:collapse_tax option not valid: {omicEntry["collapse_tax"]}. Valid options: \
-                        {["genus", "species"]}'
+                    f'microbiome:collapse_tax option not valid: {omicEntry["collapse_tax"]}. Valid options: '
+                    f'{["genus", "species"]}'
                 )
 
     if "min_reads" not in keys:
@@ -608,7 +666,9 @@ def parse_microbiome(omicEntry):
         if omicEntry["min_reads"] is not None:
             type_check(omicEntry["min_reads"], int, "min_reads")
             if omicEntry["min_reads"] < 0:
-                raise ValueError("microbiome:min_reads entry must be an int greater than 0")
+                raise ValueError(
+                    "microbiome:min_reads entry must be an int greater than 0"
+                )
 
     if "norm_reads" not in keys:
         omicEntry["norm_reads"] = None
@@ -616,7 +676,9 @@ def parse_microbiome(omicEntry):
         if omicEntry["norm_reads"] is not None:
             type_check(omicEntry["norm_reads"], int, "norm_reads")
             if omicEntry["norm_reads"] < 0:
-                raise ValueError("microbiome:norm_reads entry must be an int greater than 0")
+                raise ValueError(
+                    "microbiome:norm_reads entry must be an int greater than 0"
+                )
 
     if "filter_abundance" not in keys:
         omicEntry["filter_abundance"] = None
@@ -624,22 +686,26 @@ def parse_microbiome(omicEntry):
         if omicEntry["filter_abundance"] is not None:
             type_check(omicEntry["filter_abundance"], int, "filter_abundance")
             if omicEntry["filter_abundance"] < 0:
-                raise ValueError("microbiome:filter_abundance entry must be an int greater than 0")
+                raise ValueError(
+                    "microbiome:filter_abundance entry must be an int greater than 0"
+                )
 
     if "filter_prevalence" not in keys:
         omicEntry["filter_prevalence"] = None
     else:
         if omicEntry["filter_prevalence"] is not None:
             type_check(omicEntry["filter_prevalence"], float, "filter_prevalence")
-            if (omicEntry["filter_prevalence"] < 0) or (omicEntry["filter_prevalence"] > 1):
-                raise ValueError("microbiome:filter_prevalence must be a float between 0 and 1")
+            if (omicEntry["filter_prevalence"] < 0) or (
+                omicEntry["filter_prevalence"] > 1
+            ):
+                raise ValueError(
+                    "microbiome:filter_prevalence must be a float between 0 and 1"
+                )
 
     if "filter_microbiome_samples" not in keys:
         omicEntry["filter_microbiome_samples"] = None
     else:
         if omicEntry["filter_microbiome_samples"] is not None:
-            # TODO
-            # type_check(omicEntry['filter_microbiome_samples'],,'microbiome:filter_microbiome_samples')
             pass
 
     if "remove_classes" not in keys:
@@ -647,7 +713,9 @@ def parse_microbiome(omicEntry):
     else:
         if omicEntry["remove_classes"] is not None:
             type_check(omicEntry["remove_classes"], list, "microbiome:remove_classes")
-            list_type_check(omicEntry["remove_classes"], str, "microbiome:remove_classes")
+            list_type_check(
+                omicEntry["remove_classes"], str, "microbiome:remove_classes"
+            )
 
     if "merge_classes" not in keys:
         omicEntry["merge_classes"] = None
@@ -679,7 +747,9 @@ def parse_geneExpression(omicEntry):
     keys = set(omicEntry.keys())
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "expression_type" not in keys:
         raise ValueError(
@@ -691,8 +761,8 @@ def parse_geneExpression(omicEntry):
             valid = ["FPKM", "RPKM", "TMM", "TPM", "Log2FC", "COUNTS", "OTHER"]
             if omicEntry["expression_type"] not in valid:
                 raise ValueError(
-                    f'geneExpression:expression_type option not valid: {omicEntry["expression_type"]}. Valid options: \
-                        {valid}'
+                    f'geneExpression:expression_type option not valid: {omicEntry["expression_type"]}. Valid options: '
+                    f"{valid}"
                 )
 
     if "filter_sample" not in keys:
@@ -716,9 +786,13 @@ def parse_geneExpression(omicEntry):
             type_check(omicEntry["filter_genes"], list, "filter_genes")
             list_type_check(omicEntry["filter_genes"], int, "filter_genes")
             if len(omicEntry["filter_genes"]) != 2:
-                raise ValueError("filter_genes must be a list of 2 integers greater than 0.")
+                raise ValueError(
+                    "filter_genes must be a list of 2 integers greater than 0."
+                )
             if (omicEntry["filter_genes"][0] < 0) or (omicEntry["filter_genes"][0] < 0):
-                raise ValueError("filter_genes must be a list of 2 integers greater than 0.")
+                raise ValueError(
+                    "filter_genes must be a list of 2 integers greater than 0."
+                )
 
     if "output_file_ge" not in keys:
         omicEntry["output_file_ge"] = None
@@ -745,7 +819,9 @@ def parse_metabolomic(omicEntry):
     keys = set(omicEntry.keys())
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "filter_metabolomic_sample" not in keys:
         omicEntry["filter_metabolomic_sample"] = 0
@@ -765,7 +841,9 @@ def parse_metabolomic(omicEntry):
                         "filter_metabolomic_sample",
                     )
                 except Exception:
-                    raise ValueError("filter_metabolomic_sample must be a int or a float >0")
+                    raise ValueError(
+                        "filter_metabolomic_sample must be a int or a float >0"
+                    )
             if omicEntry["filter_metabolomic_sample"] < 0:
                 raise ValueError("filter_metabolomic_sample must be greater than 0.")
 
@@ -774,11 +852,19 @@ def parse_metabolomic(omicEntry):
     else:
         if omicEntry["filter_measurements"] is not None:
             type_check(omicEntry["filter_measurements"], list, "filter_measurements")
-            list_type_check(omicEntry["filter_measurements"], int, "filter_measurements")
+            list_type_check(
+                omicEntry["filter_measurements"], int, "filter_measurements"
+            )
             if len(omicEntry["filter_measurements"]) != 2:
-                raise ValueError("filter_measurements must be a list of 2 integers greater than 0.")
-            if (omicEntry["filter_measurements"][0] < 0) or (omicEntry["filter_measurements"][0] < 0):
-                raise ValueError("filter_measurements must be a list of 2 integers greater than 0.")
+                raise ValueError(
+                    "filter_measurements must be a list of 2 integers greater than 0."
+                )
+            if (omicEntry["filter_measurements"][0] < 0) or (
+                omicEntry["filter_measurements"][0] < 0
+            ):
+                raise ValueError(
+                    "filter_measurements must be a list of 2 integers greater than 0."
+                )
 
     if "output_file_met" not in keys:
         omicEntry["output_file_met"] = None
@@ -805,14 +891,18 @@ def parse_tabular(omicEntry):
     keys = set(omicEntry.keys())
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
     if "filter_tabular_sample" not in keys:
         omicEntry["filter_tabular_sample"] = 0
     else:
         if omicEntry["filter_tabular_sample"] is not None:
             try:
-                type_check(omicEntry["filter_tabular_sample"], int, "filter_tabular_sample")
+                type_check(
+                    omicEntry["filter_tabular_sample"], int, "filter_tabular_sample"
+                )
             except Exception:
                 try:
                     type_check(
@@ -821,9 +911,13 @@ def parse_tabular(omicEntry):
                         "filter_tabular_sample",
                     )
                 except Exception:
-                    raise ValueError("filter_tabular_sample must be a int or a float >0")
+                    raise ValueError(
+                        "filter_tabular_sample must be a int or a float >0"
+                    )
             if omicEntry["filter_tabular_sample"] < 0:
-                raise ValueError("filter_tabular_sample must be greater than or equal to 0.")
+                raise ValueError(
+                    "filter_tabular_sample must be greater than or equal to 0."
+                )
 
     if "filter_tabular_measurements" not in keys:
         omicEntry["filter_tabular_measurements"] = [0, 0]
@@ -840,9 +934,15 @@ def parse_tabular(omicEntry):
                 "filter_tabular_measurements",
             )
             if len(omicEntry["filter_tabular_measurements"]) != 2:
-                raise ValueError("filter_tabular_measurements must be a list of 2 integers greater than 0.")
-            if (omicEntry["filter_tabular_measurements"][0] < 0) or (omicEntry["filter_tabular_measurements"][0] < 0):
-                raise ValueError("filter_tabular_measurements must be a list of 2 integers greater than 0.")
+                raise ValueError(
+                    "filter_tabular_measurements must be a list of 2 integers greater than 0."
+                )
+            if (omicEntry["filter_tabular_measurements"][0] < 0) or (
+                omicEntry["filter_tabular_measurements"][0] < 0
+            ):
+                raise ValueError(
+                    "filter_tabular_measurements must be a list of 2 integers greater than 0."
+                )
 
     if "output_file_tab" not in keys:
         omicEntry["output_file_tab"] = None
@@ -888,9 +988,13 @@ def parse_prediction(predictionEntry):
     keys = set(predictionEntry.keys())
 
     if not set(keys).issubset(validKeys):
-        raise ValueError(f"Invalid entry for predictionEntry: {set(keys)-validKeys}. Valid options: {validKeys}")
+        raise ValueError(
+            f"Invalid entry for predictionEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+        )
 
-    if "file_path" not in keys:  ###################################### MANDITORY ######################################
+    if (
+        "file_path" not in keys
+    ):  ###################################### MANDITORY ######################################
         raise ValueError("prediction:file_path must be defined")
     else:
         type_check(predictionEntry["file_path"], str, "file_path")
@@ -940,7 +1044,9 @@ def validate_FS_models_and_metrics(problem_type, estimator, metric):
         est = MODELS[problem_type][estimator]["model"]
 
     # check that the metric is loaded in
-    if not (metric in METRICS[REGRESSION].keys() or metric in METRICS[CLASSIFICATION].keys()):
+    if not (
+        metric in METRICS[REGRESSION].keys() or metric in METRICS[CLASSIFICATION].keys()
+    ):
         raise ValueError(f"{metric} is not currently available for use")
 
     # check that the estimator selected is appropriate for the problem type
@@ -948,7 +1054,9 @@ def validate_FS_models_and_metrics(problem_type, estimator, metric):
         ((problem_type == REGRESSION) and (est._estimator_type == "regressor"))
         or ((problem_type == CLASSIFICATION) and (est._estimator_type == "classifier"))
     ):
-        raise ValueError(f"{estimator} is not a valid method for a {problem_type} problem")
+        raise ValueError(
+            f"{estimator} is not a valid method for a {problem_type} problem"
+        )
 
     # check that the metric selected is appropriate for the problem types
     if metric not in METRICS[problem_type].keys():
@@ -965,10 +1073,16 @@ def parse_FS_model_inputs(problem_type, eval_model, eval_metric):
 
     # set the evaluation model and metric if we have been given None
     if eval_model is None:
-        eval_model = "RandomForestClassifier" if problem_type == CLASSIFICATION else "RandomForestRegressor"
+        eval_model = (
+            "RandomForestClassifier"
+            if problem_type == CLASSIFICATION
+            else "RandomForestRegressor"
+        )
 
     if eval_metric is None:
-        eval_metric = "f1_score" if problem_type == CLASSIFICATION else "mean_squared_error"
+        eval_metric = (
+            "f1_score" if problem_type == CLASSIFICATION else "mean_squared_error"
+        )
 
     # check the combination of model and metric is valid
     low = validate_FS_models_and_metrics(problem_type, eval_model, eval_metric)
@@ -1004,7 +1118,9 @@ def parse_FS_settings(problem_type, FS_dict):
 
         elif method_dict["name"] == "SelectKBest":
             if ("metric" not in method_dict.keys()) or (method_dict["metric"] is None):
-                method_dict["metric"] = "f_classif" if problem_type == CLASSIFICATION else "f_regression"
+                method_dict["metric"] = (
+                    "f_classif" if problem_type == CLASSIFICATION else "f_regression"
+                )
 
             elif method_dict["metric"] not in FS_KBEST_METRICS.keys():
                 raise ValueError(
@@ -1015,18 +1131,30 @@ def parse_FS_settings(problem_type, FS_dict):
                 metrics_reg = ["f_regression", "mutual_info_regression"]
                 metrics_clf = ["f_classif", "mutual_info_classif"]
 
-                if ((problem_type == CLASSIFICATION) and (method_dict["metric"] not in metrics_clf)) or (
-                    (problem_type == REGRESSION) and (method_dict["metric"] not in metrics_reg)
+                if (
+                    (problem_type == CLASSIFICATION)
+                    and (method_dict["metric"] not in metrics_clf)
+                ) or (
+                    (problem_type == REGRESSION)
+                    and (method_dict["metric"] not in metrics_reg)
                 ):
-                    raise ValueError(f"{method_dict['metric']} is not appropriate for problem type {problem_type}.")
+                    raise ValueError(
+                        f"{method_dict['metric']} is not appropriate for problem type {problem_type}."
+                    )
 
         elif method_dict["name"] == "RFE":
-            if ("estimator" not in method_dict.keys()) or (method_dict["estimator"] is None):
+            if ("estimator" not in method_dict.keys()) or (
+                method_dict["estimator"] is None
+            ):
                 method_dict["estimator"] = (
-                    "RandomForestClassifier" if problem_type == CLASSIFICATION else "RandomForestRegressor"
+                    "RandomForestClassifier"
+                    if problem_type == CLASSIFICATION
+                    else "RandomForestRegressor"
                 )
             elif method_dict["estimator"] not in MODELS[problem_type].keys():
-                raise ValueError(f"{method_dict['estimator']} is not appropriate for problem type {problem_type}.")
+                raise ValueError(
+                    f"{method_dict['estimator']} is not appropriate for problem type {problem_type}."
+                )
     else:
         method_dict = {
             "name": "SelectKBest",
@@ -1054,14 +1182,20 @@ def parse_FS_settings(problem_type, FS_dict):
             auto_dict["eval_model"],
             auto_dict["eval_metric"],
             auto_dict["low"],
-        ) = parse_FS_model_inputs(problem_type, auto_dict["eval_model"], auto_dict["eval_metric"])
+        ) = parse_FS_model_inputs(
+            problem_type, auto_dict["eval_model"], auto_dict["eval_metric"]
+        )
     else:
         auto_dict = {
             "min_features": 10,
             "max_features": None,
             "interval": 1,
-            "eval_model": "RandomForestClassifier" if problem_type == CLASSIFICATION else "RandomForestRegressor",
-            "eval_metric": "f1_score" if problem_type == CLASSIFICATION else "mean_squared_error",
+            "eval_model": "RandomForestClassifier"
+            if problem_type == CLASSIFICATION
+            else "RandomForestRegressor",
+            "eval_metric": "f1_score"
+            if problem_type == CLASSIFICATION
+            else "mean_squared_error",
             "low": problem_type != CLASSIFICATION,
         }
 

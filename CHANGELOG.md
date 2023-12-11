@@ -51,5 +51,10 @@ Change log for the codebase. Initialised from the developments following version
         - metrics.define_scorers
         - utils.ml.class_balancing
         - utils.ml.data_split.std_split & strat_split
+        - plotting.plot_utils
     - reduce ussage of full config dict in:
         - R_replacement.py
+    - added probabilities for predictions when doing classification problems
+    - code comment clean up
+    - multiline strings causing extra space fixed
+    - added pytest marks to distinguish binary classiification problems

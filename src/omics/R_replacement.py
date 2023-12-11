@@ -24,7 +24,6 @@ def preprocessing_LO(data_dict, filtergene1, filtergene2, filter_sample, holdout
         i) data_final : gene expression data with filtered genes and samples removed
 
     """
-    # omicLogger.debug('Filtering gene expression data...')
     file = "file_path" + ("_holdout_data" if holdout else "")
     data_file = pd.read_csv(data_dict[file], index_col=0)  # sampleID as index
 
@@ -40,11 +39,17 @@ def preprocessing_LO(data_dict, filtergene1, filtergene2, filter_sample, holdout
             (data_file != 0).any(axis=1), (data_file != 0).any(axis=0)
         ]  # Remove any samples/rows with all zeros
 
-    data_abs = data.abs()  # Remove -ve values (for filtering purposes only, will add back later)
+    data_abs = (
+        data.abs()
+    )  # Remove -ve values (for filtering purposes only, will add back later)
 
     # Filter genes (only keep genes with exp > filtergene1 in filtergene2 or more samples)
-    filterG = (data_abs > filtergene1).sum(axis=1)  # Per gene, # samples in which exp > filtergene1
-    genestokeep = filterG.loc[filterG >= filtergene2].index.tolist()  # GeneIDs of exp genes > filtergene2
+    filterG = (data_abs > filtergene1).sum(
+        axis=1
+    )  # Per gene, # samples in which exp > filtergene1
+    genestokeep = filterG.loc[
+        filterG >= filtergene2
+    ].index.tolist()  # GeneIDs of exp genes > filtergene2
     data_filtered = data.loc[genestokeep]
 
     # Transpose data (samples rows, genes as columns)
@@ -82,7 +87,9 @@ def preprocessing_LO(data_dict, filtergene1, filtergene2, filter_sample, holdout
     # 1. Find mean # genes per sample with expression >0,
     # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean)
     #  AND ii) lower than global mean plus user filter
-    tokeep = (sample_means >= (mean_all - user_filter)) & (sample_means <= (mean_all + user_filter))
+    tokeep = (sample_means >= (mean_all - user_filter)) & (
+        sample_means <= (mean_all + user_filter)
+    )
 
     # Filter original df, keeping those samples that satisfy reqs
     data_final = tdata_filtered.loc[
@@ -96,7 +103,9 @@ def preprocessing_LO(data_dict, filtergene1, filtergene2, filter_sample, holdout
 # ---------------------------------------------------------------------------------------------------#
 
 
-def apply_learned_processing(data_dict, holdout, prediction=False, tmm=False, prediction_file=None):
+def apply_learned_processing(
+    data_dict, holdout, prediction=False, tmm=False, prediction_file=None
+):
     if holdout is False and prediction is False:
         raise ValueError("One of holdout or prediction need to be true")
 
@@ -113,8 +122,10 @@ def apply_learned_processing(data_dict, holdout, prediction=False, tmm=False, pr
         data_file = pd.read_csv(prediction_file, index_col=0)  # sampleID as index
 
     # save list of genes kept
-    save_name = f'/experiments/results/{data_dict["name"]}/omics_{data_dict["data_type"]}_keptGenes\
-        .pkl'
+    save_name = (
+        f'/experiments/results/{data_dict["name"]}/omics_{data_dict["data_type"]}'
+        + "_keptGenes.pkl"
+    )
     with open(save_name, "rb") as f:
         genestokeep = joblib.load(f)
 
@@ -123,7 +134,6 @@ def apply_learned_processing(data_dict, holdout, prediction=False, tmm=False, pr
     if tmm:
         # Normalise samples using edgeR TMM (using python package conorm)
         data_tmm = cn.tmm(data_filtered)
-        # data_tmm_factors = cn.tmm_norm_factors(data_filtered) #can return norm factors if needed
 
         # CPM of TMM normalised samples
         nm = norm()
@@ -182,8 +192,12 @@ def preprocessing_others(data_dict, filtergene1, filtergene2, filter_sample, hol
         ]  # Remove any samples/rows with all zeros
 
     # Filter genes (only keep genes with exp > filtergene1 in filtergene2 or more samples)
-    filterG = (data > filtergene1).sum(axis=1)  # Per gene, # samples in which exp > filtergene1
-    genestokeep = filterG.loc[filterG >= filtergene2].index.tolist()  # GeneIDs of exp genes > filtergene2
+    filterG = (data > filtergene1).sum(
+        axis=1
+    )  # Per gene, # samples in which exp > filtergene1
+    genestokeep = filterG.loc[
+        filterG >= filtergene2
+    ].index.tolist()  # GeneIDs of exp genes > filtergene2
     data_filtered = data.loc[genestokeep]
 
     # Transpose data (samples rows, genes as columns)
@@ -220,7 +234,9 @@ def preprocessing_others(data_dict, filtergene1, filtergene2, filter_sample, hol
     # 1. Find mean # genes per sample with expression >0,
     # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean)
     #  AND ii) lower than global mean plus user filter
-    tokeep = (sample_means >= (mean_all - user_filter)) & (sample_means <= (mean_all + user_filter))
+    tokeep = (sample_means >= (mean_all - user_filter)) & (
+        sample_means <= (mean_all + user_filter)
+    )
 
     # Filter original df, keeping those samples that satisfy reqs
     data_final = tdata_filtered.loc[
@@ -277,17 +293,22 @@ def preprocessing_TMM(data_dict, filtergene1, filtergene2, filter_sample, holdou
 
     # Normalise data to CPM (for gene filtering)
     data_ins = norm()  # create instance of norm class
-    data_ins.cpm(df=data)  # Run method cpm on instance (this creates class attribute 'cpm_norm)
+    data_ins.cpm(
+        df=data
+    )  # Run method cpm on instance (this creates class attribute 'cpm_norm)
     data_norm = data_ins.cpm_norm  # assign instance attribute cpm_norm to data_norm
 
     # Filter genes using CPM data (only keep genes with CPM > filtergene1 in filtergene2 or more samples)
-    filterG = (data_norm > filtergene1).sum(axis=1)  # Per gene, # samples in which CPM > filtergene1
-    genestokeep = filterG.loc[filterG >= filtergene2].index.tolist()  # GeneIDs of CPM genes > filtergene2
+    filterG = (data_norm > filtergene1).sum(
+        axis=1
+    )  # Per gene, # samples in which CPM > filtergene1
+    genestokeep = filterG.loc[
+        filterG >= filtergene2
+    ].index.tolist()  # GeneIDs of CPM genes > filtergene2
     data_filtered = data.loc[genestokeep]  # select genes to keep from NON NORMALISED df
 
     # Normalise samples using edgeR TMM (using python package conorm)
     data_tmm = cn.tmm(data_filtered)
-    # data_tmm_factors = cn.tmm_norm_factors(data_filtered) #can return norm factors if needed
 
     # CPM of TMM normalised samples
     nm = norm()
@@ -328,7 +349,9 @@ def preprocessing_TMM(data_dict, filtergene1, filtergene2, filter_sample, holdou
     # 1. Find mean # genes per sample with expression >0,
     # 2. Keep samples with number of expressed genes i: HIGHER than the global mean minus user_filter (# SD's from mean)
     #  AND ii) lower than global mean plus user filter
-    tokeep = (sample_means >= (mean_all - user_filter)) & (sample_means <= (mean_all + user_filter))
+    tokeep = (sample_means >= (mean_all - user_filter)) & (
+        sample_means <= (mean_all + user_filter)
+    )
 
     # Filter original df, keeping those samples that satisfy reqs
     data_final = tdata_tmm_cpm.loc[

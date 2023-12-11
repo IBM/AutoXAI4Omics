@@ -43,20 +43,26 @@ def oversample_data(
         raise TypeError(f"seed must be an int, recieved {type(seed)}")
 
     if not isinstance(x_train, (ndarray, DataFrame)):
-        raise TypeError(f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}")
+        raise TypeError(
+            f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}"
+        )
 
     if not isinstance(y_train, (ndarray, DataFrame)):
-        raise TypeError(f"y_train must be either a ndarray or a DataFrame. Recieved: {type(y_train)}")
+        raise TypeError(
+            f"y_train must be either a ndarray or a DataFrame. Recieved: {type(y_train)}"
+        )
 
     if x_train.shape[0] != y_train.shape[0]:
         raise ValueError(
-            f"x_train and y_train have different numbers of rows - \
-                         x_train: ({x_train.shape[0]}) and y_train: ({y_train.shape[0]})"
+            f"x_train and y_train have different numbers of rows - "
+            f"x_train: ({x_train.shape[0]}) and y_train: ({y_train.shape[0]})"
         )
 
     omicLogger.debug("Oversampling data...")
     # define oversampling strategy
-    oversample = imblearn.over_sampling.RandomOverSampler(random_state=seed, sampling_strategy="not majority")
+    oversample = imblearn.over_sampling.RandomOverSampler(
+        random_state=seed, sampling_strategy="not majority"
+    )
     # fit and apply the transform
     x_resampled, y_resampled = oversample.fit_resample(x_train, y_train)
     print(f"X train data after oversampling shape: {x_resampled.shape}")
@@ -101,19 +107,25 @@ def undersample_data(
         raise TypeError(f"seed must be an int, recieved {type(seed)}")
 
     if not isinstance(x_train, (ndarray, DataFrame)):
-        raise TypeError(f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}")
+        raise TypeError(
+            f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}"
+        )
 
     if not isinstance(y_train, (ndarray, DataFrame)):
-        raise TypeError(f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}")
+        raise TypeError(
+            f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}"
+        )
 
     if x_train.shape[0] != y_train.shape[0]:
         raise ValueError(
-            f"x_train and y_train have different numbers of rows - \
-                         x_train: ({x_train.shape[0]}) and y_train: ({y_train.shape[0]})"
+            f"x_train and y_train have different numbers of rows - "
+            f"x_train: ({x_train.shape[0]}) and y_train: ({y_train.shape[0]})"
         )
     omicLogger.debug("Undersampling data...")
     # define undersampling strategy
-    oversample = imblearn.under_sampling.RandomUnderSampler(random_state=seed, sampling_strategy="not minority")
+    oversample = imblearn.under_sampling.RandomUnderSampler(
+        random_state=seed, sampling_strategy="not minority"
+    )
     # fit and apply the transform
     x_resampled, y_resampled = oversample.fit_resample(x_train, y_train)
     print(f"X train data after undersampling shape: {x_resampled.shape}")

@@ -16,7 +16,8 @@ def standardize_data(data):
     else:
         data = data
 
-    # SS = StandardScaler()
-    SS = QuantileTransformer(n_quantiles=max(20, data.shape[0] // 20), output_distribution="normal")
+    SS = QuantileTransformer(
+        n_quantiles=max(20, data.shape[0] // 20), output_distribution="normal"
+    )
     data = SS.fit_transform(data)
     return data, SS

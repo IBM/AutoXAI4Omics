@@ -2,9 +2,6 @@ import pandas as pd
 from omics import R_replacement as rrep
 import joblib
 
-# import logging # uncomment this when incorporated in AO
-# omicLogger = logging.getLogger("OmicLogger") #uncommment this when incorporated in AO
-
 
 def get_data_tabular(config_dict, holdout=False):
     """
@@ -57,8 +54,10 @@ def get_data_tabular(config_dict, holdout=False):
     filtered_data.to_csv(output_file)
 
     # save list of genes kept
-    save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptGenes\
-        .pkl'
+    save_name = (
+        f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}'
+        + "_keptGenes.pkl"
+    )
     with open(save_name, "wb") as f:
         joblib.dump(genestokeep, f)
 
@@ -66,7 +65,9 @@ def get_data_tabular(config_dict, holdout=False):
     # metout and extract target from metadata. If metadata not present, assume target in data file.
 
     metafile = "metadata_file" + ("_holdout_data" if holdout else "")
-    if (config_dict["data"][metafile] != "") and (config_dict["data"][metafile] is not None):
+    if (config_dict["data"][metafile] != "") and (
+        config_dict["data"][metafile] is not None
+    ):
         metadata = pd.read_csv(config_dict["data"][metafile], index_col=0)
         mask = metadata.index.isin(filtered_data.index)
         filtered_metadata = metadata.loc[mask]
@@ -126,7 +127,9 @@ def get_data_tabular_trained(config_dict, holdout=False, prediction=False):
     # metout and extract target from metadata. If metadata not present, assume target in data file.
     if holdout:
         metafile = "metadata_file" + ("_holdout_data" if holdout else "")
-        if (config_dict["data"][metafile] != "") and (config_dict["data"][metafile] is not None):
+        if (config_dict["data"][metafile] != "") and (
+            config_dict["data"][metafile] is not None
+        ):
             metadata = pd.read_csv(config_dict["data"][metafile], index_col=0)
             mask = metadata.index.isin(filtered_data.index)
             filtered_metadata = metadata.loc[mask]

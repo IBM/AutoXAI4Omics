@@ -35,7 +35,9 @@ def plot_graphs(
     are given for the data and labels.
     """
     omicLogger.debug("Defining scorers...")
-    scorer_dict = metrics.define_scorers(config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"])
+    scorer_dict = metrics.define_scorers(
+        config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"]
+    )
 
     omicLogger.debug("Defining graphs...")
     plot_dict = define_plots(config_dict["ml"]["problem_type"])
@@ -46,8 +48,6 @@ def plot_graphs(
     for plot_method in config_dict["plotting"]["plot_method"]:
         plot_func = plot_dict[plot_method]
         print(plot_method)
-        # Hand-crafted passing the arguments in because over-engineering
-        # Don't judge me (I'm not a big **kwargs fan)
         if plot_method == "barplot_scorer":
             plot_func(
                 experiment_folder,
@@ -71,7 +71,9 @@ def plot_graphs(
                 holdout=holdout,
             )
         elif plot_method == "boxplot_scorer_cv_groupby":
-            plot_func(experiment_folder, config_dict, scorer_dict, x, y, holdout=holdout)
+            plot_func(
+                experiment_folder, config_dict, scorer_dict, x, y, holdout=holdout
+            )
         elif plot_method == "conf_matrix":
             plot_func(
                 experiment_folder,
@@ -205,28 +207,22 @@ if __name__ == "__main__":
         omicLogger.info("Loading data...")
 
         # read in the data
-        x_df = pd.read_csv(experiment_folder / "transformed_model_input_data.csv", index_col=0)
+        x_df = pd.read_csv(
+            experiment_folder / "transformed_model_input_data.csv", index_col=0
+        )
         x_train = x_df[x_df["set"] == "Train"].iloc[:, :-1].values
         x_test = x_df[x_df["set"] == "Test"].iloc[:, :-1].values
         x = x_df.iloc[:, :-1].values
         features_names = x_df.columns[:-1]
 
-        y_df = pd.read_csv(experiment_folder / "transformed_model_target_data.csv", index_col=0)
+        y_df = pd.read_csv(
+            experiment_folder / "transformed_model_target_data.csv", index_col=0
+        )
         y_train = y_df[y_df["set"] == "Train"].iloc[:, :-1].values.ravel()
         y_test = y_df[y_df["set"] == "Test"].iloc[:, :-1].values.ravel()
         y = y_df.iloc[:, :-1].values.ravel()
-        omicLogger.info("Test/train Data Loaded. Defining scorers...")
 
-        # Select only the scorers that we want
-
-        omicLogger.info("All scorers defined. Defining plots...")
-
-        # Pickling doesn't inherit the self.__class__.__dict__, just self.__dict__
-        # So set that up here
-        # Other option is to modify cls.__getstate__
-
-        omicLogger.info("Plots defined. Begin creating plots...")
-        # Central func to define the args for the plots
+        omicLogger.info("Test/train Data Loaded. Begin creating plots...")
         plot_graphs(
             config_dict,
             experiment_folder,

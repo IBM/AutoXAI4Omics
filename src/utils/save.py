@@ -47,9 +47,11 @@ def save_exemplars_SHAP_values(
             for i in range(len(exemplars_selected)):
                 print("Class: " + str(i))
                 print("Class name: " + str(class_names[i]))
-                df_exemplars = pd.DataFrame(data=exemplars_selected[i], columns=feature_names)
-                fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_\
-                    {class_names[i]}_{i}_{fold_id}"
+                df_exemplars = pd.DataFrame(
+                    data=exemplars_selected[i], columns=feature_names
+                )
+                fname_exemplars = f"{experiment_folder / 'results' / 'exemplars_SHAP_values'}_{model_name}_"
+                +f"{class_names[i]}_{i}_{fold_id}"
                 df_exemplars.to_csv(fname_exemplars + ".txt")
 
     # Deal with regression
@@ -60,7 +62,9 @@ def save_exemplars_SHAP_values(
 
 
 def save_explainer(experiment_folder, model_name, explainer):
-    save_name = f"{experiment_folder / 'models' / 'explainers' / 'shap'}_{model_name}.pkl"
+    save_name = (
+        f"{experiment_folder / 'models' / 'explainers' / 'shap'}_{model_name}.pkl"
+    )
     with open(save_name, "wb") as f:
         joblib.dump(explainer, f)
 
@@ -119,6 +123,4 @@ def save_model(experiment_folder, model, model_name):
         with open(save_name, "wb") as f:
             joblib.dump(model, f)
     else:  # hat: added this
-        # print(f"Saving {model_name} model")
-        # save_name = model_folder / f"{model_name}_best.pkl"
         model.save_model()

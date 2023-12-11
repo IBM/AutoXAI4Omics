@@ -1,13 +1,6 @@
 from .base_model import BaseModel
-
-# To avoid the conflict with autogluon, which uses newer versions of some common packages,
-# we can disable the package verification procedure in the following files:
-# a) python3.6/site-packages/autosklearn/__init__.py
-# b) python3.6/site-packages/smac/__init__.py
-
 import autosklearn.classification
 import autosklearn.regression
-
 from sklearn.multioutput import MultiOutputRegressor
 import joblib
 from utils.vars import CLASSIFICATION, REGRESSION
@@ -39,7 +32,9 @@ class SKLearnModel(BaseModel):
             if method == "Auto".lower():
                 print("AutoSKLearn: self.config=", self.config)
                 estimators_to_use = self.config.get("estimators", ["random_forest"])
-                time_left_for_this_task = self.config.get("time_left_for_this_task", 120)
+                time_left_for_this_task = self.config.get(
+                    "time_left_for_this_task", 120
+                )
                 per_run_time_limit = self.config.get("per_run_time_limit", 30)
                 memory_limit = self.config.get("memory_limit", 65536)
                 n_jobs = self.config.get("n_jobs", 1)
@@ -66,14 +61,8 @@ class SKLearnModel(BaseModel):
                         "classifier": estimators_to_use,
                         "feature_preprocessor": preprocessing_to_use,
                     },
-                    # exclude={
-                    #     'classifier':estimators_to_exclude,
-                    #     'feature_preprocessor':None
-                    # },
                     delete_tmp_folder_after_terminate=True,
-                    # delete_output_folder_after_terminate=True,
                     ensemble_size=ensemble_size,
-                    # load_models = False,
                     smac_scenario_args={
                         "deterministic": "true",
                     },
@@ -89,7 +78,9 @@ class SKLearnModel(BaseModel):
             if method == "Auto".lower():
                 print("AutoSKLearn: self.config=", self.config)
                 estimators_to_use = self.config.get("estimators", ["random_forest"])
-                time_left_for_this_task = self.config.get("time_left_for_this_task", 120)
+                time_left_for_this_task = self.config.get(
+                    "time_left_for_this_task", 120
+                )
                 per_run_time_limit = self.config.get("per_run_time_limit", 30)
                 memory_limit = self.config.get("memory_limit", 65536)
                 n_jobs = self.config.get("n_jobs", 1)
@@ -116,17 +107,8 @@ class SKLearnModel(BaseModel):
                         "regressor": estimators_to_use,
                         "feature_preprocessor": preprocessing_to_use,
                     },
-                    # exclude={
-                    #     'regressor':estimators_to_exclude,
-                    #     'feature_preprocessor':None
-                    # },
-                    # initial_configurations_via_metalearning=0,
                     delete_tmp_folder_after_terminate=True,
-                    # delete_output_folder_after_terminate=True,
                     ensemble_size=ensemble_size,
-                    # resampling_strategy="cv",
-                    # resampling_strategy_arguments={"folds": 5},
-                    # load_models = False,
                     smac_scenario_args={
                         "deterministic": "true",
                     },
@@ -150,10 +132,7 @@ class SKLearnModel(BaseModel):
         self.model.fit(trainX, trainY)
 
         if self.method == "Auto".lower():
-            # print("autosklearn/cv_results=", self.model.cv_results_)
             print("autosklearn/stats:", self.model.sprint_statistics())
-            # print('autosklearn/models:', self.model.show_models())
-            # print("self.model.best_params_=", self.model.best_params_)
 
     def predict(self, x):
         # make predictions on the testing data

@@ -28,7 +28,10 @@ def select_best_model(experiment_folder, problem_type, metric=None, collapse_tax
         collapse_tax = ""
 
     omicLogger.debug("selecting best model...")
-    filepath = experiment_folder / f"results/scores_{collapse_tax}_performance_results_testset.csv"
+    filepath = (
+        experiment_folder
+        / f"results/scores_{collapse_tax}_performance_results_testset.csv"
+    )
 
     if not os.path.exists(filepath):
         raise ValueError(f"{filepath} does not exist")
@@ -48,7 +51,13 @@ def select_best_model(experiment_folder, problem_type, metric=None, collapse_tax
         low = True
 
     df_cols = list(
-        set([x.replace("_Train", "").replace("_Test", "") for x in list(df.columns) if ("PerClass" not in x)])
+        set(
+            [
+                x.replace("_Train", "").replace("_Test", "")
+                for x in list(df.columns)
+                if ("PerClass" not in x)
+            ]
+        )
     )
     offical_name = [x for x in df_cols if (metric in x.lower())]
 
@@ -63,14 +72,19 @@ def select_best_model(experiment_folder, problem_type, metric=None, collapse_tax
 
     ang = t_df.apply(
         lambda row: round(
-            np.arccos(np.dot(row.values, [1, 1]) / (np.linalg.norm(row.values) * np.linalg.norm([1, 1]))),
+            np.arccos(
+                np.dot(row.values, [1, 1])
+                / (np.linalg.norm(row.values) * np.linalg.norm([1, 1]))
+            ),
             4,
         ),
         axis=1,
     )
     ang.name = "Angle"
 
-    nrm = t_df.apply(lambda row: round(np.linalg.norm(row.values - 1 + int(low)), 4), axis=1)
+    nrm = t_df.apply(
+        lambda row: round(np.linalg.norm(row.values - 1 + int(low)), 4), axis=1
+    )
     nrm.name = "Norm"
 
     best = pd.concat([nrm, ang], axis=1)
@@ -102,8 +116,6 @@ def random_search(
     omicLogger.debug("Training with a random search...")
     # If possible, set the random state for the model
     try:
-        # Just a dummy to see if the model has a random state attribute
-        # Improvement would be if there is hasattr func but for arguments
         _ = model(random_state=0)
         param_ranges["random_state"] = [seed_num]
     except TypeError:
@@ -242,12 +254,10 @@ def run_models(
         elif config_dict["microbiome"]["merge_classes"] is not None:
             fname += "_merge"
 
-    # Just need it here for determing tuning logic
-    # ref_model_dict = select_model_dict(hyper_tuning)
-    # So that we can pass the func to the CustomModels
-
     #  Define all the scores
-    scorer_dict = metrics.metrics.define_scorers(problem_type, config_dict["ml"]["scorer_list"])
+    scorer_dict = metrics.metrics.define_scorers(
+        problem_type, config_dict["ml"]["scorer_list"]
+    )
     scorer_func = scorer_dict[config_dict["ml"]["fit_scorer"]]
 
     model_dict = form_model_dict(problem_type, hyper_tuning, model_list)
@@ -257,21 +267,16 @@ def run_models(
         omicLogger.debug(f"Training model: {model_name}")
         print(f"Training {model_name}")
 
-        # Placeholder variable to handle mixed hyperparam tuning logic for MLPEnsemble
-        # single_model_flag = False
-
         # Load the model and it's parameter path
         model, param_ranges, single_model_flag = model_dict[model_name]
 
         # Setup the CustomModels
         # FIXME: I think the following if block can be removed
         if model_name in CustomModel.custom_aliases:
-            # single_model_flag, param_ranges = model.setup_custom_model(
             param_ranges = model.setup_custom_model(
                 config_dict["ml"],
                 experiment_folder,
                 model_name,
-                # ref_model_dict,
                 param_ranges,
                 scorer_func,
                 x_test,
@@ -293,22 +298,32 @@ def run_models(
                 scorer_dict,
                 fit_scorer,
             )
-            print("=================== Best model from random search: " + model_name + " ====================")
+            print(
+                "=================== Best model from random search: "
+                + model_name
+                + " ===================="
+            )
             print(trained_model)
             print("==================================================================")
 
         # No hyperparameter tuning (and/or the MLPEnsemble is to be run once)
         elif hyper_tuning is None or single_model_flag:
             if hyper_budget is not None:
-                print(f"Hyperparameter tuning budget ({hyper_budget}) is not used without tuning")
+                print(
+                    f"Hyperparameter tuning budget ({hyper_budget}) is not used without tuning"
+                )
             # No tuning, just use the parameters supplied
-            trained_model = single_model(model, param_ranges, x_train, y_train, seed_num)
+            trained_model = single_model(
+                model, param_ranges, x_train, y_train, seed_num
+            )
 
         # Grid search
         elif hyper_tuning == "grid":
             print("Using grid search")
             if hyper_budget is not None:
-                print(f"Hyperparameter tuning budget ({hyper_budget}) is not used in a grid search")
+                print(
+                    f"Hyperparameter tuning budget ({hyper_budget}) is not used in a grid search"
+                )
             trained_model = grid_search(
                 model,
                 model_name,
@@ -319,7 +334,11 @@ def run_models(
                 scorer_dict,
                 fit_scorer,
             )
-            print("=================== Best model from grid search: " + model_name + " ====================")
+            print(
+                "=================== Best model from grid search: "
+                + model_name
+                + " ===================="
+            )
             print(trained_model)
             print("==================================================================")
 
@@ -336,7 +355,9 @@ def run_models(
             y_test,
             scorer_dict,
         )
-        predictions.to_csv(results_folder / f"{model_name}_predictions.csv", index=False)
+        predictions.to_csv(
+            results_folder / f"{model_name}_predictions.csv", index=False
+        )
 
         # Save the results
         df_performance_results, fname_perfResults = save_results(
@@ -350,4 +371,6 @@ def run_models(
             save_csv=True,
         )
 
-        print(f"{model_name} complete! Results saved at {Path(fname_perfResults).parents[0]}")
+        print(
+            f"{model_name} complete! Results saved at {Path(fname_perfResults).parents[0]}"
+        )

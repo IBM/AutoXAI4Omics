@@ -1,16 +1,7 @@
 import subprocess
 import pytest
-
-
-# import tensorflow
 from os.path import exists
-
-# import joblib
-# import numpy as np
 import sys
-
-# import custom_model
-# import optuna
 import yaml
 import pandas as pd
 import json
@@ -19,6 +10,7 @@ import glob
 sys.path.append("../auto-omics/")
 
 
+# Test to check if all scripts run to completion without raising errors for non-omic data
 @pytest.mark.modes
 @pytest.mark.parametrize(
     "mode",
@@ -37,13 +29,17 @@ def test_modes(mode, problem_create):
 
     with open(f"configs/{fname}", "r") as infile:
         config = json.load(infile)
-    log_filepath = config["data"]["save_path"][1:] + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+    log_filepath = (
+        config["data"]["save_path"][1:]
+        + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+    )
     log_filepath = glob.glob(log_filepath)[-1]
     with open(log_filepath, "r") as F:
         last_line = F.readlines()[-1]
     assert "INFO : Process completed." in last_line
 
 
+# Test to check if the outputs are the same as expected outcomes
 @pytest.mark.output
 @pytest.mark.parametrize(
     "problem",
@@ -52,8 +48,11 @@ def test_modes(mode, problem_create):
             "classification",
             marks=[
                 pytest.mark.classification,
+                pytest.mark.binary,
                 pytest.mark.skipif(
-                    exists("/experiments/results/generated_test_classification_run1_1/best_model/"),
+                    exists(
+                        "/experiments/results/generated_test_classification_run1_1/best_model/"
+                    ),
                     reason="Best model folder was not created",
                 ),
             ],
@@ -62,8 +61,11 @@ def test_modes(mode, problem_create):
             "multi",
             marks=[
                 pytest.mark.classification,
+                pytest.mark.multi,
                 pytest.mark.skipif(
-                    exists("/experiments/results/generated_test_classification_multi_run1_1/best_model/"),
+                    exists(
+                        "/experiments/results/generated_test_classification_multi_run1_1/best_model/"
+                    ),
                     reason="Best model folder was not created",
                 ),
             ],
@@ -73,7 +75,9 @@ def test_modes(mode, problem_create):
             marks=[
                 pytest.mark.regression,
                 pytest.mark.skipif(
-                    exists("/experiments/results/generated_test_regression_run1_1/best_model/"),
+                    exists(
+                        "/experiments/results/generated_test_regression_run1_1/best_model/"
+                    ),
                     reason="Best model folder was not created",
                 ),
             ],
@@ -92,7 +96,9 @@ def test_model_outputs(problem):
         df_run = pd.read_csv(
             f"experiments/results/generated_test_{problem}_run1_1/results/scores__performance_results_testset.csv"
         ).set_index("model")
-        df_stored = pd.read_csv(f"tests/result_sets/{problem}_results.csv").set_index("model")
+        df_stored = pd.read_csv(f"tests/result_sets/{problem}_results.csv").set_index(
+            "model"
+        )
 
         assert (df_run == df_stored).all().all()
 
@@ -104,11 +110,14 @@ def test_model_outputs(problem):
         df_run = pd.read_csv(
             f"experiments/results/generated_test_classification_{problem}_run1_1/results/scores__performance_results_testset.csv"
         ).set_index("model")
-        df_stored = pd.read_csv(f"tests/result_sets/{problem}_results.csv").set_index("model")
+        df_stored = pd.read_csv(f"tests/result_sets/{problem}_results.csv").set_index(
+            "model"
+        )
 
         assert (df_run == df_stored).all().all()
 
 
+# Test to check if all scripts run to completion without raising errors for omic data
 @pytest.mark.omics
 @pytest.mark.parametrize(
     "mode",
@@ -132,8 +141,8 @@ def test_model_outputs(problem):
 @pytest.mark.parametrize(
     "problem",
     [
-        pytest.param("binary", marks=pytest.mark.classification),
-        pytest.param("multi", marks=pytest.mark.classification),
+        pytest.param("binary", marks=[pytest.mark.classification, pytest.mark.binary]),
+        pytest.param("multi", marks=[pytest.mark.classification, pytest.mark.multi]),
         pytest.param("reg", marks=pytest.mark.regression),
     ],
 )
@@ -144,7 +153,10 @@ def test_omic_datasets(mode, omic, problem):
 
     with open(f"configs/{fname}", "r") as infile:
         config = json.load(infile)
-    log_filepath = config["data"]["save_path"][1:] + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+    log_filepath = (
+        config["data"]["save_path"][1:]
+        + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+    )
     log_filepath = glob.glob(log_filepath)[-1]
     with open(log_filepath, "r") as F:
         last_line = F.readlines()[-1]

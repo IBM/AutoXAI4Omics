@@ -45,7 +45,9 @@ def define_scorers(problem_type: str, scorer_list: list[str]) -> dict[str, objec
     if not isinstance(problem_type, str):
         raise TypeError("problem_type must be of type str")
     elif problem_type not in [CLASSIFICATION, REGRESSION]:
-        raise ValueError(f"problem_type must be one of {CLASSIFICATION} or {REGRESSION}")
+        raise ValueError(
+            f"problem_type must be one of {CLASSIFICATION} or {REGRESSION}"
+        )
 
     if not isinstance(scorer_list, list):
         raise TypeError("scorer_list must be a list")
@@ -59,14 +61,13 @@ def define_scorers(problem_type: str, scorer_list: list[str]) -> dict[str, objec
         scorer_dict_filtered = {k: METRICS[problem_type][k] for k in scorer_list}
     except KeyError as e:
         raise ValueError(
-            f"For {problem_type} problems, entries of scorer_list must be a subset of: \
-                         {METRICS[problem_type].keys()}, recived invalid entry of: {e}"
+            f"For {problem_type} problems, entries of scorer_list must be a subset of: "
+            f"{METRICS[problem_type].keys()}, recived invalid entry of: {e}"
         )
 
     return scorer_dict_filtered
 
 
-## TODO: finish creating test for these, other tests need to be done first
 def eval_scores(problem_type, scorer_dict, model, data, true_labels):
     omicLogger.debug("Gathering evaluation scores...")
     scores_dict = {}
@@ -95,11 +96,15 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test, score_
         if len(set(y_train)) == 2:
             pred_test_proba = model.predict_proba(x_test)[:, 1]
             pred_train_proba = model.predict_proba(x_train)[:, 1]
-            prob_out = np.concatenate((pred_train_proba, pred_test_proba)).reshape(-1, 1)
+            prob_out = np.concatenate((pred_train_proba, pred_test_proba)).reshape(
+                -1, 1
+            )
             col_names += ["probability"]
         else:
             pred_test_proba = normalize(model.predict_proba(x_test), axis=1, norm="l1")
-            pred_train_proba = normalize(model.predict_proba(x_train), axis=1, norm="l1")
+            pred_train_proba = normalize(
+                model.predict_proba(x_train), axis=1, norm="l1"
+            )
             prob_out = np.concatenate((pred_train_proba, pred_test_proba))
             col_names += [f"class_{i}_prob" for i in range(len(set(y_train)))]
 
@@ -107,26 +112,40 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test, score_
         for score_name, scorer in score_dict.items():
             omicLogger.debug(f"Calculating {score_name} for Train and Test sets...")
             if not isinstance(scorer, _ProbaScorer):
-                score_results_dict[score_name + "_Train"] = scorer._score_func(y_train, pred_train, **scorer._kwargs)
-                score_results_dict[score_name + "_Test"] = scorer._score_func(y_test, pred_test, **scorer._kwargs)
+                score_results_dict[score_name + "_Train"] = scorer._score_func(
+                    y_train, pred_train, **scorer._kwargs
+                )
+                score_results_dict[score_name + "_Test"] = scorer._score_func(
+                    y_test, pred_test, **scorer._kwargs
+                )
             else:
                 score_results_dict[score_name + "_Train"] = scorer._score_func(
                     y_train, pred_train_proba, **scorer._kwargs
                 )
-                score_results_dict[score_name + "_Test"] = scorer._score_func(y_test, pred_test_proba, **scorer._kwargs)
+                score_results_dict[score_name + "_Test"] = scorer._score_func(
+                    y_test, pred_test_proba, **scorer._kwargs
+                )
 
             if score_name in ["f1_score", "precision_score", "recall_score"]:
-                omicLogger.debug(f"Calculating {score_name} perClass for Train and Test sets...")
+                omicLogger.debug(
+                    f"Calculating {score_name} perClass for Train and Test sets..."
+                )
                 score_results_dict[score_name + "_PerClass_Train"] = scorer._score_func(
                     y_train, pred_train, average=None
                 )
-                score_results_dict[score_name + "_PerClass_Test"] = scorer._score_func(y_test, pred_test, average=None)
+                score_results_dict[score_name + "_PerClass_Test"] = scorer._score_func(
+                    y_test, pred_test, average=None
+                )
 
         # confusion matrix doesnt return a single numeric value and can not be used for optimisation, but is good
         # to report hence why its defined here and not in metric_defs.py
         omicLogger.debug("Calculating confusion matrix...")
-        score_results_dict["confusion_matrix_Train"] = confusion_matrix(y_train, pred_train)
-        score_results_dict["confusion_matrix_Test"] = confusion_matrix(y_test, pred_test)
+        score_results_dict["confusion_matrix_Train"] = confusion_matrix(
+            y_train, pred_train
+        )
+        score_results_dict["confusion_matrix_Test"] = confusion_matrix(
+            y_test, pred_test
+        )
 
         pred_out = pd.DataFrame(
             np.concatenate((pred_out.reshape(-1, 1), prob_out), axis=1),
@@ -136,8 +155,12 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test, score_
         score_results_dict = {}
         for score_name, scorer in score_dict.items():
             omicLogger.debug(f"Calculating {score_name} for Train and Test sets...")
-            score_results_dict[score_name + "_Train"] = scorer._score_func(y_train, pred_train, **scorer._kwargs)
-            score_results_dict[score_name + "_Test"] = scorer._score_func(y_test, pred_test, **scorer._kwargs)
+            score_results_dict[score_name + "_Train"] = scorer._score_func(
+                y_train, pred_train, **scorer._kwargs
+            )
+            score_results_dict[score_name + "_Test"] = scorer._score_func(
+                y_test, pred_test, **scorer._kwargs
+            )
 
         pred_out = pd.DataFrame(pred_out, columns=["Prediction"])
 

@@ -26,11 +26,6 @@ COPY --chown=omicsuser:0 src .
 # Install required Python packages use block below if fixing other packages for the first time, use other
 COPY requirements.txt .
 RUN pip install -r requirements.txt 
-# COPY --chown=omicsuser:omicsuser requirements_fixed.txt .
-# RUN pip install -r requirements_fixed.txt 
-
-# use this a fix for Calour
-# RUN pip install numpy==1.20.0
 
 # Use 'omicsuser' user - this is overruled in Openshift
 USER omicsuser
