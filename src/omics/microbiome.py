@@ -329,8 +329,8 @@ def get_data_microbiome(path_file, metadata_path, config_dict):
     assert len(x) == len(y)
 
     x2 = pd.DataFrame(x, amp_exp.sample_metadata["_sample_id"], features_names)
-
-    return x2, y, features_names
+    y2 = y.values
+    return x2, y2, features_names
 
 
 def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
