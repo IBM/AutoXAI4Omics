@@ -266,7 +266,10 @@ class KerasModel(BaseModel):
         # train the model
         # choose number of epochs and batch_size
         epochs = self.epochs
-        batch_size = self.batch_size
+        if trainX.shape[0] > self.batch_size:
+            batch_size = self.batch_size
+        else:
+            batch_size = trainX.shape[0] - 1
 
         if testX is None and testY is None:
             vd = None

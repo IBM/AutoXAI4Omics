@@ -58,3 +58,6 @@ Change log for the codebase. Initialised from the developments following version
     - code comment clean up
     - multiline strings causing extra space fixed
     - added pytest marks to distinguish binary classiification problems
+    - microbiome pre-processing bugfix
+    - lgbm warning re: suggest_loguniform & suggest_uniform resolved
+    - AutoKeras bugfix re: batch_size
