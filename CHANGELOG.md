@@ -62,3 +62,4 @@ Change log for the codebase. Initialised from the developments following version
     - lgbm warning re: suggest_loguniform & suggest_uniform resolved
     - AutoKeras bugfix re: batch_size
     - tests_mode grabbing the wrong file at times when lots present
+    - Arm fixes for previous security fix

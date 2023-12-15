@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Dense, Flatten, Conv1D
-from tensorflow.keras import optimizers, losses
+from tensorflow.keras import losses
+
+import tensorflow.keras.optimizers.legacy
+
 from tensorflow.keras.callbacks import (
     LearningRateScheduler,
     EarlyStopping,
@@ -75,9 +78,10 @@ class KerasModel(BaseModel):
                 outputs=output_node,
                 directory=tmp_path,
                 max_trials=self.max_trials,
-                objective="val_loss",
+                objective=["val_loss"],
                 tuner=self.tuner,
                 seed=self.random_state,
+                optimizer=tensorflow.keras.optimizers.legacy.Adam(),
             )
 
         else:
@@ -96,9 +100,10 @@ class KerasModel(BaseModel):
                 outputs=output_node,
                 directory=tmp_path,
                 max_trials=self.max_trials,
-                objective="accuracy",
+                objective=["accuracy"],
                 tuner=self.tuner,
                 seed=self.random_state,
+                optimizer=tensorflow.keras.optimizers.legacy.Adam(),
             )
 
         self.model = model
@@ -223,7 +228,7 @@ class KerasModel(BaseModel):
                     )
 
         # choose optimizer
-        opt = optimizers.Adam()
+        opt = tensorflow.keras.optimizers.legacy.Adam()
 
         # choose loss function
         if self.dataset_type == REGRESSION:
