@@ -33,9 +33,9 @@ def test_modes(mode, problem_create):
         config["data"]["save_path"][1:]
         + f'results/{config["data"]["name"]}/AutoOmicLog_*'
     )
-    log_filepath = glob.glob(log_filepath)[-1]
+    log_filepath = sorted(glob.glob(log_filepath), reverse=True)[-1]
     with open(log_filepath, "r") as F:
-        last_line = F.readlines()[-1]
+        last_line = F.readlines()[-2]
     assert "INFO : Process completed." in last_line
 
 
