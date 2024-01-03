@@ -11,6 +11,7 @@ sys.path.append("../OmiXai/")
 
 
 # Test to check if all scripts run to completion without raising errors for non-omic data
+@pytest.mark.synthetic
 @pytest.mark.modes
 @pytest.mark.parametrize(
     "mode",
@@ -41,6 +42,7 @@ def test_modes(mode, problem_create):
 
 # Test to check if the outputs are the same as expected outcomes
 @pytest.mark.output
+@pytest.mark.synthetic
 @pytest.mark.parametrize(
     "problem",
     [
@@ -50,8 +52,10 @@ def test_modes(mode, problem_create):
                 pytest.mark.classification,
                 pytest.mark.binary,
                 pytest.mark.skipif(
-                    exists(
-                        "/experiments/results/generated_test_classification_run1_1/best_model/"
+                    not (
+                        exists(
+                            "experiments/results/generated_test_classification_run1_1/best_model/"
+                        )
                     ),
                     reason="Best model folder was not created",
                 ),
@@ -63,8 +67,10 @@ def test_modes(mode, problem_create):
                 pytest.mark.classification,
                 pytest.mark.multi,
                 pytest.mark.skipif(
-                    exists(
-                        "/experiments/results/generated_test_classification_multi_run1_1/best_model/"
+                    not (
+                        exists(
+                            "experiments/results/generated_test_classification_multi_run1_1/best_model/"
+                        )
                     ),
                     reason="Best model folder was not created",
                 ),
@@ -75,8 +81,10 @@ def test_modes(mode, problem_create):
             marks=[
                 pytest.mark.regression,
                 pytest.mark.skipif(
-                    exists(
-                        "/experiments/results/generated_test_regression_run1_1/best_model/"
+                    not (
+                        exists(
+                            "experiments/results/generated_test_regression_run1_1/best_model/"
+                        )
                     ),
                     reason="Best model folder was not created",
                 ),
@@ -119,6 +127,13 @@ def test_model_outputs(problem):
 
 # Test to check if all scripts run to completion without raising errors for omic data
 @pytest.mark.omics
+@pytest.mark.skipif(
+    not (exists("configs/OmicsTestSets/configs")),
+    reason="OmicsTestSets (configs) not present",
+)
+@pytest.mark.skipif(
+    not (exists("data/OmicsTestSets/data")), reason="OmicsTestSets (data) not present"
+)
 @pytest.mark.parametrize(
     "mode",
     [

@@ -66,3 +66,5 @@ Change log for the codebase. Initialised from the developments following version
     - test_modes bugfix
     - name change within code base & repo (from `Auto-Omics` to `OmiXai`)
     - provided example data & config users can run
+    - corrected test_model_outputs
+    - added skip conditions for test_omic_datasets
