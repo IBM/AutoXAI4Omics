@@ -63,3 +63,4 @@ Change log for the codebase. Initialised from the developments following version
     - AutoKeras bugfix re: batch_size
     - tests_mode grabbing the wrong file at times when lots present
     - Arm fixes for previous security fix
+    - test_modes bugfix
