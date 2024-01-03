@@ -7,7 +7,7 @@ import pandas as pd
 import json
 import glob
 
-sys.path.append("../auto-omics/")
+sys.path.append("../OmiXai/")
 
 
 # Test to check if all scripts run to completion without raising errors for non-omic data

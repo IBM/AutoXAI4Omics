@@ -34,7 +34,7 @@ For general IBM internal use of the tool please cite this article:
 
 ## How to install OmiXai
 
- 1. Clone this repo however you choose (cli command: `git clone --single-branch --branch main git@github.ibm.com:BiomedSciAI-Innersource/Auto-Omics.git`)
+ 1. Clone this repo however you choose (cli command: `git clone --single-branch --branch main git@github.ibm.com:BiomedSciAI-Innersource/OmiXai.git`)
  2. Make sure `docker` is running (cli command: `docker version`, if installed the version information will be given)
  3. Within the `OmiXai` folder:
        1. Run the following cli command to build the image: `./build.sh -r`
@@ -44,7 +44,7 @@ NOTE: if training is run by mistake without first creating the `experiments` dir
 
 ## User manual
 
-Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/Auto-Omics/blob/main/configs/CONFIG_MANUAL.md).
+Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/OmiXai/blob/main/configs/CONFIG_MANUAL.md).
 
 The tool is launched in the cli using `omixai.sh` which has multiple flags, examples will be given below:
 
