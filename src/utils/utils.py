@@ -161,7 +161,7 @@ def setup_logger(experiment_folder):
 
     lg_file["handlers"]["file"]["filename"] = str(
         experiment_folder
-        / f"AutoOmicLog_{str(int(datetime.timestamp(datetime.utcnow())))}.log"
+        / f"OmiXaiLog_{str(int(datetime.timestamp(datetime.utcnow())))}.log"
     )
     logging.config.dictConfig(lg_file)
     omicLogger = logging.getLogger("OmicLogger")

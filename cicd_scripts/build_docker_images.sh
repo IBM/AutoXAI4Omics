@@ -9,7 +9,7 @@
 set -x # switch on
 # set +x # switch off
 
-echo "This is the script to build & push Auto-Omics Docker Images"
+echo "This is the script to build & push OmiXai Docker Images"
 
 echo "IBM Cloud Region: $IBM_CLOUD_REGION"
 echo "Container Registry Region: $REGISTRY_REGION"

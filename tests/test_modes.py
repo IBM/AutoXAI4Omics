@@ -24,14 +24,14 @@ sys.path.append("../auto-omics/")
 )
 def test_modes(mode, problem_create):
     fname = problem_create.split("/")[1]
-    sp = subprocess.call(["./auto_omics.sh", "-m", mode, "-c", fname])
+    sp = subprocess.call(["./omixai.sh", "-m", mode, "-c", fname])
     assert sp == 0
 
     with open(f"configs/{fname}", "r") as infile:
         config = json.load(infile)
     log_filepath = (
         config["data"]["save_path"][1:]
-        + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+        + f'results/{config["data"]["name"]}/OmiXaiLog_*'
     )
     log_filepath = sorted(glob.glob(log_filepath), reverse=True)[-1]
     with open(log_filepath, "r") as F:
@@ -148,14 +148,14 @@ def test_model_outputs(problem):
 )
 def test_omic_datasets(mode, omic, problem):
     fname = f"OmicsTestSets/configs/test_{omic}_{problem}.json"
-    sp = subprocess.call(["./auto_omics.sh", "-m", mode, "-c", fname])
+    sp = subprocess.call(["./omixai.sh", "-m", mode, "-c", fname])
     assert sp == 0
 
     with open(f"configs/{fname}", "r") as infile:
         config = json.load(infile)
     log_filepath = (
         config["data"]["save_path"][1:]
-        + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+        + f'results/{config["data"]["name"]}/OmiXaiLog_*'
     )
     log_filepath = sorted(glob.glob(log_filepath), reverse=True)[-1]
     with open(log_filepath, "r") as F:

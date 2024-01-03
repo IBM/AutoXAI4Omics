@@ -22,19 +22,19 @@ services:
 
 env:
   global:
-    - IMAGE_NAME=auto_omics
-    
+    - IMAGE_NAME=omixai
+
 # safelist - only work with these github branches
 branches:
-   only:
-   - DEV
-   - main
+  only:
+    - DEV
+    - main
 
 # trigger builds on each push to dev
 #if: (type=push AND branch IN (Trigger-Travis-build, task-276-travis-update)) OR (type=pull_request AND branch=dev)
 
 notifications:
-  email: 
+  email:
     recipients:
       - james.strudwick@ibm.com
     on_success: always
@@ -44,7 +44,7 @@ before_install:
   - mkdir -vp ~/.docker/cli-plugins/
   - curl --silent -L "https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
   - chmod a+x ~/.docker/cli-plugins/docker-buildx
-  - docker info 
+  - docker info
 
 install: skip
 

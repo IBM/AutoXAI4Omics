@@ -64,3 +64,4 @@ Change log for the codebase. Initialised from the developments following version
     - tests_mode grabbing the wrong file at times when lots present
     - Arm fixes for previous security fix
     - test_modes bugfix
+    - name change within code base (from `Auto-Omics` to `OmiXai`)
