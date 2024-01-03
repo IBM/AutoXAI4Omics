@@ -67,7 +67,13 @@ Data to be used by OmiXai needs to be stored in the `OmiXai/data` folder.
 * Run OmiXai in training mode with a config called `my_fun_config.json` within the `configs` folder:
   * `./omixai.sh -m train -c my_fun_config.json`
 
-* If you wish to run a bash shell within the OmiXai image then you can do it using the following. In addition if you wish to be logged in as root add the -r flag:
+* We have provided and example config and dataset that you can run to get going. The components are:
+  * config: `configs/examples/50k_barley_SHAP.json`
+  * data: `data/geno_row_type_BRIDGE_50k_w.hetero.csv`
+  * metadata: `data/row_type_BRIDGE_pheno_50k_metadata_w.hetero.csv`
+  * cli command to run: `./omixai.sh -m train -c examples/50k_barley_SHAP.json`
+
+* If you wish to run a bash shell within the OmiXai image then you can do it using the following. In addition if you wish to be logged in as root add the `-r` flag:
   * `./omixai.sh -m bash -r`
 
 * **UNDER TESTING** If you wish to utilise any gpus that are available on your machine during your OmiXai run then you can add the `-g` flag:

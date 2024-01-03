@@ -65,3 +65,4 @@ Change log for the codebase. Initialised from the developments following version
     - Arm fixes for previous security fix
     - test_modes bugfix
     - name change within code base & repo (from `Auto-Omics` to `OmiXai`)
+    - provided example data & config users can run

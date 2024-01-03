@@ -1,0 +1,104 @@
+{
+    "data": {
+        "name": "50k_barley_rowtype_binary_SHAP",
+        "file_path": "/data/geno_row_type_BRIDGE_50k_w.hetero.csv",
+        "metadata_file": "/data/row_type_BRIDGE_pheno_50k_metadata_w.hetero.csv",
+        "save_path": "/experiments/",
+        "target": "row_type_BRIDGE",
+        "data_type": "tabular"
+    },
+    "ml": {
+        "seed_num": 42,
+        "test_size": 0.2,
+        "problem_type": "classification",
+        "hyper_tuning": "random",
+        "hyper_budget": 50,
+        "stratify_by_groups": "N",
+        "groups": "",
+        "balancing": "NONE",
+        "fit_scorer": "f1_score",
+        "scorer_list": [
+            "accuracy_score",
+            "f1_score"
+        ],
+        "model_list": [
+            "RandomForestClassifier",
+            "AdaBoostClassifier",
+            "KNeighborsClassifier",
+            "AutoXGBoost",
+            "AutoLGBM",
+            "AutoSKLearn",
+            "AutoKeras"
+        ],
+        "autosklearn_config": {
+            "verbose": true,
+            "estimators": [
+                "decision_tree",
+                "extra_trees",
+                "k_nearest_neighbors",
+                "random_forest"
+            ],
+            "time_left_for_this_task": 120,
+            "per_run_time_limit": 60,
+            "memory_limit": 65536,
+            "n_jobs": 1,
+            "ensemble_size": 1
+        },
+        "autokeras_config": {
+            "n_epochs": 100,
+            "batch_size": 32,
+            "verbose": true,
+            "n_blocks": 3,
+            "dropout": 0.3,
+            "use_batchnorm": true,
+            "n_trials": 4,
+            "tuner": "bayesian"
+        },
+        "autolgbm_config": {
+            "verbose": true,
+            "n_trials": 5,
+            "timeout": 60
+        },
+        "autoxgboost_config": {
+            "verbose": true,
+            "n_trials": 10,
+            "timeout": 500
+        },
+        "feature_selection": {
+            "k": 1000,
+            "var_threshold": 0,
+            "auto": {
+                "min_features": 10,
+                "interval": 1,
+                "eval_model": "RandomForestClassifier",
+                "eval_metric": "f1_score"
+            },
+            "method": {
+                "name": "SelectKBest",
+                "metric": "f_classif"
+            }
+        },
+        "encoding": null
+    },
+    "plotting": {
+        "plot_method": [
+            "barplot_scorer",
+            "boxplot_scorer",
+            "conf_matrix",
+            "shap_plots",
+            "roc_curve"
+        ],
+        "top_feats_permImp": 15,
+        "top_feats_shap": 15,
+        "explanations_data": "all"
+    },
+    "tabular": {
+        "filter_tabular_sample": 1000000,
+        "filter_tabular_measurements": [
+            0,
+            1
+        ],
+        "output_file_tab": "/data/50k_barley_row_type_processed.csv",
+        "output_metadata": "/data/50k_barley_row_type_processed_metadata.csv"
+    }
+}
