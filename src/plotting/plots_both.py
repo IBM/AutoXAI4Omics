@@ -142,6 +142,7 @@ def barplot_scorer(
     # Make the barplot
     sns.barplot(x=pretty_model_names, y=all_scores, ax=ax)
     # ax.set_xticklabels(pretty_model_names)
+    plt.xticks(rotation=90)
     ax.set_ylabel(pretty_names(fit_scorer, "score"))
     ax.set_xlabel("Model")
     ax.set_title("Performance on test data")
@@ -347,6 +348,7 @@ def boxplot_scorer_cv(
     sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
     # Format the graph
     ax.set_xlabel("ML Methods")
+    plt.xticks(rotation=90)
 
     fig = plt.gcf()
     # Save the graph

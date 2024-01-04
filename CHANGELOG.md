@@ -68,3 +68,4 @@ Change log for the codebase. Initialised from the developments following version
     - provided example data & config users can run
     - corrected test_model_outputs
     - added skip conditions for test_omic_datasets
+    - bug fix of xticks for bar & box plots
