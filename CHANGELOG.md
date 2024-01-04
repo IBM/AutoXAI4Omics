@@ -87,3 +87,4 @@ Change log for the codebase. Initialised from the developments following version
     - bug fix of xticks for bar & box plots
     - added statement about supported python version to Readme and dev manual
     - License file created and headers added to files
+    - fixed commenting of license in requirements.txt
