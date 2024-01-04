@@ -1,3 +1,17 @@
+// Copyright 2024 IBM Corp.
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 model,accuracy_score_Train,accuracy_score_Test,f1_score_Train,f1_score_Test,f1_score_PerClass_Train,f1_score_PerClass_Test,hamming_loss_Train,hamming_loss_Test,jaccard_score_Train,jaccard_score_Test,matthews_corrcoef_Train,matthews_corrcoef_Test,precision_score_Train,precision_score_Test,precision_score_PerClass_Train,precision_score_PerClass_Test,recall_score_Train,recall_score_Test,recall_score_PerClass_Train,recall_score_PerClass_Test,zero_one_loss_Train,zero_one_loss_Test,roc_auc_score_Train,roc_auc_score_Test,confusion_matrix_Train,confusion_matrix_Test
 RandomForestClassifier,1.0,0.75,1.0,0.7466666666666667,[1. 1.],[0.8        0.66666667],0.0,0.25,1.0,0.6,1.0,0.47075654176200415,1.0,0.7472527472527473,[1. 1.],[0.76923077 0.71428571],1.0,0.75,[1. 1.],[0.83333333 0.625     ],0.0,0.25,1.0,0.75,"[[48  0]
  [ 0 48]]","[[10  2]

@@ -1,8 +1,16 @@
-# --------------------------------------------------------------------------
-# Licensed Materials - Property of IBM
+# Copyright 2024 IBM Corp.
 #
-# (C) Copyright IBM Corp. 2019, 2020
-# --------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import numpy as np
 import scipy.stats as sp
@@ -156,7 +164,9 @@ boaas_dict = {
         "domain": [{"name": "n_neighbours", "min": 2, "max": 50, "step": 1}],
         "metric": "euclidean",  # To make this searchable you need a container to allow categorical (integer) selection
     },
-    "adaboost": {"domain": [{"name": "n_estimators", "min": 10, "max": 500, "step": 10}]},
+    "adaboost": {
+        "domain": [{"name": "n_estimators", "min": 10, "max": 500, "step": 10}]
+    },
     "svr": {}  # This cannot be defined adequately until boaas accepts non-uniform ranges
     # See https://github.ibm.com/machine-learning-daresbury/boaas/issues/13
 }
