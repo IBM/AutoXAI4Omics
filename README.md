@@ -31,6 +31,7 @@ For general IBM internal use of the tool please cite this article:
   * installation: `https://docs.docker.com/get-docker/`
 * Git
   * installation: `https://github.com/git-guides/install-git`
+* Python 3.9 (only required if the user is planning on contributing to the development of the tool)
 
 ## How to install OmiXai
 

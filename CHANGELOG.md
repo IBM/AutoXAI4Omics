@@ -69,3 +69,4 @@ Change log for the codebase. Initialised from the developments following version
     - corrected test_model_outputs
     - added skip conditions for test_omic_datasets
     - bug fix of xticks for bar & box plots
+    - added statement about supported python version to Readme and dev manual

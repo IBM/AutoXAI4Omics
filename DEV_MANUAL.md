@@ -3,7 +3,8 @@
 This section will briefly outline the steps needed to extend the framework. This is mainly aimed at pointing the user towards the relevant dictionaries when a new model or plot is to be added.
 ​
 There are a few parts of this framework that are hard-coded, and will need to be modified when adding new plots, models, or scorers.
-​
+
+Currently the tool uses `python3.9`. As the tool expands we will check and expand the range of python versions that it could be changed/upgraded to.
 
 ## Adding a new data type
 
