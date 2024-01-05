@@ -88,3 +88,4 @@ Change log for the codebase. Initialised from the developments following version
     - added statement about supported python version to Readme and dev manual
     - License file created and headers added to files
     - fixed commenting of license in requirements.txt
+    - `.pre-commit-config.yaml` cleaned
