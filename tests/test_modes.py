@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,7 @@ sys.path.append("../OmiXai/")
 # Test to check if all scripts run to completion without raising errors for non-omic data
 @pytest.mark.synthetic
 @pytest.mark.modes
+@pytest.mark.container
 @pytest.mark.parametrize(
     "mode",
     [
@@ -37,7 +38,8 @@ sys.path.append("../OmiXai/")
         pytest.param("feature", marks=pytest.mark.feature),
     ],
 )
-def test_modes(mode, problem_create):
+def test_modes(mode, problem_create, container):
+    assert container
     fname = problem_create.split("/")[1]
     sp = subprocess.call(["./omixai.sh", "-m", mode, "-c", fname])
     assert sp == 0
@@ -141,6 +143,7 @@ def test_model_outputs(problem):
 
 # Test to check if all scripts run to completion without raising errors for omic data
 @pytest.mark.omics
+@pytest.mark.container
 @pytest.mark.skipif(
     not (exists("configs/OmicsTestSets/configs")),
     reason="OmicsTestSets (configs) not present",
@@ -175,7 +178,8 @@ def test_model_outputs(problem):
         pytest.param("reg", marks=pytest.mark.regression),
     ],
 )
-def test_omic_datasets(mode, omic, problem):
+def test_omic_datasets(mode, omic, problem, container):
+    assert container
     fname = f"OmicsTestSets/configs/test_{omic}_{problem}.json"
     sp = subprocess.call(["./omixai.sh", "-m", mode, "-c", fname])
     assert sp == 0

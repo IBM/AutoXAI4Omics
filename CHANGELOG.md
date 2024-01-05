@@ -89,3 +89,4 @@ Change log for the codebase. Initialised from the developments following version
     - License file created and headers added to files
     - fixed commenting of license in requirements.txt
     - `.pre-commit-config.yaml` cleaned
+    - tests requiring a container marked and fixture added to build the container
