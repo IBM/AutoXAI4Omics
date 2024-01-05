@@ -18,7 +18,7 @@
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
-## V0.12.0
+## V1.0.0
 
     - Introduction of pre-commit hooks (Ruff & Blacks)
     - Linting of code
