@@ -1,8 +1,24 @@
+<!--
+ Copyright 2024 IBM Corp.
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+     http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
 # CHANGELOG
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
-## V0.12.0
+## V1.0.0
 
     - Introduction of pre-commit hooks (Ruff & Blacks)
     - Linting of code
@@ -61,3 +77,17 @@ Change log for the codebase. Initialised from the developments following version
     - microbiome pre-processing bugfix
     - lgbm warning re: suggest_loguniform & suggest_uniform resolved
     - AutoKeras bugfix re: batch_size
+    - tests_mode grabbing the wrong file at times when lots present
+    - Arm fixes for previous security fix
+    - test_modes bugfix
+    - name change within code base & repo (from `Auto-Omics` to `OmiXai`)
+    - provided example data & config users can run
+    - corrected test_model_outputs
+    - added skip conditions for test_omic_datasets
+    - bug fix of xticks for bar & box plots
+    - added statement about supported python version to Readme and dev manual
+    - License file created and headers added to files
+    - fixed commenting of license in requirements.txt
+    - `.pre-commit-config.yaml` cleaned
+    - tests requiring a container marked and fixture added to build the container
+    - `CONTRIBUTING.md` added and info added to `DEV_MANUAL.md`

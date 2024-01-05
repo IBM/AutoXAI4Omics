@@ -1,3 +1,17 @@
+# Copyright 2024 IBM Corp.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit, KFold, StratifiedKFold
@@ -142,6 +156,7 @@ def barplot_scorer(
     # Make the barplot
     sns.barplot(x=pretty_model_names, y=all_scores, ax=ax)
     # ax.set_xticklabels(pretty_model_names)
+    plt.xticks(rotation=90)
     ax.set_ylabel(pretty_names(fit_scorer, "score"))
     ax.set_xlabel("Model")
     ax.set_title("Performance on test data")
@@ -347,6 +362,7 @@ def boxplot_scorer_cv(
     sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
     # Format the graph
     ax.set_xlabel("ML Methods")
+    plt.xticks(rotation=90)
 
     fig = plt.gcf()
     # Save the graph

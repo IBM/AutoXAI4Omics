@@ -1,6 +1,22 @@
-# Auto-Omics: an Explainable Auto-AI tool for omics and tabular data
+<!--
+ Copyright 2024 IBM Corp.
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+     http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
 
-Auto-Omics is a command line automated explainable AI tool that easily enable researchers to perform phenotype prediction from omics data (e.g., gene expression; microbiome data; or any tabular data) and any tabular data (e.g., clinical) using a range of ML models.
+# OmiXai: an Explainable Auto-AI tool for omics and tabular data
+
+OmiXai is a command line automated explainable AI tool that easily enable researchers to perform phenotype prediction from omics data (e.g., gene expression; microbiome data; or any tabular data) and any tabular data (e.g., clinical) using a range of ML models.
 
 *Key features include*:
 
@@ -31,12 +47,13 @@ For general IBM internal use of the tool please cite this article:
   * installation: `https://docs.docker.com/get-docker/`
 * Git
   * installation: `https://github.com/git-guides/install-git`
+* Python 3.9 (only required if the user is planning on contributing to the development of the tool)
 
-## How to install Auto-Omics
+## How to install OmiXai
 
- 1. Clone this repo however you choose (cli command: `git clone --single-branch --branch main git@github.ibm.com:BiomedSciAI-Innersource/Auto-Omics.git`)
+ 1. Clone this repo however you choose (cli command: `git clone --single-branch --branch main git@github.ibm.com:BiomedSciAI-Innersource/OmiXai.git`)
  2. Make sure `docker` is running (cli command: `docker version`, if installed the version information will be given)
- 3. Within the `Auto-Omics` folder:
+ 3. Within the `OmiXai` folder:
        1. Run the following cli command to build the image: `./build.sh -r`
        2. Manually create a new folder called `experiments`
 
@@ -44,31 +61,37 @@ NOTE: if training is run by mistake without first creating the `experiments` dir
 
 ## User manual
 
-Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/Auto-Omics/blob/main/configs/CONFIG_MANUAL.md).
+Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/OmiXai/blob/main/configs/CONFIG_MANUAL.md).
 
-The tool is launched in the cli using `auto_omics.sh` which has multiple flags, examples will be given below:
+The tool is launched in the cli using `omixai.sh` which has multiple flags, examples will be given below:
 
-* `-m` this specifies what mode you want to run auto omics in the options are:
+* `-m` this specifies what mode you want to run OmiXai in the options are:
   * `feature` - Run feature selection on a input data set
   * `train` - Tune and train various machine learning models, generate plots and results
   * `test` - To test and evaluate the tuned and trained machine learning models on a completely different holdout dataset
   * `predict` - Use trained models to predict on unseen data
   * `plotting` - If the models have been tuned and trained (and therefore saved), the plots and results can be generated in isolation
   * `bash` - Use to open up a bash shell into the tool
-* `-c` this is the filename of the config json within the `Auto-Omics/configs` folder that is going to be given to auto_omics
+* `-c` this is the filename of the config json within the `OmiXai/configs` folder that is going to be given to OmiXai
 * `-r` this sets the contain to run as root. Only possibly required if you are running in `bash` mode
 * `-d` this detatches the cli running the container in the background
-* `-g` this specifies if you want auto_omics to use the gpus that are available on the machine (UNDER TESTING)
+* `-g` this specifies if you want OmiXai to use the gpus that are available on the machine (UNDER TESTING)
 
-Data to be used by Auto-Omics needs to be stored in the `Auto-Omics/data` folder.
+Data to be used by OmiXai needs to be stored in the `OmiXai/data` folder.
 
 ### Examples
 
-* Run auto omics in training mode with a config called `my_fun_config.json` within the `configs` folder:
-  * `./auto_omics.sh -m train -c my_fun_config.json`
+* Run OmiXai in training mode with a config called `my_fun_config.json` within the `configs` folder:
+  * `./omixai.sh -m train -c my_fun_config.json`
 
-* If you wish to run a bash shell within the auto omics image then you can do it using the following. In addition if you wish to be logged in as root add the -r flag:
-  * `./auto_omics.sh -m bash -r`
+* We have provided and example config and dataset that you can run to get going. The components are:
+  * config: `configs/examples/50k_barley_SHAP.json`
+  * data: `data/geno_row_type_BRIDGE_50k_w.hetero.csv`
+  * metadata: `data/row_type_BRIDGE_pheno_50k_metadata_w.hetero.csv`
+  * cli command to run: `./omixai.sh -m train -c examples/50k_barley_SHAP.json`
 
-* **UNDER TESTING** If you wish to utilise any gpus that are available on your machine during your auto_omics run then you can add the `-g` flag:
-  * `./auto_omics.sh -m train -c my_fun_config.json -g`
+* If you wish to run a bash shell within the OmiXai image then you can do it using the following. In addition if you wish to be logged in as root add the `-r` flag:
+  * `./omixai.sh -m bash -r`
+
+* **UNDER TESTING** If you wish to utilise any gpus that are available on your machine during your OmiXai run then you can add the `-g` flag:
+  * `./omixai.sh -m train -c my_fun_config.json -g`

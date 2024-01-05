@@ -1,3 +1,17 @@
+# Copyright 2024 IBM Corp.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import subprocess
 import pytest
 from os.path import exists
@@ -7,11 +21,13 @@ import pandas as pd
 import json
 import glob
 
-sys.path.append("../auto-omics/")
+sys.path.append("../OmiXai/")
 
 
 # Test to check if all scripts run to completion without raising errors for non-omic data
+@pytest.mark.synthetic
 @pytest.mark.modes
+@pytest.mark.container
 @pytest.mark.parametrize(
     "mode",
     [
@@ -22,25 +38,27 @@ sys.path.append("../auto-omics/")
         pytest.param("feature", marks=pytest.mark.feature),
     ],
 )
-def test_modes(mode, problem_create):
+def test_modes(mode, problem_create, container):
+    assert container
     fname = problem_create.split("/")[1]
-    sp = subprocess.call(["./auto_omics.sh", "-m", mode, "-c", fname])
+    sp = subprocess.call(["./omixai.sh", "-m", mode, "-c", fname])
     assert sp == 0
 
     with open(f"configs/{fname}", "r") as infile:
         config = json.load(infile)
     log_filepath = (
         config["data"]["save_path"][1:]
-        + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+        + f'results/{config["data"]["name"]}/OmiXaiLog_*'
     )
-    log_filepath = glob.glob(log_filepath)[-1]
+    log_filepath = sorted(glob.glob(log_filepath), reverse=True)[-1]
     with open(log_filepath, "r") as F:
-        last_line = F.readlines()[-1]
-    assert "INFO : Process completed." in last_line
+        last_line = F.readlines()[-2:]
+    assert "INFO : Process completed." in last_line[0] or last_line[1]
 
 
 # Test to check if the outputs are the same as expected outcomes
 @pytest.mark.output
+@pytest.mark.synthetic
 @pytest.mark.parametrize(
     "problem",
     [
@@ -50,8 +68,10 @@ def test_modes(mode, problem_create):
                 pytest.mark.classification,
                 pytest.mark.binary,
                 pytest.mark.skipif(
-                    exists(
-                        "/experiments/results/generated_test_classification_run1_1/best_model/"
+                    not (
+                        exists(
+                            "experiments/results/generated_test_classification_run1_1/best_model/"
+                        )
                     ),
                     reason="Best model folder was not created",
                 ),
@@ -63,8 +83,10 @@ def test_modes(mode, problem_create):
                 pytest.mark.classification,
                 pytest.mark.multi,
                 pytest.mark.skipif(
-                    exists(
-                        "/experiments/results/generated_test_classification_multi_run1_1/best_model/"
+                    not (
+                        exists(
+                            "experiments/results/generated_test_classification_multi_run1_1/best_model/"
+                        )
                     ),
                     reason="Best model folder was not created",
                 ),
@@ -75,8 +97,10 @@ def test_modes(mode, problem_create):
             marks=[
                 pytest.mark.regression,
                 pytest.mark.skipif(
-                    exists(
-                        "/experiments/results/generated_test_regression_run1_1/best_model/"
+                    not (
+                        exists(
+                            "experiments/results/generated_test_regression_run1_1/best_model/"
+                        )
                     ),
                     reason="Best model folder was not created",
                 ),
@@ -119,6 +143,14 @@ def test_model_outputs(problem):
 
 # Test to check if all scripts run to completion without raising errors for omic data
 @pytest.mark.omics
+@pytest.mark.container
+@pytest.mark.skipif(
+    not (exists("configs/OmicsTestSets/configs")),
+    reason="OmicsTestSets (configs) not present",
+)
+@pytest.mark.skipif(
+    not (exists("data/OmicsTestSets/data")), reason="OmicsTestSets (data) not present"
+)
 @pytest.mark.parametrize(
     "mode",
     [
@@ -146,18 +178,19 @@ def test_model_outputs(problem):
         pytest.param("reg", marks=pytest.mark.regression),
     ],
 )
-def test_omic_datasets(mode, omic, problem):
+def test_omic_datasets(mode, omic, problem, container):
+    assert container
     fname = f"OmicsTestSets/configs/test_{omic}_{problem}.json"
-    sp = subprocess.call(["./auto_omics.sh", "-m", mode, "-c", fname])
+    sp = subprocess.call(["./omixai.sh", "-m", mode, "-c", fname])
     assert sp == 0
 
     with open(f"configs/{fname}", "r") as infile:
         config = json.load(infile)
     log_filepath = (
         config["data"]["save_path"][1:]
-        + f'results/{config["data"]["name"]}/AutoOmicLog_*'
+        + f'results/{config["data"]["name"]}/OmiXaiLog_*'
     )
-    log_filepath = glob.glob(log_filepath)[-1]
+    log_filepath = sorted(glob.glob(log_filepath), reverse=True)[-1]
     with open(log_filepath, "r") as F:
-        last_line = F.readlines()[-1]
-    assert "INFO : Process completed." in last_line
+        last_line = F.readlines()[-2:]
+    assert "INFO : Process completed." in last_line[0] or last_line[1]

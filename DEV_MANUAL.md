@@ -1,9 +1,42 @@
+<!--
+ Copyright 2024 IBM Corp.
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+     http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
 # Extending the Framework
 
 This section will briefly outline the steps needed to extend the framework. This is mainly aimed at pointing the user towards the relevant dictionaries when a new model or plot is to be added.
 ​
 There are a few parts of this framework that are hard-coded, and will need to be modified when adding new plots, models, or scorers.
-​
+
+Currently the tool uses `python3.9`. As the tool expands we will check and expand the range of python versions that it could be changed/upgraded to.
+
+## Code formatting
+
+Please use blacks & ruff to format any code contributions, we have a pre-commit config yaml that you can use.
+
+## Virtual enviroment
+
+Currently we are unable to make a virtual enviroment on M1 macs (`darwin/arm64`) as  but for `linux` systems a virtual enviroment can be made with the requirements given in `requirements.txt`
+
+## Testing
+
+We have pytests that can be excuted to make sure the system works. The low level tests need to be expanded to increase coverage. The high-level system tests are covered by the `test_modes.py` file. This test covers:
+
+- Where it will build the container and then run it with synthetic data through all the separate modes.
+- Comparing the output from the trained run with stored results to ensure reproducibility
+- If available, will also omic datasets to ensure it works for these problems too
 
 ## Adding a new data type
 
