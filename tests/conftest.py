@@ -1,8 +1,23 @@
+# Copyright 2024 IBM Corp.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import pytest
 from sklearn.datasets import make_regression, make_classification
 import pandas as pd
 import os
 import json
+import subprocess
 import shutil
 
 ##################### DATA SET CREATION #####################
@@ -26,7 +41,7 @@ def dataset_create_data(problem_type, **kwargs):
 def dataset_std_def_reg():
     def_dict = {
         "n_samples": 100,
-        "n_features": 20,
+        "n_features": 200,
         "n_informative": 10,
         "n_targets": 1,
         "shuffle": True,
@@ -39,7 +54,7 @@ def dataset_std_def_reg():
 def dataset_std_def_clf_bin():
     def_dict = {
         "n_samples": 100,
-        "n_features": 20,
+        "n_features": 200,
         "n_informative": 10,
         "n_classes": 2,
         "n_clusters_per_class": 1,
@@ -140,17 +155,6 @@ def config_autoxgboost():
     return outdict
 
 
-# def config_autogluon():
-#     outdict = {
-#         "autogluon_config": {
-#             "verbose": True,
-#             "auto_stack": False,
-#             "time_limits": 120
-#         },
-#     }
-#     return outdict
-
-
 def config_all_auto_methods():
     outdict = {
         **config_autosklearn(),
@@ -205,22 +209,38 @@ def config_all_plotting(problem_type):
 
 
 def config_feature_selection():
-    outdict = {"feature_selection": {"k": "auto"}}
+    outdict = {"feature_selection": {"k": "auto", "auto": {"max_features": None}}}
     return outdict
 
 
-def config_model_list():
+def config_model_list(problem_type):
+    if problem_type == "regression":
+        ml = [
+            "RandomForestRegressor",
+            "SVR",
+            "KNeighborsRegressor",
+            "AdaBoostRegressor",
+            "XGBRegressor",
+        ]
+    elif problem_type == "classification":
+        ml = [
+            "RandomForestClassifier",
+            "SVC",
+            "KNeighborsClassifier",
+            "AdaBoostClassifier",
+            "XGBClassifier",
+        ]
+    else:
+        raise ValueError(f"Unexpected problem type: {problem_type}")
     outdict = {
-        "model_list": [
-            "rf",
-            "adaboost",
-            "knn",
-            "autoxgboost",
-            "autolgbm",
-            "autosklearn",
-            "autokeras",
-            "fixedkeras",
-        ],
+        "model_list": ml
+        + [
+            "AutoKeras",
+            "AutoLGBM",
+            "AutoSKLearn",
+            "AutoXGBoost",
+            "FixedKeras",
+        ]
     }
     return outdict
 
@@ -228,13 +248,31 @@ def config_model_list():
 def config_scorers(problem_type):
     if problem_type == "regression":
         outdict = {
-            "fit_scorer": "mean_ape",
-            "scorer_list": ["mean_ae", "med_ae", "rmse", "mean_ape", "r2"],
+            "fit_scorer": "mean_absolute_percentage_error",
+            "scorer_list": [
+                "explained_variance_score",
+                "mean_squared_error",
+                "rmse",
+                "mean_absolute_error",
+                "median_absolute_error",
+                "mean_absolute_percentage_error",
+                "r2_score",
+            ],
         }
     elif problem_type == "classification":
         outdict = {
-            "fit_scorer": "f1",
-            "scorer_list": ["acc", "f1"],
+            "fit_scorer": "f1_score",
+            "scorer_list": [
+                "accuracy_score",
+                "f1_score",
+                "hamming_loss",
+                "jaccard_score",
+                "matthews_corrcoef",
+                "precision_score",
+                "recall_score",
+                "zero_one_loss",
+                "roc_auc_score",
+            ],
         }
     return outdict
 
@@ -277,75 +315,75 @@ def config_define_problem(problem_type):
     return outdict
 
 
+def config_define_ml(problem_type):
+    outdict = {
+        "ml": {
+            **config_define_problem(problem_type),
+            **config_scorers(problem_type),
+            **config_model_list(problem_type),
+            **config_all_auto_methods(),
+            **config_feature_selection(),
+        }
+    }
+
+    return outdict
+
+
 def config_microbiome():
     outdict = {
-        "collapse_tax": None,  # opt: ["genus" or "species"], list of strs, dft None
-        "min_reads": None,  # dft: 1000, int >= 0 (can be None?)
-        "norm_reads": None,  # dft: 1000, int >= 0 (can be None?)
-        "filter_abundance": None,  # dft: 10, int >=0 (can be None?)
-        "filter_prevalence": None,  # float: 0<=x<=1, dft: 0.01 (can be None?)
-        "filter_microbiome_samples": None,  # list of dict with col as keys and list of strs to remove as values ------------------- check if understood correctly
-        "remove_classes": None,  # list of strs, dft none
-        "merge_classes": None,  # dict with keys & list of strs for values, dft none
+        "collapse_tax": None,
+        "min_reads": None,
+        "norm_reads": None,
+        "filter_abundance": None,
+        "filter_prevalence": None,
+        "filter_microbiome_samples": None,
+        "remove_classes": None,
+        "merge_classes": None,
     }
     return outdict
 
 
 def config_gene_expression():
     outdict = {
-        "expression_type": None,  # one of [FPKM,RPKM,TMM,TPM,Log2FC,COUNTS,OTHER] MANDITORY
-        "filter_sample": None,  # dft: 100000, numeric >0 (can be None?)
-        "filter_genes": None,  # list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
-        "output_file_ge": None,  # str file name, dft None
-        "output_metadata": None,  # str file name, dft None
+        "expression_type": None,
+        "filter_sample": None,
+        "filter_genes": None,
+        "output_file_ge": None,
+        "output_metadata": None,
     }
     return outdict
 
 
 def config_metabolmic():
     outdict = {
-        "filter_metabolomic_sample": None,  # numeric >=0, dft: 100000 (can be None?)
-        "filter_measurements": None,  # list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
-        "output_file_met": None,  # str file name, dft None
-        "output_metadata": None,  # str file name, dft None
+        "filter_metabolomic_sample": None,
+        "filter_measurements": None,
+        "output_file_met": None,
+        "output_metadata": None,
     }
     return outdict
 
 
 def config_tabular():
     outdict = {
-        "filter_tabular_sample": None,  # numeric >=0, dft: 100000 (can be None?)
-        "filter_tabular_measurements": None,  # list of two ints >=0, dft [0,1] ------------------------------ check ints vs strs (can be None?)
-        "output_file_tab": None,  # str file name, dft None
-        "output_metadata": None,  # str file name, dft None
+        "filter_tabular_sample": None,
+        "filter_tabular_measurements": None,
+        "output_file_tab": None,
+        "output_metadata": None,
     }
     return outdict
 
 
 def config_create(problem_type, file_path, meta_path, multi=False, run=1):
     outdict = {
-        **config_data_paths(
-            file_path, meta_path, problem_type, multi
-        ),  # Define the paths to where the data is stored         # [EXP/AUTO]
-        **config_all_plotting(
-            problem_type
-        ),  # Define what plots to do                              # [HIDDEN]
-        "ml": {
-            **config_define_problem(
-                problem_type
-            ),  # Define the Problem and general parameters            # [EXP/AUTO]
-            **config_scorers(
-                problem_type
-            ),  # Define scorers to be used depending on problem type  # [HIDDEN]
-            **config_model_list(),  # Define the models to be trained                      # [ADV]
-            **config_all_auto_methods(),  # Define auto methods setting                          # [HIDDEN]
-            **config_feature_selection(),  # Define the feature selection settings                # [ADV/AUTO]
-        },
-        **config_prediction(file_path)
-        # **config_microbiome(),                      # settings for the corresponding data type             # [?]
-        # **config_gene_expression(),                 # settings for the corresponding data type             # [?]
-        # **config_metabolmic(),                      # settings for the corresponding data type             # [?]
-        # **config_tabular(),                         # settings for the corresponding data type             # [?]
+        **config_data_paths(file_path, meta_path, problem_type, multi),
+        **config_all_plotting(problem_type),
+        **config_define_ml(problem_type),
+        **config_prediction(file_path),
+        # **config_microbiome(),                      # settings for the corresponding data type
+        # **config_gene_expression(),                 # settings for the corresponding data type
+        # **config_metabolmic(),                      # settings for the corresponding data type
+        # **config_tabular(),                         # settings for the corresponding data type
     }
 
     outdict["data"]["name"] += str(run).zfill(len(str(RUNS)))
@@ -365,13 +403,19 @@ STARTS = 0
 RUNS = 1
 
 
+# Fixture for creating datasets & jsons to test on
 @pytest.fixture(
     params=[
-        pytest.param(("classification", i), marks=pytest.mark.classification)
+        pytest.param(
+            ("classification", i),
+            marks=[pytest.mark.classification, pytest.mark.binary],
+        )
         for i in range(STARTS + 1, RUNS + 1)
     ]
     + [
-        pytest.param(("multi", i), marks=pytest.mark.classification)
+        pytest.param(
+            ("multi", i), marks=[pytest.mark.classification, pytest.mark.multi]
+        )
         for i in range(STARTS + 1, RUNS + 1)
     ]
     + [
@@ -396,3 +440,10 @@ def problem_create(request):
     os.remove(y_fname)
     os.remove(fname)
     # shutil.rmtree(f'experiments/results/{fname[:-5]}_run1_{str(run).zfill(len(str(RUNS)))}')
+
+
+######### Fixture to build container #######
+@pytest.fixture(scope="session")
+def container():
+    sp = subprocess.call(["./build.sh"])
+    return sp == 0
