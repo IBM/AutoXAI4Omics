@@ -22,7 +22,7 @@ services:
 
 env:
   global:
-    - IMAGE_NAME=auto_omics
+    - IMAGE_NAME=omixai
 
 # safelist - only work with these github branches
 branches:

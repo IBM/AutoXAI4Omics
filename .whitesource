@@ -1,6 +1,8 @@
 {
-  "settingsInheritedFrom": "whitesource-config/whitesource-config@issues_none",
-  "scanSettings": {
-             "baseBranches": ["DEV"]
-         }
+    "settingsInheritedFrom": "whitesource-config/whitesource-config@issues_none",
+    "scanSettings": {
+        "baseBranches": [
+            "DEV"
+        ]
+    }
 }

@@ -1,0 +1,50 @@
+// Copyright 2024 IBM Corp.
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+# Regression
+
+ Method              :  Regressor
+---------------------------------------------------
+'adaboost'           : 'AdaboostRegressor'
+'ard_regression'     : 'ARDRegression'
+'decision_tree'      : 'DecisionTree'
+'extra_trees'        : 'ExtraTreesRegressor' 
+'gaussian_process'   : 'GaussianProcess' 
+'gradient_boosting'  : 'GradientBoosting' 
+'k_nearest_neighbors': 'KNearestNeighborsRegressor' 
+'liblinear_svr'      : 'LibLinear_SVR' 
+'libsvm_svr'         : 'LibSVM_SVR' 
+'random_forest'      : 'RandomForest' 
+'sgd'                : 'SGD'
+
+
+# Classification
+
+ Method              :  Classifier
+---------------------------------------------------
+'adaboost'           :  'AdaboostClassifier'
+'bernoulli_nb'       :  'BernoulliNB' 
+'decision_tree'      :  'DecisionTree' 
+'extra_trees'        :  'ExtraTreesClassifier' 
+'gaussian_nb'        :  'GaussianNB' 
+'gradient_boosting'  :  'GradientBoostingClassifier' 
+'k_nearest_neighbors':  'KNearestNeighborsClassifier' 
+'lda'                :  'LDA' 
+'liblinear_svc'      :  'LibLinear_SVC' 
+'libsvm_svc'         :  'LibSVM_SVC' 
+'multinomial_nb'     :  'MultinomialNB' 
+'passive_aggressive' :  'PassiveAggressive' 
+'qda'                :  'QDA' 
+'random_forest'      :  'RandomForest' 
+'sgd'                :  'SGD'
