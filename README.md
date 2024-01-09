@@ -93,5 +93,5 @@ Data to be used by OmiXai needs to be stored in the `OmiXai/data` folder.
 * If you wish to run a bash shell within the OmiXai image then you can do it using the following. In addition if you wish to be logged in as root add the `-r` flag:
   * `./omixai.sh -m bash -r`
 
-* **UNDER TESTING** If you wish to utilise any gpus that are available on your machine during your OmiXai run then you can add the `-g` flag:
+* **UNDER DEVELOPMENT** If you wish to utilise any gpus that are available on your machine during your OmiXai run then you can add the `-g` flag:
   * `./omixai.sh -m train -c my_fun_config.json -g`
