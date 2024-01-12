@@ -14,6 +14,6 @@
 # limitations under the License.
 
 
-IMAGE_NAME=omixai
+IMAGE_NAME=autoxai4omics
 IMAGE_TAG=1.0.0
 IMAGE_FULL=${IMAGE_NAME}:${IMAGE_TAG}

@@ -80,7 +80,7 @@ Change log for the codebase. Initialised from the developments following version
     - tests_mode grabbing the wrong file at times when lots present
     - Arm fixes for previous security fix
     - test_modes bugfix
-    - name change within code base & repo (from `Auto-Omics` to `OmiXai`)
+    - name change within code base & repo (from `Auto-Omics` to `AutoXAI4Omics`)
     - provided example data & config users can run
     - corrected test_model_outputs
     - added skip conditions for test_omic_datasets
