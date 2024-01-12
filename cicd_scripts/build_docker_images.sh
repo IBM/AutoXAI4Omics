@@ -16,7 +16,7 @@
 set -x # switch on
 # set +x # switch off
 
-echo "This is the script to build & push OmiXai Docker Images"
+echo "This is the script to build & push AutoXAI4Omics Docker Images"
 
 echo "IBM Cloud Region: $IBM_CLOUD_REGION"
 echo "Container Registry Region: $REGISTRY_REGION"
@@ -47,7 +47,7 @@ curl -sL https://ibm.biz/idt-installer | bash
 # Log into the IBM Cloud environment using apikey                          #
 ############################################################################
 echo "Login to IBM Cloud using apikey"
-ibmcloud login -r ${IBM_CLOUD_REGION} --apikey ${IBM_CLOUD_API_KEY}
+ibmcloud login -r "${IBM_CLOUD_REGION}" --apikey "${IBM_CLOUD_API_KEY}"
 if [ $? -ne 0 ]; then
   echo "Failed to authenticate to IBM Cloud"
   exit 1
@@ -57,7 +57,7 @@ fi
 # Set the right Region for IBM Cloud container registry                    #
 ############################################################################
 echo "Switch to the correct region for the required IBM Cloud container registry"
-ibmcloud cr region-set ${REGISTRY_REGION}
+ibmcloud cr region-set "${REGISTRY_REGION}"
 if [ $? -ne 0 ]; then
   echo "Failed to switch to correct IBM Cloud container registry region"
   exit 1
@@ -90,19 +90,19 @@ docker buildx ls
 ############################################################################
 # NOTE docker buildx automaticaly pushes to the repo
 
-if [ $TRAVIS_BRANCH == "main" ]; then
+if [ "$TRAVIS_BRANCH" == "main" ]; then
     docker build --platform=linux/amd64,linux/arm64 \
     --no-cache --progress plain \
     --build-arg USER_ID=501 \
-    --push --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_TAG \
-    --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:latest \
+    --push --tag "$REGISTRY_REGION"/"$REGISTRY_NAMESPACE"/"$IMAGE_NAME":"$IMAGE_TAG" \
+    --tag "$REGISTRY_REGION"/"$REGISTRY_NAMESPACE"/"$IMAGE_NAME":latest \
      \
     .
 else
     docker build --platform=linux/amd64,linux/arm64 \
     --no-cache --progress plain \
     --build-arg USER_ID=501 \
-    --push --tag $REGISTRY_REGION/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_TAG \
+    --push --tag "$REGISTRY_REGION"/"$REGISTRY_NAMESPACE"/"$IMAGE_NAME":"$IMAGE_TAG" \
     .
 fi
 

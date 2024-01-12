@@ -92,3 +92,4 @@ Change log for the codebase. Initialised from the developments following version
     - tests requiring a container marked and fixture added to build the container
     - `CONTRIBUTING.md` added and info added to `DEV_MANUAL.md`
     - `DEV_MANUAL.md` updated
+    -  shell script liniting
