@@ -92,3 +92,5 @@ Change log for the codebase. Initialised from the developments following version
     - tests requiring a container marked and fixture added to build the container
     - `CONTRIBUTING.md` added and info added to `DEV_MANUAL.md`
     - `DEV_MANUAL.md` updated
+    - Detect secrets added
+    - Upgraded python base image from `3.9.14` to `3.9.18` for additional security fixes
