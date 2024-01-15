@@ -88,7 +88,7 @@ then
 fi
 
 . ./common.sh
-IMAGE_ID=$(docker images -q "$IMAGE_FULL")
+IMAGE_ID=$(docker images -q $IMAGE_FULL)
 
 if [[ -z $IMAGE_ID ]]
 then 
@@ -101,16 +101,16 @@ then
     docker run \
       --rm \
       $DETACH \
-      "$GPU" \
-      "$VOL_MAPS" \
-      "$IMAGE_FULL" \
+      $GPU \
+      $VOL_MAPS \
+      $IMAGE_FULL \
       python $MODE -c /configs/"$CONFIG"
 else
     docker run \
       --rm \
       -ti \
-      "$ROOT" \
-      "$VOL_MAPS" \
-      "$IMAGE_FULL" \
+      $ROOT \
+      $VOL_MAPS \
+      $IMAGE_FULL \
       bash
 fi
