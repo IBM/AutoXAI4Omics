@@ -76,3 +76,7 @@ Each subclass should has a `nickname` class attribute, which is the model's alia
 To add a new measure, simply register the function in the dictionary in `src/metrics/metric_defs.py`.
 ​
 The only caveat here is that the sklearn convention is that a higher value is better. This convention is used in the hyperparameter tuning, and so when specifying a loss or an error, then when calling `make_scorer()` then you need to pass `greater_is_better=False`. In this case, the values become negative, so when plotting the absolute value needs to be taken (this can also be done for the .csv results if desired, but is not currently).
+
+## Container security
+
+If you need to have a image with less vunerabilities/other requirments the base image can be changed in the dockerfile to whatever works for your personal requirments. All the only requirement is that `python3.9` is installed

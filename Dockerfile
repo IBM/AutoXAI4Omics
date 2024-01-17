@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Set base image and key env vars
-FROM python:3.9.14
+FROM python:3.9.18
 # ENV DEBIAN_FRONTEND="noninteractive"
 
 # Default 1001 - non privileged uid
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get clean
 RUN apt-get install -y software-properties-common git
 
 # upgrade pip
-RUN python -m pip install --upgrade pip
+RUN python -m pip install --upgrade pip setuptools
 
 # Add omicuser and set env vars
 # Give omicsuser gid 0 so has root group permissions to read files, 
