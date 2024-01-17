@@ -15,7 +15,7 @@
 -->
 # Contributing
 
-This file provides general guidance for anyone contributing to IBM OmiXai. For technical details on improving the code base please see the `DEV_MANUAL.md`, this contains general information on how to contibute to this repositry.
+This file provides general guidance for anyone contributing to IBM AutoXAI4Omics. For technical details on improving the code base please see the `DEV_MANUAL.md`, this contains general information on how to contibute to this repositry.
 
 ## Branch managment
 
@@ -62,7 +62,7 @@ and "help wanted" is open to whoever wants to implement it.
 
 ### Write Documentation/tests
 
-OmiXai could always use more documentation, whether as part of the
+AutoXAI4Omics could always use more documentation, whether as part of the
 official docs, in docstrings, or more tests to increase the reliability and coverage.
 
 ## Developer's Certificate of Origin 1.1
