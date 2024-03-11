@@ -40,6 +40,7 @@ Change log for the codebase. Initialised from the developments following version
 ### Security
 
 - switched `os.mkdir` for `os.makedirs`
+- Removed Autosklearn as it pinned sklearn at 0.24.2 which had a security vunerability
 
 ## V1.0.0
 
