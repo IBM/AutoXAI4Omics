@@ -374,9 +374,9 @@ def parse_MLSettings(problemEntry):
     }
     keys = set(problemEntry.keys())
 
-    if not set(keys).issubset(validKeys):
+    if not keys.issubset(validKeys):
         raise ValueError(
-            f"Invalid entry for problemEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+            f"Invalid entry for problemEntry: {keys-validKeys}. Valid options: {validKeys}"
         )
 
     if "seed_num" not in keys:
@@ -571,9 +571,9 @@ def parse_data(dataEntry):
     }
     keys = set(dataEntry.keys())
 
-    if not set(keys).issubset(validKeys):
+    if not keys.issubset(validKeys):
         raise ValueError(
-            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+            f"Invalid entry for dataEntry: {keys-validKeys}. Valid options: {validKeys}"
         )
 
     if (
@@ -658,9 +658,9 @@ def parse_microbiome(omicEntry):
     }
     keys = set(omicEntry.keys())
 
-    if not set(keys).issubset(validKeys):
+    if not keys.issubset(validKeys):
         raise ValueError(
-            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+            f"Invalid entry for dataEntry: {keys-validKeys}. Valid options: {validKeys}"
         )
 
     if "collapse_tax" not in keys:
@@ -760,9 +760,9 @@ def parse_geneExpression(omicEntry):
     }
     keys = set(omicEntry.keys())
 
-    if not set(keys).issubset(validKeys):
+    if not keys.issubset(validKeys):
         raise ValueError(
-            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+            f"Invalid entry for dataEntry: {keys-validKeys}. Valid options: {validKeys}"
         )
 
     if "expression_type" not in keys:
@@ -832,9 +832,9 @@ def parse_metabolomic(omicEntry):
     }
     keys = set(omicEntry.keys())
 
-    if not set(keys).issubset(validKeys):
+    if not keys.issubset(validKeys):
         raise ValueError(
-            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+            f"Invalid entry for dataEntry: {keys-validKeys}. Valid options: {validKeys}"
         )
 
     if "filter_metabolomic_sample" not in keys:
@@ -904,9 +904,9 @@ def parse_tabular(omicEntry):
     }
     keys = set(omicEntry.keys())
 
-    if not set(keys).issubset(validKeys):
+    if not keys.issubset(validKeys):
         raise ValueError(
-            f"Invalid entry for dataEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+            f"Invalid entry for dataEntry: {keys-validKeys}. Valid options: {validKeys}"
         )
 
     if "filter_tabular_sample" not in keys:
@@ -1001,9 +1001,9 @@ def parse_prediction(predictionEntry):
     validKeys = {"file_path", "outfile_name", "metadata_file"}
     keys = set(predictionEntry.keys())
 
-    if not set(keys).issubset(validKeys):
+    if not keys.issubset(validKeys):
         raise ValueError(
-            f"Invalid entry for predictionEntry: {set(keys)-validKeys}. Valid options: {validKeys}"
+            f"Invalid entry for predictionEntry: {keys-validKeys}. Valid options: {validKeys}"
         )
 
     if (

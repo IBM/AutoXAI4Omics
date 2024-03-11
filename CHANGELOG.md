@@ -31,6 +31,7 @@ Change log for the codebase. Initialised from the developments following version
 ### Fixed
 
 - copy-paste corrections
+- redundant set casting
 
 ### Security
 
