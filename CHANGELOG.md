@@ -24,6 +24,7 @@ Change log for the codebase. Initialised from the developments following version
 
 ### Changed
 
+- upgraded `tensorflow` and `keras` modules to be able to create a venv
 - cleaned up docstring comment
 
 ### Deprecated
