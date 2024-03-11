@@ -222,135 +222,6 @@ def parse_autokeras(kerasEntry):
     return kerasEntry
 
 
-def parse_autosklearn(sklearnEntry, problem_type):
-    keys = sklearnEntry.keys()
-    validKeys = {
-        "verbose",
-        "estimators",
-        "time_left_for_this_task",
-        "per_run_time_limit",
-        "memory_limit",
-        "n_jobs",
-        "ensemble_size",
-    }
-
-    if not set(keys).issubset(validKeys):
-        raise ValueError(
-            f"Invalid entry for autosklearn_config: {set(keys)-validKeys}. Valid options: {validKeys}"
-        )
-
-    if "verbose" not in keys:
-        sklearnEntry["verbose"] = False
-    else:
-        type_check(sklearnEntry["verbose"], bool, "autosklearn_config:verbose")
-
-    if "time_left_for_this_task" not in keys:
-        sklearnEntry["time_left_for_this_task"] = 120
-    else:
-        type_check(
-            sklearnEntry["time_left_for_this_task"],
-            int,
-            "autosklearn_config:time_left_for_this_task",
-        )
-        if sklearnEntry["time_left_for_this_task"] < 1:
-            raise ValueError(
-                "autosklearn:time_left_for_this_task must be an int greater than 0"
-            )
-
-    if "per_run_time_limit" not in keys:
-        sklearnEntry["per_run_time_limit"] = 30
-    else:
-        type_check(
-            sklearnEntry["per_run_time_limit"],
-            int,
-            "autosklearn_config:per_run_time_limit",
-        )
-        if sklearnEntry["per_run_time_limit"] < 1:
-            raise ValueError(
-                "autosklearn:per_run_time_limit must be an int greater than 0"
-            )
-
-    if "n_jobs" not in keys:
-        sklearnEntry["n_jobs"] = 1
-    else:
-        type_check(sklearnEntry["n_jobs"], int, "autosklearn_config:n_jobs")
-        if sklearnEntry["n_jobs"] < 1:
-            raise ValueError("autosklearn:n_jobs must be an int greater than 0")
-
-    if "ensemble_size" not in keys:
-        sklearnEntry["ensemble_size"] = 1
-    else:
-        type_check(
-            sklearnEntry["ensemble_size"], int, "autosklearn_config:ensemble_size"
-        )
-        if sklearnEntry["ensemble_size"] < 1:
-            raise ValueError("autosklearn:ensemble_size must be an int greater than 0")
-
-    if "memory_limit" not in keys:
-        sklearnEntry["memory_limit"] = None
-    else:
-        if sklearnEntry["memory_limit"] is not None:
-            type_check(
-                sklearnEntry["memory_limit"], int, "autosklearn_config:memory_limit"
-            )
-            if sklearnEntry["memory_limit"] < 0:
-                raise ValueError(
-                    "autosklearn:memory_limit must be None or an int greater than 0"
-                )
-
-    class_opts = [
-        "bernoulli_nb",
-        "decision_tree",
-        "extra_trees",
-        "gaussian_nb",
-        "k_nearest_neighbors",
-        "lda",
-        "liblinear_svc",
-        "mlp",
-        "multinomial_nb",
-        "passive_aggressive",
-        "qda",
-        "random_forest",
-    ]
-    reg_opt = [
-        "adaboost",
-        "ard_regression",
-        "decision_tree",
-        "extra_trees",
-        "gaussian_process",
-        "gradient_boosting",
-        "k_nearest_neighbors",
-        "liblinear_svr",
-        "libsvm_svr",
-        "mlp",
-        "random_forest",
-        "sgd",
-    ]
-
-    if "estimators" not in keys:
-        sklearnEntry["estimators"] = [
-            "decision_tree",
-            "extra_trees",
-            "k_nearest_neighbors",
-            "random_forest",
-        ]
-    else:
-        type_check(sklearnEntry["estimators"], list, "autosklearn_config:estimators")
-        list_type_check(
-            sklearnEntry["estimators"], str, "autosklearn_config:estimators"
-        )
-
-        maxopt = set(class_opts) if problem_type == CLASSIFICATION else set(reg_opt)
-        givenopt = set(sklearnEntry["estimators"])
-
-        if not givenopt.issubset(maxopt):
-            raise ValueError(
-                f"autosklearn:estimators option not valid: {givenopt-maxopt}. Valid options: {maxopt}"
-            )
-
-    return sklearnEntry
-
-
 #################### problem ####################
 def parse_MLSettings(problemEntry):
     validKeys = {
@@ -365,7 +236,6 @@ def parse_MLSettings(problemEntry):
         "fit_scorer",
         "scorer_list",
         "model_list",
-        "autosklearn_config",
         "autokeras_config",
         "autolgbm_config",
         "autoxgboost_config",
@@ -524,13 +394,6 @@ def parse_MLSettings(problemEntry):
                     raise ValueError(
                         f'Encoding entry ({problemEntry["encoding"]}) not valid, must be None or "label" or "onehot"'
                     )
-
-    if "AutoSKLearn" in problemEntry["model_list"]:
-        autoEnt = problemEntry.get("autosklearn_config")
-        autoEnt = {} if autoEnt is None else autoEnt
-        problemEntry["autosklearn_config"] = parse_autosklearn(
-            autoEnt, problemEntry["problem_type"]
-        )
 
     if "AutoKeras" in problemEntry["model_list"]:
         autoEnt = problemEntry.get("autokeras_config")

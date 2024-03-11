@@ -391,11 +391,6 @@ class AutoKeras(CustomModel):
         return model
 
 
-class AutoSKLearn(CustomModel):
-    nickname = "AutoSKLearn"
-    # Attributes from the config
-
-
 class AutoLGBM(CustomModel):
     nickname = "AutoLGBM"
     # Attributes from the config
@@ -409,7 +404,6 @@ class AutoXGBoost(CustomModel):
 METHOD_REF = {
     "AutoXGBoost": "train_ml_xgboost_auto",
     "AutoLGBM": "train_ml_lgbm_auto",
-    "AutoSKLearn": "auto",
     "AutoKeras": "train_dnn_autokeras",
     "FixedKeras": "train_dnn_keras",
 }
@@ -417,7 +411,6 @@ METHOD_REF = {
 MODEL_REF = {
     "AutoXGBoost": XGBoostModel,
     "AutoLGBM": LGBMModel,
-    "AutoSKLearn": SKLearnModel,
     "AutoKeras": KerasModel,
     "FixedKeras": KerasModel,
 }
