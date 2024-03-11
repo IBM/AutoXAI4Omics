@@ -30,6 +30,8 @@ Change log for the codebase. Initialised from the developments following version
 
 ### Fixed
 
+- copy-paste corrections
+
 ### Security
 
 - switched `os.mkdir` for `os.makedirs`

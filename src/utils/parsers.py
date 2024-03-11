@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -803,7 +803,7 @@ def parse_geneExpression(omicEntry):
                 raise ValueError(
                     "filter_genes must be a list of 2 integers greater than 0."
                 )
-            if (omicEntry["filter_genes"][0] < 0) or (omicEntry["filter_genes"][0] < 0):
+            if (omicEntry["filter_genes"][0] < 0) or (omicEntry["filter_genes"][1] < 0):
                 raise ValueError(
                     "filter_genes must be a list of 2 integers greater than 0."
                 )
@@ -874,7 +874,7 @@ def parse_metabolomic(omicEntry):
                     "filter_measurements must be a list of 2 integers greater than 0."
                 )
             if (omicEntry["filter_measurements"][0] < 0) or (
-                omicEntry["filter_measurements"][0] < 0
+                omicEntry["filter_measurements"][1] < 0
             ):
                 raise ValueError(
                     "filter_measurements must be a list of 2 integers greater than 0."
@@ -952,7 +952,7 @@ def parse_tabular(omicEntry):
                     "filter_tabular_measurements must be a list of 2 integers greater than 0."
                 )
             if (omicEntry["filter_tabular_measurements"][0] < 0) or (
-                omicEntry["filter_tabular_measurements"][0] < 0
+                omicEntry["filter_tabular_measurements"][1] < 0
             ):
                 raise ValueError(
                     "filter_tabular_measurements must be a list of 2 integers greater than 0."
@@ -1204,12 +1204,14 @@ def parse_FS_settings(problem_type, FS_dict):
             "min_features": 10,
             "max_features": None,
             "interval": 1,
-            "eval_model": "RandomForestClassifier"
-            if problem_type == CLASSIFICATION
-            else "RandomForestRegressor",
-            "eval_metric": "f1_score"
-            if problem_type == CLASSIFICATION
-            else "mean_squared_error",
+            "eval_model": (
+                "RandomForestClassifier"
+                if problem_type == CLASSIFICATION
+                else "RandomForestRegressor"
+            ),
+            "eval_metric": (
+                "f1_score" if problem_type == CLASSIFICATION else "mean_squared_error"
+            ),
             "low": problem_type != CLASSIFICATION,
         }
 
