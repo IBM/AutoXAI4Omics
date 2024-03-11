@@ -18,6 +18,22 @@
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
+## [version] - 2024-03-11
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+- switched `os.mkdir` for `os.makedirs`
+
 ## V1.0.0
 
     - Introduction of pre-commit hooks (Ruff & Blacks)
