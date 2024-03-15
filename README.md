@@ -31,12 +31,6 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
 * prediction on new data using the best model
 * packaged as a Docker container
 
-## Citation
-
-For citation of this tool, please reference this article:
-
-* Carrieri, A.P., Haiminen, N., Maudsley-Barton, S. et al. Explainable AI reveals changes in skin microbiome composition linked to phenotypic differences. Sci Rep 11, 4565 (2021). <https://doi.org/10.1038/s41598-021-83922-6>
-
 ## Requirements
 
 * Docker
