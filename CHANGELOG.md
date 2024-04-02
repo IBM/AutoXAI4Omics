@@ -25,6 +25,7 @@ Change log for the codebase. Initialised from the developments following version
 ### Changed
 
 - cleaned up docstring comment
+- removed copyright notices from example json and data
 
 ### Deprecated
 
