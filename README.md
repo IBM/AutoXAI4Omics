@@ -49,6 +49,13 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
 
 NOTE: if training is run by mistake without first creating the `experiments` directory, and the directory is created while training, the directory needs to be removed and then created again before running training (has to do with access permissions)
 
+## Citation
+
+For citation of this tool, please reference this article:
+
+* James Strudwick, Laura-Jayne Gardiner, Kate Denning-James, Niina Haiminen, Ashley Evans, Jennifer Kelly, Matthew Madgwick, Filippo Utro, Ed Seabolt, Christopher Gibson, Bharat Bedi, Daniel Clayton, Ciaron Howell, Laxmi Parida, Anna Paola Carrieri. bioRxiv 2024.03.25.586460; doi: https://doi.org/10.1101/2024.03.25.586460
+
+
 ## User manual
 
 Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/AutoXAI4Omics/blob/main/configs/CONFIG_MANUAL.md).
