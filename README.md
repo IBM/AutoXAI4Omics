@@ -45,9 +45,7 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
  2. Make sure `docker` is running (cli command: `docker version`, if installed the version information will be given)
  3. Within the `AutoXAI4Omics` folder:
        1. Run the following cli command to build the image: `./build.sh -r`
-       2. Manually create a new folder called `experiments`
-
-NOTE: if training is run by mistake without first creating the `experiments` directory, and the directory is created while training, the directory needs to be removed and then created again before running training (has to do with access permissions)
+       2. Manually create a new folder called `experiments`. IMPORTANT NOTE: if training is run by mistake without first creating the `experiments` directory, and the directory is created while training, the directory needs to be removed and then created again before running training (has to do with access permissions)
 
 ## Citation
 
