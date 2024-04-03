@@ -30,6 +30,8 @@ Change log for the codebase. Initialised from the developments following version
 
 ### Removed
 
+- Removed config jsons that do not have paired data files
+
 ### Fixed
 
 - copy-paste corrections
