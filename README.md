@@ -31,12 +31,6 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
 * prediction on new data using the best model
 * packaged as a Docker container
 
-## Citation
-
-For citation of this tool, please reference this article:
-
-* Carrieri, A.P., Haiminen, N., Maudsley-Barton, S. et al. Explainable AI reveals changes in skin microbiome composition linked to phenotypic differences. Sci Rep 11, 4565 (2021). <https://doi.org/10.1038/s41598-021-83922-6>
-
 ## Requirements
 
 * Docker
@@ -51,9 +45,14 @@ For citation of this tool, please reference this article:
  2. Make sure `docker` is running (cli command: `docker version`, if installed the version information will be given)
  3. Within the `AutoXAI4Omics` folder:
        1. Run the following cli command to build the image: `./build.sh -r`
-       2. Manually create a new folder called `experiments`
+       2. Manually create a new folder called `experiments`. IMPORTANT NOTE: if training is run by mistake without first creating the `experiments` directory, and the directory is created while training, the directory needs to be removed and then created again before running training (has to do with access permissions)
 
-NOTE: if training is run by mistake without first creating the `experiments` directory, and the directory is created while training, the directory needs to be removed and then created again before running training (has to do with access permissions)
+## Citation
+
+For citation of this tool, please reference this article:
+
+* James Strudwick, Laura-Jayne Gardiner, Kate Denning-James, Niina Haiminen, Ashley Evans, Jennifer Kelly, Matthew Madgwick, Filippo Utro, Ed Seabolt, Christopher Gibson, Bharat Bedi, Daniel Clayton, Ciaron Howell, Laxmi Parida, Anna Paola Carrieri. bioRxiv 2024.03.25.586460; doi: https://doi.org/10.1101/2024.03.25.586460
+
 
 ## User manual
 
