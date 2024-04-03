@@ -31,15 +31,7 @@ omicLogger = logging.getLogger("OmicLogger")
 
 class CustomModel:
     """
-    Custom model class that we use for our models. This should probably inherit from sklearn's base estimator, but it
-    doesn't.
-
-    It doesn't because we have more control this way, and aren't subject to their verbosity/complexity.
-
-    This class contains the poor person's abstract methods - instead of using the ABCMeta and decorator, we're raising
-    errors.
-
-    All of these methods are required. All of the attributes put here are required. All future subclasses need these.
+    Custom model class that we use for our models.
     """
 
     # Aliases for model names for this class

@@ -13,4 +13,4 @@
 # limitations under the License.
 
 # current version of the tool
-__version__ = "1.0.0"
+__version__ = "1.0.1"

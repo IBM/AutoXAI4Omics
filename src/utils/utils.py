@@ -192,7 +192,7 @@ def copy_best_content(experiment_folder, best_models, collapse_tax):
     if os.path.exists(experiment_folder / "best_model/"):
         shutil.rmtree(experiment_folder / "best_model/")
 
-    os.mkdir(experiment_folder / "best_model/")
+    os.makedirs(experiment_folder / "best_model/")
 
     fnames = [
         os.path.join(path, name)
