@@ -105,26 +105,6 @@ def dataset_create_files(problem_type, multi=False):
 ##################### CONFIG CREATION #####################
 
 
-def config_autosklearn():
-    outdict = {
-        "autosklearn_config": {
-            "verbose": True,
-            "estimators": [
-                "decision_tree",
-                "extra_trees",
-                "k_nearest_neighbors",
-                "random_forest",
-            ],
-            "time_left_for_this_task": 120,
-            "per_run_time_limit": 60,
-            "memory_limit": None,
-            "n_jobs": 1,
-            "ensemble_size": 1,
-        }
-    }
-    return outdict
-
-
 def config_autokeras():
     outdict = {
         "autokeras_config": {
@@ -157,7 +137,6 @@ def config_autoxgboost():
 
 def config_all_auto_methods():
     outdict = {
-        **config_autosklearn(),
         **config_autokeras(),
         **config_autolgbm(),
         **config_autoxgboost(),
@@ -237,7 +216,6 @@ def config_model_list(problem_type):
         + [
             "AutoKeras",
             "AutoLGBM",
-            "AutoSKLearn",
             "AutoXGBoost",
             "FixedKeras",
         ]

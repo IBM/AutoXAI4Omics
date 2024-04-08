@@ -18,6 +18,12 @@
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
+## [unreleased] - 2024-04-08
+
+### Removed
+
+- removed `auto-sklearn`
+
 ## [V1.0.1] - 2024-03-11
 
 ### Changed
