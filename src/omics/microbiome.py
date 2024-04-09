@@ -17,6 +17,7 @@ import calour as ca
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 import logging
 import pandas as pd
+import numpy as np
 import joblib
 
 omicLogger = logging.getLogger("OmicLogger")
@@ -51,7 +52,7 @@ def filter_biom(config_dict, amp_exp, abundance=10, prevalence=0.01, collapse_ta
 
     print(f"Original data size: {amp_exp.data.shape}")
     # Filter abundance
-    amp_exp = amp_exp.filter_abundance(abundance)
+    amp_exp = amp_exp.filter_sum_abundance(abundance)
     # Filter prevalence
     amp_exp = amp_exp.filter_prevalence(prevalence)
 
@@ -154,6 +155,8 @@ def prepare_data(amp_exp):
     else:
         data = amp_exp.data
 
+    data = np.asarray(data)
+
     SS = StandardScaler()
     data = SS.fit_transform(data)
 
@@ -205,7 +208,7 @@ def get_feature_names_calourexp(amp_exp, config_dict):
             .replace("]", "")
         )
     else:
-        feature_names = amp_exp.feature_metadata["taxonomy"].apply(
+        feature_names = amp_exp.feature_metadata["_feature_id"].apply(
             lambda x: x.split(";")[-1].replace("[", "").replace("]", "")
         )
     # If we have duplicates
@@ -455,6 +458,8 @@ def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
         data = amp_exp.data.todense()
     else:
         data = amp_exp.data
+
+    data = np.asarray(data)
 
     # apply scaler
     x = SS.transform(data)
