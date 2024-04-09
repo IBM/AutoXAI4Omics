@@ -69,7 +69,6 @@ This section is for the information that is to be stored in the `ml` heading.
   - "autoxgboost", XGBoost with automatic Hyper Parameter Optimization implemented. User can change the default settings in the example config file at `autoxgboost_config`. "Timeout" is in minutes.
   - "autolgbm", LightGBM with automatic Hyper Parameter Optimization implemented. User can change the default settings in the example config file at `autolgbm_config`. "Timeout" is in minutes.
   - "autokeras",  An AutoML system based on Keras for automatic tuning of neural networks available at <https://autokeras.com>. User can change the default settings in the example config file at `autokeras_config`. "time_left_for_this_task" and "per_run_time_limit" are in minutes.
-  - "autosklearn", An automated machine learning toolkit for algorithm selection and hyper parameter tuning. It leverages recent advantages in Bayesian optimization, meta-learning and ensemble construction. Available at <https://automl.github.io/auto-sklearn/master/>. User can change the default settings in the example config file at `autosklearn_config`.
 - `scorer_list`: Specify the scoring measures to be used to analyse the models(these are defined in `models.py`).
   - For classification tasks: "acc" (accuracy), "f1" (f1-score), "prec" (precision), "recall"
   - For regression tasks: "mse" (mean squared error), "mean_ae" (mean absolute error), "med_ae" (median absolute error), "rmse" (root mean square error), "mean_ape" (mean absolute percentage error), "r2" (r-squared)
