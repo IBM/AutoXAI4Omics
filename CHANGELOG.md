@@ -24,6 +24,7 @@ Change log for the codebase. Initialised from the developments following version
 
 - upgraded scikit-learn to `1.2.2`
 - moved dev packages to `requirements_dev.txt`
+- upgraded `tensorflow` and `keras` to be able to create env on arm64
 
 ### Removed
 

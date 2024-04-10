@@ -36,7 +36,7 @@ scikit-optimize==0.9.0
 emcee==3.1.3
 conorm==1.2.0
 bioinfokit==2.1.0
-tensorflow==2.12.0
+tensorflow==2.13.0
 autokeras==1.0.20
 keras-tuner==1.1.3
-keras==2.12.0
+keras==2.13.1
