@@ -20,6 +20,10 @@ Change log for the codebase. Initialised from the developments following version
 
 ## [unreleased] - 2024-04-08
 
+### Added
+
+- added pydantic env
+
 ### Changed
 
 - upgraded scikit-learn to `1.2.2`

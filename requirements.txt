@@ -40,3 +40,4 @@ tensorflow==2.13.0
 autokeras==1.0.20
 keras-tuner==1.1.3
 keras==2.13.1
+pydantic==2.7.0
