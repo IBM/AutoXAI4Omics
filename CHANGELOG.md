@@ -23,7 +23,9 @@ Change log for the codebase. Initialised from the developments following version
 ### Added
 
 - added pydantic env
-- created initial pydantic dataModel
+- created initial pydantic models:
+  - DataModel
+  - PlottingModel
 
 ### Changed
 
