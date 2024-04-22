@@ -3,7 +3,7 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-from ..data_model import DataModel
+from ..data_model import DataModel as Model
 import pytest
 from copy import deepcopy
 
@@ -19,23 +19,23 @@ TEST_CONFIG = {
 }
 
 
-class Test_DataModel:
+class Test_Model:
     def test_testConfig(self):
         try:
-            DataModel(**TEST_CONFIG)
+            Model(**TEST_CONFIG)
             assert True
         except Exception:
             assert False
 
     @pytest.mark.parametrize(
-        "key", [k for k, v in DataModel.model_fields.items() if v.is_required()]
+        "key", [k for k, v in Model.model_fields.items() if v.is_required()]
     )
     def test_missing_required(self, key):
         MODIFIED_CONFIG = deepcopy(TEST_CONFIG)
         del MODIFIED_CONFIG[key]
 
         try:
-            DataModel(**MODIFIED_CONFIG)
+            Model(**MODIFIED_CONFIG)
             assert False
         except Exception as e:
             errs = e.errors()
