@@ -27,6 +27,8 @@ Change log for the codebase. Initialised from the developments following version
   - DataModel
   - PredictionModel
   - PlottingModel
+  - omics:
+    - TabularModel
 
 ### Changed
 
