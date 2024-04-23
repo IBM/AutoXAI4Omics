@@ -30,6 +30,7 @@ Change log for the codebase. Initialised from the developments following version
   - omics:
     - TabularModel
     - MetabolomicModel
+    - GeneExpressionModel
 
 ### Changed
 
