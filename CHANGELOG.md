@@ -31,6 +31,7 @@ Change log for the codebase. Initialised from the developments following version
     - TabularModel
     - MetabolomicModel
     - GeneExpressionModel
+    - MicrobiomeModel
 
 ### Changed
 
