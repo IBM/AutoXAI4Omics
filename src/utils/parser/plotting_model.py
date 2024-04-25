@@ -16,6 +16,12 @@ PLOTS_REG = ["hist_overlapped", "joint", "joint_dens", "corr"]
 
 PLOTS_ALL = PLOTS_BOTH + PLOTS_CLF + PLOTS_REG
 
+from contextvars import ContextVar
+
+context_problemType = ContextVar("context_problemType")
+
+from ..vars import CLASSIFICATION, REGRESSION
+
 
 class PlottingModel(BaseModel):
     plot_method: List[Literal[tuple(PLOTS_ALL)]] = []
@@ -32,5 +38,28 @@ class PlottingModel(BaseModel):
         if "permut_imp_test" not in self.plot_method:
             self.top_feats_permImp = None
 
-        # TODO: validate classification/regression specific plots at higher levels
         return self
+
+    def validateWithProblemType(self, problemType):
+        # TODO: trigger at higher levels
+        if problemType not in [CLASSIFICATION, REGRESSION]:
+            raise ValueError(
+                f"problemType must be equal to either '{CLASSIFICATION}' or '{REGRESSION}"
+            )
+
+        CLF_SET = set(PLOTS_BOTH + PLOTS_CLF)
+        REG_SET = set(PLOTS_BOTH + PLOTS_REG)
+        if not (
+            (problemType == CLASSIFICATION)
+            and (set(self.plot_method).issubset(CLF_SET))
+        ):
+            raise ValueError(
+                f"These plots {','.join(set(self.plot_method)-CLF_SET)} are not valid for {problemType} problems"
+            )
+
+        if not (
+            (problemType == REGRESSION) and (set(self.plot_method).issubset(REG_SET))
+        ):
+            raise ValueError(
+                f"These plots ({','.join(set(self.plot_method)-REG_SET)}) are not valid for {problemType} problems"
+            )

@@ -5,6 +5,7 @@
 
 from ..plotting_model import PlottingModel as Model
 from ..plotting_model import PLOTS_ALL
+from ...vars import CLASSIFICATION, REGRESSION
 import pytest
 from copy import deepcopy
 
@@ -57,3 +58,14 @@ class Test_Model:
         model = Model(**MODIFIED_CONFIG)
 
         assert model.top_feats_permImp is None
+
+    @pytest.mark.parametrize("problem", [CLASSIFICATION, REGRESSION])
+    def test_validateWithProblemType(self, problem):
+        try:
+            model = Model(**TEST_CONFIG)
+            model.validateWithProblemType(problemType=problem)
+            assert False
+        except ValueError as e:
+            assert f"are not valid for {problem} problems" in str(e)
+        except Exception:
+            assert False
