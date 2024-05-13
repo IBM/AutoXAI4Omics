@@ -32,6 +32,7 @@ Change log for the codebase. Initialised from the developments following version
     - MetabolomicModel
     - GeneExpressionModel
     - MicrobiomeModel
+  - FeatureSelectionModel, AutoModel & MethodModel
 
 ### Changed
 
