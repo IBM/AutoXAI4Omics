@@ -36,6 +36,7 @@ Change log for the codebase. Initialised from the developments following version
   - Models:
     - AutoKerasModel
     - AutoLgbmModel
+    - AutoXgboostModel
 
 ### Changed
 
