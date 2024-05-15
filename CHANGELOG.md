@@ -35,6 +35,7 @@ Change log for the codebase. Initialised from the developments following version
   - FeatureSelectionModel, AutoModel & MethodModel
   - Models:
     - AutoKerasModel
+    - AutoLgbmModel
 
 ### Changed
 
