@@ -33,6 +33,8 @@ Change log for the codebase. Initialised from the developments following version
     - GeneExpressionModel
     - MicrobiomeModel
   - FeatureSelectionModel, AutoModel & MethodModel
+  - Models:
+    - AutoKerasModel
 
 ### Changed
 
