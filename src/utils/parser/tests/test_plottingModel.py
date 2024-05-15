@@ -59,6 +59,16 @@ class Test_Model:
 
         assert model.top_feats_permImp is None
 
+    def test_validation_problem_type(self):
+        model = Model(**TEST_CONFIG)
+        try:
+            model.validateWithProblemType(None)
+            assert False
+        except ValueError as e:
+            assert "problemType must be equal to either" in str(e)
+        except Exception:
+            assert False
+
     @pytest.mark.parametrize("problem", [CLASSIFICATION, REGRESSION])
     def test_validateWithProblemType(self, problem):
         try:

@@ -44,16 +44,15 @@ class PlottingModel(BaseModel):
 
         CLF_SET = set(PLOTS_BOTH + PLOTS_CLF)
         REG_SET = set(PLOTS_BOTH + PLOTS_REG)
-        if not (
-            (problemType == CLASSIFICATION)
-            and (set(self.plot_method).issubset(CLF_SET))
+        if (problemType == CLASSIFICATION) and not (
+            set(self.plot_method).issubset(CLF_SET)
         ):
             raise ValueError(
                 f"These plots {','.join(set(self.plot_method)-CLF_SET)} are not valid for {problemType} problems"
             )
 
-        if not (
-            (problemType == REGRESSION) and (set(self.plot_method).issubset(REG_SET))
+        if (problemType == REGRESSION) and not (
+            set(self.plot_method).issubset(REG_SET)
         ):
             raise ValueError(
                 f"These plots ({','.join(set(self.plot_method)-REG_SET)}) are not valid for {problemType} problems"
