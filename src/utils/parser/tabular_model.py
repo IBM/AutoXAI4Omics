@@ -23,7 +23,7 @@ MeasurementFilter = conlist(item_type=NonNegativeInt, min_length=2, max_length=2
 
 class TabularModel(BaseModel):
     filter_tabular_sample: NonNegativeFloat = 0
-    filter_tabular_measurements: MeasurementFilter = [0, 0]
+    filter_tabular_measurements: MeasurementFilter = [0, 0]  # type: ignore
     output_file_tab: Union[NewPath, None] = None
     output_metadata: Union[NewPath, None] = None
 

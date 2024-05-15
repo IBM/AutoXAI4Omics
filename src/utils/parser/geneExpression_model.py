@@ -24,7 +24,7 @@ MeasurementFilter = conlist(item_type=NonNegativeInt, min_length=2, max_length=2
 class GeneExpressionModel(BaseModel):
     expression_type: Literal["FPKM", "RPKM", "TMM", "TPM", "Log2FC", "COUNTS", "OTHER"]
     filter_sample: NonNegativeFloat = 0
-    filter_genes: MeasurementFilter = [0, 0]
+    filter_genes: MeasurementFilter = [0, 0]  # type: ignore
     output_file_ge: Union[NewPath, None] = None
     output_metadata: Union[NewPath, None] = None
 

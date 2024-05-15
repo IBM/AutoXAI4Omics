@@ -22,7 +22,7 @@ class MicrobiomeModel(BaseModel):
     min_reads: Union[PositiveInt, None] = None
     norm_reads: Union[PositiveInt, None] = None
     filter_abundance: Union[PositiveInt, None] = None
-    filter_prevalence: Union[Prevalence, None] = None
+    filter_prevalence: Union[Prevalence, None] = None  # type: ignore
     filter_microbiome_samples: Union[dict, None] = None
     remove_classes: Union[List[str], None] = None
     merge_classes: Union[None, Dict[str, List[str]]] = None
