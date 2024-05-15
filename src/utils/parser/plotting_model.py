@@ -3,6 +3,7 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
+from ..vars import CLASSIFICATION, REGRESSION
 from typing import List, Literal
 from pydantic import (
     BaseModel,
@@ -15,12 +16,6 @@ PLOTS_CLF = ["conf_matrix", "roc_curve"]
 PLOTS_REG = ["hist_overlapped", "joint", "joint_dens", "corr"]
 
 PLOTS_ALL = PLOTS_BOTH + PLOTS_CLF + PLOTS_REG
-
-from contextvars import ContextVar
-
-context_problemType = ContextVar("context_problemType")
-
-from ..vars import CLASSIFICATION, REGRESSION
 
 
 class PlottingModel(BaseModel):
