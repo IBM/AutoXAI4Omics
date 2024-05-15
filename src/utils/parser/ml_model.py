@@ -78,3 +78,5 @@ class MlModel(BaseModel):
             self.autoxgboost_config = None
 
         self.feature_selection.validateWithProblemType(self.problem_type)
+
+        return self
