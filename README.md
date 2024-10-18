@@ -71,7 +71,7 @@ The tool is launched in the cli using `autoxai4omics.sh` which has multiple flag
   * `predict` - Use trained models to predict on unseen data
   * `plotting` - If the models have been tuned and trained (and therefore saved), the plots and results can be generated in isolation
   * `bash` - Use to open up a bash shell into the tool
-* `-c` this is the filename of the config json within the `AutoXAI4Omics/configs` folder that is going to be given to AutoXAI4Omics
+* `-c` this is the filename of the config json or subfolder within the `AutoXAI4Omics/configs` folder that is going to be given to AutoXAI4Omics. If it is a filename `AutoXAI4Omics` will run for that single config. If it is a subfolder within `AutoXAI4Omics` it will enter into batch mode and run all of the config in the provided folder, and any further subfolders, sequentially.
 * `-r` this sets the contain to run as root. Only possibly required if you are running in `bash` mode
 * `-d` this detatches the cli running the container in the background
 * `-g` this specifies if you want AutoXAI4Omics to use the gpus that are available on the machine (UNDER TESTING)
@@ -82,6 +82,10 @@ Data to be used by AutoXAI4Omics needs to be stored in the `AutoXAI4Omics/data` 
 
 * Run AutoXAI4Omics in training mode with a config called `my_fun_config.json` within the `configs` folder:
   * `./autoxai4omics.sh -m train -c my_fun_config.json`
+* Run AutoXAI4Omics in training mode with all the configs in the `my_experiments` folder within the `configs` folder:
+  * `./autoxai4omics.sh -m train -c my_experiments`
+* If you have further nested subfolder's within `my_experiments` folder, such as `my_specific_experiments` you can run those by providing the relative path:
+  * `./autoxai4omics.sh -m train -c my_experiments/my_specific_experiments`
 
 * We have provided and example config and dataset that you can run to get going. The components are:
   * config: `configs/examples/50k_barley_SHAP.json`

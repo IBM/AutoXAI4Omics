@@ -54,7 +54,12 @@ while getopts 'm:c:rgd' OPTION; do
             ;;
         c)
             echo "Registering config"
-            CONFIG=${OPTARG}
+            CONFIG="configs/${OPTARG}"
+            if [ ! -d "$CONFIG" ] && [ ! -f "$CONFIG" ]
+            then
+                echo "config provided in -c flag (${CONFIG#configs/}) is not a valid directory or file"
+                exit 1
+            fi
             ;;
         r)
             echo "Setting root for bash"
@@ -98,13 +103,29 @@ fi
 
 if [ $MODE != "bash" ]
 then
-    docker run \
-      --rm \
-      $DETACH \
-      $GPU \
-      $VOL_MAPS \
-      $IMAGE_FULL \
-      python $MODE -c /configs/"$CONFIG"
+    if [ -d "$CONFIG" ]
+    echo "Entering batch mode..."
+    then
+        for FILE in $(find $CONFIG -name "*.json")
+        do
+            echo "Runing config file: $FILE"
+            docker run \
+              --rm \
+              $DETACH \
+              $GPU \
+              $VOL_MAPS \
+              $IMAGE_FULL \
+              python $MODE -c /"$FILE"
+        done
+    else
+        docker run \
+          --rm \
+          $DETACH \
+          $GPU \
+          $VOL_MAPS \
+          $IMAGE_FULL \
+          python $MODE -c /"$CONFIG"
+    fi
 else
     docker run \
       --rm \
