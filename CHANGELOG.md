@@ -39,6 +39,7 @@ Change log for the codebase. Initialised from the developments following version
     - AutoXgboostModel
   - MlModel
   - ConfigModel
+- added batch mode processing
 
 ### Changed
 
