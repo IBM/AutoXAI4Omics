@@ -30,8 +30,8 @@ import yaml
 import os
 import shutil
 from utils.load import load_config
+from utils.parser.config_model import ConfigModel
 from utils.save import save_config
-import utils.parsers as parsers
 import re
 
 omicLogger = logging.getLogger("OmicLogger")
@@ -76,7 +76,7 @@ def remove_classes(class_col, contains="X"):
     return class_col[~class_col.str.contains(contains)]
 
 
-def create_experiment_folders(config_dict, config_path):
+def create_experiment_folders(config_dict: dict, config_path) -> Path:
     """
     Create the folder for the given config and the relevant subdirectories
     """
@@ -93,8 +93,7 @@ def create_experiment_folders(config_dict, config_path):
     (experiment_folder / "results").mkdir(exist_ok=True)
     if config_dict["plotting"]["plot_method"] is not None:
         (experiment_folder / "graphs").mkdir(exist_ok=True)
-    # Save the config in the experiment folder for ease
-    save_config(experiment_folder, config_path, config_dict)
+
     return experiment_folder
 
 
@@ -133,13 +132,17 @@ def initial_setup():
     # get the path to the config from cli
     config_path = get_config_path_from_cli()
     # load and parse the config located at the path
-    config_dict = parsers.parse_config(load_config(config_path))
+    config_model = ConfigModel(**load_config(config_path))
+    config_dict = config_model.model_dump()
 
     # set the random seed
     set_random_seed(config_dict["ml"]["seed_num"])
 
     # create folders
     experiment_folder = create_experiment_folders(config_dict, config_path)
+
+    # Save the config in the experiment folder for ease
+    save_config(experiment_folder, config_path, config_model.model_dump_json())
 
     # setup logger
     omicLogger = setup_logger(experiment_folder)
@@ -250,7 +253,7 @@ def prof_to_csv(prof: cProfile.Profile, config_dict: dict):
     csv_lines = "\n".join(lines)
 
     with open(
-        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        f"{config_dict['data']['save_path']}/results/{config_dict['data']['name']}/time_profile.csv",
         "w+",
     ) as f:
         f.write(csv_lines)

@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -206,18 +206,19 @@ def main():
         else:
             omicLogger.info("No plots desired.")
 
+        if config_dict.get("microbiome") is None:
+            collapse_tax = None
+        else:
+            collapse_tax = config_dict.get("microbiome").get("collapse_tax")
+
         # Select Best Model
         best_models = models.models.select_best_model(
             experiment_folder,
             config_dict["ml"]["problem_type"],
             config_dict["ml"]["fit_scorer"],
-            config_dict.get("microbiome", {}).get("collapse_tax"),
+            collapse_tax,
         )
-        utils.utils.copy_best_content(
-            experiment_folder,
-            best_models,
-            config_dict.get("microbiome", {}).get("collapse_tax"),
-        )
+        utils.utils.copy_best_content(experiment_folder, best_models, collapse_tax)
 
         omicLogger.info("Process completed.")
     except Exception as e:

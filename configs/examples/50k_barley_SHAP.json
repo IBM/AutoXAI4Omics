@@ -27,23 +27,8 @@
             "KNeighborsClassifier",
             "AutoXGBoost",
             "AutoLGBM",
-            "AutoSKLearn",
             "AutoKeras"
         ],
-        "autosklearn_config": {
-            "verbose": true,
-            "estimators": [
-                "decision_tree",
-                "extra_trees",
-                "k_nearest_neighbors",
-                "random_forest"
-            ],
-            "time_left_for_this_task": 120,
-            "per_run_time_limit": 60,
-            "memory_limit": 65536,
-            "n_jobs": 1,
-            "ensemble_size": 1
-        },
         "autokeras_config": {
             "n_epochs": 100,
             "batch_size": 32,
@@ -97,8 +82,6 @@
         "filter_tabular_measurements": [
             0,
             1
-        ],
-        "output_file_tab": "/data/50k_barley_row_type_processed.csv",
-        "output_metadata": "/data/50k_barley_row_type_processed_metadata.csv"
+        ]
     }
 }

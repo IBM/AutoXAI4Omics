@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,7 +51,7 @@ def load_model(model_name, model_path):
     return model
 
 
-def load_config(config_path):
+def load_config(config_path: str) -> dict:
     """
     Load a JSON file (general function, but we use it for configs)
     """
@@ -78,7 +78,7 @@ def get_non_omic_data(path_file, target, metadata_path, prediction=False):
 
     if not prediction:
         # Check if the target is in a separate file or in the same data
-        if metadata_path == "":
+        if not metadata_path or metadata_path == "":
             y = data[target].values
             data_notarget = data.drop(target, axis=1)
 
