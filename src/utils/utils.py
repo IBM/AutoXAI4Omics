@@ -311,15 +311,18 @@ def assert_best_model_exists(folder):
 
 
 def assert_data_transformers_exists(folder, config_dict):
-    std = folder / "transformer_std.pkl"
 
-    if not os.path.exists(str(std)):
-        omicLogger.info("No data transformer file detected (transformer_std.pkl)")
-        raise ValueError("No data transformer file detected (transformer_std.pkl)")
+    if config_dict["ml"]["standardize"]:
+        std = folder / "transformer_std.pkl"
+        if not os.path.exists(str(std)):
+            omicLogger.info("No data transformer file detected (transformer_std.pkl)")
+            raise ValueError("No data transformer file detected (transformer_std.pkl)")
+        else:
+            with open(std, "rb") as f:
+                SS = joblib.load(f)
+            omicLogger.info("transformer loaded.")
     else:
-        with open(std, "rb") as f:
-            SS = joblib.load(f)
-        omicLogger.info("transformer loaded.")
+        SS = None
 
     if config_dict["ml"]["feature_selection"] is not None:
         fs = folder / "transformer_fs.pkl"

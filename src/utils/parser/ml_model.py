@@ -24,6 +24,7 @@ class MlModel(BaseModel):
     hyper_tuning: Literal["random", "grid"] = "random"
     hyper_budget: NonNegativeInt = 50
     stratify_by_groups: Literal["Y", "N"] = "N"
+    standardize: bool = True
     groups: str = None  # need to check
     balancing: Literal["OVER", "UNDER", "NONE"] = "NONE"
     fit_scorer: Union[None, Literal[METRICS_NAMES_ALL]] = None

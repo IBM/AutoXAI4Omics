@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,8 +55,9 @@ if __name__ == "__main__":
         omicLogger.info("Loading data transformers...")
         SS, FS = assert_data_transformers_exists(experiment_folder, config_dict)
 
-        omicLogger.info("Applying trained standardising...")
-        x_to_predict = utils.utils.transform_data(x_to_predict, SS)
+        if SS is not None:
+            omicLogger.info("Applying trained standardising...")
+            x_to_predict = utils.utils.transform_data(x_to_predict, SS)
 
         if FS is not None:
             omicLogger.info("Applying trained feature selector...")

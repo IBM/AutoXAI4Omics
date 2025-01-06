@@ -40,17 +40,18 @@ Change log for the codebase. Initialised from the developments following version
   - MlModel
   - ConfigModel
 - added batch mode processing
+- Added: new flag to skip ML standardizing in MlModel
 
 ### Changed
 
 - upgraded:
   - scikit-learn to `1.2.2`
-  - keras to 2.14.0
-  - lightgbm to 3.3.5
-  - numpy to 1.23.5
-  - optuna to 3.6.*
-  - tensorflow to 2.14.0
-  - xgboost to 1.7.6
+  - keras to `2.14.0`
+  - lightgbm to `3.3.5`
+  - numpy to `1.23.5`
+  - optuna to `3.6.*`
+  - tensorflow to `2.14.0`
+  - xgboost to `1.7.6`
 
 - moved dev packages to `requirements_dev.txt`
 - upgraded `tensorflow` and `keras` to be able to create env on arm64

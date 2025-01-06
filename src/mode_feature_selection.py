@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,13 +59,18 @@ def main():
         x_ind_test = x_test.index
 
         # standardise data
-        x_train, SS = utils.ml.standardisation.standardize_data(x_train)  # fit the standardiser to the training data
-        x_test = utils.utils.transform_data(x_test, SS)  # transform the test data according to the fitted standardiser
+        if config_dict["ml"]["standardize"]:
+            x_train, SS = utils.ml.standardisation.standardize_data(
+                x_train
+            )  # fit the standardiser to the training data
+            x_test = utils.utils.transform_data(
+                x_test, SS
+            )  # transform the test data according to the fitted standardiser
 
-        # save the standardiser transformer
-        save_name = experiment_folder / "transformer_std.pkl"
-        with open(save_name, "wb") as f:
-            joblib.dump(SS, f)
+            # save the standardiser transformer
+            save_name = experiment_folder / "transformer_std.pkl"
+            with open(save_name, "wb") as f:
+                joblib.dump(SS, f)
 
         omicLogger.info("Data standardised, transformer saved. Selecting features...")
 
@@ -86,7 +91,9 @@ def main():
             with open(save_name, "wb") as f:
                 joblib.dump(FS, f)
 
-            omicLogger.info("Features selected, transformer saved. Re-combining data...")
+            omicLogger.info(
+                "Features selected, transformer saved. Re-combining data..."
+            )
         else:
             print("Skipping Feature selection.")
             omicLogger.info("Skipping feature selection. Re-combining data...")

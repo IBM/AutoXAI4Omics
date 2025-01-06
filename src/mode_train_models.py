@@ -64,17 +64,18 @@ def main():
         x_ind_test = x_test.index
 
         # standardise data
-        x_train, SS = utils.ml.standardisation.standardize_data(
-            x_train
-        )  # fit the standardiser to the training data
-        x_test = utils.utils.transform_data(
-            x_test, SS
-        )  # transform the test data according to the fitted standardiser
+        if config_dict["ml"]["standardize"]:
+            x_train, SS = utils.ml.standardisation.standardize_data(
+                x_train
+            )  # fit the standardiser to the training data
+            x_test = utils.utils.transform_data(
+                x_test, SS
+            )  # transform the test data according to the fitted standardiser
 
-        # save the standardiser transformer
-        save_name = experiment_folder / "transformer_std.pkl"
-        with open(save_name, "wb") as f:
-            joblib.dump(SS, f)
+            # save the standardiser transformer
+            save_name = experiment_folder / "transformer_std.pkl"
+            with open(save_name, "wb") as f:
+                joblib.dump(SS, f)
 
         omicLogger.info("Data standardised, transformer saved. Selecting features...")
 
