@@ -41,6 +41,7 @@ Change log for the codebase. Initialised from the developments following version
   - ConfigModel
 - added batch mode processing
 - Added: new flag to skip ML standardizing in MlModel
+- Added: created `load_transformed_data` from pre-existing code
 
 ### Changed
 
@@ -56,6 +57,7 @@ Change log for the codebase. Initialised from the developments following version
 - moved dev packages to `requirements_dev.txt`
 - upgraded `tensorflow` and `keras` to be able to create env on arm64
 - changed `DEV_MANUAL.md` to capture venv changes
+- Changed: simplified `load_data`
 
 ### Removed
 

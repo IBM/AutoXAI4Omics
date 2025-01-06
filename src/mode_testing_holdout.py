@@ -49,7 +49,7 @@ if __name__ == "__main__":
         omicLogger.info("Loading data...")
 
         x_heldout, y_heldout, features_names = utils.load.load_data(
-            config_dict, load_holdout=None
+            config_dict, mode="holdout"
         )
         omicLogger.info("Heldout Data Loaded. Loading test/train data...")
 

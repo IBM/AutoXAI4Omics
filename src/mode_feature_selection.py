@@ -45,7 +45,7 @@ def main():
         omicLogger.info("Loading data...")
 
         # read the data
-        x, y, features_names = utils.load.load_data(config_dict)
+        x, y, features_names = utils.load.load_data(config_dict, mode="main")
         omicLogger.info("Data Loaded. Splitting data...")
 
         if len(x.index.unique()) != x.shape[0]:

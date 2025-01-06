@@ -47,8 +47,8 @@ if __name__ == "__main__":
         model_path = assert_best_model_exists(experiment_folder)
 
         omicLogger.info("Loading Data...")
-        x_to_predict, features_names = utils.load.load_data(
-            config_dict, load_prediction=True
+        x_to_predict, _, features_names = utils.load.load_data(
+            config_dict, mode="prediction"
         )
         x_indexes = x_to_predict.index
 

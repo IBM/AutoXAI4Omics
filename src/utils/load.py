@@ -215,51 +215,42 @@ def load_data_main(config_dict: dict) -> tuple[pd.DataFrame, ndarray, list[str]]
 
 
 def load_data(
-    config_dict: dict, load_holdout: bool | None = False, load_prediction: bool = False
-):
-    """
-    A function to handel all of the loading of the data presented in the config file
+    config_dict: dict, mode: Literal["main", "holdout", "prediction"] = "main"
+) -> tuple[pd.DataFrame, ndarray, list[str]]:
+    """A function to handel all of the loading of the data presented in the config file.
 
     Parameters
     ----------
-    load_holdout : bool or None
-        A var used to control which data to be loaded if: none, returns only the holdout data; True, returns both the
-        non-holdout and the holdout data; False, returns only the non-holdout data.
-    load_prediction : bool
-        If true will not load the main or hold out datasets but the data to be predicted
+    config_dict : dict
+        The dict containign the information needed to load the data
+    mode : Literal[&quot;main&quot;, &quot;holdout&quot;, &quot;prediction&quot;], optional
+        The context of the data loading to be done in, by default "main"
 
     Returns
     -------
-    x : Numpy array
-        if load_prediction was true then this is the data to be predicted on other wise it is the data to train/test on
-    y : Numpy array
-        if load_prediction was true then this is not returned on other wise it is the y values for the train/test data
-    features_names : list of str
-        The list of feature names.
-    x_heldout : Numpy array
-        if load_prediction was true and load_holdout was None/True then this is the heldout data
-    y_heldout : Numpy array
-        if load_prediction was true and load_holdout was None/True then this is the y values for the heldout data
+    tuple[pd.DataFrame,ndarray,list[str]]
+        The dataset along with the lables and a list of the feature names
+
+    Raises
+    ------
+    ValueError
+        is raised if the value for mode is not a valid entry
     """
     omicLogger.debug("Data load inititalised")
 
-    if not load_prediction:
-        if load_holdout is not None:
-            x, y, features_names = load_data_main(config_dict)
-
-        if (load_holdout is None) or load_holdout:
-            x_heldout, y_heldout, features_names = load_data_holdout(config_dict)
-
-        omicLogger.debug("Load completed")
-        if load_holdout is None:
-            return x_heldout, y_heldout, features_names
-        elif load_holdout:
-            return x, y, x_heldout, y_heldout, features_names
-        else:
-            return x, y, features_names
-    else:
+    if mode == "prediction":
         x, features_names = load_data_prediction(config_dict)
-        return x, features_names
+        return x, None, features_names
+    elif mode == "holdout":
+        x_heldout, y_heldout, features_names = load_data_holdout(config_dict)
+        return x_heldout, y_heldout, features_names
+    elif mode == "main":
+        x, y, features_names = load_data_main(config_dict)
+        return x, y, features_names
+    else:
+        raise ValueError(
+            f"Unrecognised value for mode, valid values must be one of 'main', 'holdout','predication'. recieved: {mode=}"
+        )
 
 
 def load_transformed_data(
