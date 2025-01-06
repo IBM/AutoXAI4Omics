@@ -14,12 +14,11 @@
 
 import json
 from pathlib import Path
-
+from typing import Literal
 from numpy import ndarray
 import pandas as pd
+from numpy import ndarray
 from models.custom_model import CustomModel
-
-
 import joblib
 from omics import geneExp, metabolomic, microbiome, tabular
 
@@ -67,7 +66,7 @@ def get_non_omic_data(
     target: str,
     metadata_path: Path | str | None,
     prediction: bool = False,
-):
+) -> tuple[pd.DataFrame, ndarray, list[str]]:
     """
     Read the input files and return X, y (target) and the feature_names
     """
@@ -108,7 +107,7 @@ def get_non_omic_data(
             data_notarget = data
 
         x = data_notarget
-        features_names = data_notarget.columns
+        features_names = data_notarget.columns.to_list()
         y = None
 
     return x, y, features_names
@@ -184,7 +183,7 @@ def load_data_holdout(config_dict: dict):
     return x_heldout, y_heldout, features_names
 
 
-def load_data_main(config_dict: dict):
+def load_data_main(config_dict: dict) -> tuple[pd.DataFrame, ndarray, list[str]]:
     omicLogger.debug("Loading training data...")
 
     if config_dict["data"]["data_type"] == "microbiome":
