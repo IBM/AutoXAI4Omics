@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import json
+from pathlib import Path
 
+from numpy import ndarray
 import pandas as pd
 from models.custom_model import CustomModel
 
@@ -60,7 +62,12 @@ def load_config(config_path: str) -> dict:
     return config_dict
 
 
-def get_non_omic_data(path_file, target, metadata_path, prediction=False):
+def get_non_omic_data(
+    path_file: Path,
+    target: str,
+    metadata_path: Path | str | None,
+    prediction: bool = False,
+):
     """
     Read the input files and return X, y (target) and the feature_names
     """
@@ -107,7 +114,7 @@ def get_non_omic_data(path_file, target, metadata_path, prediction=False):
     return x, y, features_names
 
 
-def load_data_prediction(config_dict):
+def load_data_prediction(config_dict: dict):
     omicLogger.debug("Loading prediction data")
 
     if config_dict["data"]["data_type"] == "microbiome":
@@ -141,7 +148,7 @@ def load_data_prediction(config_dict):
     return x, features_names
 
 
-def load_data_holdout(config_dict):
+def load_data_holdout(config_dict: dict):
     omicLogger.debug("Training loaded. Loading holdout data...")
     if config_dict["data"]["data_type"] == "microbiome":
         # This reads and preprocesses microbiome data using calour library --
@@ -177,7 +184,7 @@ def load_data_holdout(config_dict):
     return x_heldout, y_heldout, features_names
 
 
-def load_data_main(config_dict):
+def load_data_main(config_dict: dict):
     omicLogger.debug("Loading training data...")
 
     if config_dict["data"]["data_type"] == "microbiome":
@@ -208,7 +215,9 @@ def load_data_main(config_dict):
     return x, y, features_names
 
 
-def load_data(config_dict, load_holdout=False, load_prediction=False):
+def load_data(
+    config_dict: dict, load_holdout: bool | None = False, load_prediction: bool = False
+):
     """
     A function to handel all of the loading of the data presented in the config file
 
@@ -252,3 +261,23 @@ def load_data(config_dict, load_holdout=False, load_prediction=False):
     else:
         x, features_names = load_data_prediction(config_dict)
         return x, features_names
+
+
+def load_transformed_data(
+    experiment_folder: Path,
+) -> tuple[list[str], ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
+    x_df = pd.read_csv(
+        experiment_folder / "transformed_model_input_data.csv", index_col=0
+    )
+    x_train = x_df[x_df["set"] == "Train"].iloc[:, :-1].values
+    x_test = x_df[x_df["set"] == "Test"].iloc[:, :-1].values
+    x = x_df.iloc[:, :-1].values
+    features_names = x_df.columns[:-1]
+
+    y_df = pd.read_csv(
+        experiment_folder / "transformed_model_target_data.csv", index_col=0
+    )
+    y_train = y_df[y_df["set"] == "Train"].iloc[:, :-1].values.ravel()
+    y_test = y_df[y_df["set"] == "Test"].iloc[:, :-1].values.ravel()
+    y = y_df.iloc[:, :-1].values.ravel()
+    return features_names, x, y, x_train, y_train, x_test, y_test

@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import pandas as pd
 import matplotlib.pyplot as plt
 import metrics.metrics as metrics
 from plotting.plot_utils import define_plots
+from src.utils.load import load_transformed_data
 import plotting.plots_both
 import utils.utils as utils
 import cProfile
@@ -216,20 +215,9 @@ if __name__ == "__main__":
         omicLogger.info("Loading data...")
 
         # read in the data
-        x_df = pd.read_csv(
-            experiment_folder / "transformed_model_input_data.csv", index_col=0
+        features_names, x, y, x_train, y_train, x_test, y_test = load_transformed_data(
+            experiment_folder
         )
-        x_train = x_df[x_df["set"] == "Train"].iloc[:, :-1].values
-        x_test = x_df[x_df["set"] == "Test"].iloc[:, :-1].values
-        x = x_df.iloc[:, :-1].values
-        features_names = x_df.columns[:-1]
-
-        y_df = pd.read_csv(
-            experiment_folder / "transformed_model_target_data.csv", index_col=0
-        )
-        y_train = y_df[y_df["set"] == "Train"].iloc[:, :-1].values.ravel()
-        y_test = y_df[y_df["set"] == "Test"].iloc[:, :-1].values.ravel()
-        y = y_df.iloc[:, :-1].values.ravel()
 
         omicLogger.info("Test/train Data Loaded. Begin creating plots...")
         plot_graphs(
