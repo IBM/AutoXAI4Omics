@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import numpy as np
-import pandas as pd
 import utils.ml.feature_selection
 import utils.load
 import utils.ml.standardisation
 import utils.utils
 import utils.ml.data_split as ds
+from utils.save import save_transformed_data
 import logging
 import joblib
 import cProfile
@@ -104,19 +104,16 @@ def main():
         y = np.concatenate((y_train, y_test))
 
         # save the transformed input data
-        x_df = pd.DataFrame(x, columns=features_names)
-        x_df["set"] = "Train"
-        x_df["set"].iloc[-x_test.shape[0] :] = "Test"
-        x_df.index = list(x_ind_train) + list(x_ind_test)
-        x_df.index.name = "SampleID"
-        x_df.to_csv(experiment_folder / "transformed_model_input_data.csv", index=True)
-
-        y_df = pd.DataFrame(y, columns=["target"])
-        y_df["set"] = "Train"
-        y_df["set"].iloc[-y_test.shape[0] :] = "Test"
-        y_df.index = list(x_ind_train) + list(x_ind_test)
-        y_df.index.name = "SampleID"
-        y_df.to_csv(experiment_folder / "transformed_model_target_data.csv", index=True)
+        save_transformed_data(
+            experiment_folder,
+            x,
+            y,
+            features_names,
+            x_test,
+            y_test,
+            x_ind_train,
+            x_ind_test,
+        )
 
         omicLogger.info("Process completed.")
     except Exception as e:

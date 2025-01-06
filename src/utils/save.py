@@ -16,7 +16,8 @@ import json
 import joblib
 from utils.vars import CLASSIFICATION
 import pandas as pd
-
+from pathlib import Path
+from numpy import ndarray
 import logging
 from models.custom_model import CustomModel
 
@@ -140,3 +141,28 @@ def save_model(experiment_folder, model, model_name):
             joblib.dump(model, f)
     else:  # hat: added this
         model.save_model()
+
+
+def save_transformed_data(
+    experiment_folder: Path,
+    x: ndarray,
+    y: ndarray,
+    features_names: list[str],
+    x_test: ndarray,
+    y_test: ndarray,
+    x_ind_train,
+    x_ind_test,
+):
+    x_df = pd.DataFrame(x, columns=features_names)
+    x_df["set"] = "Train"
+    x_df["set"].iloc[-x_test.shape[0] :] = "Test"
+    x_df.index = list(x_ind_train) + list(x_ind_test)
+    x_df.index.name = "SampleID"
+    x_df.to_csv(experiment_folder / "transformed_model_input_data.csv", index=True)
+
+    y_df = pd.DataFrame(y, columns=["target"])
+    y_df["set"] = "Train"
+    y_df["set"].iloc[-y_test.shape[0] :] = "Test"
+    y_df.index = list(x_ind_train) + list(x_ind_test)
+    y_df.index.name = "SampleID"
+    y_df.to_csv(experiment_folder / "transformed_model_target_data.csv", index=True)

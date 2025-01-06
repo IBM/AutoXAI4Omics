@@ -58,6 +58,7 @@ Change log for the codebase. Initialised from the developments following version
 - upgraded `tensorflow` and `keras` to be able to create env on arm64
 - changed `DEV_MANUAL.md` to capture venv changes
 - Changed: simplified `load_data`
+- Changed: extracted `save_transformed_data` from pre-existing code
 
 ### Removed
 

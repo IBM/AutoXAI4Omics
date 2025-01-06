@@ -19,6 +19,7 @@ import utils.ml.class_balancing
 import utils.ml.feature_selection
 import utils.load
 import utils.ml.standardisation
+from utils.save import save_transformed_data
 import utils.utils
 from utils.vars import CLASSIFICATION
 import models.models
@@ -126,26 +127,20 @@ def main():
 
         # concatenate both test and train into test
         x = np.concatenate((x_train, x_test))
-        y = np.concatenate(
-            (y_train, y_test)
-        )  # y needs to be re-concatenated as the ordering of x may have been changed in splitting
+        # y needs to be re-concatenated as the ordering of x may have been changed in splitting
+        y = np.concatenate((y_train, y_test))
 
         # save the transformed input data
-        x_df = pd.DataFrame(x, columns=features_names)
-        x_df["set"] = "Train"
-        x_df["set"].iloc[-x_test.shape[0] :] = "Test"
-        x_df.index = list(x_ind_train) + list(x_ind_test)
-        # x_df.sort_index(inplace=True)
-        x_df.index.name = "SampleID"
-        x_df.to_csv(experiment_folder / "transformed_model_input_data.csv", index=True)
-
-        y_df = pd.DataFrame(y, columns=["target"])
-        y_df["set"] = "Train"
-        y_df["set"].iloc[-y_test.shape[0] :] = "Test"
-        y_df.index = list(x_ind_train) + list(x_ind_test)
-        # y_df.sort_index(inplace=True)
-        y_df.index.name = "SampleID"
-        y_df.to_csv(experiment_folder / "transformed_model_target_data.csv", index=True)
+        save_transformed_data(
+            experiment_folder,
+            x,
+            y,
+            features_names,
+            x_test,
+            y_test,
+            x_ind_train,
+            x_ind_test,
+        )
 
         omicLogger.info("Data combined and saved to files. Defining models...")
 
