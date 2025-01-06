@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
+from models.custom_model import CustomModel
+from numpy import ndarray
+from omics import geneExp, metabolomic, microbiome, tabular
 from pathlib import Path
 from typing import Literal
-from numpy import ndarray
-import pandas as pd
-from numpy import ndarray
-from models.custom_model import CustomModel
 import joblib
-from omics import geneExp, metabolomic, microbiome, tabular
-
+import json
 import logging
+import pandas as pd
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -113,7 +111,7 @@ def get_non_omic_data(
     return x, y, features_names
 
 
-def load_data_prediction(config_dict: dict):
+def load_data_prediction(config_dict: dict) -> tuple[pd.DataFrame, list[str]]:
     omicLogger.debug("Loading prediction data")
 
     if config_dict["data"]["data_type"] == "microbiome":
@@ -147,7 +145,7 @@ def load_data_prediction(config_dict: dict):
     return x, features_names
 
 
-def load_data_holdout(config_dict: dict):
+def load_data_holdout(config_dict: dict) -> tuple[pd.DataFrame, ndarray, list[str]]:
     omicLogger.debug("Training loaded. Loading holdout data...")
     if config_dict["data"]["data_type"] == "microbiome":
         # This reads and preprocesses microbiome data using calour library --
