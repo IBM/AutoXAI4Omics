@@ -20,6 +20,7 @@ import pandas as pd
 import math
 from metrics.metric_defs import METRICS
 from sklearn.feature_selection import VarianceThreshold
+from typing import Union
 
 import logging
 
@@ -252,7 +253,7 @@ def generate_k_candicates(
 
 def feat_selection(
     experiment_folder, x, y, features_names, problem_type, FS_dict, save=True
-) -> tuple[pd.DataFrame | np.ndarray, list[str], Pipeline]:
+) -> tuple[Union[pd.DataFrame, np.ndarray], list[str], Pipeline]:
     """
     A function to activate manual or auto feature selection
     """

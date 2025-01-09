@@ -20,15 +20,16 @@ import pandas as pd
 import numpy as np
 import joblib
 from pathlib import Path
+from typing import Union
 
 omicLogger = logging.getLogger("OmicLogger")
 
 
 def create_microbiome_calourexp(
-    fpath_biom: Path | str,
-    fpath_meta: Path | str,
-    norm_reads: float | int | None = 1000,
-    min_reads: float | int | None = 1000,
+    fpath_biom: Union[Path, str],
+    fpath_meta: Union[Path, str],
+    norm_reads: Union[float, int, None] = 1000,
+    min_reads: Union[float, int, None] = 1000,
 ) -> ca.AmpliconExperiment:
     """
     Create the experiment from calour using the given minimum number of reads and the number of reads to normalize to
@@ -50,8 +51,8 @@ def create_microbiome_calourexp(
 def filter_biom(
     config_dict: dict,
     amp_exp: ca.AmpliconExperiment,
-    abundance: float | int = 10,
-    prevalence: float | int = 0.01,
+    abundance: Union[float, int] = 10,
+    prevalence: Union[float, int] = 0.01,
     collapse_tax=None,
 ) -> ca.AmpliconExperiment:
     """
@@ -287,7 +288,7 @@ def get_feature_names_for_abundance(amp_exp: ca.AmpliconExperiment) -> list[str]
 
 
 def get_data_microbiome(
-    path_file: str | Path, metadata_path: str | Path, config_dict: dict
+    path_file: Union[str, Path], metadata_path: Union[str, Path], config_dict: dict
 ) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
     """
     Load and process the data

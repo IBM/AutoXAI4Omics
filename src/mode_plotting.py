@@ -15,7 +15,7 @@
 import matplotlib.pyplot as plt
 import metrics.metrics as metrics
 from plotting.plot_utils import define_plots
-from src.utils.load import load_previous_AO_data
+from utils.load import load_previous_AO_data
 import plotting.plots_both
 import utils.utils as utils
 import cProfile

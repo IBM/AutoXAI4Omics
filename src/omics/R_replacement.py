@@ -17,13 +17,14 @@ import pandas as pd
 from bioinfokit.analys import norm
 import conorm as cn
 from pathlib import Path
+from typing import Union
 
 
 def preprocessing_LO(
     data_dict: dict,
-    filtergene1: float | int,
-    filtergene2: float | int,
-    filter_sample: float | int,
+    filtergene1: Union[float, int],
+    filtergene2: Union[float, int],
+    filter_sample: Union[float, int],
     holdout: bool,
 ) -> tuple[pd.DataFrame, list[str]]:
     """
@@ -129,7 +130,7 @@ def apply_learned_processing(
     holdout: bool,
     prediction: bool = False,
     tmm: bool = False,
-    prediction_file: str | Path = None,
+    prediction_file: Union[str, Path] = None,
 ) -> pd.DataFrame:
     if holdout is False and prediction is False:
         raise ValueError("One of holdout or prediction need to be true")
@@ -180,9 +181,9 @@ def apply_learned_processing(
 
 def preprocessing_others(
     data_dict: dict,
-    filtergene1: float | int,
-    filtergene2: float | int,
-    filter_sample: float | int,
+    filtergene1: Union[float, int],
+    filtergene2: Union[float, int],
+    filter_sample: Union[float, int],
     holdout: bool,
 ) -> tuple[pd.DataFrame, list[str]]:
     """
@@ -283,9 +284,9 @@ def preprocessing_others(
 
 def preprocessing_TMM(
     data_dict: dict,
-    filtergene1: float | int,
-    filtergene2: float | int,
-    filter_sample: float | int,
+    filtergene1: Union[float, int],
+    filtergene2: Union[float, int],
+    filter_sample: Union[float, int],
     holdout: bool,
 ) -> tuple[pd.DataFrame, list[str]]:
     """

@@ -16,7 +16,7 @@ from models.custom_model import CustomModel
 from numpy import ndarray
 from omics import geneExp, metabolomic, microbiome, tabular
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Union
 import joblib
 import json
 import logging
@@ -63,7 +63,7 @@ def load_config(config_path: str) -> dict:
 def get_non_omic_data(
     path_file: Path,
     target: str,
-    metadata_path: Path | str | None,
+    metadata_path: Union[Path, str, None],
     prediction: bool = False,
 ) -> tuple[pd.DataFrame, ndarray, list[str]]:
     """
@@ -217,14 +217,14 @@ def get_data_R2G(
     config_dict: dict,
     prediction: bool = False,
     holdout: bool = False,
-    experiment_folder: Path | None = None,
+    experiment_folder: Union[Path, None] = None,
 ) -> tuple[
-    pd.DataFrame | None,
-    pd.Series | None,
-    pd.DataFrame | None,
-    pd.Series | None,
+    Union[pd.DataFrame, None],
+    Union[pd.Series, None],
+    Union[pd.DataFrame, None],
+    Union[pd.Series, None],
     pd.DataFrame,
-    pd.Series | None,
+    Union[pd.Series, None],
     list[str],
 ]:
     """A function to load R2G data files

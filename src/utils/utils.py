@@ -35,6 +35,7 @@ from utils.save import save_config
 import re
 from sklearn.preprocessing import QuantileTransformer
 from sklearn.pipeline import Pipeline
+from typing import Union
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -292,7 +293,7 @@ def pretty_names(name, name_type):
     return new_name
 
 
-def assert_best_model_exists(folder: Path) -> Path | str:
+def assert_best_model_exists(folder: Path) -> Union[Path, str]:
     path = folder / "best_model"
 
     if not os.path.exists(str(path)):
@@ -314,7 +315,7 @@ def assert_best_model_exists(folder: Path) -> Path | str:
 
 def assert_data_transformers_exists(
     folder: Path, config_dict: dict
-) -> tuple[QuantileTransformer | None, Pipeline | None]:
+) -> tuple[Union[QuantileTransformer, None], Union[Pipeline, None]]:
     """A function to assert that both the standardiser and feature selection transformer exists and if so load them.
 
     Parameters
@@ -374,7 +375,7 @@ def assert_data_transformers_exists(
     return SS, FS
 
 
-def get_model_path(experiment_folder: Path, model_name: str) -> Path | str:
+def get_model_path(experiment_folder: Path, model_name: str) -> Union[Path, str]:
     try:
         model_path = glob.glob(
             f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}"

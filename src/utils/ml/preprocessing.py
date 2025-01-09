@@ -15,6 +15,7 @@ import utils.ml.feature_selection
 import utils.ml.standardisation
 import utils.utils
 from utils.utils import assert_data_transformers_exists
+from typing import Union
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -23,10 +24,10 @@ def learn_ml_preprocessing(
     config_dict: dict,
     experiment_folder: Path,
     features_names: list[str],
-    x_train: DataFrame | ndarray,
-    x_test: DataFrame | ndarray,
-    y_train: DataFrame | ndarray,
-    y_test: DataFrame | ndarray,
+    x_train: Union[DataFrame, ndarray],
+    x_test: Union[DataFrame, ndarray],
+    y_train: Union[DataFrame, ndarray],
+    y_test: Union[DataFrame, ndarray],
 ):
     x_ind_train = x_train.index
     x_ind_test = x_test.index
