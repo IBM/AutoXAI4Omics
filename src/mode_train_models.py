@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from utils.ml.preprocessing import learn_ml_preprocessing
+from utils.load import get_data_R2G
 import cProfile
 import logging
 import mode_plotting
@@ -45,27 +46,35 @@ def main():
     try:
         omicLogger.info("Loading data...")
 
-        # read the data
-        x, y, features_names = utils.load.load_data(config_dict, mode="main")
-        omicLogger.info("Data Loaded. Splitting data...")
+        # Check for R2G
+        if config_dict["data"]["data_type"] != "R2G":
 
-        if len(x.index.unique()) != x.shape[0]:
-            raise ValueError("The sample index/names contain duplicate entries")
+            # read the data
+            x, y, features_names = utils.load.load_data(config_dict, mode="main")
+            omicLogger.info("Data Loaded. Splitting data...")
 
-        # Split the data in train and test
-        x_train, x_test, y_train, y_test = ds.split_data(x, y, config_dict)
-        omicLogger.info("Data splitted. preprocessing data...")
+            if len(x.index.unique()) != x.shape[0]:
+                raise ValueError("The sample index/names contain duplicate entries")
 
-        # Run ml preprocessing
-        x, y, features_names, x_train, x_test, y_train = learn_ml_preprocessing(
-            config_dict,
-            experiment_folder,
-            features_names,
-            x_train,
-            x_test,
-            y_train,
-            y_test,
-        )
+            # Split the data in train and test
+            x_train, x_test, y_train, y_test = ds.split_data(x, y, config_dict)
+            omicLogger.info("Data splitted. preprocessing data...")
+
+            # Run ml preprocessing
+            x, y, features_names, x_train, x_test, y_train = learn_ml_preprocessing(
+                config_dict,
+                experiment_folder,
+                features_names,
+                x_train,
+                x_test,
+                y_train,
+                y_test,
+            )
+        else:
+
+            x, y, x_train, y_train, x_test, y_test, features_names = get_data_R2G(
+                config_dict, experiment_folder=experiment_folder
+            )
 
         omicLogger.info("Data combined and saved to files. Defining models...")
 

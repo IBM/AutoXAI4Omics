@@ -21,6 +21,7 @@ import joblib
 import json
 import logging
 import pandas as pd
+from utils.save import save_transformed_data
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -210,6 +211,135 @@ def load_data_main(config_dict: dict) -> tuple[pd.DataFrame, ndarray, list[str]]
         )
 
     return x, y, features_names
+
+
+def get_data_R2G(
+    config_dict: dict,
+    prediction: bool = False,
+    holdout: bool = False,
+    experiment_folder: Path | None = None,
+) -> tuple[
+    pd.DataFrame | None,
+    pd.Series | None,
+    pd.DataFrame | None,
+    pd.Series | None,
+    pd.DataFrame,
+    pd.Series | None,
+    list[str],
+]:
+    """A function to load R2G data files
+
+    Parameters
+    ----------
+    config_dict : dict
+        The config dict containing the relevant data information
+    prediction : bool, optional
+        A boll to indicate if teh dataset being loaded is for prediction or not, by default False
+    holdout : bool, optional
+        A bool to indicate if the dataset being loaded is for holdout testing or not, by default False
+    experiment_folder : Path | none, optional
+        A Path in which to save the AO inputs to if provided, byt default none
+
+
+    Returns
+    -------
+    tuple[ pd.DataFrame | None, pd.Series | None, pd.DataFrame | None, pd.Series | None, pd.DataFrame, pd.Series | None, list[str] ]
+        Return the X,y, x_train, y_train, x_test,y_test and feature names. If prediction is True all bar x_test and feature_names will be None. The same if holdout is true with teh exception of y_test
+
+    Raises
+    ------
+    ValueError
+        Is raised if the data_path found is None
+    """
+    # TODO: 5. input validation
+    # TODO: 7. write test
+
+    # extract data path to load
+    if prediction:
+        data_path = config_dict["prediction"]["file_path"]
+    elif holdout:
+        data_path = config_dict["data"]["file_path_holdout_data"]
+    else:
+        data_path = config_dict["data"]["file_path"]
+
+    if data_path is None:
+        raise ValueError("Recieved None for data_path when loading R2G dataset")
+
+    # load df
+    r2g_df = pd.read_csv(data_path, index_col=0)
+
+    # validate dataframe
+    validate_r2g_dataset(r2g_df)
+
+    # extract out test set as should be present for all modes
+    X_test_df = r2g_df[r2g_df["set"] == "test"].drop(columns="set")
+
+    # check if in prediction loading mode
+    if not prediction:
+        # if not then extract test labels
+        y_test = X_test_df["label"]
+    else:
+        # else set to None
+        y_test = None
+
+    # drop the label col
+    X_test_df.drop(columns="label", inplace=True)
+
+    # extract the feature names
+    feature_names = X_test_df.columns.to_list()
+
+    # Check if in main loading mode
+    if not (prediction or holdout):
+        # then extract the "train" subset
+        X_train_df = r2g_df[r2g_df["set"] == "train"].drop(columns="set")
+        y_train = X_train_df["label"]
+        X_train_df.drop(columns="label", inplace=True)
+        X = r2g_df.drop(columns=["set", "label"])
+        y = r2g_df["label"]
+
+        # save AO input files
+        if experiment_folder:
+            save_transformed_data(
+                experiment_folder,
+                X,
+                y,
+                feature_names,
+                X_test_df,
+                y_test,
+                X_train_df.index,
+                X_test_df.index,
+            )
+    else:
+        # else set to None
+        X_train_df = y_train = X = y = None
+
+    return X, y, X_train_df, y_train, X_test_df, y_test, feature_names
+
+
+def validate_r2g_dataset(r2g_df: pd.DataFrame):
+    """Assert that the provided dataframe is a valid R2G dataset
+
+    Parameters
+    ----------
+    r2g_df : pd.DataFrame
+        The dataframe to be validated
+
+    Raises
+    ------
+    ValueError
+        Is raised if the dataframe does not have a 'set' or 'label' column
+    ValueError
+        Is raised if the dataframe has values other than 'test' and 'train' in its 'label' column
+    """
+    if not ("label" in r2g_df.columns and "set" in r2g_df.columns):
+        raise ValueError(
+            "A R2G dataset must have both a 'set' column and a 'label' column. At least one was not found."
+        )
+
+    if r2g_df["set"].unique().tolist() != ["test", "train"]:
+        raise ValueError(
+            "The 'set' column of a R2G dataset must only contain 'train' or 'test'"
+        )
 
 
 def load_data(

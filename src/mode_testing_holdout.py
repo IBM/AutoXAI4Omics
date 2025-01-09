@@ -26,6 +26,7 @@ import mode_plotting
 import logging
 from utils.utils import assert_best_model_exists
 from utils.ml.preprocessing import apply_ml_preprocessing
+from utils.load import get_data_R2G
 
 if __name__ == "__main__":
     """
@@ -49,24 +50,30 @@ if __name__ == "__main__":
         omicLogger.info("Loading data...")
         model_path = assert_best_model_exists(experiment_folder)
 
-        # if the data is R2G then warn the user that the holdout data must be pre-processed exactly the same
-        if config_dict["data"]["data_type"] == "R2G":
-            omicLogger.warning(
-                "Previous model was trained with ready to go data. Please ensure that the data being given to this mode has been pre-processed in exactly the same way."
-            )
-
         omicLogger.info("Loading previous model input data")
         (features_names, x, y, x_train, y_train, *_) = load_previous_AO_data(
             experiment_folder
         )
 
-        omicLogger.info("Loading holdout Data...")
-        x_heldout, y_heldout, features_names = utils.load.load_data(
-            config_dict, mode="holdout"
-        )
+        if config_dict["data"]["data_type"] != "R2G":
+            omicLogger.info("Loading holdout Data...")
+            x_heldout, y_heldout, features_names = utils.load.load_data(
+                config_dict, mode="holdout"
+            )
 
-        omicLogger.info("Applying learned ml processing...")
-        x_heldout = apply_ml_preprocessing(config_dict, experiment_folder, x_heldout)
+            omicLogger.info("Applying learned ml processing...")
+            x_heldout = apply_ml_preprocessing(
+                config_dict, experiment_folder, x_heldout
+            )
+        else:
+            # if the data is R2G then warn the user that the holdout data must be pre-processed exactly the same
+            omicLogger.warning(
+                "Previous model was trained with ready to go data. Please ensure that the data being given to this mode has been pre-processed in exactly the same way."
+            )
+
+            *_, x_heldout, y_heldout, features_names = get_data_R2G(
+                config_dict, holdout=True
+            )
 
         omicLogger.info("Heldout data transformed. Creating results DataFrame...")
         # Create dataframe for performance results

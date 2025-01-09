@@ -22,6 +22,7 @@ import cProfile
 from utils.utils import assert_best_model_exists
 import numpy as np
 from sklearn.preprocessing import normalize
+from utils.load import get_data_R2G
 
 
 if __name__ == "__main__":
@@ -53,16 +54,20 @@ if __name__ == "__main__":
                 "Previous model was trained with ready to go data. Please ensure that the data being given to this mode has been pre-processed in exactly the same way."
             )
 
-        omicLogger.info("Loading Data...")
-        x_to_predict, _, features_names = utils.load.load_data(
-            config_dict, mode="prediction"
-        )
-        x_indexes = x_to_predict.index
+            *_, x_to_predict, _, feature_names = get_data_R2G(
+                config_dict, prediction=True
+            )
+        else:
+            omicLogger.info("Loading Data...")
+            x_to_predict, _, features_names = utils.load.load_data(
+                config_dict, mode="prediction"
+            )
+            x_indexes = x_to_predict.index
 
-        omicLogger.info("Applying learned ml processing...")
-        x_to_predict = apply_ml_preprocessing(
-            config_dict, experiment_folder, x_to_predict
-        )
+            omicLogger.info("Applying learned ml processing...")
+            x_to_predict = apply_ml_preprocessing(
+                config_dict, experiment_folder, x_to_predict
+            )
 
         model_name = os.path.basename(model_path).split("_")[0]
         omicLogger.debug("Loading model...")
