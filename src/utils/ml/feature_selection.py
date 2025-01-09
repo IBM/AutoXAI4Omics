@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -252,7 +252,7 @@ def generate_k_candicates(
 
 def feat_selection(
     experiment_folder, x, y, features_names, problem_type, FS_dict, save=True
-):
+) -> tuple[pd.DataFrame | np.ndarray, list[str], Pipeline]:
     """
     A function to activate manual or auto feature selection
     """
