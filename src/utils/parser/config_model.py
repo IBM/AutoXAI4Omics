@@ -38,4 +38,10 @@ class ConfigModel(BaseModel):
         if self.data.data_type != "metabolomic":
             self.metabolomic = None
 
+        if self.data.data_type == "R2G":
+            self.ml.standardize = False
+            self.ml.feature_selection = None
+            self.ml.balancing = "NONE"
+            self.prediction.metadata_file = None
+
         return self

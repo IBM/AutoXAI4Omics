@@ -42,6 +42,7 @@ Change log for the codebase. Initialised from the developments following version
 - added batch mode processing
 - Added: new flag to skip ML standardizing in MlModel
 - Added: created `load_transformed_data` from pre-existing code
+- Added: new option `DataModel.data_type` `"R2G"` for datasets are Ready to Go to be trained on
 
 ### Changed
 

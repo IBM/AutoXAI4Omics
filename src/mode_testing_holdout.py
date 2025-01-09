@@ -48,6 +48,12 @@ if __name__ == "__main__":
     try:
         omicLogger.info("Loading data...")
 
+        # if the data is R2G then warn the user that the holdout data must be pre-processed exactly the same
+        if config_dict["data"]["data_type"] == "R2G":
+            omicLogger.warning(
+                "Previous model was trained with ready to go data. Please ensure that the data being given to this mode has been pre-processed in exactly the same way."
+            )
+
         x_heldout, y_heldout, features_names = utils.load.load_data(
             config_dict, mode="holdout"
         )

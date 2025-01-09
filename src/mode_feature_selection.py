@@ -44,6 +44,12 @@ def main():
     try:
         omicLogger.info("Loading data...")
 
+        # If the data is R2G then it has already had feature selection done and not suitable for this mode
+        if config_dict["data"]["data_type"] == "R2G":
+            raise ValueError(
+                "Configs with data:data_type=R2G can not be used in feature_selection mode"
+            )
+
         # read the data
         x, y, features_names = utils.load.load_data(config_dict, mode="main")
         omicLogger.info("Data Loaded. Splitting data...")
