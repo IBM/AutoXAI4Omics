@@ -60,6 +60,7 @@ Change log for the codebase. Initialised from the developments following version
 - changed `DEV_MANUAL.md` to capture venv changes
 - Changed: simplified `load_data`
 - Changed: extracted `save_transformed_data` from pre-existing code
+- Changed: extracted out ml preprocessing into function `learn_ml_preprocessing` and `apply_ml_preprocessing`
 
 ### Removed
 

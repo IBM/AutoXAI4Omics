@@ -251,7 +251,7 @@ def load_data(
         )
 
 
-def load_transformed_data(
+def load_previous_AO_data(
     experiment_folder: Path,
 ) -> tuple[list[str], ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
     x_df = pd.read_csv(

@@ -15,10 +15,11 @@
 import os
 import pandas as pd
 import utils.load
+from utils.ml.preprocessing import apply_ml_preprocessing
 import utils.utils
 import logging
 import cProfile
-from utils.utils import assert_best_model_exists, assert_data_transformers_exists
+from utils.utils import assert_best_model_exists
 import numpy as np
 from sklearn.preprocessing import normalize
 
@@ -58,16 +59,10 @@ if __name__ == "__main__":
         )
         x_indexes = x_to_predict.index
 
-        omicLogger.info("Loading data transformers...")
-        SS, FS = assert_data_transformers_exists(experiment_folder, config_dict)
-
-        if SS is not None:
-            omicLogger.info("Applying trained standardising...")
-            x_to_predict = utils.utils.transform_data(x_to_predict, SS)
-
-        if FS is not None:
-            omicLogger.info("Applying trained feature selector...")
-            x_to_predict = FS.transform(x_to_predict)
+        omicLogger.info("Applying learned ml processing...")
+        x_to_predict = apply_ml_preprocessing(
+            config_dict, experiment_folder, x_to_predict
+        )
 
         model_name = os.path.basename(model_path).split("_")[0]
         omicLogger.debug("Loading model...")

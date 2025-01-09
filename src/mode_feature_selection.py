@@ -12,16 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-import utils.ml.feature_selection
-import utils.load
-import utils.ml.standardisation
-import utils.utils
-import utils.ml.data_split as ds
-from utils.save import save_transformed_data
-import logging
-import joblib
+from utils.ml.preprocessing import learn_ml_preprocessing
 import cProfile
+import logging
+import utils.load
+import utils.ml.data_split as ds
+import utils.utils
 
 
 def main():
@@ -59,66 +55,17 @@ def main():
 
         # Split the data in train and test
         x_train, x_test, y_train, y_test = ds.split_data(x, y, config_dict)
-        omicLogger.info("Data splitted. Standardising...")
+        omicLogger.info("Data splitted. preprocessing data...")
 
-        x_ind_train = x_train.index
-        x_ind_test = x_test.index
-
-        # standardise data
-        if config_dict["ml"]["standardize"]:
-            x_train, SS = utils.ml.standardisation.standardize_data(
-                x_train
-            )  # fit the standardiser to the training data
-            x_test = utils.utils.transform_data(
-                x_test, SS
-            )  # transform the test data according to the fitted standardiser
-
-            # save the standardiser transformer
-            save_name = experiment_folder / "transformer_std.pkl"
-            with open(save_name, "wb") as f:
-                joblib.dump(SS, f)
-
-        omicLogger.info("Data standardised, transformer saved. Selecting features...")
-
-        # implement feature selection if desired
-        if config_dict["ml"]["feature_selection"] is not None:
-            x_train, features_names, FS = utils.ml.feature_selection.feat_selection(
-                experiment_folder,
-                x_train,
-                y_train,
-                features_names,
-                config_dict["ml"]["problem_type"],
-                config_dict["ml"]["feature_selection"],
-            )
-            x_test = FS.transform(x_test)
-
-            # Save the feature selection tranformer
-            save_name = experiment_folder / "transformer_fs.pkl"
-            with open(save_name, "wb") as f:
-                joblib.dump(FS, f)
-
-            omicLogger.info(
-                "Features selected, transformer saved. Re-combining data..."
-            )
-        else:
-            print("Skipping Feature selection.")
-            omicLogger.info("Skipping feature selection. Re-combining data...")
-
-        # concatenate both test and train into test
-        x = np.concatenate((x_train, x_test))
-        # y needs to be re-concatenated as the ordering of x may have been changed in splitting
-        y = np.concatenate((y_train, y_test))
-
-        # save the transformed input data
-        save_transformed_data(
+        # Run ml preprocessing
+        x, y, features_names, x_train, x_test, y_train = learn_ml_preprocessing(
+            config_dict,
             experiment_folder,
-            x,
-            y,
             features_names,
+            x_train,
             x_test,
+            y_train,
             y_test,
-            x_ind_train,
-            x_ind_test,
         )
 
         omicLogger.info("Process completed.")

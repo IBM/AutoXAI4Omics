@@ -15,7 +15,7 @@
 import matplotlib.pyplot as plt
 import metrics.metrics as metrics
 from plotting.plot_utils import define_plots
-from src.utils.load import load_transformed_data
+from src.utils.load import load_previous_AO_data
 import plotting.plots_both
 import utils.utils as utils
 import cProfile
@@ -215,7 +215,7 @@ if __name__ == "__main__":
         omicLogger.info("Loading data...")
 
         # read in the data
-        features_names, x, y, x_train, y_train, x_test, y_test = load_transformed_data(
+        features_names, x, y, x_train, y_train, x_test, y_test = load_previous_AO_data(
             experiment_folder
         )
 

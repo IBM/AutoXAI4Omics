@@ -14,18 +14,18 @@
 
 
 from pathlib import Path
-from utils.load import load_transformed_data
+from utils.load import load_previous_AO_data
 from utils.utils import get_model_path
 import pandas as pd
 import metrics.metrics
 import utils.load
 import utils.save
 import utils.utils
-import joblib
 import cProfile
 import mode_plotting
 import logging
-
+from utils.utils import assert_best_model_exists
+from utils.ml.preprocessing import apply_ml_preprocessing
 
 if __name__ == "__main__":
     """
@@ -47,6 +47,7 @@ if __name__ == "__main__":
 
     try:
         omicLogger.info("Loading data...")
+        model_path = assert_best_model_exists(experiment_folder)
 
         # if the data is R2G then warn the user that the holdout data must be pre-processed exactly the same
         if config_dict["data"]["data_type"] == "R2G":
@@ -54,27 +55,18 @@ if __name__ == "__main__":
                 "Previous model was trained with ready to go data. Please ensure that the data being given to this mode has been pre-processed in exactly the same way."
             )
 
+        omicLogger.info("Loading previous model input data")
+        (features_names, x, y, x_train, y_train, *_) = load_previous_AO_data(
+            experiment_folder
+        )
+
+        omicLogger.info("Loading holdout Data...")
         x_heldout, y_heldout, features_names = utils.load.load_data(
             config_dict, mode="holdout"
         )
-        omicLogger.info("Heldout Data Loaded. Loading test/train data...")
 
-        (features_names, x, y, x_train, y_train, *_) = load_transformed_data(
-            experiment_folder
-        )
-        omicLogger.info("Test/train Data Loaded. Transforming holdout data...")
-
-        if config_dict["ml"]["standardize"]:
-            with open(experiment_folder / "transformer_std.pkl", "rb") as f:
-                SS = joblib.load(f)
-            x_heldout = utils.utils.transform_data(
-                x_heldout, SS
-            )  # transform the holdout data according to the fitted standardiser
-
-        if config_dict["ml"]["feature_selection"] is not None:
-            with open(experiment_folder / "transformer_fs.pkl", "rb") as f:
-                FS = joblib.load(f)
-            x_heldout = FS.transform(x_heldout)
+        omicLogger.info("Applying learned ml processing...")
+        x_heldout = apply_ml_preprocessing(config_dict, experiment_folder, x_heldout)
 
         omicLogger.info("Heldout data transformed. Creating results DataFrame...")
         # Create dataframe for performance results
