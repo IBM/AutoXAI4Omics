@@ -247,7 +247,9 @@ class CustomModel:
         # Check if the labels are already one-hot encoded
         if len(self.labels.shape) == 1 or self.labels.shape[1] > 1:
             # Create the encode object
-            self.onehot_encode_obj = OneHotEncoder(categories="auto", sparse=False)
+            self.onehot_encode_obj = OneHotEncoder(
+                categories="auto", sparse_output=False
+            )
             # Fit transform the labels that we have
             # Reshape the labels just in case (if they are, it has no effect)
             self.labels = self.onehot_encode_obj.fit_transform(

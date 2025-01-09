@@ -62,6 +62,10 @@ Change log for the codebase. Initialised from the developments following version
 - Changed: extracted `save_transformed_data` from pre-existing code
 - Changed: extracted out ml preprocessing into function `learn_ml_preprocessing` and `apply_ml_preprocessing`
 
+### Fixed
+
+- Fixed: deprecation warnings
+
 ### Removed
 
 - removed `auto-sklearn`

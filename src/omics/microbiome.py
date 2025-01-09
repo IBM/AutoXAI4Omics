@@ -206,7 +206,7 @@ def select_class_col(
 
     # One-hot encoding
     if encoding == "onehot":
-        enc = OneHotEncoder(sparse=False)
+        enc = OneHotEncoder(sparse_output=False)
         y = enc.fit_transform(y.values.reshape(-1, 1))
         print(f"Categories using one-hot encoding {enc.categories_}")
 
