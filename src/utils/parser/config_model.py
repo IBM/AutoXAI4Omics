@@ -3,15 +3,15 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-from pydantic import BaseModel, model_validator
 from .data_model import DataModel
+from .geneExpression_model import GeneExpressionModel
+from .metabolomic_model import MetabolomicModel
+from .microbiome_model import MicrobiomeModel
 from .ml_model import MlModel
 from .plotting_model import PlottingModel
-from .tabular_model import TabularModel
-from .microbiome_model import MicrobiomeModel
-from .metabolomic_model import MetabolomicModel
-from .geneExpression_model import GeneExpressionModel
 from .prediction_model import PredictionModel
+from .tabular_model import TabularModel
+from pydantic import BaseModel, model_validator
 
 
 class ConfigModel(BaseModel):

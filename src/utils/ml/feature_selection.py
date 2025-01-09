@@ -12,19 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sklearn.pipeline import Pipeline
+
+from metrics.metric_defs import METRICS
 from models.model_defs import MODELS
-import plotting.plots_both
+from sklearn.feature_selection import VarianceThreshold
+from sklearn.pipeline import Pipeline
+from typing import Union
+from utils.ml.feature_selection_defs import FS_KBEST_METRICS, FS_METHODS
+import logging
+import math
 import numpy as np
 import pandas as pd
-import math
-from metrics.metric_defs import METRICS
-from sklearn.feature_selection import VarianceThreshold
-from typing import Union
-
-import logging
-
-from utils.ml.feature_selection_defs import FS_KBEST_METRICS, FS_METHODS
+from plotting.plots_both import feat_acc_plot, opt_k_plot
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -138,7 +137,7 @@ def k_selector(experiment_folder, acc, top=True, low=True, save=True):
             ["r_m", "r_std"]
         ].std()  # normalise the values
 
-        plotting.plots_both.opt_k_plot(experiment_folder, sr_n, save)
+        opt_k_plot(experiment_folder, sr_n, save)
 
         if low:
             sr_n = sr_n - math.floor(
@@ -198,7 +197,7 @@ def auto_feat_selection(
         )
 
     # plot feat-acc
-    plotting.plots_both.feat_acc_plot(experiment_folder, acc, save)
+    feat_acc_plot(experiment_folder, acc, save)
 
     print("Selecting optimum k")
     chosen_k = k_selector(

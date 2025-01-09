@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pandas as pd
-from omics import R_replacement as rrep
 from numpy import ndarray
+from omics import R_replacement as rrep
 import joblib
+import pandas as pd
 
 
 def get_data_tabular(

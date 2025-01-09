@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sklearn.preprocessing import normalize
+from utils.load import get_data_R2G, load_data, load_model
+from utils.ml.preprocessing import apply_ml_preprocessing
+from utils.utils import assert_best_model_exists, initial_setup, prof_to_csv
+import cProfile
+import logging
+import numpy as np
 import os
 import pandas as pd
-import utils.load
-from utils.ml.preprocessing import apply_ml_preprocessing
-import utils.utils
-import logging
-import cProfile
-from utils.utils import assert_best_model_exists
-import numpy as np
-from sklearn.preprocessing import normalize
-from utils.load import get_data_R2G
 
 
 if __name__ == "__main__":
@@ -42,7 +40,7 @@ if __name__ == "__main__":
         config_dict,
         experiment_folder,
         omicLogger,
-    ) = utils.utils.initial_setup()
+    ) = initial_setup()
 
     try:
         omicLogger.info("Checking for Trained models")
@@ -59,9 +57,7 @@ if __name__ == "__main__":
             )
         else:
             omicLogger.info("Loading Data...")
-            x_to_predict, _, features_names = utils.load.load_data(
-                config_dict, mode="prediction"
-            )
+            x_to_predict, _, features_names = load_data(config_dict, mode="prediction")
             x_indexes = x_to_predict.index
 
             omicLogger.info("Applying learned ml processing...")
@@ -71,7 +67,7 @@ if __name__ == "__main__":
 
         model_name = os.path.basename(model_path).split("_")[0]
         omicLogger.debug("Loading model...")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
 
         omicLogger.info("Predicting on data...")
         predictions = model.predict(x_to_predict)
@@ -103,4 +99,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    utils.utils.prof_to_csv(pr, config_dict)
+    prof_to_csv(pr, config_dict)

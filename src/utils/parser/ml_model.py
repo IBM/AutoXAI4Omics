@@ -2,15 +2,15 @@
 #
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
-from typing import Literal, Union, List
 from ..vars import REGRESSION, CLASSIFICATION
-from metrics.metric_defs import METRICS
-from models.model_defs import MODELS
-from pydantic import BaseModel, NonNegativeInt, confloat, model_validator
-from .featureSelection_model import FeatureSelectionModel
 from .autokeras_model import AutoKerasModel
 from .autolgbm_model import AutoLgbmModel
 from .autoxgboost_model import AutoXgboostModel
+from .featureSelection_model import FeatureSelectionModel
+from metrics.metric_defs import METRICS
+from models.model_defs import MODELS
+from pydantic import BaseModel, NonNegativeInt, confloat, model_validator
+from typing import Literal, Union, List
 
 TestSize = confloat(strict=True, le=1, ge=0)
 METRICS_NAMES_ALL = tuple(set().union(*METRICS.values()))

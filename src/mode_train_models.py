@@ -12,18 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from mode_plotting import plot_graphs
+from models.models import run_models, select_best_model
+from utils.load import get_data_R2G, load_data
+from utils.ml.data_split import split_data
 from utils.ml.preprocessing import learn_ml_preprocessing
-from utils.load import get_data_R2G
+from utils.utils import initial_setup, copy_best_content, prof_to_csv
 import cProfile
 import logging
-import mode_plotting
-import models.model_defs
-import models.models
 import numpy as np
 import pandas as pd
-import utils.load
-import utils.ml.data_split as ds
-import utils.utils
 
 
 def main():
@@ -41,7 +39,7 @@ def main():
         config_dict,
         experiment_folder,
         omicLogger,
-    ) = utils.utils.initial_setup()
+    ) = initial_setup()
 
     try:
         omicLogger.info("Loading data...")
@@ -50,14 +48,14 @@ def main():
         if config_dict["data"]["data_type"] != "R2G":
 
             # read the data
-            x, y, features_names = utils.load.load_data(config_dict, mode="main")
+            x, y, features_names = load_data(config_dict, mode="main")
             omicLogger.info("Data Loaded. Splitting data...")
 
             if len(x.index.unique()) != x.shape[0]:
                 raise ValueError("The sample index/names contain duplicate entries")
 
             # Split the data in train and test
-            x_train, x_test, y_train, y_test = ds.split_data(x, y, config_dict)
+            x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
             omicLogger.info("Data splitted. preprocessing data...")
 
             # Run ml preprocessing
@@ -73,7 +71,7 @@ def main():
         else:
 
             x, y, x_train, y_train, x_test, y_test, features_names = get_data_R2G(
-                config_dict, experiment_folder=experiment_folder
+                config_dict
             )
 
         omicLogger.info("Data combined and saved to files. Defining models...")
@@ -99,7 +97,7 @@ def main():
 
         # Run the models
         print("Beginning to run the models")
-        models.models.run_models(
+        run_models(
             config_dict=config_dict,
             model_list=config_dict["ml"]["model_list"],
             df_train=df_train,
@@ -122,7 +120,7 @@ def main():
         if config_dict["plotting"]["plot_method"] is not None:
             omicLogger.info("Plots defined. Begin plotting graphs...")
             # Central func to define the args for the plots
-            mode_plotting.plot_graphs(
+            plot_graphs(
                 config_dict,
                 experiment_folder,
                 features_names,
@@ -142,13 +140,13 @@ def main():
             collapse_tax = config_dict.get("microbiome").get("collapse_tax")
 
         # Select Best Model
-        best_models = models.models.select_best_model(
+        best_models = select_best_model(
             experiment_folder,
             config_dict["ml"]["problem_type"],
             config_dict["ml"]["fit_scorer"],
             collapse_tax,
         )
-        utils.utils.copy_best_content(experiment_folder, best_models, collapse_tax)
+        copy_best_content(experiment_folder, best_models, collapse_tax)
 
         omicLogger.info("Process completed.")
     except Exception as e:
@@ -158,7 +156,7 @@ def main():
 
     # save time profile information
     pr.disable()
-    utils.utils.prof_to_csv(pr, config_dict)
+    prof_to_csv(pr, config_dict)
 
 
 if __name__ == "__main__":

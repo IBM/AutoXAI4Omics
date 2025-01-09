@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import scipy.sparse
-import calour as ca
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
-import logging
-import pandas as pd
-import numpy as np
-import joblib
 from pathlib import Path
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 from typing import Union
+import calour as ca
+import joblib
+import logging
+import numpy as np
+import pandas as pd
+import scipy.sparse
 
 omicLogger = logging.getLogger("OmicLogger")
 

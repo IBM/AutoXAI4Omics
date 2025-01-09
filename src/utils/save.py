@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import joblib
-from utils.vars import CLASSIFICATION
-import pandas as pd
-from pathlib import Path
-from numpy import ndarray
-import logging
 from models.custom_model import CustomModel
+from numpy import ndarray
+from pathlib import Path
+from utils.vars import CLASSIFICATION
+import joblib
+import json
+import logging
+import pandas as pd
 
 omicLogger = logging.getLogger("OmicLogger")
 

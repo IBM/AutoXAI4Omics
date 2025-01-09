@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from utils.load import load_data
+from utils.ml.data_split import split_data
 from utils.ml.preprocessing import learn_ml_preprocessing
+from utils.utils import initial_setup, prof_to_csv
 import cProfile
 import logging
-import utils.load
-import utils.ml.data_split as ds
-import utils.utils
 
 
 def main():
@@ -35,7 +35,7 @@ def main():
         config_dict,
         experiment_folder,
         omicLogger,
-    ) = utils.utils.initial_setup()
+    ) = initial_setup()
 
     try:
         omicLogger.info("Loading data...")
@@ -47,14 +47,14 @@ def main():
             )
 
         # read the data
-        x, y, features_names = utils.load.load_data(config_dict, mode="main")
+        x, y, features_names = load_data(config_dict, mode="main")
         omicLogger.info("Data Loaded. Splitting data...")
 
         if len(x.index.unique()) != x.shape[0]:
             raise ValueError("The sample index/names contain duplicate entries")
 
         # Split the data in train and test
-        x_train, x_test, y_train, y_test = ds.split_data(x, y, config_dict)
+        x_train, x_test, y_train, y_test = split_data(x, y, config_dict)
         omicLogger.info("Data splitted. preprocessing data...")
 
         # Run ml preprocessing
@@ -76,7 +76,7 @@ def main():
 
     # save time profile information
     pr.disable()
-    utils.utils.prof_to_csv(pr, config_dict)
+    prof_to_csv(pr, config_dict)
 
 
 if __name__ == "__main__":

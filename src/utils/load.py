@@ -17,11 +17,11 @@ from numpy import ndarray
 from omics import geneExp, metabolomic, microbiome, tabular
 from pathlib import Path
 from typing import Literal, Union
+from utils.save import save_transformed_data
 import joblib
 import json
 import logging
 import pandas as pd
-from utils.save import save_transformed_data
 
 omicLogger = logging.getLogger("OmicLogger")
 

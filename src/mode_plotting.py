@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import matplotlib.pyplot as plt
-import metrics.metrics as metrics
+from metrics.metrics import define_scorers
 from plotting.plot_utils import define_plots
 from utils.load import load_previous_AO_data
-import plotting.plots_both
-import utils.utils as utils
+from utils.utils import initial_setup, prof_to_csv
 import cProfile
 import logging
+import matplotlib.pyplot as plt
+from tensorflow.keras import backend as K
 
 
 omicLogger = logging.getLogger("OmicLogger")
@@ -43,7 +43,7 @@ def plot_graphs(
     are given for the data and labels.
     """
     omicLogger.debug("Defining scorers...")
-    scorer_dict = metrics.define_scorers(
+    scorer_dict = define_scorers(
         config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"]
     )
 
@@ -194,7 +194,7 @@ def plot_graphs(
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    plotting.plots_both.K.clear_session()
+    K.clear_session()
 
 
 if __name__ == "__main__":
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     pr.enable()
 
     # Do the initial setup
-    config_path, config_dict, experiment_folder, omicLogger = utils.initial_setup()
+    config_path, config_dict, experiment_folder, omicLogger = initial_setup()
 
     try:
         omicLogger.info("Loading data...")
@@ -239,4 +239,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    utils.prof_to_csv(pr, config_dict)
+    prof_to_csv(pr, config_dict)

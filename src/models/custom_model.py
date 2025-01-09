@@ -13,17 +13,16 @@
 # limitations under the License.
 
 
-import numpy as np
-import pandas as pd
-import tensorflow
-import joblib
-from sklearn.preprocessing import OneHotEncoder
-import logging
-from utils.vars import CLASSIFICATION, REGRESSION
-
 from models.tabauto.keras_model import KerasModel
 from models.tabauto.lgbm_model import LGBMModel
 from models.tabauto.xgboost_model import XGBoostModel
+from sklearn.preprocessing import OneHotEncoder
+from utils.vars import CLASSIFICATION, REGRESSION
+import joblib
+import logging
+import numpy as np
+import pandas as pd
+import tensorflow
 
 omicLogger = logging.getLogger("OmicLogger")
 

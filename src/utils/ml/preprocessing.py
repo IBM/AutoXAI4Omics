@@ -5,17 +5,16 @@
 from numpy import ndarray
 from pandas import DataFrame
 from pathlib import Path
+from typing import Union
+from utils.ml.class_balancing import oversample_data, undersample_data
+from utils.ml.feature_selection import feat_selection
+from utils.ml.standardisation import standardize_data
 from utils.save import save_transformed_data
+from utils.utils import assert_data_transformers_exists, transform_data
 from utils.vars import CLASSIFICATION
 import joblib
 import logging
 import numpy as np
-import utils.ml.class_balancing
-import utils.ml.feature_selection
-import utils.ml.standardisation
-import utils.utils
-from utils.utils import assert_data_transformers_exists
-from typing import Union
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -35,10 +34,10 @@ def learn_ml_preprocessing(
     # standardise data
     if config_dict["ml"]["standardize"]:
         omicLogger.info("Standardising data...")
-        x_train, SS = utils.ml.standardisation.standardize_data(
+        x_train, SS = standardize_data(
             x_train
         )  # fit the standardiser to the training data
-        x_test = utils.utils.transform_data(
+        x_test = transform_data(
             x_test, SS
         )  # transform the test data according to the fitted standardiser
 
@@ -53,7 +52,7 @@ def learn_ml_preprocessing(
     # implement feature selection if desired
     if config_dict["ml"]["feature_selection"] is not None:
         omicLogger.info("Selecting features...")
-        x_train, features_names, FS = utils.ml.feature_selection.feat_selection(
+        x_train, features_names, FS = feat_selection(
             experiment_folder,
             x_train,
             y_train,
@@ -81,9 +80,7 @@ def learn_ml_preprocessing(
                 x_train,
                 y_train,
                 re_sampled_idxs,
-            ) = utils.ml.class_balancing.oversample_data(
-                x_train, y_train, config_dict["ml"]["seed_num"]
-            )
+            ) = oversample_data(x_train, y_train, config_dict["ml"]["seed_num"])
             x_ind_train = x_ind_train[re_sampled_idxs]
         elif config_dict["ml"]["balancing"] == "UNDER":
             omicLogger.info("Performing class balancing (UNDER sampling)...")
@@ -91,9 +88,7 @@ def learn_ml_preprocessing(
                 x_train,
                 y_train,
                 re_sampled_idxs,
-            ) = utils.ml.class_balancing.undersample_data(
-                x_train, y_train, config_dict["ml"]["seed_num"]
-            )
+            ) = undersample_data(x_train, y_train, config_dict["ml"]["seed_num"])
             x_ind_train = x_ind_train[re_sampled_idxs]
         else:
             omicLogger.info("Skipping class balancing...")
@@ -147,7 +142,7 @@ def apply_ml_preprocessing(
     # apply standardising if not None
     if SS is not None:
         omicLogger.info("Applying trained standardising...")
-        x_to_transform = utils.utils.transform_data(x_to_transform, SS)
+        x_to_transform = transform_data(x_to_transform, SS)
 
     # Apply Feature selection if not None
     if FS is not None:

@@ -1,34 +1,32 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-import pandas as pd
+
+from models.custom_model import CustomModel
 from sklearn.model_selection import GroupShuffleSplit, KFold, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
-from models.custom_model import CustomModel
-from utils.utils import get_model_path, pretty_names
-import utils.load
 from tensorflow.keras import backend as K
-from utils.vars import CLASSIFICATION, REGRESSION
+from utils.load import load_model
 from utils.save import save_fig
-import seaborn as sns
-
-import matplotlib.pyplot as plt
-import time
-
-
+from utils.utils import get_model_path, pretty_names
+from utils.vars import CLASSIFICATION, REGRESSION
 import logging
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import time
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -146,7 +144,7 @@ def barplot_scorer(
         model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting barplot for {model_name} using {fit_scorer}")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
         # Get our single score
         score = np.abs(scorer_dict[fit_scorer](model, data, true_labels))
         all_scores.append(score)
@@ -227,7 +225,7 @@ def boxplot_scorer_cv_groupby(
             print(f"{model_name}, fold {num_fold}")
             num_fold += 1
             # Load the model
-            model = utils.load.load_model(model_name, model_path)
+            model = load_model(model_name, model_path)
             # Handle the custom model
             if isinstance(model, tuple(CustomModel.__subclasses__())):
                 # Remove the test data to avoid any saving
@@ -329,7 +327,7 @@ def boxplot_scorer_cv(
 
             num_fold += 1
             # Load the model
-            model = utils.load.load_model(model_name, model_path)
+            model = load_model(model_name, model_path)
             # Handle the custom model
             if isinstance(model, tuple(CustomModel.__subclasses__())):
                 # Remove the test data to avoid any saving

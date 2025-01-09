@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -13,17 +13,16 @@
 # limitations under the License.
 
 from tensorflow.keras import backend as K
-import utils.load
-from utils.utils import pretty_names
+from utils.load import load_model
 from utils.save import save_fig
-from utils.utils import get_model_path
+from utils.utils import get_model_path, pretty_names
+from utils.vars import CLASSIFICATION, REGRESSION
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
-from utils.vars import CLASSIFICATION, REGRESSION
 import time
-import logging
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -90,7 +89,7 @@ def shap_force_plots(
         model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting SHAP for {model_name}")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
         explainer = select_explainer(model, model_name, df_train, problem_type)
@@ -230,7 +229,7 @@ def shap_force_clf(
     class_exemplars = (
         np.ma.masked_array(
             probs,
-            mask=np.repeat(model.predict(data) != y_data, probs.shape[1])
+            mask=np.repeat(model.predict(data) != y_data, probs.shape[1]),
             # Need to repeat so the mask is the same shape as predict_proba
         )
         .argmax(0)
@@ -566,7 +565,7 @@ def shap_plots(
         print(f"Plotting SHAP plots for {model_name}")
         omicLogger.info(f"Plotting SHAP plots for {model_name}")
 
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
         explainer = select_explainer(model, model_name, df_train, problem_type)
@@ -686,7 +685,7 @@ def shap_summary_plot(
         model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting SHAP for {model_name}")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
         # Define the figure object
         fig, ax = plt.subplots()
         # Select the right explainer from SHAP

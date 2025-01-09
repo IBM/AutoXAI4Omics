@@ -1,27 +1,27 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-import scipy.stats as sp
-import seaborn as sns
-import utils.load
 from tensorflow.keras import backend as K
 from utils.save import save_fig
 from utils.utils import get_model_path
-import matplotlib.pyplot as plt
-import time
 import logging
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.stats as sp
+import seaborn as sns
+import time
+from utils.load import load_model
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -41,7 +41,7 @@ def histograms(
         model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting histogram for {model_name}")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
 
@@ -89,7 +89,7 @@ def correlation_plot(
         model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting Correlation Plot for {model_name}")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
         # Calc the confusion matrix
@@ -142,7 +142,7 @@ def distribution_hist(
         model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting histogram for {model_name}")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
         # Left histograms
@@ -190,7 +190,7 @@ def joint_plot(
         model_path = get_model_path(experiment_folder, model_name)
 
         print(f"Plotting joint plot for {model_name}")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
         sns.set(style="white")
