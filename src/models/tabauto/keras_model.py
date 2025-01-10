@@ -338,7 +338,7 @@ class KerasModel(BaseModel):
         else:
             bg_val = BatchGeneratorSeqArray(testX, testY, batch_size=batch_size)
         history = self.model.fit(
-            generator=bg_train,
+            bg_train,
             validation_data=bg_val,
             epochs=epochs,
             callbacks=callbacks,

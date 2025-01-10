@@ -58,9 +58,7 @@ if __name__ == "__main__":
 
         if config_dict["data"]["data_type"] != "R2G":
             omicLogger.info("Loading holdout Data...")
-            x_heldout, y_heldout, features_names = load_data(
-                config_dict, mode="holdout"
-            )
+            x_heldout, y_heldout, _ = load_data(config_dict, mode="holdout")
 
             omicLogger.info("Applying learned ml processing...")
             x_heldout = apply_ml_preprocessing(
