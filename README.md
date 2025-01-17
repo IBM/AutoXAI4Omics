@@ -98,3 +98,15 @@ Data to be used by AutoXAI4Omics needs to be stored in the `AutoXAI4Omics/data` 
 
 * **UNDER DEVELOPMENT** If you wish to utilise any gpus that are available on your machine during your AutoXAI4Omics run then you can add the `-g` flag:
   * `./autoxai4omics.sh -m train -c my_fun_config.json -g`
+
+* **UNDER DEVELOPMENT** AutoXAI4Omics has a new config duplication function (for when you wish to run the same config over multiple datasets). To use this you need to build the image and the run it in `bash` mode. Once there you can then run:
+  
+  ```shell
+  python mode_config_duplicate.py -c SUBPATH_TO_TEMPLATE_CONFIG -d DATA_SUBDIR
+  ```
+
+  where:
+  * `SUBPATH_TO_TEMPLATE_CONFIG` is a path within the config dir to a config file to use as the teamplate. e.g. `processed/processed_template.json`
+  * `DATA_SUBDIR` is a folder in the data dir containing all the datafiles that the config is to be duplicated for `processed`
+  **NOTE** The duplication currently assumes that the data sets are of only 1 file (i.e no metadata file)
+  **NOTE** The duplicated output configs will be outputted to a dir called `replicates` in the same directory as the original template

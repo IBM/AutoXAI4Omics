@@ -15,5 +15,5 @@
 
 
 IMAGE_NAME=autoxai4omics
-IMAGE_TAG=1.0.0
+IMAGE_TAG=$(awk -F \" '/^__version__ =/ {print $2 }' _version.py)
 IMAGE_FULL=${IMAGE_NAME}:${IMAGE_TAG}
