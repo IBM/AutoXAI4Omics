@@ -12,17 +12,20 @@ from .plotting_model import PlottingModel
 from .prediction_model import PredictionModel
 from .tabular_model import TabularModel
 from pydantic import BaseModel, model_validator
+from typing import Union
 
 
 class ConfigModel(BaseModel):
     data: DataModel
     ml: MlModel
     plotting: PlottingModel = PlottingModel()
-    tabular: TabularModel = TabularModel()
-    microbiome: MicrobiomeModel = MicrobiomeModel()
-    metabolomic: MetabolomicModel = MetabolomicModel()
-    gene_expression: GeneExpressionModel = GeneExpressionModel(expression_type="OTHER")
-    prediction: PredictionModel = None
+    tabular: Union[TabularModel, None] = TabularModel()
+    microbiome: Union[MicrobiomeModel, None] = MicrobiomeModel()
+    metabolomic: Union[MetabolomicModel, None] = MetabolomicModel()
+    gene_expression: Union[GeneExpressionModel, None] = GeneExpressionModel(
+        expression_type="OTHER"
+    )
+    prediction: Union[PredictionModel, None] = None
 
     @model_validator(mode="after")
     def check(self):
@@ -42,6 +45,7 @@ class ConfigModel(BaseModel):
             self.ml.standardize = False
             self.ml.feature_selection = None
             self.ml.balancing = "NONE"
-            self.prediction.metadata_file = None
+            if self.prediction:
+                self.prediction.metadata_file = None
 
         return self

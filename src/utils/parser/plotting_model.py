@@ -4,7 +4,7 @@
 # https://opensource.org/licenses/MIT
 
 from ..vars import CLASSIFICATION, REGRESSION
-from typing import List, Literal
+from typing import List, Literal, Union
 from pydantic import (
     BaseModel,
     PositiveInt,
@@ -20,9 +20,9 @@ PLOTS_ALL = PLOTS_BOTH + PLOTS_CLF + PLOTS_REG
 
 class PlottingModel(BaseModel):
     plot_method: List[Literal[tuple(PLOTS_ALL)]] = []
-    top_feats_permImp: PositiveInt = 20
-    top_feats_shap: PositiveInt = 20
-    explanations_data: Literal["test", "exemplars", "all"] = "all"
+    top_feats_permImp: Union[PositiveInt, None] = 20
+    top_feats_shap: Union[PositiveInt, None] = 20
+    explanations_data: Literal["test", "exemplars", "all", None] = "all"
 
     @model_validator(mode="after")
     def check(self):
