@@ -285,9 +285,9 @@ def boxplot_scorer_cv(
     scorer_dict,
     data,
     true_labels,
-    nsplits=5,
-    save=True,
-    holdout=False,
+    nsplits: int = 5,
+    save: bool = True,
+    holdout: bool = False,
 ):
     """
     Create a graph of boxplots for all models in the folder, using the specified fit_scorer from the config.
@@ -301,6 +301,11 @@ def boxplot_scorer_cv(
     # Container for the scores
     all_scores = []
     print(f"Size of data for boxplot: {data.shape}")
+    if isinstance(data, (pd.DataFrame, pd.Series)):
+        data = data.values
+    if isinstance(true_labels, (pd.DataFrame, pd.Series)):
+        true_labels = true_labels.values
+
     # Create the fold object for CV
     if problem_type == CLASSIFICATION:
         fold_obj = StratifiedKFold(

@@ -71,8 +71,12 @@ def main():
         else:
 
             x, y, x_train, y_train, x_test, y_test, features_names = get_data_R2G(
-                config_dict
+                config_dict, experiment_folder=experiment_folder
             )
+            x_train = x_train.values
+            y_train = y_train.values
+            x_test = x_test.values
+            y_test = y_test.values
 
         omicLogger.info("Data combined and saved to files. Defining models...")
 

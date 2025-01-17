@@ -395,6 +395,12 @@ def summary_SHAPdotplot_perclass(
 
 
 def get_exemplars(x_test, y_test, model, problem_type, pcAgreementLevel):
+
+    if isinstance(x_test, (pd.DataFrame, pd.Series)):
+        x_test = x_test.values
+
+    if isinstance(y_test, (pd.DataFrame, pd.Series)):
+        y_test = y_test.values
     # Get the predictions
     pred_y = model.predict(x_test).flatten()
 

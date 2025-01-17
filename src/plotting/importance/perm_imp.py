@@ -94,7 +94,10 @@ def permut_importance(
         top_indices = np.argsort(np.median(a, axis=0))[::-1][:num_features]
 
         # Get the names of these features
-        top_features = feature_names.values[top_indices]
+        if isinstance(feature_names, list):
+            top_features = np.array(feature_names)[top_indices]
+        else:
+            top_features = feature_names.values[top_indices]
 
         # Get the top values
         top_values = a[:, top_indices]

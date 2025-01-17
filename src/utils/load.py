@@ -264,11 +264,14 @@ def get_data_R2G(
 
     if data_path is None:
         raise ValueError("Recieved None for data_path when loading R2G dataset")
+    else:
+        omicLogger.info(f"loading data from {data_path}")
 
     # load df
     r2g_df = pd.read_csv(data_path, index_col=0)
 
     # validate dataframe
+    omicLogger.info("validating loaded dataframe")
     validate_r2g_dataset(r2g_df)
 
     # extract out test set as should be present for all modes
@@ -301,11 +304,11 @@ def get_data_R2G(
         if experiment_folder:
             save_transformed_data(
                 experiment_folder,
-                X,
-                y,
+                X.values,
+                y.values,
                 feature_names,
-                X_test_df,
-                y_test,
+                X_test_df.values,
+                y_test.values,
                 X_train_df.index,
                 X_test_df.index,
             )
@@ -336,9 +339,9 @@ def validate_r2g_dataset(r2g_df: pd.DataFrame):
             "A R2G dataset must have both a 'set' column and a 'label' column. At least one was not found."
         )
 
-    if r2g_df["set"].unique().tolist() != ["test", "train"]:
+    if set(r2g_df["set"].unique().tolist()) != set(["test", "train"]):
         raise ValueError(
-            "The 'set' column of a R2G dataset must only contain 'train' or 'test'"
+            f"The 'set' column of a R2G dataset must only contain 'train' or 'test' recieved:{r2g_df['set'].unique().tolist()}"
         )
 
 

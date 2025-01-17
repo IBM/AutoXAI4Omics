@@ -55,6 +55,7 @@ if __name__ == "__main__":
             *_, x_to_predict, _, feature_names = get_data_R2G(
                 config_dict, prediction=True
             )
+            x_indexes = x_to_predict.index
         else:
             omicLogger.info("Loading Data...")
             x_to_predict, _, features_names = load_data(config_dict, mode="prediction")

@@ -115,7 +115,7 @@ def save_results(
 
     # df = df.append(pd.Series(score_dict, name=model_name))
     # TODO: remove above if below works
-    df = pd.concat([df, pd.Series(score_dict, name=model_name)])
+    df = pd.concat([df, pd.DataFrame.from_records([score_dict], index=[model_name])])
     fname = str(results_folder / fname)
     # Add a suffix to the filename if provided
     if suffix is not None:
