@@ -44,7 +44,7 @@ def main():
     # get template config & validate
     config_model = ConfigModel(**load_config(config_path))
     out_config_dir = config_path.parent / "replicates"
-    out_config_dir.mkdir()
+    out_config_dir.mkdir(exist_ok=True)
 
     # directory containing data
     data_path = Path("/data") / args.dir
