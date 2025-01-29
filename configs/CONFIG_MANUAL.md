@@ -56,6 +56,7 @@ This section is for the information that is to be stored in the `ml` heading.
 
 - `problem_type`: The type of problem, either "classification" or "regression".
 - `stratify_by_groups`: "Y" or "N" (default "N"). This allows the user to perform the ML analysis stratifying the samples by groups as specified in the `groups` parameter below. If "Y", samples in the same group will not appear in both training and test datasets.
+- `standardize`: A bool, if `True` then the dataset shall be standardised, if not it will be skipped.
 - `groups`: this is the name of a column in the metadata that represent the groups for the stratification of the samples. For instance, if there are time series samples from the same subjects, `groups` could be "Subject_ID".
 - `balancing`: "OVER","UNDER", or "NONE" (default "NONE") if the user chooses to perform class balancing of the data of the training data. This functionality work only for classification tasks and makes sense if there the categories/classes are significantly unbalanced.
 - `seed_num`: Provide the seed number to be used. This is given to everything that has a `random_state` argument, as well as being used as the general seed (for `numpy` and `tensorflow`).
@@ -197,7 +198,7 @@ Prediction mode can be used once you have trained a set of model on your a data 
 
 When you want to perform the prediction on a dataset you supply the same config file that you used to train the model but with an extra `prediction` section within the config, as shown belown and lunch it by running `./predict.sh config.json` . Note that when the prediction script is run currently it only predicts using the best model.
 
-```
+```json
 "prediction":{
         "file_path":"/data/testsets/microbiome/microbiome_500.biom",
         "metadata_file": "/data/testsets/microbiome/microbiome_metadata_500_reg.txt",
