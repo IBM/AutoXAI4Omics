@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-
-import pandas as pd
 from models.custom_model import CustomModel
-
-
-import joblib
+from numpy import ndarray
 from omics import geneExp, metabolomic, microbiome, tabular
-
+from pathlib import Path
+from typing import Literal, Union
+from utils.save import save_transformed_data
+import joblib
+import json
 import logging
+import pandas as pd
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -60,7 +60,12 @@ def load_config(config_path: str) -> dict:
     return config_dict
 
 
-def get_non_omic_data(path_file, target, metadata_path, prediction=False):
+def get_non_omic_data(
+    path_file: Path,
+    target: str,
+    metadata_path: Union[Path, str, None],
+    prediction: bool = False,
+) -> tuple[pd.DataFrame, ndarray, list[str]]:
     """
     Read the input files and return X, y (target) and the feature_names
     """
@@ -101,13 +106,13 @@ def get_non_omic_data(path_file, target, metadata_path, prediction=False):
             data_notarget = data
 
         x = data_notarget
-        features_names = data_notarget.columns
+        features_names = data_notarget.columns.to_list()
         y = None
 
     return x, y, features_names
 
 
-def load_data_prediction(config_dict):
+def load_data_prediction(config_dict: dict) -> tuple[pd.DataFrame, list[str]]:
     omicLogger.debug("Loading prediction data")
 
     if config_dict["data"]["data_type"] == "microbiome":
@@ -141,7 +146,7 @@ def load_data_prediction(config_dict):
     return x, features_names
 
 
-def load_data_holdout(config_dict):
+def load_data_holdout(config_dict: dict) -> tuple[pd.DataFrame, ndarray, list[str]]:
     omicLogger.debug("Training loaded. Loading holdout data...")
     if config_dict["data"]["data_type"] == "microbiome":
         # This reads and preprocesses microbiome data using calour library --
@@ -177,7 +182,7 @@ def load_data_holdout(config_dict):
     return x_heldout, y_heldout, features_names
 
 
-def load_data_main(config_dict):
+def load_data_main(config_dict: dict) -> tuple[pd.DataFrame, ndarray, list[str]]:
     omicLogger.debug("Loading training data...")
 
     if config_dict["data"]["data_type"] == "microbiome":
@@ -208,47 +213,192 @@ def load_data_main(config_dict):
     return x, y, features_names
 
 
-def load_data(config_dict, load_holdout=False, load_prediction=False):
-    """
-    A function to handel all of the loading of the data presented in the config file
+def get_data_R2G(
+    config_dict: dict,
+    prediction: bool = False,
+    holdout: bool = False,
+    experiment_folder: Union[Path, None] = None,
+) -> tuple[
+    Union[pd.DataFrame, None],
+    Union[pd.Series, None],
+    Union[pd.DataFrame, None],
+    Union[pd.Series, None],
+    pd.DataFrame,
+    Union[pd.Series, None],
+    list[str],
+]:
+    """A function to load R2G data files
 
     Parameters
     ----------
-    load_holdout : bool or None
-        A var used to control which data to be loaded if: none, returns only the holdout data; True, returns both the
-        non-holdout and the holdout data; False, returns only the non-holdout data.
-    load_prediction : bool
-        If true will not load the main or hold out datasets but the data to be predicted
+    config_dict : dict
+        The config dict containing the relevant data information
+    prediction : bool, optional
+        A boll to indicate if teh dataset being loaded is for prediction or not, by default False
+    holdout : bool, optional
+        A bool to indicate if the dataset being loaded is for holdout testing or not, by default False
+    experiment_folder : Path | none, optional
+        A Path in which to save the AO inputs to if provided, byt default none
+
 
     Returns
     -------
-    x : Numpy array
-        if load_prediction was true then this is the data to be predicted on other wise it is the data to train/test on
-    y : Numpy array
-        if load_prediction was true then this is not returned on other wise it is the y values for the train/test data
-    features_names : list of str
-        The list of feature names.
-    x_heldout : Numpy array
-        if load_prediction was true and load_holdout was None/True then this is the heldout data
-    y_heldout : Numpy array
-        if load_prediction was true and load_holdout was None/True then this is the y values for the heldout data
+    tuple[ pd.DataFrame | None, pd.Series | None, pd.DataFrame | None, pd.Series | None, pd.DataFrame, pd.Series | None, list[str] ]
+        Return the X,y, x_train, y_train, x_test,y_test and feature names. If prediction is True all bar x_test and feature_names will be None. The same if holdout is true with teh exception of y_test
+
+    Raises
+    ------
+    ValueError
+        Is raised if the data_path found is None
+    """
+    # TODO: 5. input validation
+    # TODO: 7. write test
+
+    # extract data path to load
+    if prediction:
+        data_path = config_dict["prediction"]["file_path"]
+    elif holdout:
+        data_path = config_dict["data"]["file_path_holdout_data"]
+    else:
+        data_path = config_dict["data"]["file_path"]
+
+    if data_path is None:
+        raise ValueError("Recieved None for data_path when loading R2G dataset")
+    else:
+        omicLogger.info(f"loading data from {data_path}")
+
+    # load df
+    r2g_df = pd.read_csv(data_path, index_col=0)
+
+    # validate dataframe
+    omicLogger.info("validating loaded dataframe")
+    validate_r2g_dataset(r2g_df)
+
+    # extract out test set as should be present for all modes
+    X_test_df = r2g_df[r2g_df["set"] == "test"].drop(columns="set")
+
+    # check if in prediction loading mode
+    if not prediction:
+        # if not then extract test labels
+        y_test = X_test_df["label"]
+    else:
+        # else set to None
+        y_test = None
+
+    # drop the label col
+    X_test_df.drop(columns="label", inplace=True)
+
+    # extract the feature names
+    feature_names = X_test_df.columns.to_list()
+
+    # Check if in main loading mode
+    if not (prediction or holdout):
+        # then extract the "train" subset
+        X_train_df = r2g_df[r2g_df["set"] == "train"].drop(columns="set")
+        y_train = X_train_df["label"]
+        X_train_df.drop(columns="label", inplace=True)
+        X = r2g_df.drop(columns=["set", "label"])
+        y = r2g_df["label"]
+
+        # save AO input files
+        if experiment_folder:
+            save_transformed_data(
+                experiment_folder,
+                X.values,
+                y.values,
+                feature_names,
+                X_test_df.values,
+                y_test.values,
+                X_train_df.index,
+                X_test_df.index,
+            )
+    else:
+        # else set to None
+        X_train_df = y_train = X = y = None
+
+    return X, y, X_train_df, y_train, X_test_df, y_test, feature_names
+
+
+def validate_r2g_dataset(r2g_df: pd.DataFrame):
+    """Assert that the provided dataframe is a valid R2G dataset
+
+    Parameters
+    ----------
+    r2g_df : pd.DataFrame
+        The dataframe to be validated
+
+    Raises
+    ------
+    ValueError
+        Is raised if the dataframe does not have a 'set' or 'label' column
+    ValueError
+        Is raised if the dataframe has values other than 'test' and 'train' in its 'label' column
+    """
+    if not ("label" in r2g_df.columns and "set" in r2g_df.columns):
+        raise ValueError(
+            "A R2G dataset must have both a 'set' column and a 'label' column. At least one was not found."
+        )
+
+    if set(r2g_df["set"].unique().tolist()) != set(["test", "train"]):
+        raise ValueError(
+            f"The 'set' column of a R2G dataset must only contain 'train' or 'test' recieved:{r2g_df['set'].unique().tolist()}"
+        )
+
+
+def load_data(
+    config_dict: dict, mode: Literal["main", "holdout", "prediction"] = "main"
+) -> tuple[pd.DataFrame, ndarray, list[str]]:
+    """A function to handel all of the loading of the data presented in the config file.
+
+    Parameters
+    ----------
+    config_dict : dict
+        The dict containign the information needed to load the data
+    mode : Literal[&quot;main&quot;, &quot;holdout&quot;, &quot;prediction&quot;], optional
+        The context of the data loading to be done in, by default "main"
+
+    Returns
+    -------
+    tuple[pd.DataFrame,ndarray,list[str]]
+        The dataset along with the lables and a list of the feature names
+
+    Raises
+    ------
+    ValueError
+        is raised if the value for mode is not a valid entry
     """
     omicLogger.debug("Data load inititalised")
 
-    if not load_prediction:
-        if load_holdout is not None:
-            x, y, features_names = load_data_main(config_dict)
-
-        if (load_holdout is None) or load_holdout:
-            x_heldout, y_heldout, features_names = load_data_holdout(config_dict)
-
-        omicLogger.debug("Load completed")
-        if load_holdout is None:
-            return x_heldout, y_heldout, features_names
-        elif load_holdout:
-            return x, y, x_heldout, y_heldout, features_names
-        else:
-            return x, y, features_names
-    else:
+    if mode == "prediction":
         x, features_names = load_data_prediction(config_dict)
-        return x, features_names
+        return x, None, features_names
+    elif mode == "holdout":
+        x_heldout, y_heldout, features_names = load_data_holdout(config_dict)
+        return x_heldout, y_heldout, features_names
+    elif mode == "main":
+        x, y, features_names = load_data_main(config_dict)
+        return x, y, features_names
+    else:
+        raise ValueError(
+            f"Unrecognised value for mode, valid values must be one of 'main', 'holdout','predication'. recieved: {mode=}"
+        )
+
+
+def load_previous_AO_data(
+    experiment_folder: Path,
+) -> tuple[list[str], ndarray, ndarray, ndarray, ndarray, ndarray, ndarray]:
+    x_df = pd.read_csv(
+        experiment_folder / "transformed_model_input_data.csv", index_col=0
+    )
+    x_train = x_df[x_df["set"] == "Train"].iloc[:, :-1].values
+    x_test = x_df[x_df["set"] == "Test"].iloc[:, :-1].values
+    x = x_df.iloc[:, :-1].values
+    features_names = x_df.columns[:-1]
+
+    y_df = pd.read_csv(
+        experiment_folder / "transformed_model_target_data.csv", index_col=0
+    )
+    y_train = y_df[y_df["set"] == "Train"].iloc[:, :-1].values.ravel()
+    y_test = y_df[y_df["set"] == "Test"].iloc[:, :-1].values.ravel()
+    y = y_df.iloc[:, :-1].values.ravel()
+    return features_names, x, y, x_train, y_train, x_test, y_test

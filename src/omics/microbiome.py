@@ -1,31 +1,36 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import scipy.sparse
-import calour as ca
+from pathlib import Path
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
-import logging
-import pandas as pd
-import numpy as np
+from typing import Union
+import calour as ca
 import joblib
+import logging
+import numpy as np
+import pandas as pd
+import scipy.sparse
 
 omicLogger = logging.getLogger("OmicLogger")
 
 
 def create_microbiome_calourexp(
-    fpath_biom, fpath_meta, norm_reads=1000, min_reads=1000
-):
+    fpath_biom: Union[Path, str],
+    fpath_meta: Union[Path, str],
+    norm_reads: Union[float, int, None] = 1000,
+    min_reads: Union[float, int, None] = 1000,
+) -> ca.AmpliconExperiment:
     """
     Create the experiment from calour using the given minimum number of reads and the number of reads to normalize to
     """
@@ -43,7 +48,13 @@ def create_microbiome_calourexp(
     return exp
 
 
-def filter_biom(config_dict, amp_exp, abundance=10, prevalence=0.01, collapse_tax=None):
+def filter_biom(
+    config_dict: dict,
+    amp_exp: ca.AmpliconExperiment,
+    abundance: Union[float, int] = 10,
+    prevalence: Union[float, int] = 0.01,
+    collapse_tax=None,
+) -> ca.AmpliconExperiment:
     """
     Filter the biom data using the given abudance and prevalance
 
@@ -83,7 +94,9 @@ def filter_biom(config_dict, amp_exp, abundance=10, prevalence=0.01, collapse_ta
     return amp_exp
 
 
-def filter_samples(amp_exp, filter_obj):
+def filter_samples(
+    amp_exp: ca.AmpliconExperiment, filter_obj: dict
+) -> ca.AmpliconExperiment:
     """
     Filter the metadata samples using a {col_name: [remove_vals]} construct
 
@@ -97,7 +110,12 @@ def filter_samples(amp_exp, filter_obj):
     return amp_exp
 
 
-def filter_multiple(amp_exp, filter_list, axis=0, negate=True):
+def filter_multiple(
+    amp_exp: ca.AmpliconExperiment,
+    filter_list: list[dict],
+    axis: int = 0,
+    negate: bool = True,
+) -> ca.AmpliconExperiment:
     # Loop over the filter dicts so that we can filter by multiple sets of conditions
     for filter_dict in filter_list:
         # We take our dataframe, and select only the columns we are looking at
@@ -115,13 +133,17 @@ def filter_multiple(amp_exp, filter_list, axis=0, negate=True):
     return amp_exp
 
 
-def filter_metadata(amp_exp, col_name, to_filter):
+def filter_metadata(
+    amp_exp: ca.AmpliconExperiment, col_name: str, to_filter
+) -> ca.AmpliconExperiment:
     return amp_exp.filter_by_metadata(
         field=col_name, select=to_filter, axis=0, negate=True
     )
 
 
-def modify_classes(amp_exp, class_col_name, remove_class=None, merge_by=None):
+def modify_classes(
+    amp_exp: ca.AmpliconExperiment, class_col_name, remove_class=None, merge_by=None
+):
     """
     Helper function to merge and/or remove classes
     """
@@ -135,7 +157,7 @@ def modify_classes(amp_exp, class_col_name, remove_class=None, merge_by=None):
     return amp_exp
 
 
-def merge_classes(amp_exp, class_col_name, merge_by):
+def merge_classes(amp_exp: ca.AmpliconExperiment, class_col_name, merge_by):
     # Get the relevant class column
     class_col = amp_exp.sample_metadata[class_col_name]
     # Loop through the merge_class dict and replace
@@ -146,7 +168,7 @@ def merge_classes(amp_exp, class_col_name, merge_by):
     return amp_exp
 
 
-def prepare_data(amp_exp):
+def prepare_data(amp_exp: ca.AmpliconExperiment):
     """
     Extract data from calour experiment and transform using StandardScaler
     """
@@ -163,7 +185,9 @@ def prepare_data(amp_exp):
     return data, SS
 
 
-def select_class_col(amp_exp, encoding=None, index=None, name=None):
+def select_class_col(
+    amp_exp: ca.AmpliconExperiment, encoding=None, index=None, name=None
+):
     """
     Selects the class column from the metadata either by the index or by name
     """
@@ -182,7 +206,7 @@ def select_class_col(amp_exp, encoding=None, index=None, name=None):
 
     # One-hot encoding
     if encoding == "onehot":
-        enc = OneHotEncoder(sparse=False)
+        enc = OneHotEncoder(sparse_output=False)
         y = enc.fit_transform(y.values.reshape(-1, 1))
         print(f"Categories using one-hot encoding {enc.categories_}")
 
@@ -197,7 +221,9 @@ def select_class_col(amp_exp, encoding=None, index=None, name=None):
     return y
 
 
-def get_feature_names_calourexp(amp_exp, config_dict):
+def get_feature_names_calourexp(
+    amp_exp: ca.AmpliconExperiment, config_dict: dict
+) -> list[str]:
     """
     Get (unique) feature names from the feature metadata to use in e.g. SHAP
     """
@@ -231,10 +257,11 @@ def get_feature_names_calourexp(amp_exp, config_dict):
                 feature_names.loc[i] = name
                 # Increment the counter to get a unique name
                 counter[root_name] += 1
+    feature_names.to_list()
     return feature_names
 
 
-def get_feature_names_alternative(amp_exp):
+def get_feature_names_alternative(amp_exp: ca.AmpliconExperiment) -> list[str]:
     inputFeatureData = amp_exp.feature_metadata
     """ Get simple names for taxonomy """
     taxons = inputFeatureData["taxonomy"]
@@ -248,7 +275,7 @@ def get_feature_names_alternative(amp_exp):
     return names
 
 
-def get_feature_names_for_abundance(amp_exp):
+def get_feature_names_for_abundance(amp_exp: ca.AmpliconExperiment) -> list[str]:
     inputFeatureData = amp_exp.feature_metadata
     """ Get simple names for taxonomy """
     taxons = inputFeatureData["taxonomy"]
@@ -260,7 +287,9 @@ def get_feature_names_for_abundance(amp_exp):
     return names
 
 
-def get_data_microbiome(path_file, metadata_path, config_dict):
+def get_data_microbiome(
+    path_file: Union[str, Path], metadata_path: Union[str, Path], config_dict: dict
+) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
     """
     Load and process the data
     """
@@ -394,7 +423,9 @@ def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
     return amp_exp
 
 
-def get_data_microbiome_trained(config_dict, holdout=False, prediction=False):
+def get_data_microbiome_trained(
+    config_dict: dict, holdout: bool = False, prediction: bool = False
+):
     """
     Load and process the data
     """

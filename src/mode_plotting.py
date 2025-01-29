@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import metrics.metrics as metrics
+from metrics.metrics import define_scorers
 from plotting.plot_utils import define_plots
-import plotting.plots_both
-import utils.utils as utils
+from utils.load import load_previous_AO_data
+from utils.utils import initial_setup, prof_to_csv
 import cProfile
 import logging
+import matplotlib.pyplot as plt
+from tensorflow.keras import backend as K
 
 
 omicLogger = logging.getLogger("OmicLogger")
@@ -44,7 +43,7 @@ def plot_graphs(
     are given for the data and labels.
     """
     omicLogger.debug("Defining scorers...")
-    scorer_dict = metrics.define_scorers(
+    scorer_dict = define_scorers(
         config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"]
     )
 
@@ -195,7 +194,7 @@ def plot_graphs(
     plt.clf()
     plt.close()
     # Clear keras and TF sessions/graphs etc.
-    plotting.plots_both.K.clear_session()
+    K.clear_session()
 
 
 if __name__ == "__main__":
@@ -210,26 +209,15 @@ if __name__ == "__main__":
     pr.enable()
 
     # Do the initial setup
-    config_path, config_dict, experiment_folder, omicLogger = utils.initial_setup()
+    config_path, config_dict, experiment_folder, omicLogger = initial_setup()
 
     try:
         omicLogger.info("Loading data...")
 
         # read in the data
-        x_df = pd.read_csv(
-            experiment_folder / "transformed_model_input_data.csv", index_col=0
+        features_names, x, y, x_train, y_train, x_test, y_test = load_previous_AO_data(
+            experiment_folder
         )
-        x_train = x_df[x_df["set"] == "Train"].iloc[:, :-1].values
-        x_test = x_df[x_df["set"] == "Test"].iloc[:, :-1].values
-        x = x_df.iloc[:, :-1].values
-        features_names = x_df.columns[:-1]
-
-        y_df = pd.read_csv(
-            experiment_folder / "transformed_model_target_data.csv", index_col=0
-        )
-        y_train = y_df[y_df["set"] == "Train"].iloc[:, :-1].values.ravel()
-        y_test = y_df[y_df["set"] == "Test"].iloc[:, :-1].values.ravel()
-        y = y_df.iloc[:, :-1].values.ravel()
 
         omicLogger.info("Test/train Data Loaded. Begin creating plots...")
         plot_graphs(
@@ -251,4 +239,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    utils.prof_to_csv(pr, config_dict)
+    prof_to_csv(pr, config_dict)

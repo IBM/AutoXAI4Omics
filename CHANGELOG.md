@@ -40,21 +40,31 @@ Change log for the codebase. Initialised from the developments following version
   - MlModel
   - ConfigModel
 - added batch mode processing
+- Added: new flag to skip ML standardizing in MlModel
+- Added: created `load_transformed_data` from pre-existing code
+- Added: new option `DataModel.data_type` `"R2G"` for datasets are Ready to Go to be trained on
 
 ### Changed
 
 - upgraded:
   - scikit-learn to `1.2.2`
-  - keras to 2.14.0
-  - lightgbm to 3.3.5
-  - numpy to 1.23.5
-  - optuna to 3.6.*
-  - tensorflow to 2.14.0
-  - xgboost to 1.7.6
+  - keras to `2.14.0`
+  - lightgbm to `3.3.5`
+  - numpy to `1.23.5`
+  - optuna to `3.6.*`
+  - tensorflow to `2.14.0`
+  - xgboost to `1.7.6`
 
 - moved dev packages to `requirements_dev.txt`
 - upgraded `tensorflow` and `keras` to be able to create env on arm64
 - changed `DEV_MANUAL.md` to capture venv changes
+- Changed: simplified `load_data`
+- Changed: extracted `save_transformed_data` from pre-existing code
+- Changed: extracted out ml preprocessing into function `learn_ml_preprocessing` and `apply_ml_preprocessing`
+
+### Fixed
+
+- Fixed: deprecation warnings
 
 ### Removed
 
