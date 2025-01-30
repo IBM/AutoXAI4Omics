@@ -13,26 +13,29 @@
 # limitations under the License.
 
 
+from datetime import datetime
+from models.custom_model import CustomModel
+from pathlib import Path
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import QuantileTransformer
+from typing import Union
+from utils.load import load_config
+from utils.parser.config_model import ConfigModel
+from utils.save import save_config
+import argparse
 import cProfile
 import glob
 import io
-from pathlib import Path
-import argparse
-import pstats
 import joblib
-import numpy as np
-import pandas as pd
-import scipy.sparse
-from models.custom_model import CustomModel
-from datetime import datetime
 import logging
-import yaml
+import numpy as np
 import os
-import shutil
-from utils.load import load_config
-from utils.save import save_config
-import utils.parsers as parsers
+import pandas as pd
+import pstats
 import re
+import scipy.sparse
+import shutil
+import yaml
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -76,7 +79,7 @@ def remove_classes(class_col, contains="X"):
     return class_col[~class_col.str.contains(contains)]
 
 
-def create_experiment_folders(config_dict, config_path):
+def create_experiment_folders(config_dict: dict, config_path) -> Path:
     """
     Create the folder for the given config and the relevant subdirectories
     """
@@ -93,8 +96,7 @@ def create_experiment_folders(config_dict, config_path):
     (experiment_folder / "results").mkdir(exist_ok=True)
     if config_dict["plotting"]["plot_method"] is not None:
         (experiment_folder / "graphs").mkdir(exist_ok=True)
-    # Save the config in the experiment folder for ease
-    save_config(experiment_folder, config_path, config_dict)
+
     return experiment_folder
 
 
@@ -133,13 +135,17 @@ def initial_setup():
     # get the path to the config from cli
     config_path = get_config_path_from_cli()
     # load and parse the config located at the path
-    config_dict = parsers.parse_config(load_config(config_path))
+    config_model = ConfigModel(**load_config(config_path))
+    config_dict = config_model.model_dump()
 
     # set the random seed
     set_random_seed(config_dict["ml"]["seed_num"])
 
     # create folders
     experiment_folder = create_experiment_folders(config_dict, config_path)
+
+    # Save the config in the experiment folder for ease
+    save_config(experiment_folder, config_path, config_model.model_dump_json())
 
     # setup logger
     omicLogger = setup_logger(experiment_folder)
@@ -250,7 +256,7 @@ def prof_to_csv(prof: cProfile.Profile, config_dict: dict):
     csv_lines = "\n".join(lines)
 
     with open(
-        f"{config_dict['data']['save_path']}results/{config_dict['data']['name']}/time_profile.csv",
+        f"{config_dict['data']['save_path']}/results/{config_dict['data']['name']}/time_profile.csv",
         "w+",
     ) as f:
         f.write(csv_lines)
@@ -287,7 +293,7 @@ def pretty_names(name, name_type):
     return new_name
 
 
-def assert_best_model_exists(folder):
+def assert_best_model_exists(folder: Path) -> Union[Path, str]:
     path = folder / "best_model"
 
     if not os.path.exists(str(path)):
@@ -307,20 +313,51 @@ def assert_best_model_exists(folder):
     return found_models[0]
 
 
-def assert_data_transformers_exists(folder, config_dict):
-    std = folder / "transformer_std.pkl"
+def assert_data_transformers_exists(
+    folder: Path, config_dict: dict
+) -> tuple[Union[QuantileTransformer, None], Union[Pipeline, None]]:
+    """A function to assert that both the standardiser and feature selection transformer exists and if so load them.
 
-    if not os.path.exists(str(std)):
-        omicLogger.info("No data transformer file detected (transformer_std.pkl)")
-        raise ValueError("No data transformer file detected (transformer_std.pkl)")
+    Parameters
+    ----------
+    folder : Path
+        The folder within which to check if the objects exist
+    config_dict : dict
+        The config dict for the job on which it was trained
+
+    Returns
+    -------
+    tuple[QuantileTransformer | None, Pipeline | None]
+        return the standiser and the pipline object for the feature selection, if either doesn't exist it will return None for that object
+
+    Raises
+    ------
+    ValueError
+        Is raised if the file is not found for either the standardiser or the feature selection object if they were supposed to have existsed
+    """
+
+    # If standardisation was done
+    if config_dict["ml"]["standardize"]:
+        std = folder / "transformer_std.pkl"
+        # check if it exists
+        if not os.path.exists(str(std)):
+            # if not log and raise error
+            omicLogger.info("No data transformer file detected (transformer_std.pkl)")
+            raise ValueError("No data transformer file detected (transformer_std.pkl)")
+        else:
+            # if so load for return
+            with open(std, "rb") as f:
+                SS = joblib.load(f)
+            omicLogger.info("transformer loaded.")
     else:
-        with open(std, "rb") as f:
-            SS = joblib.load(f)
-        omicLogger.info("transformer loaded.")
+        SS = None
 
+    # if Feature selection was done
     if config_dict["ml"]["feature_selection"] is not None:
         fs = folder / "transformer_fs.pkl"
+        # check if it exists
         if not os.path.exists(str(fs)):
+            # if nto log and raise error
             omicLogger.info(
                 "No data feature selection file detected (transformer_fs.pkl)"
             )
@@ -328,6 +365,7 @@ def assert_data_transformers_exists(folder, config_dict):
                 "No data feature selection file detected (transformer_fs.pkl)"
             )
         else:
+            # if so load for return
             with open(fs, "rb") as f:
                 FS = joblib.load(f)
             omicLogger.info("transformer loaded.")
@@ -337,7 +375,7 @@ def assert_data_transformers_exists(folder, config_dict):
     return SS, FS
 
 
-def get_model_path(experiment_folder, model_name):
+def get_model_path(experiment_folder: Path, model_name: str) -> Union[Path, str]:
     try:
         model_path = glob.glob(
             f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}"

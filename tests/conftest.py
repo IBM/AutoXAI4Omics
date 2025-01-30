@@ -18,6 +18,7 @@ import pandas as pd
 import os
 import json
 import subprocess
+from typing import Union, Literal, Any
 import shutil
 
 ##################### DATA SET CREATION #####################
@@ -38,7 +39,7 @@ def dataset_create_data(problem_type, **kwargs):
         )
 
 
-def dataset_std_def_reg():
+def dataset_std_def_reg() -> dict[str, Any]:
     def_dict = {
         "n_samples": 100,
         "n_features": 200,
@@ -51,7 +52,7 @@ def dataset_std_def_reg():
     return def_dict
 
 
-def dataset_std_def_clf_bin():
+def dataset_std_def_clf_bin() -> dict[str, Any]:
     def_dict = {
         "n_samples": 100,
         "n_features": 200,
@@ -66,17 +67,21 @@ def dataset_std_def_clf_bin():
     return def_dict
 
 
-def dataset_std_def_clf_mult():
+def dataset_std_def_clf_mult() -> dict[str, Any]:
     def_dict = dataset_std_def_clf_bin()
     def_dict["n_classes"] = 3
     def_dict["weights"] = [0.5, 0.3]
     return def_dict
 
 
-def dataset_create_files(problem_type, multi=False):
+def dataset_create_files(
+    problem_type: Literal["regression", "classification"],
+    multi: bool = False,
+    r2g: bool = False,
+) -> tuple[str, Union[str, None]]:
     if problem_type == "regression":
         x, y, _ = make_regression(**dataset_std_def_reg())
-    elif problem_type == "classification":
+    elif problem_type in "classification":
         if multi:
             x, y = make_classification(**dataset_std_def_clf_mult())
         else:
@@ -86,18 +91,32 @@ def dataset_create_files(problem_type, multi=False):
             f"problem_type is not regression or classification. value given: {problem_type}"
         )
 
-    x_fname = f"data/generated_training_{problem_type}"
-    y_fname = f"data/generated_target_{problem_type}"
+    if not r2g:
+        x_fname = f"data/generated_training_{problem_type}"
+        x_fname += (
+            "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
+        )
 
-    x_fname += (
-        "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
-    )
-    y_fname += (
-        "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
-    )
+        y_fname = f"data/generated_target_{problem_type}"
+        y_fname += (
+            "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
+        )
 
-    pd.DataFrame(x).to_csv(x_fname)
-    pd.DataFrame(y, columns=["target"]).to_csv(y_fname)
+        pd.DataFrame(x).to_csv(x_fname)
+        pd.DataFrame(y, columns=["target"]).to_csv(y_fname)
+    else:
+        x_fname = f"data/generated_r2g_{problem_type}"
+        x_fname += (
+            "_multi.csv" if (multi and (problem_type == "classification")) else ".csv"
+        )
+
+        df = pd.DataFrame(x)
+        df["set"] = "train"
+        df["set"].iloc[-20:] = "test"
+        df["label"] = y
+
+        df.to_csv(x_fname)
+        y_fname = None
 
     return x_fname, y_fname
 
@@ -105,27 +124,7 @@ def dataset_create_files(problem_type, multi=False):
 ##################### CONFIG CREATION #####################
 
 
-def config_autosklearn():
-    outdict = {
-        "autosklearn_config": {
-            "verbose": True,
-            "estimators": [
-                "decision_tree",
-                "extra_trees",
-                "k_nearest_neighbors",
-                "random_forest",
-            ],
-            "time_left_for_this_task": 120,
-            "per_run_time_limit": 60,
-            "memory_limit": None,
-            "n_jobs": 1,
-            "ensemble_size": 1,
-        }
-    }
-    return outdict
-
-
-def config_autokeras():
+def config_autokeras() -> dict[str, Any]:
     outdict = {
         "autokeras_config": {
             "n_epochs": 100,
@@ -141,23 +140,22 @@ def config_autokeras():
     return outdict
 
 
-def config_autolgbm():
+def config_autolgbm() -> dict[str, Any]:
     outdict = {
         "autolgbm_config": {"verbose": True, "n_trials": 15, "timeout": 60},
     }
     return outdict
 
 
-def config_autoxgboost():
+def config_autoxgboost() -> dict[str, Any]:
     outdict = {
         "autoxgboost_config": {"verbose": True, "n_trials": 10, "timeout": 1000},
     }
     return outdict
 
 
-def config_all_auto_methods():
+def config_all_auto_methods() -> dict[str, Any]:
     outdict = {
-        **config_autosklearn(),
         **config_autokeras(),
         **config_autolgbm(),
         **config_autoxgboost(),
@@ -165,12 +163,12 @@ def config_all_auto_methods():
     return outdict
 
 
-def config_plot_classification():
+def config_plot_classification() -> list[str]:
     outlist = ["conf_matrix", "roc_curve"]
     return outlist
 
 
-def config_plot_regression():
+def config_plot_regression() -> list[str]:
     outlist = [
         "hist_overlapped",
         "joint",
@@ -180,7 +178,7 @@ def config_plot_regression():
     return outlist
 
 
-def config_plot_both():
+def config_plot_both() -> list[str]:
     outlist = [
         "barplot_scorer",
         "boxplot_scorer",
@@ -190,12 +188,18 @@ def config_plot_both():
     return outlist
 
 
-def config_all_plotting(problem_type):
+def config_all_plotting(
+    problem_type: Literal["regression", "classification"]
+) -> dict[str, Any]:
     outlist = config_plot_both()
     if problem_type == "regression":
         outlist += config_plot_regression()
     elif problem_type == "classification":
         outlist += config_plot_classification()
+    else:
+        raise ValueError(
+            f"problem_type must be regression or classification, recieved: {problem_type}"
+        )
 
     outdict = {
         "plotting": {
@@ -208,12 +212,14 @@ def config_all_plotting(problem_type):
     return outdict
 
 
-def config_feature_selection():
+def config_feature_selection() -> dict[str, Any]:
     outdict = {"feature_selection": {"k": "auto", "auto": {"max_features": None}}}
     return outdict
 
 
-def config_model_list(problem_type):
+def config_model_list(
+    problem_type: Literal["regression", "classification"]
+) -> dict[str, Any]:
     if problem_type == "regression":
         ml = [
             "RandomForestRegressor",
@@ -232,12 +238,12 @@ def config_model_list(problem_type):
         ]
     else:
         raise ValueError(f"Unexpected problem type: {problem_type}")
+
     outdict = {
         "model_list": ml
         + [
             "AutoKeras",
             "AutoLGBM",
-            "AutoSKLearn",
             "AutoXGBoost",
             "FixedKeras",
         ]
@@ -245,7 +251,9 @@ def config_model_list(problem_type):
     return outdict
 
 
-def config_scorers(problem_type):
+def config_scorers(
+    problem_type: Literal["regression", "classification"]
+) -> dict[str, Any]:
     if problem_type == "regression":
         outdict = {
             "fit_scorer": "mean_absolute_percentage_error",
@@ -274,34 +282,47 @@ def config_scorers(problem_type):
                 "roc_auc_score",
             ],
         }
+    else:
+        raise ValueError(
+            f"problem_type must be regression or classification, recieved: {problem_type}"
+        )
     return outdict
 
 
-def config_data_paths(file_path, meta_path, problem_type, multi=False):
+def config_data_paths(
+    file_path: str,
+    meta_path: str,
+    problem_type: str,
+    multi: bool = False,
+    r2g: bool = False,
+) -> dict[str, Union[str, None]]:
     outdict = {
         "data": {
-            "name": "generated_test_"
+            "name": ("ready_" if r2g else "")
+            + "generated_test_"
             + problem_type
             + ("_multi" if multi else "")
             + "_run1_",
             "file_path": "/" + file_path,
-            "metadata_file": "/" + meta_path,
+            "metadata_file": None if r2g else ("/" + meta_path),
             "file_path_holdout_data": "/" + file_path,
-            "metadata_file_holdout_data": "/" + meta_path,
+            "metadata_file_holdout_data": None if r2g else ("/" + meta_path),
             "save_path": "/experiments/",
-            "target": "target",
-            "data_type": "other",
+            "target": "label" if r2g else "target",
+            "data_type": "R2G" if r2g else "other",
         }
     }
     return outdict
 
 
-def config_prediction(file_path):
+def config_prediction(file_path: str) -> dict[str, dict[str, str]]:
     outdict = {"prediction": {"file_path": "/" + file_path}}
     return outdict
 
 
-def config_define_problem(problem_type):
+def config_define_problem(
+    problem_type: Literal["regression", "classification"]
+) -> dict[str, Any]:
     outdict = {
         "seed_num": 29292,
         "test_size": 0.2,
@@ -315,7 +336,9 @@ def config_define_problem(problem_type):
     return outdict
 
 
-def config_define_ml(problem_type):
+def config_define_ml(
+    problem_type: Literal["regression", "classification"]
+) -> dict[str, Any]:
     outdict = {
         "ml": {
             **config_define_problem(problem_type),
@@ -329,7 +352,7 @@ def config_define_ml(problem_type):
     return outdict
 
 
-def config_microbiome():
+def config_microbiome() -> dict[str, None]:
     outdict = {
         "collapse_tax": None,
         "min_reads": None,
@@ -343,7 +366,7 @@ def config_microbiome():
     return outdict
 
 
-def config_gene_expression():
+def config_gene_expression() -> dict[str, None]:
     outdict = {
         "expression_type": None,
         "filter_sample": None,
@@ -354,7 +377,7 @@ def config_gene_expression():
     return outdict
 
 
-def config_metabolmic():
+def config_metabolmic() -> dict[str, None]:
     outdict = {
         "filter_metabolomic_sample": None,
         "filter_measurements": None,
@@ -364,7 +387,7 @@ def config_metabolmic():
     return outdict
 
 
-def config_tabular():
+def config_tabular() -> dict[str, None]:
     outdict = {
         "filter_tabular_sample": None,
         "filter_tabular_measurements": None,
@@ -374,9 +397,16 @@ def config_tabular():
     return outdict
 
 
-def config_create(problem_type, file_path, meta_path, multi=False, run=1):
+def config_create(
+    problem_type: Literal["regression", "classification"],
+    file_path: str,
+    meta_path: Union[str, None],
+    multi: bool = False,
+    run: int = 1,
+    r2g: bool = False,
+) -> str:
     outdict = {
-        **config_data_paths(file_path, meta_path, problem_type, multi),
+        **config_data_paths(file_path, meta_path, problem_type, multi, r2g=r2g),
         **config_all_plotting(problem_type),
         **config_define_ml(problem_type),
         **config_prediction(file_path),
@@ -404,46 +434,31 @@ RUNS = 1
 
 
 # Fixture for creating datasets & jsons to test on
-@pytest.fixture(
-    params=[
-        pytest.param(
-            ("classification", i),
-            marks=[pytest.mark.classification, pytest.mark.binary],
-        )
-        for i in range(STARTS + 1, RUNS + 1)
-    ]
-    + [
-        pytest.param(
-            ("multi", i), marks=[pytest.mark.classification, pytest.mark.multi]
-        )
-        for i in range(STARTS + 1, RUNS + 1)
-    ]
-    + [
-        pytest.param(("regression", i), marks=pytest.mark.regression)
-        for i in range(STARTS + 1, RUNS + 1)
-    ],
-    scope="session",
-)
+@pytest.fixture(scope="session")
 def problem_create(request):
     problem_type = request.param[0]
-    run = request.param[1]
+    problem_type = "classification" if problem_type == "binary" else problem_type
+    problem_type = "regression" if problem_type == "reg" else problem_type
+    r2g = request.param[1]
     if problem_type == "multi":
-        x_fname, y_fname = dataset_create_files("classification", multi=True)
-        fname = config_create("classification", x_fname, y_fname, multi=True, run=run)
+        x_fname, y_fname = dataset_create_files("classification", multi=True, r2g=r2g)
+        fname = config_create("classification", x_fname, y_fname, multi=True, r2g=r2g)
     else:
-        x_fname, y_fname = dataset_create_files(problem_type)
-        fname = config_create(problem_type, x_fname, y_fname, run=run)
+        x_fname, y_fname = dataset_create_files(problem_type, r2g=r2g)
+        fname = config_create(problem_type, x_fname, y_fname, r2g=r2g)
 
     yield fname
 
-    os.remove(x_fname)
-    os.remove(y_fname)
+    if x_fname:
+        os.remove(x_fname)
+    if y_fname:
+        os.remove(y_fname)
     os.remove(fname)
     # shutil.rmtree(f'experiments/results/{fname[:-5]}_run1_{str(run).zfill(len(str(RUNS)))}')
 
 
 ######### Fixture to build container #######
 @pytest.fixture(scope="session")
-def container():
+def container() -> bool:
     sp = subprocess.call(["./build.sh"])
     return sp == 0

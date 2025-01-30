@@ -1,23 +1,26 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pandas as pd
+from numpy import ndarray
 from omics import R_replacement as rrep
 import joblib
+import pandas as pd
 
 
-def get_data_gene_expression(config_dict, holdout=False):
+def get_data_gene_expression(
+    config_dict: dict, holdout: bool = False
+) -> tuple[pd.DataFrame, ndarray, list[str]]:
     """
     - Runs one of 3 gene expression preprocessing functions based on data type.
     - Filters metadata based on processed data (removes any samples removed during processing)
@@ -139,12 +142,14 @@ def get_data_gene_expression(config_dict, holdout=False):
         filtered_target_y = target_y.loc[mask]
         y = filtered_target_y.values
 
-    feature_names = filtered_data.columns
+    feature_names = filtered_data.columns.to_list()
 
     return filtered_data, y, feature_names
 
 
-def get_data_gene_expression_trained(config_dict, holdout=False, prediction=False):
+def get_data_gene_expression_trained(
+    config_dict: dict, holdout: bool = False, prediction: bool = False
+) -> tuple[pd.DataFrame, ndarray, list[str]]:
     """
     - Runs preprocessing_LO function.
     - Filters metadata based on processed data (removes any samples removed during processing)
@@ -207,6 +212,6 @@ def get_data_gene_expression_trained(config_dict, holdout=False, prediction=Fals
     else:
         y = None
 
-    feature_names = filtered_data.columns
+    feature_names = filtered_data.columns.to_list()
 
     return filtered_data, y, feature_names

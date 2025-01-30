@@ -18,8 +18,65 @@
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
+<<<<<<< HEAD
+## [V1.1.0] - 2025-01-30
+
+### Added
+
+- added pydantic env
+- created initial pydantic models:
+  - DataModel
+  - PredictionModel
+  - PlottingModel
+  - omics:
+    - TabularModel
+    - MetabolomicModel
+    - GeneExpressionModel
+    - MicrobiomeModel
+  - FeatureSelectionModel, AutoModel & MethodModel
+  - Models:
+    - AutoKerasModel
+    - AutoLgbmModel
+    - AutoXgboostModel
+  - MlModel
+  - ConfigModel
+- added batch mode processing
+- Added: new flag to skip ML standardizing in MlModel
+- Added: created `load_transformed_data` from pre-existing code
+- Added: new option `DataModel.data_type` `"R2G"` for datasets are Ready to Go to be trained on
+
+### Changed
+
+- upgraded:
+  - scikit-learn to `1.2.2`
+  - keras to `2.14.0`
+  - lightgbm to `3.3.5`
+  - numpy to `1.23.5`
+  - optuna to `3.6.*`
+  - tensorflow to `2.14.0`
+  - xgboost to `1.7.6`
+
+- moved dev packages to `requirements_dev.txt`
+- upgraded `tensorflow` and `keras` to be able to create env on arm64
+- changed `DEV_MANUAL.md` to capture venv changes
+- Changed: simplified `load_data`
+- Changed: extracted `save_transformed_data` from pre-existing code
+- Changed: extracted out ml preprocessing into function `learn_ml_preprocessing` and `apply_ml_preprocessing`
+
+### Fixed
+
+- Fixed: deprecation warnings
+
+### Removed
+
+- removed `auto-sklearn`
+
 ## [V1.0.1] - 2024-03-11
 
+=======
+## [V1.0.1] - 2024-03-11
+
+>>>>>>> origin/main
 ### Changed
 
 - cleaned up docstring comment
@@ -116,5 +173,9 @@ Change log for the codebase. Initialised from the developments following version
 - Detect secrets added
 - Upgraded python base image from `3.9.14` to `3.9.18` for additional security fixes
 
+<<<<<<< HEAD
+[V1.1.0]: https://github.com/IBM/AutoXAI4Omics/releases/tag/V1.1.0
+=======
+>>>>>>> origin/main
 [V1.0.1]: https://github.com/IBM/AutoXAI4Omics/releases/tag/V1.0.1
 [V1.0.0]: https://github.com/IBM/AutoXAI4Omics/releases/tag/V1.0.0

@@ -13,17 +13,21 @@
 # limitations under the License.
 
 
+from metrics.metrics import evaluate_model, define_scorers
+from mode_plotting import plot_graphs
 from pathlib import Path
-from utils.utils import get_model_path
-import pandas as pd
-import metrics.metrics
-import utils.load
-import utils.save
-import utils.utils
-import joblib
+from utils.load import get_data_R2G, load_previous_AO_data, load_data, load_model
+from utils.ml.preprocessing import apply_ml_preprocessing
+from utils.save import save_results
+from utils.utils import (
+    assert_best_model_exists,
+    get_model_path,
+    initial_setup,
+    prof_to_csv,
+)
 import cProfile
-import mode_plotting
 import logging
+import pandas as pd
 
 if __name__ == "__main__":
     """
@@ -41,42 +45,34 @@ if __name__ == "__main__":
         config_dict,
         experiment_folder,
         omicLogger,
-    ) = utils.utils.initial_setup()
+    ) = initial_setup()
 
     try:
         omicLogger.info("Loading data...")
+        model_path = assert_best_model_exists(experiment_folder)
 
-        x_heldout, y_heldout, features_names = utils.load.load_data(
-            config_dict, load_holdout=None
+        omicLogger.info("Loading previous model input data")
+        (features_names, x, y, x_train, y_train, *_) = load_previous_AO_data(
+            experiment_folder
         )
-        omicLogger.info("Heldout Data Loaded. Loading test/train data...")
 
-        x_df = pd.read_csv(
-            experiment_folder / "transformed_model_input_data.csv", index_col=0
-        )
-        x_train = x_df[x_df["set"] == "Train"].iloc[:, :-1].values
-        x_test = x_df[x_df["set"] == "Test"].iloc[:, :-1].values
-        x = x_df.iloc[:, :-1].values
-        features_names = x_df.columns[:-1]
+        if config_dict["data"]["data_type"] != "R2G":
+            omicLogger.info("Loading holdout Data...")
+            x_heldout, y_heldout, _ = load_data(config_dict, mode="holdout")
 
-        y_df = pd.read_csv(
-            experiment_folder / "transformed_model_target_data.csv", index_col=0
-        )
-        y_train = y_df[y_df["set"] == "Train"].iloc[:, :-1].values.ravel()
-        y_test = y_df[y_df["set"] == "Test"].iloc[:, :-1].values.ravel()
-        y = y_df.iloc[:, :-1].values.ravel()
-        omicLogger.info("Test/train Data Loaded. Transforming holdout data...")
+            omicLogger.info("Applying learned ml processing...")
+            x_heldout = apply_ml_preprocessing(
+                config_dict, experiment_folder, x_heldout
+            )
+        else:
+            # if the data is R2G then warn the user that the holdout data must be pre-processed exactly the same
+            omicLogger.warning(
+                "Previous model was trained with ready to go data. Please ensure that the data being given to this mode has been pre-processed in exactly the same way."
+            )
 
-        with open(experiment_folder / "transformer_std.pkl", "rb") as f:
-            SS = joblib.load(f)
-        x_heldout = utils.utils.transform_data(
-            x_heldout, SS
-        )  # transform the holdout data according to the fitted standardiser
-
-        if config_dict["ml"]["feature_selection"] is not None:
-            with open(experiment_folder / "transformer_fs.pkl", "rb") as f:
-                FS = joblib.load(f)
-            x_heldout = FS.transform(x_heldout)
+            *_, x_heldout, y_heldout, features_names = get_data_R2G(
+                config_dict, holdout=True
+            )
 
         omicLogger.info("Heldout data transformed. Creating results DataFrame...")
         # Create dataframe for performance results
@@ -108,19 +104,19 @@ if __name__ == "__main__":
                 f"Plotting barplot for {model_name} using {config_dict['ml']['fit_scorer']}"
             )
             omicLogger.debug("Loading...")
-            model = utils.load.load_model(model_name, model_path)
+            model = load_model(model_name, model_path)
 
             omicLogger.debug("Evaluating...")
 
             # Evaluate the best model using all the scores and CV
-            performance_results_dict, predictions = metrics.metrics.evaluate_model(
+            performance_results_dict, predictions = evaluate_model(
                 model,
                 config_dict["ml"]["problem_type"],
                 x_train,
                 y_train,
                 x_heldout,
                 y_heldout,
-                score_dict=metrics.metrics.define_scorers(
+                score_dict=define_scorers(
                     config_dict["ml"]["problem_type"], config_dict["ml"]["scorer_list"]
                 ),
             )
@@ -130,7 +126,7 @@ if __name__ == "__main__":
 
             omicLogger.debug("Saving...")
             # Save the results
-            df_performance_results, fname_perfResults = utils.save.save_results(
+            df_performance_results, fname_perfResults = save_results(
                 results_folder,
                 df_performance_results,
                 performance_results_dict,
@@ -147,7 +143,7 @@ if __name__ == "__main__":
 
         omicLogger.debug("Begin plotting graphs")
         # Central func to define the args for the plots
-        mode_plotting.plot_graphs(
+        plot_graphs(
             config_dict,
             experiment_folder,
             features_names,
@@ -168,4 +164,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    utils.utils.prof_to_csv(pr, config_dict)
+    prof_to_csv(pr, config_dict)

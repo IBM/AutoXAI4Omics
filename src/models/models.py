@@ -1,30 +1,29 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from models.custom_model import CustomModel
+from models.model_defs import form_model_dict
 from pathlib import Path
+from plotting.plots_both import plot_model_performance
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+from utils.save import save_model, save_results
+from utils.vars import CLASSIFICATION
+import logging
 import metrics.metrics
 import numpy as np
-import pandas as pd
-from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
-from models.model_defs import form_model_dict
-from models.custom_model import CustomModel
-import logging
-from utils.save import save_results
-from utils.save import save_model
 import os
-from plotting.plots_both import plot_model_performance
-from utils.vars import CLASSIFICATION
+import pandas as pd
 
 ##### Fix for each thread spawning its own GUI is to use 1 thread
 ##### Change this to n_jobs = -1 for all-core processing (when we get that working)

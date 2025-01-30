@@ -28,7 +28,7 @@ Please use blacks & ruff to format any code contributions, we have a pre-commit 
 
 ## Virtual enviroment
 
-Currently we are unable to make a virtual enviroment on M1 macs (`darwin/arm64`) as but for `linux` systems a virtual enviroment can be made with the requirements given in `requirements.txt`
+To create the virtual enviroment for AutoXAI4Omics using an enviroment manager of your choice, like conda for example, using `python3.9` as your starting point. Then proceed to install the contents of both `requirements_dev.txt` and `requirements.txt`. Note that you may also need to set `PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python` within your enviroment.
 
 ## Testing
 
