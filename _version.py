@@ -13,8 +13,4 @@
 # limitations under the License.
 
 # current version of the tool
-<<<<<<< HEAD
 __version__ = "1.1.0"
-=======
-__version__ = "1.0.1"
->>>>>>> origin/main
