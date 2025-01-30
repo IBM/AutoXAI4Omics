@@ -18,6 +18,7 @@
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
+<<<<<<< HEAD
 ## [V1.1.0] - 2025-01-30
 
 ### Added
@@ -72,6 +73,10 @@ Change log for the codebase. Initialised from the developments following version
 
 ## [V1.0.1] - 2024-03-11
 
+=======
+## [V1.0.1] - 2024-03-11
+
+>>>>>>> origin/main
 ### Changed
 
 - cleaned up docstring comment
@@ -168,6 +173,9 @@ Change log for the codebase. Initialised from the developments following version
 - Detect secrets added
 - Upgraded python base image from `3.9.14` to `3.9.18` for additional security fixes
 
+<<<<<<< HEAD
 [V1.1.0]: https://github.com/IBM/AutoXAI4Omics/releases/tag/V1.1.0
+=======
+>>>>>>> origin/main
 [V1.0.1]: https://github.com/IBM/AutoXAI4Omics/releases/tag/V1.0.1
 [V1.0.0]: https://github.com/IBM/AutoXAI4Omics/releases/tag/V1.0.0
