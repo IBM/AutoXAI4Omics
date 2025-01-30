@@ -21,7 +21,7 @@ The JSON config file is at the center of the framework - it controls everything 
 Config sections:
 
 - `data` - ***MANDATORY*** - [This section](#data-entry) contains all the information relevant to the data that is to be used in the run
-- `ml` - ***MANDATORY**** -  [This section](#machine-learning-entry) contains all the relevant information for the machine learning configurations
+- `ml` - ***MANDATORY*** - [This section](#machine-learning-entry) contains all the relevant information for the machine learning configurations
 - `plotting` - ***OPTIONAL*** - [This section](#plotting-entry) contains all the relevant information for the plots that are to be produced, if desired
 - `microbiome`/`tabular`/`gene_expression`/`metabolomic` - ***OPTIONAL*** - [This section](#omic-entry) contains the relevant information for the omic pre-processing, if required
 - `prediction` - ***OPTIONAL*** - [This section](#prediction-entry) contains the relevant information for the prediction task, if required
@@ -29,8 +29,7 @@ Config sections:
 ## General remarks
 
 - If a value for a parameter in the json file is not provided, the value should `null` or "".
-
-- There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`, `metabolomic`, `tabular`}. The `data_type` can have any other value or be an empty string (e.g. "proteomic", "", etc.),  but those will not invoke any special pre-processing
+- There are specific pre-processing parameters for `data_type` = { `microbiome`, `gene_expression`, `metabolomic`, `tabular`, `R2G` or `other`}. The for other omic types that have not been mentioned (e.g. `proteomic`), can be run through the tool using `other` but will not invoke any special pre-processing.
 - For categorical data, phenotypes are listed in alphabetical order in the results
 
 We refer to two types of input files; Input data files hold your dataset e.g. microbiome/gene expression/metabolomic/tabular data and metadata files hold the target you are trying to predict from the input data
@@ -45,7 +44,8 @@ We refer to two types of input files; Input data files hold your dataset e.g. mi
 This section is for the information that is to be stored in the `data` heading.
 
 - `name`: The name used to create a directory under which all results, models etc. are saved. This is created under the `"results/"` folder under the `"save_path"` (e.g. `"/experiments/results/"`). The needed sub-directories for the results, models and (if any) graphs are created within this experiment folder.
-- `data_type`: "microbiome" or "gene_expression" or "metabolomic" or "tabular" or anything else e.g. "proteomic", but the latter does not currently invoke any specific pre-processing.
+- `data_type`: `microbiome`, `gene_expression`, `metabolomic`, `tabular`, `other` or `R2G`.
+  - `R2G` stands for "Read to Go" meaning that the data set the user is inputting has had all the preprocessing already done and has been split into train & test sets. The data will be in one csv file, with a `set` and `label` column. Where `label` has the label for that sample and `set` contains either `train` or `test`, indicating what set that sample is a part of.
 - `file_path`: Name of input data file, e.g. "data/skin_closed_reference.biom" if microbiome data, or "tabular_data.csv" if any tabular data, e.g., gene expression data, in a csv file.
 - `metadata_file`: Name of metadata file, the file includes target variable to be predicted, e.g. "data/metadata_skin_microbiome.txt". For pre-processing (gene expression, metabolomic, tabular) this file should have as column 1: header "Sample" with associated sample names that correspond to the sample names in `file_path`
 - `target`: Name of the target to predict, e.g. "Age", that is either a column within the `medatata_file` or if `metadata_file` is not provided, e.g. `metadata_file`= "", `target` is the name of a column in the data file specified in `file_path`.
@@ -56,6 +56,7 @@ This section is for the information that is to be stored in the `ml` heading.
 
 - `problem_type`: The type of problem, either "classification" or "regression".
 - `stratify_by_groups`: "Y" or "N" (default "N"). This allows the user to perform the ML analysis stratifying the samples by groups as specified in the `groups` parameter below. If "Y", samples in the same group will not appear in both training and test datasets.
+- `standardize`: A bool, if `True` then the dataset shall be standardised, if not it will be skipped.
 - `groups`: this is the name of a column in the metadata that represent the groups for the stratification of the samples. For instance, if there are time series samples from the same subjects, `groups` could be "Subject_ID".
 - `balancing`: "OVER","UNDER", or "NONE" (default "NONE") if the user chooses to perform class balancing of the data of the training data. This functionality work only for classification tasks and makes sense if there the categories/classes are significantly unbalanced.
 - `seed_num`: Provide the seed number to be used. This is given to everything that has a `random_state` argument, as well as being used as the general seed (for `numpy` and `tensorflow`).
@@ -69,7 +70,6 @@ This section is for the information that is to be stored in the `ml` heading.
   - "autoxgboost", XGBoost with automatic Hyper Parameter Optimization implemented. User can change the default settings in the example config file at `autoxgboost_config`. "Timeout" is in minutes.
   - "autolgbm", LightGBM with automatic Hyper Parameter Optimization implemented. User can change the default settings in the example config file at `autolgbm_config`. "Timeout" is in minutes.
   - "autokeras",  An AutoML system based on Keras for automatic tuning of neural networks available at <https://autokeras.com>. User can change the default settings in the example config file at `autokeras_config`. "time_left_for_this_task" and "per_run_time_limit" are in minutes.
-  - "autosklearn", An automated machine learning toolkit for algorithm selection and hyper parameter tuning. It leverages recent advantages in Bayesian optimization, meta-learning and ensemble construction. Available at <https://automl.github.io/auto-sklearn/master/>. User can change the default settings in the example config file at `autosklearn_config`.
 - `scorer_list`: Specify the scoring measures to be used to analyse the models(these are defined in `models.py`).
   - For classification tasks: "acc" (accuracy), "f1" (f1-score), "prec" (precision), "recall"
   - For regression tasks: "mse" (mean squared error), "mean_ae" (mean absolute error), "med_ae" (median absolute error), "rmse" (root mean square error), "mean_ape" (mean absolute percentage error), "r2" (r-squared)
@@ -198,7 +198,7 @@ Prediction mode can be used once you have trained a set of model on your a data 
 
 When you want to perform the prediction on a dataset you supply the same config file that you used to train the model but with an extra `prediction` section within the config, as shown belown and lunch it by running `./predict.sh config.json` . Note that when the prediction script is run currently it only predicts using the best model.
 
-```
+```json
 "prediction":{
         "file_path":"/data/testsets/microbiome/microbiome_500.biom",
         "metadata_file": "/data/testsets/microbiome/microbiome_metadata_500_reg.txt",

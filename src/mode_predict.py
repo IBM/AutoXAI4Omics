@@ -1,26 +1,26 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sklearn.preprocessing import normalize
+from utils.load import get_data_R2G, load_data, load_model
+from utils.ml.preprocessing import apply_ml_preprocessing
+from utils.utils import assert_best_model_exists, initial_setup, prof_to_csv
+import cProfile
+import logging
+import numpy as np
 import os
 import pandas as pd
-import utils.load
-import utils.utils
-import logging
-import cProfile
-from utils.utils import assert_best_model_exists, assert_data_transformers_exists
-import numpy as np
-from sklearn.preprocessing import normalize
 
 
 if __name__ == "__main__":
@@ -40,31 +40,35 @@ if __name__ == "__main__":
         config_dict,
         experiment_folder,
         omicLogger,
-    ) = utils.utils.initial_setup()
+    ) = initial_setup()
 
     try:
         omicLogger.info("Checking for Trained models")
         model_path = assert_best_model_exists(experiment_folder)
 
-        omicLogger.info("Loading Data...")
-        x_to_predict, features_names = utils.load.load_data(
-            config_dict, load_prediction=True
-        )
-        x_indexes = x_to_predict.index
+        # if the data is R2G then warn the user that the prediction data must have been pre-processed the same way
+        if config_dict["data"]["data_type"] == "R2G":
+            omicLogger.warning(
+                "Previous model was trained with ready to go data. Please ensure that the data being given to this mode has been pre-processed in exactly the same way."
+            )
 
-        omicLogger.info("Loading data transformers...")
-        SS, FS = assert_data_transformers_exists(experiment_folder, config_dict)
+            *_, x_to_predict, _, feature_names = get_data_R2G(
+                config_dict, prediction=True
+            )
+            x_indexes = x_to_predict.index
+        else:
+            omicLogger.info("Loading Data...")
+            x_to_predict, _, features_names = load_data(config_dict, mode="prediction")
+            x_indexes = x_to_predict.index
 
-        omicLogger.info("Applying trained standardising...")
-        x_to_predict = utils.utils.transform_data(x_to_predict, SS)
-
-        if FS is not None:
-            omicLogger.info("Applying trained feature selector...")
-            x_to_predict = FS.transform(x_to_predict)
+            omicLogger.info("Applying learned ml processing...")
+            x_to_predict = apply_ml_preprocessing(
+                config_dict, experiment_folder, x_to_predict
+            )
 
         model_name = os.path.basename(model_path).split("_")[0]
         omicLogger.debug("Loading model...")
-        model = utils.load.load_model(model_name, model_path)
+        model = load_model(model_name, model_path)
 
         omicLogger.info("Predicting on data...")
         predictions = model.predict(x_to_predict)
@@ -96,4 +100,4 @@ if __name__ == "__main__":
 
     # save time profile information
     pr.disable()
-    utils.utils.prof_to_csv(pr, config_dict)
+    prof_to_csv(pr, config_dict)

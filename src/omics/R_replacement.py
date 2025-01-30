@@ -1,24 +1,32 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from bioinfokit.analys import norm
+from pathlib import Path
+from typing import Union
+import conorm as cn
 import joblib
 import pandas as pd
-from bioinfokit.analys import norm
-import conorm as cn
 
 
-def preprocessing_LO(data_dict, filtergene1, filtergene2, filter_sample, holdout):
+def preprocessing_LO(
+    data_dict: dict,
+    filtergene1: Union[float, int],
+    filtergene2: Union[float, int],
+    filter_sample: Union[float, int],
+    holdout: bool,
+) -> tuple[pd.DataFrame, list[str]]:
     """
     Note - this function is replacing Run_LO.R
     ---------
@@ -118,8 +126,12 @@ def preprocessing_LO(data_dict, filtergene1, filtergene2, filter_sample, holdout
 
 
 def apply_learned_processing(
-    data_dict, holdout, prediction=False, tmm=False, prediction_file=None
-):
+    data_dict: dict,
+    holdout: bool,
+    prediction: bool = False,
+    tmm: bool = False,
+    prediction_file: Union[str, Path] = None,
+) -> pd.DataFrame:
     if holdout is False and prediction is False:
         raise ValueError("One of holdout or prediction need to be true")
 
@@ -167,7 +179,13 @@ def apply_learned_processing(
 # ---------------------------------------------------------------------------------------------------#
 
 
-def preprocessing_others(data_dict, filtergene1, filtergene2, filter_sample, holdout):
+def preprocessing_others(
+    data_dict: dict,
+    filtergene1: Union[float, int],
+    filtergene2: Union[float, int],
+    filter_sample: Union[float, int],
+    holdout: bool,
+) -> tuple[pd.DataFrame, list[str]]:
     """
     Note - this function is replacing Run_others.R (note this is the same as Run_LO.R, but without converting to
     absolute values)
@@ -264,7 +282,13 @@ def preprocessing_others(data_dict, filtergene1, filtergene2, filter_sample, hol
 # ---------------------------------------------------------------------------------------------------#
 
 
-def preprocessing_TMM(data_dict, filtergene1, filtergene2, filter_sample, holdout):
+def preprocessing_TMM(
+    data_dict: dict,
+    filtergene1: Union[float, int],
+    filtergene2: Union[float, int],
+    filter_sample: Union[float, int],
+    holdout: bool,
+) -> tuple[pd.DataFrame, list[str]]:
     """
     Note - this function is replacing Run_TMM.R
          - this function transforms to CPM values to filter genes

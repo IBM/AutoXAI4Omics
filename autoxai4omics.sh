@@ -24,7 +24,7 @@ VOL_MAPS="-v ${PWD}/configs:/configs -v ${PWD}/data:/data -v ${PWD}/experiments:
 
 echo "Getting flags"
 #get variables from input
-while getopts 'm:c:rgd' OPTION; do
+while getopts 'm:c:rgdn' OPTION; do
     case "$OPTION" in
         m) 
             case "${OPTARG}" in
@@ -54,7 +54,12 @@ while getopts 'm:c:rgd' OPTION; do
             ;;
         c)
             echo "Registering config"
-            CONFIG=${OPTARG}
+            CONFIG="configs/${OPTARG}"
+            if [ ! -d "$CONFIG" ] && [ ! -f "$CONFIG" ]
+            then
+                echo "config provided in -c flag (${CONFIG#configs/}) is not a valid directory or file"
+                exit 1
+            fi
             ;;
         r)
             echo "Setting root for bash"
@@ -67,6 +72,9 @@ while getopts 'm:c:rgd' OPTION; do
         d)
             echo "Registering container detachment"
             DETACH='-d'
+            ;;
+        n)
+            N_BATCHES=${OPTARG}
             ;;
         ?)
           echo "script usage: $(basename \$0) [-m] [-c] [-p] [-r] [-g] [-d]" >&2
@@ -98,13 +106,40 @@ fi
 
 if [ $MODE != "bash" ]
 then
-    docker run \
-      --rm \
-      $DETACH \
-      $GPU \
-      $VOL_MAPS \
-      $IMAGE_FULL \
-      python $MODE -c /configs/"$CONFIG"
+    if [ -d "$CONFIG" ]
+    then
+        echo "Entering batch mode..."
+        N_BATCHES=${N_BATCHES:-5}
+
+        for FILE in $(find $CONFIG -name "*.json" | sort )
+        do
+            (
+                echo "Runing config file: $FILE"
+                # ((i=i%N_BATCHES)); ((i++==0)) && wait
+                docker run \
+                  --rm \
+                  $DETACH \
+                  $GPU \
+                  $VOL_MAPS \
+                  $IMAGE_FULL \
+                  python $MODE -c /"$FILE"
+            ) &
+            if [[ $(jobs -r -p | wc -l) -ge $N_BATCHES ]]; then
+                # now there are $N jobs already running, so wait here for any job
+                # to be finished so there is a place to start next one.
+                wait -n
+            fi
+        done
+        wait
+    else
+        docker run \
+          --rm \
+          $DETACH \
+          $GPU \
+          $VOL_MAPS \
+          $IMAGE_FULL \
+          python $MODE -c /"$CONFIG"
+    fi
 else
     docker run \
       --rm \

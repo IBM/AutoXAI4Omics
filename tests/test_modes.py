@@ -38,6 +38,50 @@ sys.path.append("../AutoXAI4Omics/")
         pytest.param("feature", marks=pytest.mark.feature),
     ],
 )
+@pytest.mark.parametrize(
+    "problem_create",
+    [
+        (
+            pytest.param(
+                ["binary", True],
+                marks=[
+                    pytest.mark.classification,
+                    pytest.mark.binary,
+                    pytest.mark.ready,
+                ],
+            )
+        ),
+        (
+            pytest.param(
+                ["binary", False],
+                marks=[pytest.mark.classification, pytest.mark.binary, pytest.mark.raw],
+            )
+        ),
+        (
+            pytest.param(
+                ["multi", True],
+                marks=[
+                    pytest.mark.classification,
+                    pytest.mark.multi,
+                    pytest.mark.ready,
+                ],
+            )
+        ),
+        (
+            pytest.param(
+                ["multi", False],
+                marks=[pytest.mark.classification, pytest.mark.multi, pytest.mark.raw],
+            )
+        ),
+        (
+            pytest.param(
+                ["reg", True], marks=[pytest.mark.regression, pytest.mark.ready]
+            )
+        ),
+        (pytest.param(["reg", False], marks=[pytest.mark.regression, pytest.mark.raw])),
+    ],
+    indirect=True,
+)
 def test_modes(mode, problem_create, container):
     assert container
     fname = problem_create.split("/")[1]

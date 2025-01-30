@@ -71,9 +71,10 @@ The tool is launched in the cli using `autoxai4omics.sh` which has multiple flag
   * `predict` - Use trained models to predict on unseen data
   * `plotting` - If the models have been tuned and trained (and therefore saved), the plots and results can be generated in isolation
   * `bash` - Use to open up a bash shell into the tool
-* `-c` this is the filename of the config json within the `AutoXAI4Omics/configs` folder that is going to be given to AutoXAI4Omics
+* `-c` this is the filename of the config json or subfolder within the `AutoXAI4Omics/configs` folder that is going to be given to AutoXAI4Omics. If it is a filename `AutoXAI4Omics` will run for that single config. If it is a subfolder within `AutoXAI4Omics` it will enter into batch mode and run all of the config in the provided folder, and any further subfolders, sequentially.
 * `-r` this sets the contain to run as root. Only possibly required if you are running in `bash` mode
 * `-d` this detatches the cli running the container in the background
+* `-n` if you decide to run AutoXAI4Omics in batch mode you can set the maximium number of runs that will run in parallel at the same time, default is 1 (run sequantially with no parallism). It is up to the user to detmine how many parallel runs their system can handle.
 * `-g` this specifies if you want AutoXAI4Omics to use the gpus that are available on the machine (UNDER TESTING)
 
 Data to be used by AutoXAI4Omics needs to be stored in the `AutoXAI4Omics/data` folder.
@@ -82,6 +83,10 @@ Data to be used by AutoXAI4Omics needs to be stored in the `AutoXAI4Omics/data` 
 
 * Run AutoXAI4Omics in training mode with a config called `my_fun_config.json` within the `configs` folder:
   * `./autoxai4omics.sh -m train -c my_fun_config.json`
+* Run AutoXAI4Omics in training mode with all the configs in the `my_experiments` folder within the `configs` folder:
+  * `./autoxai4omics.sh -m train -c my_experiments`
+* If you have further nested subfolder's within `my_experiments` folder, such as `my_specific_experiments` you can run those by providing the relative path:
+  * `./autoxai4omics.sh -m train -c my_experiments/my_specific_experiments`
 
 * We have provided and example config and dataset that you can run to get going. The components are:
   * config: `configs/examples/50k_barley_SHAP.json`
@@ -91,6 +96,18 @@ Data to be used by AutoXAI4Omics needs to be stored in the `AutoXAI4Omics/data` 
 
 * If you wish to run a bash shell within the AutoXAI4Omics image then you can do it using the following. In addition if you wish to be logged in as root add the `-r` flag:
   * `./autoxai4omics.sh -m bash -r`
+
+* AutoXAI4Omics has a config duplication function (for when you wish to run the same config over multiple datasets). To use this you need to build the image and the run it in `bash` mode. Once there you can then run:
+  
+  ```shell
+  python mode_config_duplicate.py -c SUBPATH_TO_TEMPLATE_CONFIG -d DATA_SUBDIR
+  ```
+
+  where:
+  * `SUBPATH_TO_TEMPLATE_CONFIG` is a path within the config dir to a config file to use as the teamplate. e.g. `processed/processed_template.json`
+  * `DATA_SUBDIR` is a folder in the data dir containing all the datafiles that the config is to be duplicated e.g. `processed`
+    * **NOTE** The duplication currently assumes that the data sets are of only 1 file (i.e no metadata file)
+    * **NOTE** The duplicated output configs will be outputted to a dir called `replicates` in the same directory as the original template
 
 * **UNDER DEVELOPMENT** If you wish to utilise any gpus that are available on your machine during your AutoXAI4Omics run then you can add the `-g` flag:
   * `./autoxai4omics.sh -m train -c my_fun_config.json -g`
