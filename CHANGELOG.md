@@ -18,6 +18,12 @@
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
+## [unreleased] - 2025-03-04
+
+### Deprecated
+
+- removed unused code
+
 ## [V1.1.0] - 2025-01-30
 
 ### Added

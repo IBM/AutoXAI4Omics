@@ -40,45 +40,6 @@ import yaml
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def encode_all_categorical(df, include_cols=[], exclude_cols=[]):
-    """
-    Encodes all data of type "object" to categorical
-
-    Can provide a list of columns to either include or exclude, depending on the ratio
-    """
-    # Loop over the columns (more explicit than select_dtypes)
-
-    for col in df.columns:
-        # Check if it's of type object
-
-        if df[col].dtype == "object":
-            # Check if it is in our include or (if easier) not in the exclude
-
-            if col in include_cols or col not in exclude_cols:
-                # Convert to categorical
-                df[col] = df[col].astype("category")
-                # Encode using the numerical codes
-                df[col] = df[col].cat.codes
-
-
-def unique_subjects(df):
-    """
-    Find the unique subjects by adding the subject number to the study code
-
-    Useful in exploratory data analysis
-    """
-    df["Subject"] = df["Subject"].astype(str)
-    df["unique_subject"] = (
-        df["StudyID"] + "_" + df["Subject"].str[-2:].astype(int).astype(str)
-    )
-    return df
-
-
-def remove_classes(class_col, contains="X"):
-    # Deprecated! Keeping function here as replacement is specific to Calour - this is specific to Pandas
-    return class_col[~class_col.str.contains(contains)]
-
-
 def create_experiment_folders(config_dict: dict, config_path) -> Path:
     """
     Create the folder for the given config and the relevant subdirectories
@@ -151,12 +112,12 @@ def initial_setup():
     omicLogger = setup_logger(experiment_folder)
 
     # Setup the CustomModel
-    setup_CustoeModel(config_dict, experiment_folder)
+    setup_CustomModel(config_dict, experiment_folder)
 
     return config_path, config_dict, experiment_folder, omicLogger
 
 
-def setup_CustoeModel(config_dict, experiment_folder):
+def setup_CustomModel(config_dict, experiment_folder):
     CustomModel.custom_aliases = {k.nickname: k for k in all_subclasses(CustomModel)}
 
     for model_name in config_dict["ml"]["model_list"]:

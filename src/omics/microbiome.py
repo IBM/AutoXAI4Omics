@@ -261,32 +261,6 @@ def get_feature_names_calourexp(
     return feature_names
 
 
-def get_feature_names_alternative(amp_exp: ca.AmpliconExperiment) -> list[str]:
-    inputFeatureData = amp_exp.feature_metadata
-    """ Get simple names for taxonomy """
-    taxons = inputFeatureData["taxonomy"]
-    names = []
-    for taxon in taxons:
-        tmpSplit = str.split(taxon, ";")
-        name = tmpSplit[len(tmpSplit) - 1]
-        if "unresolved" in name:
-            name = tmpSplit[len(tmpSplit) - 3] + tmpSplit[len(tmpSplit) - 1]
-        names.append(name)
-    return names
-
-
-def get_feature_names_for_abundance(amp_exp: ca.AmpliconExperiment) -> list[str]:
-    inputFeatureData = amp_exp.feature_metadata
-    """ Get simple names for taxonomy """
-    taxons = inputFeatureData["taxonomy"]
-    names = []
-    for taxon in taxons:
-        tmpSplit = str.split(taxon, ";")
-        name = tmpSplit[len(tmpSplit) - 1]
-        names.append(name)
-    return names
-
-
 def get_data_microbiome(
     path_file: Union[str, Path], metadata_path: Union[str, Path], config_dict: dict
 ) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
