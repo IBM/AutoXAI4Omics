@@ -291,8 +291,10 @@ def feat_selection(
     union = Pipeline([("variance", VT), ("featureSeletor", SKB)])
 
     # fetch the name of remaining features after the FS pipeline
-    feature_names_out = features_names[VT.get_support(indices=True)][
-        SKB.get_support(indices=True)
-    ]
+    ind = VT.get_support(indices=True).tolist()
+    feature_names_out = [features_names[x] for x in ind]
+
+    ind2 = SKB.get_support(indices=True).tolist()
+    feature_names_out = [feature_names_out[x] for x in ind2]
 
     return x_trans, feature_names_out, union
