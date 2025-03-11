@@ -24,7 +24,7 @@ VOL_MAPS="-v ${PWD}/configs:/configs -v ${PWD}/data:/data -v ${PWD}/experiments:
 
 echo "Getting flags"
 #get variables from input
-while getopts 'm:c:rgdn' OPTION; do
+while getopts 'm:c:rgdn:' OPTION; do
     case "$OPTION" in
         m) 
             case "${OPTARG}" in
