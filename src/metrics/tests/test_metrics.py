@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,7 @@ import pytest
 from ..metric_defs import METRICS
 from ..metrics import define_scorers
 from utils.vars import CLASSIFICATION, REGRESSION
-from sklearn.metrics._scorer import _PredictScorer, _ProbaScorer
+from sklearn.metrics._scorer import _Scorer
 
 
 class Test_define_scorers:
@@ -83,4 +83,4 @@ class Test_define_scorers:
 
         assert len(sd) == 1
         assert list(sd.keys())[0] == scorer
-        assert isinstance(sd[scorer], (_PredictScorer, _ProbaScorer))
+        assert isinstance(sd[scorer], _Scorer)

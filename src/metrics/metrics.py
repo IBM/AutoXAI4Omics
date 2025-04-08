@@ -14,7 +14,6 @@
 
 from metrics.metric_defs import METRICS
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics._scorer import _ProbaScorer
 from sklearn.preprocessing import normalize
 from utils.vars import CLASSIFICATION, REGRESSION
 import logging
@@ -125,7 +124,7 @@ def evaluate_model(model, problem_type, x_train, y_train, x_test, y_test, score_
         score_results_dict = {}
         for score_name, scorer in score_dict.items():
             omicLogger.debug(f"Calculating {score_name} for Train and Test sets...")
-            if not isinstance(scorer, _ProbaScorer):
+            if scorer._response_method == "predict":
                 score_results_dict[score_name + "_Train"] = scorer._score_func(
                     y_train, pred_train, **scorer._kwargs
                 )
