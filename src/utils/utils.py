@@ -89,7 +89,7 @@ def create_experiment_folders(config_dict: dict, config_path) -> Path:
     )
     # Provide a warning if the folder already exists
     if experiment_folder.is_dir():
-        print(f"{experiment_folder} exists - results may be overwritten!")
+        omicLogger.info(f"{experiment_folder} exists - results may be overwritten!")
     experiment_folder.mkdir(parents=True, exist_ok=True)
     # Create the subdirectories
     (experiment_folder / "models").mkdir(exist_ok=True)
@@ -381,7 +381,7 @@ def get_model_path(experiment_folder: Path, model_name: str) -> Union[Path, str]
             f"{experiment_folder / 'models' / str('*' + model_name + '*.pkl')}"
         )[0]
     except IndexError as e:
-        print(
+        omicLogger.info(
             "The trained model " + str("*" + model_name + "*.pkl") + " is not present"
         )
         raise e
