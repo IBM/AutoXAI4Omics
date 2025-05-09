@@ -386,7 +386,7 @@ class AutoKeras(CustomModel):
         with open(model_path + ".pkl", "rb") as f:
             model = joblib.load(f)
         # Load the model with Keras and set this to the relevant attribute
-        omicLogger.debug("loading: {model_path}.h5")
+        omicLogger.debug(f"loading: {model_path}.h5")
         model.model = tensorflow.keras.models.load_model(model_path + ".h5")
         return model
 

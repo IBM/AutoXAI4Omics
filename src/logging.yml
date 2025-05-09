@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,16 +15,21 @@
 version: 1
 formatters:
   simple:
-    format: '%(name)s - %(asctime)s - %(filename)s - %(funcName)s() - %(levelname)s : %(message)s'
+    format: "%(name)s - %(asctime)s - %(filename)s - %(funcName)s() - %(levelname)s : %(message)s"
 handlers:
   file:
     class: logging.FileHandler
     level: DEBUG
     formatter: simple
     filename:
-    mode: 'a'
+    mode: "a"
+  console:
+    class: logging.StreamHandler
+    formatter: simple
+    level: INFO
+    stream: ext://sys.stdout
 loggers:
   OmicLogger:
     level: DEBUG
-    handlers: [file]
+    handlers: [file, console]
     propagate: no

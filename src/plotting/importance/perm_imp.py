@@ -52,8 +52,8 @@ def permut_importance(
     This may be useful to use/watch for the future.
     """
     omicLogger.debug("Creating permut_importance...")
-    print(feature_names)
-    print(type(feature_names))
+    omicLogger.info(feature_names)
+    omicLogger.info(type(feature_names))
 
     # Loop over the defined models
     for model_name in model_list:
@@ -63,12 +63,12 @@ def permut_importance(
         fig, ax = plt.subplots()
         # Load the model
         model_path = get_model_path(experiment_folder, model_name)
-        print(f"Plotting permutation importance for {model_name}")
+        omicLogger.info(f"Plotting permutation importance for {model_name}")
 
-        print("Model path")
-        print(model_path)
-        print("Model name")
-        print(model_name)
+        omicLogger.info("Model path")
+        omicLogger.info(model_path)
+        omicLogger.info("Model name")
+        omicLogger.info(model_name)
 
         model = load_model(model_name, model_path)
         # Select the scoring function

@@ -130,7 +130,7 @@ def k_selector(experiment_folder, acc, top=True, low=True, save=True):
     sr["r_std"].iloc[-1] = sr[0].iloc[[-2, -1]].std()
 
     if all(sr[["r_m", "r_std"]].std() == 0):
-        print("CONSISTENT RESULTS - picking lightweight model")
+        omicLogger.info("CONSISTENT RESULTS - picking lightweight model")
         k_selected = sr.index[0]
     else:
         sr_n = (sr[["r_m", "r_std"]] - sr[["r_m", "r_std"]].mean()) / sr[
@@ -191,7 +191,7 @@ def auto_feat_selection(
 
     # train and evaluate a model for each potential k
     for n_feature in n_feature_candicates:
-        print(f"Evaluating basic model trained on {n_feature} features")
+        omicLogger.info(f"Evaluating basic model trained on {n_feature} features")
         acc[n_feature] = train_eval_feat_selection_model(
             x, y, n_feature, problem_type, eval_model, eval_metric, method_dict
         )
@@ -199,12 +199,12 @@ def auto_feat_selection(
     # plot feat-acc
     feat_acc_plot(experiment_folder, acc, save)
 
-    print("Selecting optimum k")
+    omicLogger.info("Selecting optimum k")
     chosen_k = k_selector(
         experiment_folder, acc, low=low, save=save
     )  # select the 'best' k based on the results we have attained
 
-    print("transforming data based on optimum k")
+    omicLogger.info("transforming data based on optimum k")
     # get the transformed dataset and the transformer
     x_trans, SKB = manual_feat_selection(x, y, chosen_k, method_dict, problem_type)
 
@@ -282,7 +282,7 @@ def feat_selection(
             save=save,
         )
     elif isinstance(k, int):
-        print("Beginning feature selection with given k")
+        omicLogger.info("Beginning feature selection with given k")
         x_trans, SKB = manual_feat_selection(x_trans, y, k, method_dict, problem_type)
     else:
         raise ValueError("k must either be an int or the string 'auto' ")
