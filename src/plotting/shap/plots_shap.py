@@ -27,13 +27,13 @@ import time
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def select_explainer(model, model_name, df_train, problem_type):
+def select_explainer(model, model_name: str, df_train, problem_type: str):
     """
     Select the appropriate SHAP explainer for each model
     """
     # Select the right explainer
     # Note that, for a multi-class (non-binary) problem gradboost cannot use the TreeExplainer
-    if model_name in ["xgboost", "rf"]:
+    if model_name in ["xgboost", "RandomForestClassifier"]:
         explainer = shap.TreeExplainer(model)
     elif model_name in ["mlp_keras"]:
         explainer = shap.DeepExplainer(model.model, df_train.values)
@@ -290,7 +290,7 @@ def summary_SHAPdotplot_perclass(
 ):
     omicLogger.debug("Creating summary_SHAPdotplot_perclass...")
 
-    if model_name == "xgboost" and len(class_names) == 2:
+    if model_name in ["xgboost", "AutoLGBM"] and len(class_names) == 2:
         omicLogger.info("Shape exemplars_selected: " + str(exemplars_selected.shape))
         class_name = class_names[1]
         omicLogger.info("Class: " + str(class_name))
@@ -349,14 +349,10 @@ def summary_SHAPdotplot_perclass(
                     + f"{class_name}_{i}"
                 )
                 # saving the shapley values to dataframe
-                omicLogger.debug("data idx:")
-                omicLogger.debug(type(data_indx))
-                omicLogger.debug(data_indx)
-                omicLogger.debug("exemplar")
-                omicLogger.debug(type(exemplars_selected[i]))
-                omicLogger.debug(exemplars_selected[i])
                 df_shapley_values = pd.DataFrame(
-                    data=exemplars_selected[i], columns=feature_names, index=data_indx
+                    data=exemplars_selected[:, :, i],
+                    columns=feature_names,
+                    index=data_indx,
                 )
                 # df_shapley_values.sort_index(inplace=True)
                 df_shapley_values.index.name = "SampleID"
@@ -375,7 +371,7 @@ def summary_SHAPdotplot_perclass(
 
             # Plot shap bar plot
             shap.summary_plot(
-                exemplars_selected[i],
+                exemplars_selected[:, :, i],
                 exemplar_X_test,
                 plot_type="dot",
                 color_bar="000",
@@ -456,14 +452,17 @@ def get_exemplars(x_test, y_test, model, problem_type, pcAgreementLevel):
 
 
 def compute_average_abundance_top_features(
-    problem_type,
-    num_top,
-    model_name,
-    class_names,
-    feature_names,
-    data,
-    shap_values_selected,
+    problem_type: str,
+    num_top: int,
+    model_name: str,
+    class_names: list[int],
+    feature_names: list[str],
+    data: pd.DataFrame,
+    shap_values_selected: np.ndarray,
 ):
+    omicLogger.debug(f"Computing for model: {model_name}")
+    omicLogger.debug(f"Task: {problem_type}")
+
     # Get the names of the features
     names = feature_names
 
@@ -475,7 +474,7 @@ def compute_average_abundance_top_features(
     # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
     if problem_type == CLASSIFICATION:
         # XGBoost for binary classification seems to return the SHAP values only for class 1
-        if model_name == "xgboost" and len(class_names) == 2:
+        if model_name in ["xgboost", "AutoLGBM"] and len(class_names) == 2:
             feature_order = np.argsort(np.mean(np.abs(shap_values_selected), axis=0))
             shap_values_mean_sorted = np.flip(
                 np.sort(np.mean(np.abs(shap_values_selected), axis=0))
@@ -487,10 +486,10 @@ def compute_average_abundance_top_features(
             omicLogger.info(len(shap_values_selected))
 
             shap_values_selected_class = []
-            for i in range(len(shap_values_selected)):
+            for i in range(shap_values_selected.shape[2]):
                 omicLogger.info("Class: " + str(i))
                 shap_values_selected_class.append(
-                    np.mean(np.abs(shap_values_selected[i]), axis=0)
+                    np.mean(np.abs(shap_values_selected[:, :, i]), axis=0)
                 )
             a = np.array(shap_values_selected_class)
             a_mean = np.mean(a, axis=0)
