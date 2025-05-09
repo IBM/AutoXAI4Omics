@@ -220,7 +220,9 @@ def shap_force_clf(
     try:
         class_names = model.classes_.tolist()
     except AttributeError:
-        omicLogger.info("Unable to get class names automatically - classes will be encoded")
+        omicLogger.info(
+            "Unable to get class names automatically - classes will be encoded"
+        )
         # Hack to get numbers instead - should probably raise an error
         class_names = range(100)
         # Get the predicted probabilities
@@ -336,7 +338,9 @@ def summary_SHAPdotplot_perclass(
             omicLogger.info("Class: " + str(class_name))
             omicLogger.info("i:" + str(i))
 
-            omicLogger.info("Length exemplars_selected: " + str(len(exemplars_selected)))
+            omicLogger.info(
+                "Length exemplars_selected: " + str(len(exemplars_selected))
+            )
             omicLogger.info("Type exemplars_selected: " + str(type(exemplars_selected)))
 
             if not holdout:
@@ -807,7 +811,9 @@ def shap_plot_clf(
     try:
         class_names = model.classes_.tolist()
     except AttributeError:
-        omicLogger.info("Unable to get class names automatically - classes will be encoded")
+        omicLogger.info(
+            "Unable to get class names automatically - classes will be encoded"
+        )
         class_names = None
 
     # Produce and save SHAP bar plot
