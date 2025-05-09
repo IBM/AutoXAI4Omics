@@ -18,6 +18,17 @@
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
+## [unreleased] - 2025-05-09
+
+### Changed
+
+- Changed logger to also send to stdout and converted more print statements to loggers.
+- Upgraded:
+  - Eli5
+  - scikit-learn (also resolves dependabot alert)
+  - xgboost
+  - shap
+
 ## [v1.1.1] - 2025-03-04
 
 ### Fixed
