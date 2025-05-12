@@ -14,34 +14,28 @@
 
 # Set base image and key env vars
 FROM python:3.9.22
-# ENV DEBIAN_FRONTEND="noninteractive"
+RUN apt-get update && apt-get upgrade -y && apt-get clean
 
-# Default 1001 - non privileged uid
-ARG USER_ID=1001
 ENV TF_CPP_MIN_LOG_LEVEL='2'
 ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION='python'
-# Upgrade installed packages
-RUN apt-get update && apt-get upgrade -y && apt-get clean
-RUN apt-get install -y software-properties-common git
-
-# upgrade pip
-RUN python -m pip install --upgrade pip setuptools
-
-# Add omicuser and set env vars
-# Give omicsuser gid 0 so has root group permissions to read files, 
-#   and is the same gid as Openshift users. Compatible with Openshift and k8s
+ARG USER_ID=1001
 RUN useradd -l -m -s /bin/bash --uid ${USER_ID} -g 0 omicsuser
 
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_HOME='/usr/local' \
+    POETRY_VERSION=2.1.3
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
 WORKDIR /home/omicsuser
 
-# Install required Python packages use block below if fixing other packages for the first time, use other
-COPY requirements.txt .
-RUN pip install -r requirements.txt 
 
-# grant write permissions to these folders
+
+COPY --chown=omicsuser:0 poetry.lock pyproject.toml ./
 COPY --chown=omicsuser:0 autoxai4omics .
 
-# Use 'omicsuser' user - this is overruled in Openshift
-USER omicsuser
-# init run command
+RUN poetry env use system
+RUN poetry install --no-root
+USER omicsuser 
+
 CMD ["$@"]
