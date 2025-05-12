@@ -7,6 +7,7 @@ authors = [
 ]
 license = {text = "AL2"}
 readme = "README.md"
+package-mode = false
 requires-python = ">=3.9,<3.12"
 dependencies = [
     "autokeras (==1.0.20)",
@@ -35,7 +36,10 @@ dependencies = [
     "scipy (==1.10.0)",
     "numpy (==1.23.5)",
     "keras (==2.14.0)",
-    "h5py (==3.9.0)"
+    "h5py (==3.9.0)",
+    "tensorflow-macos (==2.14.0) ; sys_platform == \"darwin\"",
+    "tensorflow-cpu-aws (==2.14.0) ; sys_platform == \"linux\"",
+    "protobuf (<3.21) ; sys_platform == \"linux\""
 ]
 
 
