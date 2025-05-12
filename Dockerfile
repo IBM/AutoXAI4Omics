@@ -39,7 +39,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt 
 
 # grant write permissions to these folders
-COPY --chown=omicsuser:0 src .
+COPY --chown=omicsuser:0 autoxai4omics .
 
 # Use 'omicsuser' user - this is overruled in Openshift
 USER omicsuser
