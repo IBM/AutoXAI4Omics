@@ -64,7 +64,7 @@ def main():
             end="\r",
         )
         tmp_config = deepcopy(config_model)
-        exp_name = "_".join(str(file.relative_to(data_path))[:-4].split("/"))
+        exp_name = "_".join(str(file.relative_to(data_path.parent))[:-4].split("/"))
         tmp_config.data.name = exp_name
         tmp_config.data.file_path = file
         tmp_config.data.file_path_holdout_data = None
