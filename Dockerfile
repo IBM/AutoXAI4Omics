@@ -13,13 +13,13 @@
 # limitations under the License.
 
 # Set base image and key env vars
-FROM python:3.9.18
+FROM python:3.9.22
 # ENV DEBIAN_FRONTEND="noninteractive"
 
 # Default 1001 - non privileged uid
 ARG USER_ID=1001
-ENV TF_CPP_MIN_LOG_LEVEL '2'
-ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION 'python'
+ENV TF_CPP_MIN_LOG_LEVEL='2'
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION='python'
 # Upgrade installed packages
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 RUN apt-get install -y software-properties-common git
