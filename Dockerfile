@@ -17,7 +17,6 @@ FROM python:3.11.12
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 
 ENV TF_CPP_MIN_LOG_LEVEL='2'
-ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION='python'
 ARG USER_ID=1001
 RUN useradd -l -m -s /bin/bash --uid ${USER_ID} -g 0 omicsuser
 
