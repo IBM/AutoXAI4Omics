@@ -17,20 +17,19 @@ dependencies = [
     "eli5 (==0.16.0)",
     "imblearn (==0.0)",
     "lightgbm (==3.3.5)",
-    "matplotlib (==3.6.1)",
-    "numpy (==1.23.5)",
     "optuna (==3.6)",
-    "pandas (==1.5.0)",
-    "protobuf (<3.21) ; sys_platform == \"linux\"",
     "pydantic (==2.7.0)",
-    "scikit-learn (==1.6.1)",
-    "scipy (==1.10.0)",
-    "seaborn (==0.10.0)",
     "shap (==0.47.2)",
-    "tensorflow (==2.14.0)",
-    "tensorflow-cpu-aws (==2.14.0) ; sys_platform == \"linux\"",
-    "tensorflow-macos (==2.14.0) ; sys_platform == \"darwin\"",
     "xgboost (==2.1.4)",
+    
+    # non-root requirements
+    "matplotlib (>=3.6.1,<4.0.0)",
+    "numpy (>=1.23.5,<2.0.0)", # 2.0 now available
+    "pandas (>=1.5.0,<2.0.0)", # 2.0 now available
+    "scikit-learn (>=1.6.1,<2.0.0)",
+    "scipy (>=1.10.0,<2.0.0)",
+    "seaborn (>=0.10.0,<1.0.0)",
+    "tensorflow (>=2.14.0,<3.0.0)",
 ]
 
 
