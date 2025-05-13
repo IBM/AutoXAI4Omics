@@ -28,7 +28,9 @@ Please use blacks & ruff to format any code contributions, we have a pre-commit 
 
 ## Virtual enviroment
 
-To create the virtual enviroment for AutoXAI4Omics using an enviroment manager of your choice, like conda for example, using `python3.9` as your starting point. Then proceed to install the contents of both `requirements_dev.txt` and `requirements.txt`. Note that you may also need to set `PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python` within your enviroment.
+To create the virtual enviroment for AutoXAI4Omics using an enviroment manager of your choice, like conda for example, using `python3.9` as your starting point. Then proceed to install the contents of `pyproject.toml` for both the main and dev dependencies. Note that you may also need to set `PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python` within your enviroment.
+
+*Note:* Since May '25 we have switched to using [Poetry](https://python-poetry.org/)  for managing our env and dependencies which we also recommend to use. There is also an associated `poetry.lock` file to ensure consistent versions between developers.
 
 ## Testing
 
@@ -52,9 +54,9 @@ The function itself then needs to be added to the `plot_graphs()` function in `a
 ​
 For plots that load a Tensorflow or Keras model, after that model is used you will need to call `K.clear_session()` to ensure that there is no lingering session or graph. This is called after every plot function, but when loading multiple Tensorflow models this will need to be called inside the plotting function.
 ​
-All plotting functions have a save argument to allow plots to be shown on the screen or saved, though this defaults to `True`. For uniform parameters, when saving use the `save_fig()` function, from `autoxai4omics/utils/save.py`, that calls the usual `fig.savefig` function in matplotlib. When loading models, do this through the `autoxai4omics.utils.load.load_model()` function. For defining the saving and loading for a _CustomModel_, see the section below about adding models.
+All plotting functions have a save argument to allow plots to be shown on the screen or saved, though this defaults to `True`. For uniform parameters, when saving use the `save_fig()` function, from `autoxai4omics/utils/save.py`, that calls the usual `fig.savefig` function in matplotlib. When loading models, do this through the `autoxai4omics.utils.load.load_model()` function. For defining the saving and loading for a *CustomModel*, see the section below about adding models.
 ​
-If the model has a useful hook to SHAP e.g. via the _TreeExplainer_, then make sure it is added in `autoxai4omics.plotting.shap.plots_shap.select_explainer()`.
+If the model has a useful hook to SHAP e.g. via the *TreeExplainer*, then make sure it is added in `autoxai4omics.plotting.shap.plots_shap.select_explainer()`.
 ​
 
 ## Adding a new model
@@ -64,7 +66,7 @@ To add a new model, the parameter definitions need to added to `autoxai4omics/mo
 
 ### CustomModel
 
-In addition to the above, if the model is not part of scikit-learn, then it can be added as a subclass of the _CustomModel_ class (in `autoxai4omics/models/custom_model.py`). The methods of the base class show what needs to be defined in order for it to behave similarly to a sklearn model.
+In addition to the above, if the model is not part of scikit-learn, then it can be added as a subclass of the *CustomModel* class (in `autoxai4omics/models/custom_model.py`). The methods of the base class show what needs to be defined in order for it to behave similarly to a sklearn model.
 ​
 The key things to keep in mind are a way to save and load models, which may require temporarily deleting attributes that cannot be pickled e.g. a Tensorflow graph. Thus, when loading, these attributes will need to be added back in, e.g. by defining the graph again. If you encounter errors, first look at how the other subclasses (`MLPEnsemble` wrapping Tensorflow, and `MLPKeras` wrapping Keras) handled it.
 ​
