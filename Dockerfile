@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Set base image and key env vars
-FROM python:3.9.22
+FROM python:3.11.12
 RUN apt-get update && apt-get upgrade -y && apt-get clean
 
 ENV TF_CPP_MIN_LOG_LEVEL='2'
