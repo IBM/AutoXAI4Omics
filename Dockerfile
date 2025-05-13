@@ -35,7 +35,7 @@ COPY --chown=omicsuser:0 poetry.lock pyproject.toml ./
 COPY --chown=omicsuser:0 autoxai4omics .
 
 RUN poetry env use system
-RUN poetry install --no-root
+RUN poetry install --no-root --only main
 USER omicsuser 
 
 CMD ["$@"]
