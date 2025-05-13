@@ -28,6 +28,7 @@ Change log for the codebase. Initialised from the developments following version
   - scikit-learn (also resolves dependabot alert)
   - xgboost
   - shap
+- Changed env manager to be poetry based
 
 ## [v1.1.1] - 2025-03-04
 
