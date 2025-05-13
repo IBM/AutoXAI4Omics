@@ -3,7 +3,7 @@ name = "autoxai4omics"
 version = "1.1.1"
 description = ""
 authors = [
-    {name = "James Strudwick",email = "James.Strudwick@ibm.com"}
+    {name = "IMB Research UK HCLS",email = "James.Strudwick@ibm.com"}
 ]
 license = {text = "AL2"}
 readme = "README.md"
