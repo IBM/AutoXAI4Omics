@@ -60,7 +60,7 @@ For citation of this tool, please reference this article:
 
 ## User manual
 
-Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/AutoXAI4Omics/blob/main/configs/CONFIG_MANUAL.md).
+Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.com/IBM/AutoXAI4Omics/blob/main/DEV_MANUAL.md).
 
 The tool is launched in the cli using `autoxai4omics.sh` which has multiple flags, examples will be given below:
 
