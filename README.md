@@ -41,7 +41,7 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
 
 ## How to install AutoXAI4Omics
 
- 1. Clone this repo however you choose (cli command: `git clone --single-branch --branch main git@github.ibm.com:BiomedSciAI-Innersource/AutoXAI4Omics.git`)
+ 1. Clone this repo however you choose (cli command: `git clone --single-branch --branch main git@github.com:IBM/AutoXAI4Omics.git`)
  2. Make sure `docker` is running (cli command: `docker version`, if installed the version information will be given)
  3. Within the `AutoXAI4Omics` folder:
        1. Run the following cli command to build the image: `./build.sh -r`
