@@ -1,11 +1,11 @@
 # Copyright 2024 IBM Corp.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -58,7 +58,10 @@ METRICS = {
         ),
         "zero_one_loss": make_scorer(zero_one_loss, greater_is_better=False),
         "roc_auc_score": make_scorer(
-            roc_auc_score, greater_is_better=True, needs_proba=True, multi_class="ovo"
+            roc_auc_score,
+            greater_is_better=True,
+            response_method="predict_proba",
+            multi_class="ovo",
         ),
         # confusion matrix not included here as it can not be used to optimise models, but it is calculate regardless
         # in metrics:evaluate_model

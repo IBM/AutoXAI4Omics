@@ -30,10 +30,9 @@ def load_model(model_name, model_path):
     """
     Load a previously saved and trained model. Uses joblib's version of pickle.
     """
-    print("Model path: ")
-    print(model_path)
-    print("Model ")
-    print()
+    omicLogger.info("Model path: ")
+    omicLogger.info(model_path)
+    omicLogger.info("Model ")
 
     if model_name in CustomModel.custom_aliases:
         # Remove .pkl here, it will be handled later
@@ -42,7 +41,7 @@ def load_model(model_name, model_path):
         try:
             model = CustomModel.custom_aliases[model_name].load_model(model_path)
         except Exception as e:
-            print("The trained model " + model_name + " is not present")
+            omicLogger.info("The trained model " + model_name + " is not present")
             raise e
     else:
         # Load a previously saved model (using joblib's pickle)
@@ -79,7 +78,7 @@ def get_non_omic_data(
         data.set_index(data.columns[0], inplace=True)
         data.index.name = None
 
-    print("Data dimension: " + str(data.shape))
+    omicLogger.info("Data dimension: " + str(data.shape))
 
     if not prediction:
         # Check if the target is in a separate file or in the same data

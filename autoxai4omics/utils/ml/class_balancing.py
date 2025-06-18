@@ -79,8 +79,8 @@ def oversample_data(
     )
     # fit and apply the transform
     x_resampled, y_resampled = oversample.fit_resample(x_train, y_train)
-    print(f"X train data after oversampling shape: {x_resampled.shape}")
-    print(f"y train data after oversampling shape: {y_resampled.shape}")
+    omicLogger.info(f"X train data after oversampling shape: {x_resampled.shape}")
+    omicLogger.info(f"y train data after oversampling shape: {y_resampled.shape}")
 
     return x_resampled, y_resampled, oversample.sample_indices_
 
@@ -142,7 +142,7 @@ def undersample_data(
     )
     # fit and apply the transform
     x_resampled, y_resampled = oversample.fit_resample(x_train, y_train)
-    print(f"X train data after undersampling shape: {x_resampled.shape}")
-    print(f"y train data after undersampling shape: {y_resampled.shape}")
+    omicLogger.info(f"X train data after undersampling shape: {x_resampled.shape}")
+    omicLogger.info(f"y train data after undersampling shape: {y_resampled.shape}")
 
     return x_resampled, y_resampled, oversample.sample_indices_
