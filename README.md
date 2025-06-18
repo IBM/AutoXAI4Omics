@@ -56,7 +56,8 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
 
 For citation of this tool, please reference this article:
 
-* James Strudwick, Laura-Jayne Gardiner, Kate Denning-James, Niina Haiminen, Ashley Evans, Jennifer Kelly, Matthew Madgwick, Filippo Utro, Ed Seabolt, Christopher Gibson, Bharat Bedi, Daniel Clayton, Ciaron Howell, Laxmi Parida, Anna Paola Carrieri. bioRxiv 2024.03.25.586460; doi: <https://doi.org/10.1093/bib/bbae593>
+* James Strudwick, Laura-Jayne Gardiner, Kate Denning-James, Niina Haiminen, Ashley Evans, Jennifer Kelly, Matthew Madgwick, Filippo Utro, Ed Seabolt, Christopher Gibson, Bharat Bedi, Daniel Clayton, Ciaron Howell, Laxmi Parida, Anna Paola Carrieri. doi: <https://doi.org/10.1093/bib/bbae593>
+<!-- bioRxiv 2024.03.25.586460;  -->
 
 **NOTE** The configs, data and results published with the paper were produced using version `1.0.0` of the tool. If you wish to reproduced the results please make sure you pull the correct version. Otherwise you will need to update the configs to account for the improvements that have been made in subsequent versions since the initial release.
 
