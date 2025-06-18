@@ -61,7 +61,7 @@ def filter_biom(
     Can also collapse the taxonomy if given (uses default species otherwise)
     """
 
-    print(f"Original data size: {amp_exp.data.shape}")
+    omicLogger.info(f"Original data size: {amp_exp.data.shape}")
     # Filter abundance
     amp_exp = amp_exp.filter_sum_abundance(abundance)
     # Filter prevalence
@@ -80,13 +80,15 @@ def filter_biom(
             amp_exp = amp_exp.collapse_taxonomy(collapse_tax)
             nrows_after, _ = amp_exp.data.shape
             if nrows_after < nrows:
-                print(f"Reduced number of samples from {nrows} to {nrows_after}")
+                omicLogger.info(
+                    f"Reduced number of samples from {nrows} to {nrows_after}"
+                )
         except ValueError:
-            print(
+            omicLogger.info(
                 f"{collapse_tax} is not a valid taxonomy level, must be 'k', 'p', 'c', 'o', 'f', 'g', or 's'"
             )
             raise
-    print(
+    omicLogger.info(
         "Data dimension after collapsing and filtering OTUs by abundance and prevalence: "
         + str(amp_exp.data.shape)
     )
@@ -148,7 +150,9 @@ def modify_classes(
     Helper function to merge and/or remove classes
     """
     if remove_class is None and merge_by is None:
-        print("No filtering or merging has been specified - nothing has changed!")
+        omicLogger.info(
+            "No filtering or merging has been specified - nothing has changed!"
+        )
         return amp_exp
     if remove_class is not None:
         amp_exp = filter_metadata(amp_exp, class_col_name, to_filter=remove_class)
@@ -208,15 +212,15 @@ def select_class_col(
     if encoding == "onehot":
         enc = OneHotEncoder(sparse_output=False)
         y = enc.fit_transform(y.values.reshape(-1, 1))
-        print(f"Categories using one-hot encoding {enc.categories_}")
+        omicLogger.info(f"Categories using one-hot encoding {enc.categories_}")
 
     # Label encoding
     elif encoding == "label":
         enc = LabelEncoder()
         y = enc.fit_transform(y.values)
-        print(f"Categories using label encoding {enc.classes_}")
+        omicLogger.info(f"Categories using label encoding {enc.classes_}")
         code = enc.transform(enc.classes_)
-        print(f"Corresponding encoding {code}")
+        omicLogger.info(f"Corresponding encoding {code}")
 
     return y
 
@@ -297,8 +301,8 @@ def get_data_microbiome(
 
     omicLogger.debug("Loading Microbiome data...")
     # Use calour to create an experiment
-    print("Path file: " + path_file)
-    print("Metadata file: " + metadata_path)
+    omicLogger.info("Path file: " + path_file)
+    omicLogger.info("Metadata file: " + metadata_path)
     if (microbiome_config["norm_reads"] is None) and (
         microbiome_config["min_reads"] is None
     ):
@@ -310,12 +314,12 @@ def get_data_microbiome(
             microbiome_config["norm_reads"],
             microbiome_config["min_reads"],
         )
-    print("")
-    print("")
-    print("")
-    print("***** Preprocessing microbiome data *******")
+    omicLogger.info("")
+    omicLogger.info("")
+    omicLogger.info("")
+    omicLogger.info("***** Preprocessing microbiome data *******")
 
-    print(f"Original data dimension: {amp_exp.data.shape}")
+    omicLogger.info(f"Original data dimension: {amp_exp.data.shape}")
     # Use calour to filter the data
 
     amp_exp = filter_biom(
@@ -325,7 +329,7 @@ def get_data_microbiome(
         prevalence=microbiome_config["filter_prevalence"],
         collapse_tax=microbiome_config["collapse_tax"],
     )
-    print(
+    omicLogger.info(
         f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}"
     )
 
@@ -343,18 +347,18 @@ def get_data_microbiome(
         merge_by=microbiome_config["merge_classes"],
     )
 
-    print(f"After filtering samples: {amp_exp.data.shape}")
+    omicLogger.info(f"After filtering samples: {amp_exp.data.shape}")
 
-    print("Save experiment after filtering with name exp_filtered")
+    omicLogger.info("Save experiment after filtering with name exp_filtered")
     amp_exp.save("biom_data_filtered" + config_dict["data"]["name"])
-    print("****************************************************")
-    print("")
-    print("")
-    print("")
+    omicLogger.info("****************************************************")
+    omicLogger.info("")
+    omicLogger.info("")
+    omicLogger.info("")
 
     # Prepare data (load and normalize)
     x, SS = prepare_data(amp_exp)
-    print(x.shape)
+    omicLogger.info(x.shape)
 
     # save normaliser
     save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_scaler.pkl'
@@ -386,7 +390,7 @@ def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
     Can also collapse the taxonomy if given (uses default species otherwise)
     """
 
-    print(f"Original data size: {amp_exp.data.shape}")
+    omicLogger.info(f"Original data size: {amp_exp.data.shape}")
 
     # save list of genes kept
     save_name = f'/experiments/results/{config_dict["data"]["name"]}/omics_{config_dict["data"]["data_type"]}_keptFeatures.pkl'
@@ -395,7 +399,7 @@ def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
 
     #### check to see what features this set is missing
     missingFeatures = set(featureToKeep) - set(amp_exp.feature_metadata["_feature_id"])
-    print(f"Missing Features: {missingFeatures}")
+    omicLogger.info(f"Missing Features: {missingFeatures}")
 
     #### keep the features that we want
     amp_exp.filter_by_metadata(
@@ -409,13 +413,15 @@ def apply_biom_filtering(config_dict, amp_exp, collapse_tax=None):
             amp_exp = amp_exp.collapse_taxonomy(collapse_tax)
             nrows_after, _ = amp_exp.data.shape
             if nrows_after < nrows:
-                print(f"Reduced number of samples from {nrows} to {nrows_after}")
+                omicLogger.info(
+                    f"Reduced number of samples from {nrows} to {nrows_after}"
+                )
         except ValueError:
-            print(
+            omicLogger.info(
                 f"{collapse_tax} is not a valid taxonomy level, must be 'k', 'p', 'c', 'o', 'f', 'g', or 's'"
             )
             raise
-    print(
+    omicLogger.info(
         "Data dimension after collapsing and filtering OTUs by abundance and prevalence: "
         + str(amp_exp.data.shape)
     )
@@ -444,8 +450,8 @@ def get_data_microbiome_trained(
 
     omicLogger.debug("Loading Microbiome data...")
     # Use calour to create an experiment
-    print("Path file: " + path_file)
-    print("Metadata file: " + metadata_path)
+    omicLogger.info("Path file: " + path_file)
+    omicLogger.info("Metadata file: " + metadata_path)
     if (microbiome_config["norm_reads"] is None) and (
         microbiome_config["min_reads"] is None
     ):
@@ -458,16 +464,16 @@ def get_data_microbiome_trained(
             microbiome_config["min_reads"],
         )
 
-    print("***** Preprocessing microbiome data *******")
+    omicLogger.info("***** Preprocessing microbiome data *******")
 
-    print(f"Original data dimension: {amp_exp.data.shape}")
+    omicLogger.info(f"Original data dimension: {amp_exp.data.shape}")
     # Use calour to filter the data
 
     amp_exp = apply_biom_filtering(
         config_dict, amp_exp, collapse_tax=microbiome_config["collapse_tax"]
     )
 
-    print(
+    omicLogger.info(
         f"After filtering contaminant, collapsing at genus and filtering by abundance: {amp_exp.data.shape}"
     )
 

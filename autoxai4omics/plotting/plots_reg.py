@@ -40,7 +40,7 @@ def histograms(
         # Load the model
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting histogram for {model_name}")
+        omicLogger.info(f"Plotting histogram for {model_name}")
         model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
@@ -88,7 +88,7 @@ def correlation_plot(
 
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting Correlation Plot for {model_name}")
+        omicLogger.info(f"Plotting Correlation Plot for {model_name}")
         model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
@@ -141,7 +141,7 @@ def distribution_hist(
         # Load the model
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting histogram for {model_name}")
+        omicLogger.info(f"Plotting histogram for {model_name}")
         model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
@@ -189,7 +189,7 @@ def joint_plot(
         # Load the model
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting joint plot for {model_name}")
+        omicLogger.info(f"Plotting joint plot for {model_name}")
         model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)

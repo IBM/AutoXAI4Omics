@@ -27,13 +27,13 @@ import time
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def select_explainer(model, model_name, df_train, problem_type):
+def select_explainer(model, model_name: str, df_train, problem_type: str):
     """
     Select the appropriate SHAP explainer for each model
     """
     # Select the right explainer
     # Note that, for a multi-class (non-binary) problem gradboost cannot use the TreeExplainer
-    if model_name in ["xgboost", "rf"]:
+    if model_name in ["xgboost", "RandomForestClassifier"]:
         explainer = shap.TreeExplainer(model)
     elif model_name in ["mlp_keras"]:
         explainer = shap.DeepExplainer(model.model, df_train.values)
@@ -88,7 +88,7 @@ def shap_force_plots(
     for model_name in model_list:
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting SHAP for {model_name}")
+        omicLogger.info(f"Plotting SHAP for {model_name}")
         model = load_model(model_name, model_path)
 
         # Select the right explainer from SHAP
@@ -220,7 +220,9 @@ def shap_force_clf(
     try:
         class_names = model.classes_.tolist()
     except AttributeError:
-        print("Unable to get class names automatically - classes will be encoded")
+        omicLogger.info(
+            "Unable to get class names automatically - classes will be encoded"
+        )
         # Hack to get numbers instead - should probably raise an error
         class_names = range(100)
         # Get the predicted probabilities
@@ -235,7 +237,7 @@ def shap_force_clf(
         .argmax(0)
         .tolist()
     )
-    # print(class_exemplars)
+    # omicLogger.info(class_exemplars)
     for i, (class_index, class_name) in enumerate(zip(class_exemplars, class_names)):
         # Close the figure to ensure we start anew
         plt.clf()
@@ -253,7 +255,7 @@ def shap_force_clf(
             text_rotation=30,
         )
         # Need to add label/text on the side for the class name
-        print(f"{pretty_names(model_name, 'model')}")
+        omicLogger.info(f"{pretty_names(model_name, 'model')}")
         fig.suptitle(
             f"SHAP Force Plot for top exemplar using {pretty_names(model_name, 'model')} with class "
             + f"{class_name}",
@@ -288,10 +290,10 @@ def summary_SHAPdotplot_perclass(
 ):
     omicLogger.debug("Creating summary_SHAPdotplot_perclass...")
 
-    if model_name == "xgboost" and len(class_names) == 2:
-        print("Shape exemplars_selected: " + str(exemplars_selected.shape))
+    if model_name in ["xgboost", "AutoLGBM"] and len(class_names) == 2:
+        omicLogger.info("Shape exemplars_selected: " + str(exemplars_selected.shape))
         class_name = class_names[1]
-        print("Class: " + str(class_name))
+        omicLogger.info("Class: " + str(class_name))
         if holdout:
             fname = f"{experiment_folder / 'graphs' / 'summary_SHAPdotplot_perclass'}_{model_name}_{class_name}_holdout"
         else:
@@ -333,11 +335,13 @@ def summary_SHAPdotplot_perclass(
     else:
         for i in range(len(class_names)):
             class_name = class_names[i]
-            print("Class: " + str(class_name))
-            print("i:" + str(i))
+            omicLogger.info("Class: " + str(class_name))
+            omicLogger.info("i:" + str(i))
 
-            print("Length exemplars_selected: " + str(len(exemplars_selected)))
-            print("Type exemplars_selected: " + str(type(exemplars_selected)))
+            omicLogger.info(
+                "Length exemplars_selected: " + str(len(exemplars_selected))
+            )
+            omicLogger.info("Type exemplars_selected: " + str(type(exemplars_selected)))
 
             if not holdout:
                 fname_df = (
@@ -346,7 +350,9 @@ def summary_SHAPdotplot_perclass(
                 )
                 # saving the shapley values to dataframe
                 df_shapley_values = pd.DataFrame(
-                    data=exemplars_selected[i], columns=feature_names, index=data_indx
+                    data=exemplars_selected[:, :, i],
+                    columns=feature_names,
+                    index=data_indx,
                 )
                 # df_shapley_values.sort_index(inplace=True)
                 df_shapley_values.index.name = "SampleID"
@@ -365,7 +371,7 @@ def summary_SHAPdotplot_perclass(
 
             # Plot shap bar plot
             shap.summary_plot(
-                exemplars_selected[i],
+                exemplars_selected[:, :, i],
                 exemplar_X_test,
                 plot_type="dot",
                 color_bar="000",
@@ -413,13 +419,13 @@ def get_exemplars(x_test, y_test, model, problem_type, pcAgreementLevel):
 
     # Classification
     if problem_type == CLASSIFICATION:
-        print(CLASSIFICATION)
+        omicLogger.info(CLASSIFICATION)
         # Return indices of equal elements between two arrays
         exemplar_indices = np.equal(pred_y, test_y)
 
     # Regression
     elif problem_type == REGRESSION:
-        print("Regression - Percentage Agreement Level:", pcAgreementLevel)
+        omicLogger.info("Regression - Percentage Agreement Level:", pcAgreementLevel)
 
         if pcAgreementLevel == 0:
             absPcDevArr = np.abs((np.divide(np.subtract(pred_y, test_y), test_y) * 100))
@@ -446,26 +452,29 @@ def get_exemplars(x_test, y_test, model, problem_type, pcAgreementLevel):
 
 
 def compute_average_abundance_top_features(
-    problem_type,
-    num_top,
-    model_name,
-    class_names,
-    feature_names,
-    data,
-    shap_values_selected,
+    problem_type: str,
+    num_top: int,
+    model_name: str,
+    class_names: list[int],
+    feature_names: list[str],
+    data: pd.DataFrame,
+    shap_values_selected: np.ndarray,
 ):
+    omicLogger.debug(f"Computing for model: {model_name}")
+    omicLogger.debug(f"Task: {problem_type}")
+
     # Get the names of the features
     names = feature_names
 
     # Create a dataframe to get the average abundance of each feature
     dfMaster = pd.DataFrame(data, columns=names)
-    print(dfMaster.head())
+    omicLogger.info(dfMaster.head())
 
     # Deal with classification differently, classification has shap values for each class
     # Get the SHAP values (global impact) sorted from the highest to the lower (absolute value)
     if problem_type == CLASSIFICATION:
         # XGBoost for binary classification seems to return the SHAP values only for class 1
-        if model_name == "xgboost" and len(class_names) == 2:
+        if model_name in ["xgboost", "AutoLGBM"] and len(class_names) == 2:
             feature_order = np.argsort(np.mean(np.abs(shap_values_selected), axis=0))
             shap_values_mean_sorted = np.flip(
                 np.sort(np.mean(np.abs(shap_values_selected), axis=0))
@@ -473,14 +482,14 @@ def compute_average_abundance_top_features(
         # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices.
         # One for each class.
         else:
-            print(type(shap_values_selected))
-            print(len(shap_values_selected))
+            omicLogger.info(type(shap_values_selected))
+            omicLogger.info(len(shap_values_selected))
 
             shap_values_selected_class = []
-            for i in range(len(shap_values_selected)):
-                print("Class: " + str(i))
+            for i in range(shap_values_selected.shape[2]):
+                omicLogger.info("Class: " + str(i))
                 shap_values_selected_class.append(
-                    np.mean(np.abs(shap_values_selected[i]), axis=0)
+                    np.mean(np.abs(shap_values_selected[:, :, i]), axis=0)
                 )
             a = np.array(shap_values_selected_class)
             a_mean = np.mean(a, axis=0)
@@ -516,11 +525,11 @@ def compute_average_abundance_top_features(
         top_averageAbund.append(abund)
 
     # Return everything - only SHAP values for the top features
-    print("TOP NAMES: ")
-    print(top_names)
+    omicLogger.info("TOP NAMES: ")
+    omicLogger.info(top_names)
 
-    print("TOP ABUNDANCE: ")
-    print(top_averageAbund)
+    omicLogger.info("TOP ABUNDANCE: ")
+    omicLogger.info(top_averageAbund)
 
     return top_names, top_averageAbund, shap_values_mean_sorted[:num_top]
 
@@ -555,20 +564,20 @@ def shap_plots(
 
     # Convert the data into dataframes to ensure features are displayed
     df_train = pd.DataFrame(data=x_train, columns=feature_names)
-    print(feature_names)
-    print(len(feature_names))
+    omicLogger.info(feature_names)
+    omicLogger.info(len(feature_names))
 
     # Loop over the defined models
     for model_name in model_list:
         # Load the model
         model_path = get_model_path(experiment_folder, model_name)
 
-        print("Model path")
-        print(model_path)
-        print("Model name")
-        print(model_name)
+        omicLogger.info("Model path")
+        omicLogger.info(model_path)
+        omicLogger.info("Model name")
+        omicLogger.info(model_name)
 
-        print(f"Plotting SHAP plots for {model_name}")
+        omicLogger.info(f"Plotting SHAP plots for {model_name}")
         omicLogger.info(f"Plotting SHAP plots for {model_name}")
 
         model = load_model(model_name, model_path)
@@ -690,7 +699,7 @@ def shap_summary_plot(
     for model_name in model_list:
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting SHAP for {model_name}")
+        omicLogger.info(f"Plotting SHAP for {model_name}")
         model = load_model(model_name, model_path)
         # Define the figure object
         fig, ax = plt.subplots()
@@ -704,7 +713,7 @@ def shap_summary_plot(
             try:
                 class_names = model.classes_.tolist()
             except AttributeError:
-                print(
+                omicLogger.info(
                     "Unable to get class names automatically - classes will be encoded"
                 )
                 class_names = None
@@ -801,7 +810,9 @@ def shap_plot_clf(
     try:
         class_names = model.classes_.tolist()
     except AttributeError:
-        print("Unable to get class names automatically - classes will be encoded")
+        omicLogger.info(
+            "Unable to get class names automatically - classes will be encoded"
+        )
         class_names = None
 
     # Produce and save SHAP bar plot

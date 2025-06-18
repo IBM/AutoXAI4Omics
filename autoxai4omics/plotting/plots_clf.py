@@ -42,7 +42,7 @@ def roc_curve_plot(
         # Load the model
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting ROC Curve for {model_name}")
+        omicLogger.info(f"Plotting ROC Curve for {model_name}")
         model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict_proba(x_test)
@@ -50,7 +50,7 @@ def roc_curve_plot(
         try:
             class_names = model.classes_.tolist()
         except AttributeError:
-            print("Unable to get class names automatically")
+            omicLogger.info("Unable to get class names automatically")
             class_names = None
 
         # Compute ROC curve and ROC area for each class
@@ -118,13 +118,13 @@ def conf_matrix_plot(
         # Load the model
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting Confusion Matrix for {model_name}")
+        omicLogger.info(f"Plotting Confusion Matrix for {model_name}")
         model = load_model(model_name, model_path)
         # Get the predictions
         y_pred = model.predict(x_test)
         # Calc the confusion matrix
-        print(y_pred)
-        print(y_test)
+        omicLogger.info(y_pred)
+        omicLogger.info(y_test)
         conf_matrix = confusion_matrix(y_test, y_pred)
         # Normalize the confusion matrix
         if normalize:
@@ -140,7 +140,7 @@ def conf_matrix_plot(
             ax.set_xticklabels(class_names)
             ax.set_yticklabels(class_names)
         except AttributeError:
-            print("Unable to get class names automatically")
+            omicLogger.info("Unable to get class names automatically")
             class_names = None
         # Setup the labels/ticks
         ax.set_xticks(np.arange(conf_matrix.shape[1]))

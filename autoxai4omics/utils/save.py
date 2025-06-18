@@ -55,13 +55,13 @@ def save_exemplars_SHAP_values(
         # When class > 2 (or class > 1 for all the models except XGBoost) SHAP return a list of SHAP value matrices.
         # One for each class.
         else:
-            print(type(exemplars_selected))
-            print(len(exemplars_selected))
-            print(len(exemplars_selected) == len(class_names))
+            omicLogger.info(type(exemplars_selected))
+            omicLogger.info(len(exemplars_selected))
+            omicLogger.info(len(exemplars_selected) == len(class_names))
 
             for i in range(len(exemplars_selected)):
-                print("Class: " + str(i))
-                print("Class name: " + str(class_names[i]))
+                omicLogger.info("Class: " + str(i))
+                omicLogger.info("Class name: " + str(class_names[i]))
                 df_exemplars = pd.DataFrame(
                     data=exemplars_selected[i], columns=feature_names
                 )
@@ -88,7 +88,7 @@ def save_explainer(experiment_folder, model_name, explainer):
 
 def save_fig(fig, fname, dpi=200, fig_format="png"):
     omicLogger.debug(f"Saving figure ({fname})to file...")
-    print(f"Save location: {fname}.{fig_format}")
+    omicLogger.info(f"Save location: {fname}.{fig_format}")
     fig.savefig(
         f"{fname}.{fig_format}",
         dpi=dpi,
@@ -137,7 +137,7 @@ def save_model(experiment_folder, model, model_name):
     model_folder = experiment_folder / "models"
     # THe CustomModels handle themselves
     if model_name not in CustomModel.custom_aliases:
-        print(f"Saving {model_name} model")
+        omicLogger.info(f"Saving {model_name} model")
         save_name = model_folder / f"{model_name}_best.pkl"
         with open(save_name, "wb") as f:
             joblib.dump(model, f)

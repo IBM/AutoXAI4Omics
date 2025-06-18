@@ -41,7 +41,7 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
 
 ## How to install AutoXAI4Omics
 
- 1. Clone this repo however you choose (cli command: `git clone --single-branch --branch main git@github.ibm.com:BiomedSciAI-Innersource/AutoXAI4Omics.git`)
+ 1. Clone this repo however you choose (cli command: `git clone --single-branch --branch main git@github.com:IBM/AutoXAI4Omics.git`)
  2. Make sure `docker` is running (cli command: `docker version`, if installed the version information will be given)
  3. Within the `AutoXAI4Omics` folder:
        1. Run the following cli command to build the image: `./build.sh -r`
@@ -56,11 +56,14 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
 
 For citation of this tool, please reference this article:
 
-* James Strudwick, Laura-Jayne Gardiner, Kate Denning-James, Niina Haiminen, Ashley Evans, Jennifer Kelly, Matthew Madgwick, Filippo Utro, Ed Seabolt, Christopher Gibson, Bharat Bedi, Daniel Clayton, Ciaron Howell, Laxmi Parida, Anna Paola Carrieri. bioRxiv 2024.03.25.586460; doi: <https://doi.org/10.1101/2024.03.25.586460>
+* James Strudwick, Laura-Jayne Gardiner, Kate Denning-James, Niina Haiminen, Ashley Evans, Jennifer Kelly, Matthew Madgwick, Filippo Utro, Ed Seabolt, Christopher Gibson, Bharat Bedi, Daniel Clayton, Ciaron Howell, Laxmi Parida, Anna Paola Carrieri. doi: <https://doi.org/10.1093/bib/bbae593>
+<!-- bioRxiv 2024.03.25.586460;  -->
+
+**NOTE** The configs, data and results published with the paper were produced using version `1.0.0` of the tool. If you wish to reproduced the results please make sure you pull the correct version. Otherwise you will need to update the configs to account for the improvements that have been made in subsequent versions since the initial release.
 
 ## User manual
 
-Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.ibm.com/BiomedSciAI-Innersource/AutoXAI4Omics/blob/main/configs/CONFIG_MANUAL.md).
+Everything is controlled through a config dictionary, examples of which can be found in the `configs/exmaples` folder. For an explanation of all parameters, please see the [***CONFIG MANUAL***](https://github.com/IBM/AutoXAI4Omics/blob/main/DEV_MANUAL.md).
 
 The tool is launched in the cli using `autoxai4omics.sh` which has multiple flags, examples will be given below:
 

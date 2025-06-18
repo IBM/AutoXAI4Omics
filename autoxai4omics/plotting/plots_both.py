@@ -143,7 +143,7 @@ def barplot_scorer(
 
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting barplot for {model_name} using {fit_scorer}")
+        omicLogger.info(f"Plotting barplot for {model_name} using {fit_scorer}")
         model = load_model(model_name, model_path)
         # Get our single score
         score = np.abs(scorer_dict[fit_scorer](model, data, true_labels))
@@ -192,7 +192,7 @@ def boxplot_scorer_cv_groupby(
     fig, ax = plt.subplots()
     # Container for the scores
     all_scores = []
-    print(f"Size of data for boxplot: {data.shape}")
+    omicLogger.info(f"Size of data for boxplot: {data.shape}")
 
     metadata = pd.read_csv(config_dict["data"]["metadata_file"], index_col=0)
     le = LabelEncoder()
@@ -209,7 +209,7 @@ def boxplot_scorer_cv_groupby(
         # Load the model if trained
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(
+        omicLogger.info(
             f"Plotting boxplot for {model_name} using {config_dict['ml']['fit_scorer']} - Grouped By "
             + config_dict["ml"]["groups"]
         )
@@ -222,7 +222,7 @@ def boxplot_scorer_cv_groupby(
 
         for train_idx, test_idx in fold_obj.split(data, true_labels, groups):
             omicLogger.debug(f"{model_name}, fold {num_fold}")
-            print(f"{model_name}, fold {num_fold}")
+            omicLogger.info(f"{model_name}, fold {num_fold}")
             num_fold += 1
             # Load the model
             model = load_model(model_name, model_path)
@@ -300,7 +300,7 @@ def boxplot_scorer_cv(
     fig, ax = plt.subplots()
     # Container for the scores
     all_scores = []
-    print(f"Size of data for boxplot: {data.shape}")
+    omicLogger.info(f"Size of data for boxplot: {data.shape}")
     if isinstance(data, (pd.DataFrame, pd.Series)):
         data = data.values
     if isinstance(true_labels, (pd.DataFrame, pd.Series)):
@@ -318,7 +318,7 @@ def boxplot_scorer_cv(
         # Load the model if trained
         model_path = get_model_path(experiment_folder, model_name)
 
-        print(f"Plotting boxplot for {model_name} using {fit_scorer}")
+        omicLogger.info(f"Plotting boxplot for {model_name} using {fit_scorer}")
         # Select the scorer
         scorer_func = scorer_dict[fit_scorer]
         # Container for scores for this cross-val for this model
@@ -328,7 +328,7 @@ def boxplot_scorer_cv(
 
         for train_idx, test_idx in fold_obj.split(data, true_labels):
             omicLogger.debug(f"{model_name}, fold {num_fold}")
-            print(f"{model_name}, fold {num_fold}")
+            omicLogger.info(f"{model_name}, fold {num_fold}")
 
             num_fold += 1
             # Load the model

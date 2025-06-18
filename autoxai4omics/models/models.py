@@ -134,7 +134,7 @@ def random_search(
     except TypeError:
         pass
     # Setup the random search with cross val
-    print("Setup the random search with cross val")
+    omicLogger.info("Setup the random search with cross val")
     random_search = RandomizedSearchCV(
         estimator=model(),
         param_distributions=param_ranges,
@@ -149,14 +149,14 @@ def random_search(
     )
 
     # Fit the random search
-    print("Fit the random search")
+    omicLogger.info("Fit the random search")
     try:
         random_search.fit(x_train, y_train)
     except ValueError:
-        print("!!! ERROR - PLEASE SELECT VALID TARGET AND PREDICTION TASK")
+        omicLogger.info("!!! ERROR - PLEASE SELECT VALID TARGET AND PREDICTION TASK")
         raise
     # Return the best estimator found
-    print(random_search.best_estimator_)
+    omicLogger.info(random_search.best_estimator_)
     return random_search.best_estimator_
 
 
@@ -193,7 +193,7 @@ def grid_search(
     # Fit the random search
     grid_search.fit(x_train, y_train)
     # Return the best estimator found
-    print(grid_search.best_estimator_)
+    omicLogger.info(grid_search.best_estimator_)
     return grid_search.best_estimator_
 
 
@@ -208,7 +208,7 @@ def single_model(model, param_ranges, x_train, y_train, seed_num):
     except TypeError:
         pass
     omicLogger.debug(f"Setting parameters: {param_ranges}")
-    print(model().set_params(**param_ranges))
+    omicLogger.info(model().set_params(**param_ranges))
     trained_model = model().set_params(**param_ranges).fit(x_train, y_train)
     return trained_model
 
@@ -278,7 +278,7 @@ def run_models(
     # Run each model
     for model_name in model_list:
         omicLogger.debug(f"Training model: {model_name}")
-        print(f"Training {model_name}")
+        omicLogger.info(f"Training {model_name}")
 
         # Load the model and it's parameter path
         model, param_ranges, single_model_flag = model_dict[model_name]
@@ -298,7 +298,7 @@ def run_models(
 
         # Random search
         if hyper_tuning == "random" and not single_model_flag:
-            print("Using random search")
+            omicLogger.info("Using random search")
             # Do a random search to find the best parameters
             trained_model = random_search(
                 model,
@@ -311,18 +311,20 @@ def run_models(
                 scorer_dict,
                 fit_scorer,
             )
-            print(
+            omicLogger.info(
                 "=================== Best model from random search: "
                 + model_name
                 + " ===================="
             )
-            print(trained_model)
-            print("==================================================================")
+            omicLogger.info(trained_model)
+            omicLogger.info(
+                "=================================================================="
+            )
 
         # No hyperparameter tuning (and/or the MLPEnsemble is to be run once)
         elif hyper_tuning is None or single_model_flag:
             if hyper_budget is not None:
-                print(
+                omicLogger.info(
                     f"Hyperparameter tuning budget ({hyper_budget}) is not used without tuning"
                 )
             # No tuning, just use the parameters supplied
@@ -332,9 +334,9 @@ def run_models(
 
         # Grid search
         elif hyper_tuning == "grid":
-            print("Using grid search")
+            omicLogger.info("Using grid search")
             if hyper_budget is not None:
-                print(
+                omicLogger.info(
                     f"Hyperparameter tuning budget ({hyper_budget}) is not used in a grid search"
                 )
             trained_model = grid_search(
@@ -347,13 +349,15 @@ def run_models(
                 scorer_dict,
                 fit_scorer,
             )
-            print(
+            omicLogger.info(
                 "=================== Best model from grid search: "
                 + model_name
                 + " ===================="
             )
-            print(trained_model)
-            print("==================================================================")
+            omicLogger.info(trained_model)
+            omicLogger.info(
+                "=================================================================="
+            )
 
         # Save the best model found
         save_model(experiment_folder, trained_model, model_name)
@@ -384,6 +388,6 @@ def run_models(
             save_csv=True,
         )
 
-        print(
+        omicLogger.info(
             f"{model_name} complete! Results saved at {Path(fname_perfResults).parents[0]}"
         )

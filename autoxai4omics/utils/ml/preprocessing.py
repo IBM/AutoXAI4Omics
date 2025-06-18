@@ -69,7 +69,7 @@ def learn_ml_preprocessing(
 
         omicLogger.info("Features selected, transformer saved.")
     else:
-        print("Skipping Feature selection.")
+        omicLogger.info("Skipping Feature selection.")
         omicLogger.info("Skipping feature selection.")
 
     # perform class balancing if it is desired
