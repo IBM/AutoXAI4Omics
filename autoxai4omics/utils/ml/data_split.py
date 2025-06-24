@@ -145,7 +145,19 @@ def strat_split(
     if not isinstance(group_name, str):
         raise TypeError(f"group_name must be a str, provided: {type(group_name)}")
 
+    if isinstance(x, DataFrame) and isinstance(y, ndarray):
+        if y.ndim == 1:
+            y = pd.Series(y, index=x.index)
+        else: 
+            y = pd.DataFrame(y, index=x.index)
+
     metadata = pd.read_csv(meta_file, index_col=0)
+
+    common_indices = x.index.intersection(y.index).intersection(metadata.index)
+
+    x = x.loc[common_indices]
+    y = y.loc[common_indices] 
+    metadata = metadata.loc[common_indices]
 
     if group_name not in metadata.columns:
         raise ValueError(
