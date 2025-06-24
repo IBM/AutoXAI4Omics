@@ -144,6 +144,12 @@ def strat_split(
 
     if not isinstance(group_name, str):
         raise TypeError(f"group_name must be a str, provided: {type(group_name)}")
+    
+    if isinstance(x, DataFrame) and isinstance(y, ndarray):
+        if y.ndim == 1:
+            y = pd.Series(y, index=x.index)
+        else: 
+            y = pd.DataFrame(y, index=x.index)
 
     metadata = pd.read_csv(meta_file, index_col=0)
 
@@ -168,8 +174,8 @@ def strat_split(
             x_train, x_test, y_train, y_test = (
                 x.iloc[train_idx, :],
                 x.iloc[test_idx, :],
-                y.iloc[train_idx, :],
-                y.iloc[test_idx, :],
+                y.iloc[train_idx],
+                y.iloc[test_idx],
             )
         else:
             x_train, x_test, y_train, y_test = (
