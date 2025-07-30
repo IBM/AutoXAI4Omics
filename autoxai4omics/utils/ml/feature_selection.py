@@ -22,13 +22,16 @@ from utils.ml.feature_selection_defs import FS_KBEST_METRICS, FS_METHODS
 import logging
 import math
 import numpy as np
+from numpy.typing import ArrayLike
 import pandas as pd
 from plotting.plots_both import feat_acc_plot, opt_k_plot
 
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def variance_removal(x, threshold=0):
+def variance_removal(
+    x: ArrayLike, threshold: float = 0
+) -> tuple[ArrayLike, VarianceThreshold]:
     omicLogger.debug(
         f"Applying varience threshold, using {threshold} as the threshold..."
     )
