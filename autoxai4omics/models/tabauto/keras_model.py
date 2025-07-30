@@ -19,7 +19,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Dense, Flatten, Conv1D
 from tensorflow.keras import losses
 
-import tensorflow.keras.optimizers.legacy
+from tensorflow.keras.optimizers.legacy import Adam
 
 from tensorflow.keras.callbacks import (
     LearningRateScheduler,
@@ -95,7 +95,7 @@ class KerasModel(BaseModel):
                 objective=["val_loss"],
                 tuner=self.tuner,
                 seed=self.random_state,
-                optimizer=tensorflow.keras.optimizers.legacy.Adam(),
+                optimizer=Adam(),
             )
 
         else:
@@ -117,7 +117,7 @@ class KerasModel(BaseModel):
                 objective=["accuracy"],
                 tuner=self.tuner,
                 seed=self.random_state,
-                optimizer=tensorflow.keras.optimizers.legacy.Adam(),
+                optimizer=Adam(),
             )
 
         self.model = model
@@ -242,7 +242,7 @@ class KerasModel(BaseModel):
                     )
 
         # choose optimizer
-        opt = tensorflow.keras.optimizers.legacy.Adam()
+        opt = Adam()
 
         # choose loss function
         if self.dataset_type == REGRESSION:
