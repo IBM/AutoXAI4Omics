@@ -304,13 +304,13 @@ lxml = ["lxml"]
 
 [[package]]
 name = "bioinfokit"
-version = "2.1.0"
+version = "2.1.4"
 description = "Bioinformatics data analysis and visualization toolkit"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "bioinfokit-2.1.0.tar.gz", hash = "sha256:4084c7e3d1fdd94bacfbb45e310f1650e99cb10d125651b655f539376860489a"},
+    {file = "bioinfokit-2.1.4.tar.gz", hash = "sha256:8d777ef0f9cc246d690fb28f9748651eb6f055659457b45dec73427790fb6dae"},
 ]
 
 [package.dependencies]
@@ -5727,4 +5727,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.12"
-content-hash = "71ba6273a3d8e3a21720753ac3af7681916cd62e9901ab2ab5befe9d70fcb9f3"
+content-hash = "c4dd7a90d52265e2303fb252df9f0bab2571124d6956fa0eac90ddb3cd0c5cc8"

@@ -11,9 +11,9 @@ package-mode = false
 requires-python = ">=3.9,<3.12"
 dependencies = [
     "autokeras (==1.0.20)",
-    "bioinfokit (==2.1.0)",
+    "bioinfokit (>=2.1.0)",
     "calour @ git+https://github.com/biocore/calour.git@2020.8.6",
-    "conorm (==1.2.0)",
+    "conorm (>=1.2.0)",
     "eli5 (==0.16.0)",
     "imblearn (==0.0)",
     "lightgbm (==3.3.5)",
