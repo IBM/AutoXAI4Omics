@@ -14,13 +14,13 @@ dependencies = [
     "bioinfokit (>=2.1.0)",
     "calour @ git+https://github.com/biocore/calour.git@2020.8.6",
     "conorm (>=1.2.0)",
-    "eli5 (==0.16.0)",
+    "eli5 (>=0.16.0)",
     "imblearn (==0.0)",
     "lightgbm (==3.3.5)",
     "optuna (==3.6)",
     "pydantic (>=2.7.0)",
     "shap (==0.47.2)",
-    "xgboost (==2.1.4)",
+    "xgboost (>=2.1.4)",
     
     # non-root requirements
     "matplotlib (>=3.6.1,<4.0.0)",
