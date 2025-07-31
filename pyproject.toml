@@ -16,7 +16,7 @@ dependencies = [
     "conorm (>=1.2.0)",
     "eli5 (>=0.16.0)",
     "imblearn (==0.0)",
-    "lightgbm (==3.3.5)",
+    "lightgbm (>=4.6.0)",
     "optuna (==3.6)",
     "pydantic (>=2.7.0)",
     "shap (==0.47.2)",
