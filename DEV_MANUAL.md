@@ -30,7 +30,7 @@ Please use blacks & ruff to format any code contributions, we have a pre-commit 
 
 To create the virtual enviroment for AutoXAI4Omics using an enviroment manager of your choice, like conda for example, using `python3.9` as your starting point. Then proceed to install the contents of `pyproject.toml` for both the main and dev dependencies. Note that you may also need to set `PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python` within your enviroment.
 
-*Note:* Since May '25 we have switched to using [Poetry](https://python-poetry.org/)  for managing our env and dependencies which we also recommend to use. There is also an associated `poetry.lock` file to ensure consistent versions between developers.
+*Note:* Since May '25 we have switched to using [Poetry](https://python-poetry.org/)  for managing our env and dependencies which we also recommend to use. There is also an associated `poetry.lock` file to ensure consistent versions between developers. If you also the poetry shell extension it will automatically load the `.env` file setting the env var mentioned above.
 
 ## Testing
 

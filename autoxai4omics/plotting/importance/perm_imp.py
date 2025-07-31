@@ -125,7 +125,10 @@ def permut_importance(
             )
 
         # Make a horizontal boxplot ordered by the magnitude
-        ax = sns.boxplot(x=top_values, y=top_features, orient="h", ax=ax)
+
+        ax = sns.boxplot(
+            pd.DataFrame(top_values, index=top_features).T, orient="h", ax=ax
+        )
         if problem_type == CLASSIFICATION:
             ax.set_xlabel(f"{pretty_names(fit_scorer, 'score')} Decrease")
         else:

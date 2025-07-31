@@ -258,7 +258,7 @@ def boxplot_scorer_cv_groupby(
     ]
 
     # Make the boxplot
-    sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
+    sns.boxplot(pd.DataFrame(all_scores, index=pretty_model_names).T, ax=ax, width=0.4)
     # Format the graph
     ax.set_xlabel("ML Methods")
 
@@ -362,7 +362,7 @@ def boxplot_scorer_cv(
     pretty_model_names = [pretty_names(name, "model") for name in model_list]
 
     # Make the boxplot
-    sns.boxplot(x=pretty_model_names, y=all_scores, ax=ax, width=0.4)
+    sns.boxplot(pd.DataFrame(all_scores, index=pretty_model_names).T, ax=ax, width=0.4)
     # Format the graph
     ax.set_xlabel("ML Methods")
     plt.xticks(rotation=90)

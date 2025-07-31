@@ -12,7 +12,7 @@ configs
 experiments
 data
 .vscode/settings.json
-playground.ipynb
+playground*.ipynb
 coverage.xml
 .coverage
 ao-env
