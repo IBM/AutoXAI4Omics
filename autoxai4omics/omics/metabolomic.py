@@ -16,6 +16,7 @@ from numpy import ndarray
 from omics import R_replacement as rrep
 import joblib
 import pandas as pd
+from pathlib import Path
 
 
 def get_data_metabolomic(
@@ -43,7 +44,7 @@ def get_data_metabolomic(
 
     # add the output file name from config_dict that is required
     if config_dict["metabolomic"]["output_file_met"] is not None:
-        output_file = config_dict["metabolomic"]["output_file_met"]
+        output_file = str(config_dict["metabolomic"]["output_file_met"].with_suffix(""))
         print("Output file: " + output_file)
     else:
         output_file = "processed_metabolomic_data"
@@ -51,7 +52,7 @@ def get_data_metabolomic(
 
     # add metadata output file from config_dict that is required
     if config_dict["metabolomic"]["output_metadata"] is not None:
-        metout_file = config_dict["metabolomic"]["output_metadata"]
+        metout_file = str(config_dict["metabolomic"]["output_metadata"].with_suffix(""))
     else:
         metout_file = "processed_metabolomic_metadata"
     metout_file += "_holdout" if holdout else ""

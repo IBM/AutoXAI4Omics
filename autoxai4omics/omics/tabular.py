@@ -16,6 +16,7 @@ from numpy import ndarray
 from omics import R_replacement as rrep
 import joblib
 import pandas as pd
+from pathlib import Path
 
 
 def get_data_tabular(
@@ -43,7 +44,7 @@ def get_data_tabular(
 
     # add the output file name from config_dict that is required
     if config_dict["tabular"]["output_file_tab"] is not None:
-        output_file = config_dict["tabular"]["output_file_tab"]
+        output_file = str(config_dict["tabular"]["output_file_tab"].with_suffix(""))
         print("Output file: " + output_file)
     else:
         output_file = "processed_tabular_data"
@@ -52,7 +53,7 @@ def get_data_tabular(
 
     # add metadata output file from config_dict that is required
     if config_dict["tabular"]["output_metadata"] is not None:
-        metout_file = config_dict["tabular"]["output_metadata"]
+        metout_file = str(config_dict["tabular"]["output_metadata"].with_suffix(""))
     else:
         metout_file = "processed_tabular_metadata"
 
