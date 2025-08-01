@@ -18,6 +18,28 @@
 
 Change log for the codebase. Initialised from the developments following version `V0.11.3`
 
+## [version] - 2025-08-01
+
+### Added
+
+- Added: test case for variance threshold
+- Added: `.env' file to set some required env vars
+
+### Changed
+
+- changed: dockerfile to only install main dependencies
+- changed: streamlined imports
+- changed: updated as many packages as possible
+
+### Fixed
+
+- fix: omic path parsing bug
+- fix: plotting bug arising from api change
+
+### Security
+
+- security: updated packages to resolve dependabot alerts
+
 ## [v1.2.0] - 2025-05-09
 
 ### Changed
