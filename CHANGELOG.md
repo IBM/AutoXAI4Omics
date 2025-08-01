@@ -24,6 +24,7 @@ Change log for the codebase. Initialised from the developments following version
 
 - Added: test case for variance threshold
 - Added: `.env' file to set some required env vars
+- Added: extra & missing cicd packages
 
 ### Changed
 
