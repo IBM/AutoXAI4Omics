@@ -1,12 +1,12 @@
 <!--
  Copyright 2024 IBM Corp.
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
      http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,11 +31,13 @@ Change log for the codebase. Initialised from the developments following version
 - changed: dockerfile to only install main dependencies
 - changed: streamlined imports
 - changed: updated as many packages as possible
+- Changed: updated pre-commit-config
 
 ### Fixed
 
 - fix: omic path parsing bug
 - fix: plotting bug arising from api change
+- fix: correct file permissions
 
 ### Security
 

@@ -1,12 +1,12 @@
 <!--
  Copyright 2024 IBM Corp.
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
      http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,7 +49,7 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
        3. Make the experiments folder accessaible by running the following the directory where the experiment directory exists:
 
        ```shell
-       chmod 777 -R experiments 
+       chmod 777 -R experiments
        ```
 
 ## Citation
@@ -101,7 +101,7 @@ Data to be used by AutoXAI4Omics needs to be stored in the `AutoXAI4Omics/data` 
   * `./autoxai4omics.sh -m bash -r`
 
 * AutoXAI4Omics has a config duplication function (for when you wish to run the same config over multiple datasets). To use this you need to build the image and the run it in `bash` mode. Once there you can then run:
-  
+
   ```shell
   python mode_config_duplicate.py -c SUBPATH_TO_TEMPLATE_CONFIG -d DATA_SUBDIR
   ```

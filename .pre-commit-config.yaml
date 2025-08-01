@@ -1,6 +1,22 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-ast
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: name-tests-test
+        args: [--pytest-test-first]
+      - id: pretty-format-json
+        args: [--autofix]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.289 # Ruff version.
+    rev: v0.12.7
     hooks:
       - id: ruff
         args:
@@ -12,19 +28,39 @@ repos:
             --ignore=E501,
             --ignore=F401,
           ]
-  - repo: https://github.com/psf/black
-    rev: de65741b8d49d78fa2675ef79b799cd35e92e7c1
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
     hooks:
-      - id: black
-        language_version: python3.9
-        args: [--line-length=120]
-
+      - id: shellcheck
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args:
+          - --ignore=D203,D213,D401,D413
+  # - repo: local
+  #   hooks:
+  #     - id: pdoc
+  #       name: pdoc
+  #       language: system
+  #       pass_filenames: false
+  #       entry: poetry run pdoc --html -f autoxai4omics -o docs
+  # TODO: Include when/if hook is extended to check .toml files
+  # - repo: https://github.com/pivotal/LicenseFinder
+  #   rev: v7.1.0
+  #   hooks:
+  #     - id: license-finder
+  # - repo: https://github.com/PyCQA/bandit
+  #   rev: "1.7.9"
+  #   hooks:
+  #     - id: bandit
+  #       args: ["--exclude", "tests"]
   - repo: https://github.com/ibm/detect-secrets
     # If you desire to use a specific version of detect-secrets, you can replace `master` with other git revisions such as branch, tag or commit sha.
     # You are encouraged to use static refs such as tags, instead of branch name
     #
     # Running "pre-commit autoupdate" automatically updates rev to latest tag
-    rev: 0.13.1+ibm.61.dss
+    rev: 0.13.1+ibm.62.dss
     hooks:
       - id: detect-secrets # pragma: whitelist secret
         # Add options for detect-secrets-hook binary. You can run `detect-secrets-hook --help` to list out all possible options.
