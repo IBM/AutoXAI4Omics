@@ -3,7 +3,7 @@ name: Create and publish a Docker image
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
   push:
-    branches: [ "dev", "31-fix-cidi-pipeline"]
+    branches: [ "dev"]
   pull_request_target:
     types:
         - closed
@@ -17,7 +17,7 @@ env:
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
   build-and-push-image:
-    if: ${{ (github.event.pull_request.merged == true) || (github.ref_name == '31-fix-cidi-pipeline') }}
+    if: ${{ (github.event.pull_request.merged == true) || (github.ref_name == 'dev') }}
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -53,7 +53,6 @@ jobs:
             type=raw,value=latest,enable=${{ github.base_ref == 'main' }}
             type=semver,pattern={{version}},value=${{ env.VER }},enable=${{ github.base_ref == 'main' }}
             type=raw,value=dev,enable=${{ (github.base_ref == 'dev') || (github.ref_name == 'dev') }}
-            type=raw,value=cicd-test,enable=${{ github.ref_name == '31-fix-cidi-pipeline' }}
 
       # js: added in for multi arch building
       - name: Set up QEMU
