@@ -11,18 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""A submodule for code related to standardisation."""
 
 from sklearn.preprocessing import QuantileTransformer
 import logging
 import scipy.sparse
+import numpy as np
+from numpy.typing import ArrayLike
 
 omicLogger = logging.getLogger("OmicLogger")
 
 
-def standardize_data(data):
-    """
-    Standardize the input X using Standard Scaler
-    """
+def standardize_data(data: ArrayLike) -> tuple[np.ndarray, QuantileTransformer]:
+    """Standardize the input X using Standard Scaler."""
     omicLogger.debug("Applying Standard scaling to given data...")
 
     if scipy.sparse.issparse(data):
