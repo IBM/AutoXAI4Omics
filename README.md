@@ -52,6 +52,8 @@ AutoXAI4Omics is a command line automated explainable AI tool that easily enable
        chmod 777 -R experiments
        ```
 
+*note* If you dont wish to build the image you can pull the image from the [github container regristry, found here](https://github.com/IBM/AutoXAI4Omics/pkgs/container/autoxai4omics)
+
 ## Citation
 
 For citation of this tool, please reference this article:
