@@ -50,10 +50,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable=${{ base_ref == 'main' }}
-            type=semver,pattern={{version}},value=${{ env.VER }},enable=${{ base_ref == 'main' }}
-            type=raw,value=dev,enable=${{ base_ref == 'dev' || branch == 'dev' }}
-            type=raw,value=cicd-test,enable=${{ branch == '31-fix-cidi-pipeline' }}
+            type=raw,value=latest,enable=${{ github.base_ref == 'main' }}
+            type=semver,pattern={{version}},value=${{ env.VER }},enable=${{ github.base_ref == 'main' }}
+            type=raw,value=dev,enable=${{ github.base_ref == 'dev' || github.branch == 'dev' }}
+            type=raw,value=cicd-test,enable=${{ github.branch == '31-fix-cidi-pipeline' }}
 
       # js: added in for multi arch building
       - name: Set up QEMU
