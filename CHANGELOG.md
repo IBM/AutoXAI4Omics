@@ -38,6 +38,7 @@ Change log for the codebase. Initialised from the developments following version
 - fix: omic path parsing bug
 - fix: plotting bug arising from api change
 - fix: correct file permissions
+- fix: cicd to build image and push to the `ghcr.io`
 
 ### Security
 
