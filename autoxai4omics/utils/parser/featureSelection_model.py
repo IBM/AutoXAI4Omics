@@ -8,11 +8,8 @@
 # https://opensource.org/licenses/MIT
 
 from typing import Union, Literal
-from pydantic import (
-    BaseModel,
-    PositiveInt,
-    NonNegativeFloat,
-)
+from typing_extensions import Annotated
+from pydantic import BaseModel, PositiveInt, NonNegativeFloat, Field
 
 from models.model_defs import MODELS
 from metrics.metric_defs import METRICS
@@ -26,12 +23,37 @@ FS_NAMES_KBMETRICS = tuple(FS_KBEST_METRICS)
 
 
 class AutoModel(BaseModel):
-    min_features: PositiveInt = 10
-    max_features: Union[PositiveInt, None] = None
-    interval: PositiveInt = 1
-    eval_model: Union[None, Literal[MODEL_NAMES_ALL]] = None
-    eval_metric: Union[None, Literal[METRICS_NAMES_ALL]] = None
-    low: bool = True
+    min_features: Annotated[
+        PositiveInt, Field(description="The minimium number of features to consider.")
+    ] = 10
+    max_features: Annotated[
+        Union[PositiveInt, None],
+        Field(
+            description="The maximum number of features to consider, if None will default to the number of columns in the given dataset."
+        ),
+    ] = None
+    interval: Annotated[
+        PositiveInt,
+        Field(
+            description="The size of the logarithmic increments to consider when searching for the best number of features."
+        ),
+    ] = 1
+    eval_model: Annotated[
+        Union[None, Literal[MODEL_NAMES_ALL]],
+        Field(description="The estimator to use to evaluate the selected features."),
+    ] = None
+    eval_metric: Annotated[
+        Union[None, Literal[METRICS_NAMES_ALL]],
+        Field(
+            description="The metric to use to evaluate the model trained on the selected features."
+        ),
+    ] = None
+    low: Annotated[
+        bool,
+        Field(
+            description="A bool to indicate if the lower the eval_metric the better."
+        ),
+    ] = True
 
     def validateWithProblemType(self, problemType):
         if problemType not in [CLASSIFICATION, REGRESSION]:
@@ -72,9 +94,20 @@ class AutoModel(BaseModel):
 
 
 class MethodModel(BaseModel):
-    name: Literal[FS_NAMES_MENTHODS] = "SelectKBest"
-    metric: Union[None, Literal[FS_NAMES_KBMETRICS]] = None
-    estimator: Union[None, Literal[MODEL_NAMES_ALL]] = None
+    name: Annotated[
+        Literal[FS_NAMES_MENTHODS],
+        Field(description="The feature selection method to use"),
+    ] = "SelectKBest"
+    metric: Annotated[
+        Union[None, Literal[FS_NAMES_KBMETRICS]],
+        Field(
+            description="The metric to use during the feature selection, if required."
+        ),
+    ] = None
+    estimator: Annotated[
+        Union[None, Literal[MODEL_NAMES_ALL]],
+        Field(description="the model to use during the feature selection if required."),
+    ] = None
 
     def validateWithProblemType(self, problemType):
         if problemType not in [CLASSIFICATION, REGRESSION]:
@@ -110,10 +143,28 @@ class MethodModel(BaseModel):
 
 
 class FeatureSelectionModel(BaseModel):
-    k: Union[PositiveInt, Literal["auto"]] = "auto"
-    var_threshold: NonNegativeFloat = 0
-    auto: Union[None, AutoModel] = AutoModel()
-    method: Union[None, MethodModel] = MethodModel()
+    k: Annotated[
+        Union[PositiveInt, Literal["auto"]],
+        Field(
+            description='The number of features to select, if "auto" is chosen it will find the best number of features to use'
+        ),
+    ] = "auto"
+    var_threshold: Annotated[
+        NonNegativeFloat,
+        Field(description="The value to use for variance thresholding."),
+    ] = 0
+    auto: Annotated[
+        Union[None, AutoModel],
+        Field(
+            description="The setting for configuring the automated feature selection"
+        ),
+    ] = AutoModel()
+    method: Annotated[
+        Union[None, MethodModel],
+        Field(
+            description="The setting for the method to use for the feature selection."
+        ),
+    ] = MethodModel()
 
     # TODO: do conditional validation
 

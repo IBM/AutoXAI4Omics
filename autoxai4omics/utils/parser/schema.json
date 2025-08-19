@@ -1,0 +1,1245 @@
+{
+    "$defs": {
+        "AutoKerasModel": {
+            "properties": {
+                "n_epochs": {
+                    "default": 100,
+                    "exclusiveMinimum": 0,
+                    "title": "N Epochs",
+                    "type": "integer"
+                },
+                "batch_size": {
+                    "default": 32,
+                    "exclusiveMinimum": 0,
+                    "title": "Batch Size",
+                    "type": "integer"
+                },
+                "verbose": {
+                    "default": false,
+                    "title": "Verbose",
+                    "type": "boolean"
+                },
+                "n_blocks": {
+                    "default": 3,
+                    "exclusiveMinimum": 0,
+                    "title": "N Blocks",
+                    "type": "integer"
+                },
+                "dropout": {
+                    "default": 0.3,
+                    "maximum": 1,
+                    "minimum": 0,
+                    "title": "Dropout",
+                    "type": "number"
+                },
+                "use_batchnorm": {
+                    "default": true,
+                    "title": "Use Batchnorm",
+                    "type": "boolean"
+                },
+                "n_trials": {
+                    "default": 4,
+                    "exclusiveMinimum": 0,
+                    "title": "N Trials",
+                    "type": "integer"
+                },
+                "tuner": {
+                    "default": "bayesian",
+                    "enum": [
+                        "bayesian",
+                        "greedy",
+                        "hyperband",
+                        "random"
+                    ],
+                    "title": "Tuner",
+                    "type": "string"
+                }
+            },
+            "title": "AutoKerasModel",
+            "type": "object"
+        },
+        "AutoLgbmModel": {
+            "properties": {
+                "verbose": {
+                    "default": false,
+                    "title": "Verbose",
+                    "type": "boolean"
+                },
+                "n_trials": {
+                    "default": 10,
+                    "exclusiveMinimum": 0,
+                    "title": "N Trials",
+                    "type": "integer"
+                },
+                "timeout": {
+                    "default": 1000,
+                    "exclusiveMinimum": 0,
+                    "title": "Timeout",
+                    "type": "integer"
+                }
+            },
+            "title": "AutoLgbmModel",
+            "type": "object"
+        },
+        "AutoModel": {
+            "properties": {
+                "min_features": {
+                    "default": 10,
+                    "description": "The minimium number of features to consider.",
+                    "exclusiveMinimum": 0,
+                    "title": "Min Features",
+                    "type": "integer"
+                },
+                "max_features": {
+                    "anyOf": [
+                        {
+                            "exclusiveMinimum": 0,
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "The maximum number of features to consider, if None will default to the number of columns in the given dataset.",
+                    "title": "Max Features"
+                },
+                "interval": {
+                    "default": 1,
+                    "description": "The size of the logarithmic increments to consider when searching for the best number of features.",
+                    "exclusiveMinimum": 0,
+                    "title": "Interval",
+                    "type": "integer"
+                },
+                "eval_model": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "ElasticNet",
+                                "RandomForestClassifier",
+                                "Lasso",
+                                "Lars",
+                                "DecisionTreeClassifier",
+                                "AutoKeras",
+                                "SVC",
+                                "RandomForestRegressor",
+                                "KNeighborsRegressor",
+                                "MLPClassifier",
+                                "SGDRegressor",
+                                "LassoLars",
+                                "GradientBoostingRegressor",
+                                "AutoLGBM",
+                                "AutoXGBoost",
+                                "FixedKeras",
+                                "RBF",
+                                "Ridge",
+                                "DecisionTreeRegressor",
+                                "GaussianProcessClassifier",
+                                "LinearRegression",
+                                "AdaBoostRegressor",
+                                "AdaBoostClassifier",
+                                "KNeighborsClassifier",
+                                "GradientBoostingClassifier",
+                                "XGBRegressor",
+                                "XGBClassifier",
+                                "SVR"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "The estimator to use to evaluate the selected features.",
+                    "title": "Eval Model"
+                },
+                "eval_metric": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "explained_variance_score",
+                                "accuracy_score",
+                                "mean_squared_error",
+                                "recall_score",
+                                "r2_score",
+                                "zero_one_loss",
+                                "matthews_corrcoef",
+                                "f1_score",
+                                "median_absolute_error",
+                                "mean_absolute_percentage_error",
+                                "mean_absolute_error",
+                                "rmse",
+                                "precision_score",
+                                "hamming_loss",
+                                "roc_auc_score",
+                                "jaccard_score"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "The metric to use to evaluate the model trained on the selected features.",
+                    "title": "Eval Metric"
+                },
+                "low": {
+                    "default": true,
+                    "description": "A bool to indicate if the lower the eval_metric the better.",
+                    "title": "Low",
+                    "type": "boolean"
+                }
+            },
+            "title": "AutoModel",
+            "type": "object"
+        },
+        "AutoXgboostModel": {
+            "properties": {
+                "verbose": {
+                    "default": false,
+                    "title": "Verbose",
+                    "type": "boolean"
+                },
+                "n_trials": {
+                    "default": 10,
+                    "exclusiveMinimum": 0,
+                    "title": "N Trials",
+                    "type": "integer"
+                },
+                "timeout": {
+                    "default": 1000,
+                    "exclusiveMinimum": 0,
+                    "title": "Timeout",
+                    "type": "integer"
+                }
+            },
+            "title": "AutoXgboostModel",
+            "type": "object"
+        },
+        "DataModel": {
+            "properties": {
+                "name": {
+                    "description": "The name that is to be given to this job.",
+                    "title": "Name",
+                    "type": "string"
+                },
+                "file_path": {
+                    "description": "The path to the data that this job is to be run on.",
+                    "format": "file-path",
+                    "title": "File Path",
+                    "type": "string"
+                },
+                "metadata_file": {
+                    "anyOf": [
+                        {
+                            "format": "file-path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "The metadata file that accompanies the data to be trained on.",
+                    "title": "Metadata File"
+                },
+                "file_path_holdout_data": {
+                    "anyOf": [
+                        {
+                            "format": "file-path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "The path to the dataset that is to be used as a holdout set.",
+                    "title": "File Path Holdout Data"
+                },
+                "metadata_file_holdout_data": {
+                    "anyOf": [
+                        {
+                            "format": "file-path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "The path to the metadata file that accompanies the holdout set",
+                    "title": "Metadata File Holdout Data"
+                },
+                "save_path": {
+                    "default": "/experiments/",
+                    "description": "The path where the results shall be save.",
+                    "format": "directory-path",
+                    "title": "Save Path",
+                    "type": "string"
+                },
+                "target": {
+                    "description": "The name of the column in the dataset or in the metadata that is to be predicted.",
+                    "title": "Target",
+                    "type": "string"
+                },
+                "data_type": {
+                    "description": "The type of the data that this job will be run on. Note - \"R2G\" means Ready to Go, meaning that no preprocessing is required and that the dataset is already split into train/test sets (denoted by a column called \"set\") and has labels present in a \"label\" column.",
+                    "enum": [
+                        "tabular",
+                        "gene_expression",
+                        "microbiome",
+                        "metabolomic",
+                        "other",
+                        "R2G"
+                    ],
+                    "title": "Data Type",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "file_path",
+                "target",
+                "data_type"
+            ],
+            "title": "DataModel",
+            "type": "object"
+        },
+        "FeatureSelectionModel": {
+            "properties": {
+                "k": {
+                    "anyOf": [
+                        {
+                            "exclusiveMinimum": 0,
+                            "type": "integer"
+                        },
+                        {
+                            "const": "auto",
+                            "type": "string"
+                        }
+                    ],
+                    "default": "auto",
+                    "description": "The number of features to select, if \"auto\" is chosen it will find the best number of features to use",
+                    "title": "K"
+                },
+                "var_threshold": {
+                    "default": 0,
+                    "description": "The value to use for variance thresholding.",
+                    "minimum": 0,
+                    "title": "Var Threshold",
+                    "type": "number"
+                },
+                "auto": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/AutoModel"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": {
+                        "min_features": 10,
+                        "max_features": null,
+                        "interval": 1,
+                        "eval_model": null,
+                        "eval_metric": null,
+                        "low": true
+                    },
+                    "description": "The setting for configuring the automated feature selection"
+                },
+                "method": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/MethodModel"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": {
+                        "name": "SelectKBest",
+                        "metric": null,
+                        "estimator": null
+                    },
+                    "description": "The setting for the method to use for the feature selection."
+                }
+            },
+            "title": "FeatureSelectionModel",
+            "type": "object"
+        },
+        "GeneExpressionModel": {
+            "properties": {
+                "expression_type": {
+                    "enum": [
+                        "FPKM",
+                        "RPKM",
+                        "TMM",
+                        "TPM",
+                        "Log2FC",
+                        "COUNTS",
+                        "OTHER"
+                    ],
+                    "title": "Expression Type",
+                    "type": "string"
+                },
+                "filter_sample": {
+                    "default": 0,
+                    "minimum": 0,
+                    "title": "Filter Sample",
+                    "type": "number"
+                },
+                "filter_genes": {
+                    "default": [
+                        0,
+                        0
+                    ],
+                    "items": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "title": "Filter Genes",
+                    "type": "array"
+                },
+                "output_file_ge": {
+                    "anyOf": [
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Output File Ge"
+                },
+                "output_metadata": {
+                    "anyOf": [
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Output Metadata"
+                }
+            },
+            "required": [
+                "expression_type"
+            ],
+            "title": "GeneExpressionModel",
+            "type": "object"
+        },
+        "MetabolomicModel": {
+            "properties": {
+                "filter_metabolomic_sample": {
+                    "default": 0,
+                    "minimum": 0,
+                    "title": "Filter Metabolomic Sample",
+                    "type": "number"
+                },
+                "filter_measurements": {
+                    "default": [
+                        0,
+                        0
+                    ],
+                    "items": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "title": "Filter Measurements",
+                    "type": "array"
+                },
+                "output_file_met": {
+                    "anyOf": [
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Output File Met"
+                },
+                "output_metadata": {
+                    "anyOf": [
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Output Metadata"
+                }
+            },
+            "title": "MetabolomicModel",
+            "type": "object"
+        },
+        "MethodModel": {
+            "properties": {
+                "name": {
+                    "default": "SelectKBest",
+                    "description": "The feature selection method to use",
+                    "enum": [
+                        "SelectKBest",
+                        "RFE"
+                    ],
+                    "title": "Name",
+                    "type": "string"
+                },
+                "metric": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "f_regression",
+                                "f_classif",
+                                "mutual_info_regression",
+                                "mutual_info_classif"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "The metric to use during the feature selection, if required.",
+                    "title": "Metric"
+                },
+                "estimator": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "ElasticNet",
+                                "RandomForestClassifier",
+                                "Lasso",
+                                "Lars",
+                                "DecisionTreeClassifier",
+                                "AutoKeras",
+                                "SVC",
+                                "RandomForestRegressor",
+                                "KNeighborsRegressor",
+                                "MLPClassifier",
+                                "SGDRegressor",
+                                "LassoLars",
+                                "GradientBoostingRegressor",
+                                "AutoLGBM",
+                                "AutoXGBoost",
+                                "FixedKeras",
+                                "RBF",
+                                "Ridge",
+                                "DecisionTreeRegressor",
+                                "GaussianProcessClassifier",
+                                "LinearRegression",
+                                "AdaBoostRegressor",
+                                "AdaBoostClassifier",
+                                "KNeighborsClassifier",
+                                "GradientBoostingClassifier",
+                                "XGBRegressor",
+                                "XGBClassifier",
+                                "SVR"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "the model to use during the feature selection if required.",
+                    "title": "Estimator"
+                }
+            },
+            "title": "MethodModel",
+            "type": "object"
+        },
+        "MicrobiomeModel": {
+            "properties": {
+                "collapse_tax": {
+                    "default": null,
+                    "enum": [
+                        "genus",
+                        "species",
+                        null
+                    ],
+                    "title": "Collapse Tax"
+                },
+                "min_reads": {
+                    "anyOf": [
+                        {
+                            "exclusiveMinimum": 0,
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Min Reads"
+                },
+                "norm_reads": {
+                    "anyOf": [
+                        {
+                            "exclusiveMinimum": 0,
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Norm Reads"
+                },
+                "filter_abundance": {
+                    "anyOf": [
+                        {
+                            "exclusiveMinimum": 0,
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Filter Abundance"
+                },
+                "filter_prevalence": {
+                    "anyOf": [
+                        {
+                            "maximum": 1,
+                            "minimum": 0,
+                            "type": "number"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Filter Prevalence"
+                },
+                "filter_microbiome_samples": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": true,
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Filter Microbiome Samples"
+                },
+                "remove_classes": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Remove Classes"
+                },
+                "merge_classes": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Merge Classes"
+                }
+            },
+            "title": "MicrobiomeModel",
+            "type": "object"
+        },
+        "MlModel": {
+            "properties": {
+                "seed_num": {
+                    "default": 29292,
+                    "description": "The random set to set for this run, used for making the results reproducible.",
+                    "minimum": 0,
+                    "title": "Seed Num",
+                    "type": "integer"
+                },
+                "test_size": {
+                    "default": 0.2,
+                    "description": "The percentage of the data to use for testing",
+                    "maximum": 1,
+                    "minimum": 0,
+                    "title": "Test Size",
+                    "type": "number"
+                },
+                "problem_type": {
+                    "description": "The problem type that this job shall be attempting.",
+                    "enum": [
+                        "classification",
+                        "regression"
+                    ],
+                    "title": "Problem Type",
+                    "type": "string"
+                },
+                "hyper_tuning": {
+                    "default": "random",
+                    "description": "The hyper_tunning method to use during the job.",
+                    "enum": [
+                        "random",
+                        "grid"
+                    ],
+                    "title": "Hyper Tuning",
+                    "type": "string"
+                },
+                "hyper_budget": {
+                    "default": 50,
+                    "description": "The budget to give for hyper tuning, only used if hyper_tuning is \"random\".",
+                    "minimum": 0,
+                    "title": "Hyper Budget",
+                    "type": "integer"
+                },
+                "stratify_by_groups": {
+                    "default": "N",
+                    "description": "A field to indicate if the test/train dataset should be stratified by a group",
+                    "enum": [
+                        "Y",
+                        "N"
+                    ],
+                    "title": "Stratify By Groups",
+                    "type": "string"
+                },
+                "groups": {
+                    "default": null,
+                    "description": "The name of the column to stratify the group by.",
+                    "title": "Groups",
+                    "type": "string"
+                },
+                "standardize": {
+                    "default": true,
+                    "description": "A bool to indicate if the data should be standardised.",
+                    "title": "Standardize",
+                    "type": "boolean"
+                },
+                "balancing": {
+                    "default": "NONE",
+                    "description": "A field to indicate which balancing methodology to use, only relevant for classification problems.",
+                    "enum": [
+                        "OVER",
+                        "UNDER",
+                        "NONE"
+                    ],
+                    "title": "Balancing",
+                    "type": "string"
+                },
+                "fit_scorer": {
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "explained_variance_score",
+                                "accuracy_score",
+                                "mean_squared_error",
+                                "recall_score",
+                                "r2_score",
+                                "zero_one_loss",
+                                "matthews_corrcoef",
+                                "f1_score",
+                                "median_absolute_error",
+                                "mean_absolute_percentage_error",
+                                "mean_absolute_error",
+                                "rmse",
+                                "precision_score",
+                                "hamming_loss",
+                                "roc_auc_score",
+                                "jaccard_score"
+                            ],
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "Which metric the models should optimis during training.",
+                    "title": "Fit Scorer"
+                },
+                "scorer_list": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "enum": [
+                                    "explained_variance_score",
+                                    "accuracy_score",
+                                    "mean_squared_error",
+                                    "recall_score",
+                                    "r2_score",
+                                    "zero_one_loss",
+                                    "matthews_corrcoef",
+                                    "f1_score",
+                                    "median_absolute_error",
+                                    "mean_absolute_percentage_error",
+                                    "mean_absolute_error",
+                                    "rmse",
+                                    "precision_score",
+                                    "hamming_loss",
+                                    "roc_auc_score",
+                                    "jaccard_score"
+                                ],
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": [],
+                    "description": "Which metrics should be calculated for evaluation.",
+                    "title": "Scorer List"
+                },
+                "model_list": {
+                    "description": "A list of models to be trained in the job.",
+                    "items": {
+                        "enum": [
+                            "ElasticNet",
+                            "RandomForestClassifier",
+                            "Lasso",
+                            "Lars",
+                            "DecisionTreeClassifier",
+                            "AutoKeras",
+                            "SVC",
+                            "RandomForestRegressor",
+                            "KNeighborsRegressor",
+                            "MLPClassifier",
+                            "SGDRegressor",
+                            "LassoLars",
+                            "GradientBoostingRegressor",
+                            "AutoLGBM",
+                            "AutoXGBoost",
+                            "FixedKeras",
+                            "RBF",
+                            "Ridge",
+                            "DecisionTreeRegressor",
+                            "GaussianProcessClassifier",
+                            "LinearRegression",
+                            "AdaBoostRegressor",
+                            "AdaBoostClassifier",
+                            "KNeighborsClassifier",
+                            "GradientBoostingClassifier",
+                            "XGBRegressor",
+                            "XGBClassifier",
+                            "SVR"
+                        ],
+                        "type": "string"
+                    },
+                    "title": "Model List",
+                    "type": "array"
+                },
+                "encoding": {
+                    "default": null,
+                    "description": "Which encoding method to use, only relevant in classification problems.",
+                    "enum": [
+                        "label",
+                        "onehot",
+                        null
+                    ],
+                    "title": "Encoding"
+                },
+                "autokeras_config": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/AutoKerasModel"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": {
+                        "n_epochs": 100,
+                        "batch_size": 32,
+                        "verbose": false,
+                        "n_blocks": 3,
+                        "dropout": 0.3,
+                        "use_batchnorm": true,
+                        "n_trials": 4,
+                        "tuner": "bayesian"
+                    },
+                    "description": "setting to be used for AutoKeras if it is chosen to be trained. Can be set to None if not selected."
+                },
+                "autolgbm_config": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/AutoLgbmModel"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": {
+                        "verbose": false,
+                        "n_trials": 10,
+                        "timeout": 1000
+                    },
+                    "description": "settings to be used for AutoLgbm if chosen to be train. Can be set to None if not selected."
+                },
+                "autoxgboost_config": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/AutoXgboostModel"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": {
+                        "verbose": false,
+                        "n_trials": 10,
+                        "timeout": 1000
+                    },
+                    "description": "settings to be used for AutoXgboost if chosen to be train. Can be set to None if not selected."
+                },
+                "feature_selection": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/FeatureSelectionModel"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": {
+                        "k": "auto",
+                        "var_threshold": 0.0,
+                        "auto": {
+                            "eval_metric": null,
+                            "eval_model": null,
+                            "interval": 1,
+                            "low": true,
+                            "max_features": null,
+                            "min_features": 10
+                        },
+                        "method": {
+                            "estimator": null,
+                            "metric": null,
+                            "name": "SelectKBest"
+                        }
+                    },
+                    "description": "Settings to be used for feature selection. If None no feature selection will be done."
+                }
+            },
+            "required": [
+                "problem_type",
+                "model_list"
+            ],
+            "title": "MlModel",
+            "type": "object"
+        },
+        "PlottingModel": {
+            "properties": {
+                "plot_method": {
+                    "default": [],
+                    "description": "A list of plots to be created.",
+                    "items": {
+                        "enum": [
+                            "barplot_scorer",
+                            "boxplot_scorer",
+                            "shap_plots",
+                            "permut_imp_test",
+                            "conf_matrix",
+                            "roc_curve",
+                            "hist_overlapped",
+                            "joint",
+                            "joint_dens",
+                            "corr"
+                        ],
+                        "type": "string"
+                    },
+                    "title": "Plot Method",
+                    "type": "array"
+                },
+                "top_feats_permImp": {
+                    "anyOf": [
+                        {
+                            "exclusiveMinimum": 0,
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": 20,
+                    "description": "The number of top features to plot if permutation plot is desired to be plotted.",
+                    "title": "Top Feats Permimp"
+                },
+                "top_feats_shap": {
+                    "anyOf": [
+                        {
+                            "exclusiveMinimum": 0,
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": 20,
+                    "description": "The number of top features to plot if shap plots are selected.",
+                    "title": "Top Feats Shap"
+                },
+                "explanations_data": {
+                    "default": "all",
+                    "description": "Which sets of the data to used for the shap calculations.",
+                    "enum": [
+                        "test",
+                        "exemplars",
+                        "all",
+                        null
+                    ],
+                    "title": "Explanations Data"
+                }
+            },
+            "title": "PlottingModel",
+            "type": "object"
+        },
+        "PredictionModel": {
+            "properties": {
+                "file_path": {
+                    "anyOf": [
+                        {
+                            "format": "file-path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "The file path to the data for predictions to be made in.",
+                    "title": "File Path"
+                },
+                "outfile_name": {
+                    "default": "prediction_results",
+                    "description": "The name to give the file containing predictions.",
+                    "title": "Outfile Name",
+                    "type": "string"
+                },
+                "metadata_file": {
+                    "anyOf": [
+                        {
+                            "format": "file-path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "description": "The file path to the metadata associated with the datafile.",
+                    "title": "Metadata File"
+                }
+            },
+            "required": [
+                "file_path"
+            ],
+            "title": "PredictionModel",
+            "type": "object"
+        },
+        "TabularModel": {
+            "properties": {
+                "filter_tabular_sample": {
+                    "default": 0,
+                    "minimum": 0,
+                    "title": "Filter Tabular Sample",
+                    "type": "number"
+                },
+                "filter_tabular_measurements": {
+                    "default": [
+                        0,
+                        0
+                    ],
+                    "items": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "title": "Filter Tabular Measurements",
+                    "type": "array"
+                },
+                "output_file_tab": {
+                    "anyOf": [
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Output File Tab"
+                },
+                "output_metadata": {
+                    "anyOf": [
+                        {
+                            "format": "path",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Output Metadata"
+                }
+            },
+            "title": "TabularModel",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "data": {
+            "$ref": "#/$defs/DataModel",
+            "description": "A subsection corresponding to the data to be used in this job"
+        },
+        "ml": {
+            "$ref": "#/$defs/MlModel",
+            "description": "A subsection corresponding to the machine learning settings to be used in this job"
+        },
+        "plotting": {
+            "$ref": "#/$defs/PlottingModel",
+            "default": {
+                "plot_method": [],
+                "top_feats_permImp": null,
+                "top_feats_shap": null,
+                "explanations_data": null
+            },
+            "description": "A subsection corresponding to the plotting settings to be used in this job"
+        },
+        "tabular": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/TabularModel"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": {
+                "filter_tabular_sample": 0.0,
+                "filter_tabular_measurements": [
+                    0,
+                    0
+                ],
+                "output_file_tab": null,
+                "output_metadata": null
+            },
+            "description": "A subsection with settings if the data is of tabular type, this field can be None if not."
+        },
+        "microbiome": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/MicrobiomeModel"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": {
+                "collapse_tax": null,
+                "min_reads": null,
+                "norm_reads": null,
+                "filter_abundance": null,
+                "filter_prevalence": null,
+                "filter_microbiome_samples": null,
+                "remove_classes": null,
+                "merge_classes": null
+            },
+            "description": "A subsection with settings if the data is of microbiome type, this field can be None if not."
+        },
+        "metabolomic": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/MetabolomicModel"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": {
+                "filter_metabolomic_sample": 0.0,
+                "filter_measurements": [
+                    0,
+                    0
+                ],
+                "output_file_met": null,
+                "output_metadata": null
+            },
+            "description": "A subsection with settings if the data is of metabolomic type, this field can be None if not."
+        },
+        "gene_expression": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/GeneExpressionModel"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": {
+                "expression_type": "OTHER",
+                "filter_sample": 0.0,
+                "filter_genes": [
+                    0,
+                    0
+                ],
+                "output_file_ge": null,
+                "output_metadata": null
+            },
+            "description": "A subsection with settings if the data is of gene expression type, this field can be None if not."
+        },
+        "prediction": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/PredictionModel"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null,
+            "description": "A subsection containing setting if a prediction job is to be run, this field can be None if not."
+        }
+    },
+    "required": [
+        "data",
+        "ml"
+    ],
+    "title": "ConfigModel",
+    "type": "object"
+}

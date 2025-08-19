@@ -5,11 +5,8 @@
 
 from ..vars import CLASSIFICATION, REGRESSION
 from typing import List, Literal, Union
-from pydantic import (
-    BaseModel,
-    PositiveInt,
-    model_validator,
-)
+from pydantic import BaseModel, PositiveInt, model_validator, Field
+from typing_extensions import Annotated
 
 PLOTS_BOTH = ["barplot_scorer", "boxplot_scorer", "shap_plots", "permut_imp_test"]
 PLOTS_CLF = ["conf_matrix", "roc_curve"]
@@ -19,10 +16,26 @@ PLOTS_ALL = PLOTS_BOTH + PLOTS_CLF + PLOTS_REG
 
 
 class PlottingModel(BaseModel):
-    plot_method: List[Literal[tuple(PLOTS_ALL)]] = []
-    top_feats_permImp: Union[PositiveInt, None] = 20
-    top_feats_shap: Union[PositiveInt, None] = 20
-    explanations_data: Literal["test", "exemplars", "all", None] = "all"
+    plot_method: Annotated[
+        List[Literal[tuple(PLOTS_ALL)]],
+        Field(description="A list of plots to be created."),
+    ] = []
+    top_feats_permImp: Annotated[
+        Union[PositiveInt, None],
+        Field(
+            description="The number of top features to plot if permutation plot is desired to be plotted."
+        ),
+    ] = 20
+    top_feats_shap: Annotated[
+        Union[PositiveInt, None],
+        Field(
+            description="The number of top features to plot if shap plots are selected."
+        ),
+    ] = 20
+    explanations_data: Annotated[
+        Literal["test", "exemplars", "all", None],
+        Field(description="Which sets of the data to used for the shap calculations."),
+    ] = "all"
 
     @model_validator(mode="after")
     def check(self):
