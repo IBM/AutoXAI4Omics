@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""A sub module for splitting data."""
 
 from numpy import ndarray
 from pandas.core.frame import DataFrame
@@ -29,10 +30,7 @@ omicLogger = logging.getLogger("OmicLogger")
 
 
 def split_data(x, y, config_dict):
-    """
-    Split the data according to the config (i.e normal split or stratify by groups)
-    """
-
+    """Split the data according to the config (i.e normal split or stratify by groups)."""
     omicLogger.debug("Splitting data...")
     # Split the data in train and test
     if config_dict["ml"]["stratify_by_groups"] == "Y":
@@ -65,7 +63,7 @@ def strat_split(
     test_size: float = 0.2,
     seed: int = 29292,
 ) -> tuple[ndarray, ndarray, ndarray, ndarray]:
-    """split the data according to stratification
+    """Split the data according to stratification.
 
     Parameters
     ----------
@@ -165,16 +163,23 @@ def strat_split(
 
     for train_idx, test_idx in gss.split(x, y, groups):
         if isinstance(x, DataFrame):
-            x_train, x_test, y_train, y_test = (
+            x_train, x_test = (
                 x.iloc[train_idx, :],
                 x.iloc[test_idx, :],
+            )
+        else:
+            x_train, x_test = (
+                x[train_idx],
+                x[test_idx],
+            )
+
+        if isinstance(y, DataFrame):
+            y_train, y_test = (
                 y.iloc[train_idx, :],
                 y.iloc[test_idx, :],
             )
         else:
-            x_train, x_test, y_train, y_test = (
-                x[train_idx],
-                x[test_idx],
+            y_train, y_test = (
                 y[train_idx],
                 y[test_idx],
             )
@@ -226,7 +231,6 @@ def std_split(
     ValueError
         is raised if x_full and y_full dont have the same number of rows
     """
-
     if not isinstance(test_size, float):
         raise TypeError(f"test_size must be an float, recieved {type(test_size)}")
     elif test_size < 0 or test_size > 1:
