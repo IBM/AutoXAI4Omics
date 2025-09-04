@@ -86,7 +86,7 @@ def get_data_tabular(
     if (config_dict["data"][metafile] != "") and (
         config_dict["data"][metafile] is not None
     ):
-        metadata = pd.read_csv(config_dict["data"][metafile], index_col=0)
+        metadata = pd.read_csv(config_dict["data"][metafile], index_col=0).sort_index()
         mask = metadata.index.isin(filtered_data.index)
         filtered_metadata = metadata.loc[mask]
         filtered_metadata.to_csv(metout_file)
@@ -94,7 +94,9 @@ def get_data_tabular(
 
     else:
         file = "file_path" + ("_holdout_data" if holdout else "")
-        unfiltered_data = pd.read_csv(config_dict["data"][file], index_col=0)
+        unfiltered_data = pd.read_csv(
+            config_dict["data"][file], index_col=0
+        ).sort_index()
         target_y = unfiltered_data.loc[
             config_dict["data"]["target"]
         ]  # need loc because target in ge data is ROW not column (as in metadata)
@@ -150,7 +152,9 @@ def get_data_tabular_trained(
         if (config_dict["data"][metafile] != "") and (
             config_dict["data"][metafile] is not None
         ):
-            metadata = pd.read_csv(config_dict["data"][metafile], index_col=0)
+            metadata = pd.read_csv(
+                config_dict["data"][metafile], index_col=0
+            ).sort_index()
             mask = metadata.index.isin(filtered_data.index)
             filtered_metadata = metadata.loc[mask]
             filtered_metadata.to_csv(metout_file)
@@ -158,7 +162,9 @@ def get_data_tabular_trained(
 
         else:
             file = "file_path" + ("_holdout_data" if holdout else "")
-            unfiltered_data = pd.read_csv(config_dict["data"][file], index_col=0)
+            unfiltered_data = pd.read_csv(
+                config_dict["data"][file], index_col=0
+            ).sort_index()
             target_y = unfiltered_data.loc[
                 config_dict["data"]["target"]
             ]  # need loc because target in ge data is ROW not column (as in metadata)

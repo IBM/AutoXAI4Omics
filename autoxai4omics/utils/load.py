@@ -77,6 +77,7 @@ def get_non_omic_data(
     if ("Unnamed" in data.columns[0]) or (data.columns[0] is None):
         data.set_index(data.columns[0], inplace=True)
         data.index.name = None
+        data.sort_index()
 
     omicLogger.info("Data dimension: " + str(data.shape))
 
@@ -88,7 +89,7 @@ def get_non_omic_data(
 
         else:  # it assumes the data does not contain the target column
             # Read the metadata file
-            metadata = pd.read_csv(metadata_path, index_col=0)
+            metadata = pd.read_csv(metadata_path, index_col=0).sort_index()
             y = metadata[target].values
             data_notarget = data
 

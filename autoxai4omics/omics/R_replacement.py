@@ -75,7 +75,7 @@ def preprocessing_LO(
     data_filtered = data.loc[genestokeep]
 
     # Transpose data (samples rows, genes as columns)
-    tdata_filtered = data_filtered.transpose()
+    tdata_filtered = data_filtered.transpose().sort_index()
 
     # Filter samples
     data_filtered_abs = tdata_filtered.apply(abs)  # remove -ve values
@@ -167,12 +167,12 @@ def apply_learned_processing(
         data_tmm_cpm = nm.cpm_norm
 
         # Transpose data (samples rows, genes as columns)
-        tdata_tmm_cpm = data_tmm_cpm.transpose()
+        tdata_tmm_cpm = data_tmm_cpm.transpose().sort_index()
 
         return tdata_tmm_cpm
     else:
         # Transpose data (samples rows, genes as columns)
-        tdata_filtered = data_filtered.transpose()
+        tdata_filtered = data_filtered.transpose().sort_index()
         return tdata_filtered
 
 
@@ -233,7 +233,7 @@ def preprocessing_others(
     data_filtered = data.loc[genestokeep]
 
     # Transpose data (samples rows, genes as columns)
-    tdata_filtered = data_filtered.transpose()
+    tdata_filtered = data_filtered.transpose().sort_index()
 
     # Filter samples
     sample_means = (tdata_filtered > 0).mean(
@@ -354,7 +354,7 @@ def preprocessing_TMM(
     data_tmm_cpm = nm.cpm_norm
 
     # Transpose data (samples rows, genes as columns)
-    tdata_tmm_cpm = data_tmm_cpm.transpose()
+    tdata_tmm_cpm = data_tmm_cpm.transpose().sort_index()
 
     # Filter samples
     sample_means = (tdata_tmm_cpm > 0).mean(
