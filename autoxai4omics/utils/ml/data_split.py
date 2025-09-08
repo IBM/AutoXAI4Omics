@@ -39,7 +39,7 @@ def split_data(x, y, config_dict):
         x_train, x_test, y_train, y_test = strat_split(
             x,
             y,
-            config_dict["data"]["metadata_file"],
+            str(config_dict["data"]["metadata_file"]),
             config_dict["ml"]["groups"],
             config_dict["ml"]["test_size"],
             config_dict["ml"]["seed_num"],
