@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from numpy import ndarray
-from pandas.core.frame import DataFrame
+import numpy as np
+import pandas as pd
 from typing import Union
 import imblearn
 import logging
@@ -22,8 +22,8 @@ omicLogger = logging.getLogger("OmicLogger")
 
 
 def oversample_data(
-    x_train: Union[ndarray, DataFrame],
-    y_train: Union[ndarray, DataFrame],
+    x_train: Union[np.ndarray, pd.DataFrame],
+    y_train: Union[np.ndarray, pd.DataFrame],
     seed: int = 29292,
 ) -> tuple[ndarray, ndarray, ndarray]:
     """Given the training set it has a class imbalance problem, this will over sample the training data to balance out
@@ -31,16 +31,16 @@ def oversample_data(
 
     Parameters
     ----------
-    x_train : Union[ndarray, DataFrame]
+    x_train : Union[np.ndarray, pd.DataFrame]]
         The training data that needs to be re-sampled
-    y_train : Union[ndarray, DataFrame]
+    y_train : Union[np.ndarray, pd.DataFrame]
         The train labels to be re-sampled
     seed : int, optional
         The seed to control the random sampling, by default 29292
 
     Returns
     -------
-    tuple[ndarray,ndarray,ndarray]
+    tuple[np.ndarray,np.ndarray,np.ndarray]
         A tuple containing the re-sampled training data, labels plus and the indicies of what original samples have been
          used
 
@@ -49,19 +49,19 @@ def oversample_data(
     TypeError
         is raised if the seed is not an int
     TypeError
-        is raised if x_train or y_train is not an ndarray or a pandas DataFrame
+        is raised if x_train or y_train is not an np.ndarray or a pandas pd.DataFrame
     ValueError
         is raised if x_train and y_train dont have the same number of rows
     """
     if not isinstance(seed, int):
         raise TypeError(f"seed must be an int, recieved {type(seed)}")
 
-    if not isinstance(x_train, (ndarray, DataFrame)):
+    if not isinstance(x_train, (np.ndarray, pd.DataFrame)):
         raise TypeError(
             f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}"
         )
 
-    if not isinstance(y_train, (ndarray, DataFrame)):
+    if not isinstance(y_train, (np.ndarray, pd.DataFrame, pd.Series)):
         raise TypeError(
             f"y_train must be either a ndarray or a DataFrame. Recieved: {type(y_train)}"
         )
@@ -86,25 +86,25 @@ def oversample_data(
 
 
 def undersample_data(
-    x_train: Union[ndarray, DataFrame],
-    y_train: Union[ndarray, DataFrame],
+    x_train: Union[np.ndarray, pd.DataFrame],
+    y_train: Union[np.ndarray, pd.DataFrame],
     seed: int = 29292,
-) -> tuple[ndarray, ndarray, ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Given the training set it has a class imbalance problem, this will under sample the training data to balance out
     theclasses
 
     Parameters
     ----------
-    x_train : Union[ndarray, DataFrame]
+    x_train : Union[np.ndarray, pd.DataFrame]
         The training data that needs to be re-sampled
-    y_train : Union[ndarray, DataFrame]
+    y_train : Union[np.ndarray, pd.DataFrame]
         The train labels to be re-sampled
     seed : int, optional
         The seed to control the random sampling, by default 29292
 
     Returns
     -------
-    tuple[ndarray,ndarray,ndarray]
+    tuple[np.ndarray,np.ndarray,np.ndarray]
         A tuple containing the re-sampled training data, labels plus and the indicies of what original samples have been
          used
 
@@ -113,21 +113,21 @@ def undersample_data(
     TypeError
         is raised if the seed is not an int
     TypeError
-        is raised if x_train or y_train is not an ndarray or a pandas DataFrame
+        is raised if x_train or y_train is not an np.ndarray or a pandas pd.DataFrame
     ValueError
         is raised if x_train and y_train dont have the same number of rows
     """
     if not isinstance(seed, int):
         raise TypeError(f"seed must be an int, recieved {type(seed)}")
 
-    if not isinstance(x_train, (ndarray, DataFrame)):
+    if not isinstance(x_train, (np.ndarray, pd.DataFrame)):
         raise TypeError(
-            f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}"
+            f"x_train must be either a np.ndarray or a pd.DataFrame.. Recieved: {type(x_train)}"
         )
 
-    if not isinstance(y_train, (ndarray, DataFrame)):
+    if not isinstance(y_train, (np.ndarray, pd.DataFrame, pd.Series)):
         raise TypeError(
-            f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}"
+            f"y_train must be either a np.ndarray or a pd.DataFrame. Recieved: {type(y_train)}"
         )
 
     if x_train.shape[0] != y_train.shape[0]:

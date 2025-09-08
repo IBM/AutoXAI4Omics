@@ -115,9 +115,9 @@ def strat_split(
             f"x must be either a ndarray or a DataFrame. Recieved: {type(x)}"
         )
 
-    if not isinstance(y, (ndarray, DataFrame)):
+    if not isinstance(y, (ndarray, DataFrame, pd.Series)):
         raise TypeError(
-            f"x must be either a ndarray or a DataFrame. Recieved: {type(y)}"
+            f"y must be either a ndarray or a DataFrame. Recieved: {type(y)}"
         )
 
     if x.shape[0] != y.shape[0]:
@@ -146,6 +146,12 @@ def strat_split(
         raise TypeError(f"group_name must be a str, provided: {type(group_name)}")
 
     metadata = pd.read_csv(meta_file, index_col=0)
+    
+    # Align metadata to X (same order, drop extras)
+    metadata = metadata.reindex(x.index)
+    
+    if isinstance(y, (pd.Series, pd.DataFrame)):
+        y = y.reindex(x.index)
 
     if group_name not in metadata.columns:
         raise ValueError(
@@ -168,8 +174,8 @@ def strat_split(
             x_train, x_test, y_train, y_test = (
                 x.iloc[train_idx, :],
                 x.iloc[test_idx, :],
-                y.iloc[train_idx, :],
-                y.iloc[test_idx, :],
+                y.iloc[train_idx],
+                y.iloc[test_idx],
             )
         else:
             x_train, x_test, y_train, y_test = (
@@ -247,7 +253,7 @@ def std_split(
             f"x_full must be either a ndarray or a DataFrame. Recieved: {type(x_full)}"
         )
 
-    if not isinstance(y_full, (ndarray, DataFrame)):
+    if not isinstance(y_full, (ndarray, DataFrame, pd.Series)):
         raise TypeError(
             f"y_full must be either a ndarray or a DataFrame. Recieved: {type(y_full)}"
         )

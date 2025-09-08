@@ -18,6 +18,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.layers import Dense, Flatten, Conv1D
 from tensorflow.keras import losses
+import numpy as np
+import pandas as pd
 
 import tensorflow.keras.optimizers.legacy
 
@@ -374,6 +376,11 @@ class KerasModel(BaseModel):
         self.model.feature_importances_ = feature_importances
 
     def fit_data(self, trainX, trainY, testX=None, testY=None, input_list=None):
+        # Ensure numpy arrays 
+        trainX = trainX.to_numpy() if hasattr(trainX, "to_numpy") else trainX
+        testX = testX.to_numpy() if hasattr(testX, "to_numpy") else testX
+        trainY = trainY.to_numpy() if hasattr(trainY, "to_numpy") else trainY
+        testY = testY.to_numpy() if hasattr(testY, "to_numpy") else testY
         if self.method == "train_dnn_keras":
             return self.fit_data_fx(trainX, trainY, testX, testY, input_list)
         elif self.method == "train_dnn_autokeras":
@@ -381,6 +388,7 @@ class KerasModel(BaseModel):
 
     def predict(self, x):
         print("predicting values ...")
+        x = x.to_numpy() if isinstance(x, pd.DataFrame) else x
         if self.conv1d:
             x = x.reshape((x.shape[0], x.shape[1], 1))
 
@@ -397,6 +405,7 @@ class KerasModel(BaseModel):
 
     def predict_proba(self, x):
         print("predicting probs ...")
+        x = x.to_numpy() if isinstance(x, pd.DataFrame) else x
         if self.conv1d:
             x = x.reshape((x.shape[0], x.shape[1], 1))
 
