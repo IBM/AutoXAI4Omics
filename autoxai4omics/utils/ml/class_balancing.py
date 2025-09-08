@@ -25,7 +25,7 @@ def oversample_data(
     x_train: Union[np.ndarray, pd.DataFrame],
     y_train: Union[np.ndarray, pd.DataFrame],
     seed: int = 29292,
-) -> tuple[ndarray, ndarray, ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Given the training set it has a class imbalance problem, this will over sample the training data to balance out
     the classes
 
@@ -33,7 +33,7 @@ def oversample_data(
     ----------
     x_train : Union[np.ndarray, pd.DataFrame]]
         The training data that needs to be re-sampled
-    y_train : Union[np.ndarray, pd.DataFrame]
+    y_train : Union[np.ndarray, pd.DataFrame, pd.Series]
         The train labels to be re-sampled
     seed : int, optional
         The seed to control the random sampling, by default 29292
@@ -58,12 +58,12 @@ def oversample_data(
 
     if not isinstance(x_train, (np.ndarray, pd.DataFrame)):
         raise TypeError(
-            f"x_train must be either a ndarray or a DataFrame. Recieved: {type(x_train)}"
+            f"x_train must be either a np.ndarray or a pd.DataFrame. Recieved: {type(x_train)}"
         )
 
     if not isinstance(y_train, (np.ndarray, pd.DataFrame, pd.Series)):
         raise TypeError(
-            f"y_train must be either a ndarray or a DataFrame. Recieved: {type(y_train)}"
+            f"y_train must be either a np.ndarray, a pd.DataFrame or pd.Series. Recieved: {type(y_train)}"
         )
 
     if x_train.shape[0] != y_train.shape[0]:
@@ -97,7 +97,7 @@ def undersample_data(
     ----------
     x_train : Union[np.ndarray, pd.DataFrame]
         The training data that needs to be re-sampled
-    y_train : Union[np.ndarray, pd.DataFrame]
+    y_train : Union[np.ndarray, pd.DataFrame, pd.Series]
         The train labels to be re-sampled
     seed : int, optional
         The seed to control the random sampling, by default 29292
@@ -127,7 +127,7 @@ def undersample_data(
 
     if not isinstance(y_train, (np.ndarray, pd.DataFrame, pd.Series)):
         raise TypeError(
-            f"y_train must be either a np.ndarray or a pd.DataFrame. Recieved: {type(y_train)}"
+            f"y_train must be either a np.ndarray, a pd.DataFrame or pd.Series. Recieved: {type(y_train)}"
         )
 
     if x_train.shape[0] != y_train.shape[0]:
