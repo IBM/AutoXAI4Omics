@@ -89,7 +89,7 @@ def get_data_tabular(
         mask = metadata.index.isin(filtered_data.index)
         filtered_metadata = metadata.loc[mask]
         filtered_metadata.to_csv(metout_file)
-        y = filtered_metadata[config_dict["data"]["target"]].values
+        y = filtered_metadata[config_dict["data"]["target"]]   # keep as Series with SampleID index
 
     else:
         file = "file_path" + ("_holdout_data" if holdout else "")
@@ -100,7 +100,7 @@ def get_data_tabular(
         # Filter y
         mask = target_y.index.isin(filtered_data.index)
         filtered_target_y = target_y.loc[mask]
-        y = filtered_target_y.values
+        y = filtered_target_y   # keep index
 
     feature_names = filtered_data.columns.to_list()
 
@@ -153,7 +153,7 @@ def get_data_tabular_trained(
             mask = metadata.index.isin(filtered_data.index)
             filtered_metadata = metadata.loc[mask]
             filtered_metadata.to_csv(metout_file)
-            y = filtered_metadata[config_dict["data"]["target"]].values
+            y = filtered_metadata[config_dict["data"]["target"]]
 
         else:
             file = "file_path" + ("_holdout_data" if holdout else "")
@@ -164,7 +164,7 @@ def get_data_tabular_trained(
             # Filter y
             mask = target_y.index.isin(filtered_data.index)
             filtered_target_y = target_y.loc[mask]
-            y = filtered_target_y.values
+            y = filtered_target_y
     else:
         y = None
 

@@ -15,6 +15,7 @@ from utils.vars import CLASSIFICATION
 import joblib
 import logging
 import numpy as np
+import pandas as pd
 
 omicLogger = logging.getLogger("OmicLogger")
 
@@ -93,11 +94,24 @@ def learn_ml_preprocessing(
         else:
             omicLogger.info("Skipping class balancing...")
 
+    # Ensure x_train and x_test are DataFrames with indices preserved
+    if not isinstance(x_train, pd.DataFrame):
+        x_train = pd.DataFrame(x_train, index=x_ind_train, columns=features_names)
+    if not isinstance(x_test, pd.DataFrame):
+        x_test = pd.DataFrame(x_test, index=x_ind_test, columns=features_names)
+    
+    # also force y indices to match x indices (they should be same since in split_data they are split and should have same ids)
+    if isinstance(y_train, (pd.Series, pd.DataFrame)):
+        y_train.index = x_train.index
+    if isinstance(y_test, (pd.Series, pd.DataFrame)):
+        y_test.index = x_test.index
+
     omicLogger.info("Re-combining data...")
-    # concatenate both test and train into test
-    x = np.concatenate((x_train, x_test))
-    # y needs to be re-concatenated as the ordering of x may have been changed in splitting
-    y = np.concatenate((y_train, y_test))
+
+    x = pd.concat([x_train, x_test])
+    y = pd.concat([
+        pd.Series(y_train, index=x_ind_train, name="target"),
+        pd.Series(y_test, index=x_ind_test, name="target")])
 
     # save the transformed input data
     omicLogger.info("Saving transformed data...")

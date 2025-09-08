@@ -90,8 +90,8 @@ class XGBoostObjective(object):
                     random_state=self.random_state,
                 )
                 xgb_model.set_params(**param)
-                xgb_model.fit(train_x[train_index], train_y[train_index])
-                predictions = xgb_model.predict(train_x[test_index])
+                xgb_model.fit(train_x.iloc[train_index], train_y[train_index])
+                predictions = xgb_model.predict(train_x.iloc[test_index])
                 predictions = np.rint(predictions)
                 actuals = train_y[test_index]
                 s = accuracy_score(actuals, predictions)
@@ -112,8 +112,8 @@ class XGBoostObjective(object):
                     random_state=self.random_state,
                 )
                 xgb_model.set_params(**param)
-                xgb_model.fit(train_x[train_index], train_y[train_index])
-                predictions = xgb_model.predict(train_x[test_index])
+                xgb_model.fit(train_x.iloc[train_index], train_y[train_index])
+                predictions = xgb_model.predict(train_x.iloc[test_index])
                 actuals = train_y[test_index]
                 s = mean_absolute_error(actuals, predictions)
                 print(s)

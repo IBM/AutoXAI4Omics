@@ -20,7 +20,7 @@ import joblib
 import lightgbm as lgb_core
 import numpy as np
 import optuna
-
+import pandas as pd
 
 def to_matrix(data, n):
     return [data[i : i + n] for i in range(0, len(data), n)]
@@ -74,11 +74,26 @@ class LGBMObjective(object):
             scores = []
             for train_index, test_index in kf.split(train_x):
                 lgb_model = lgb_core.LGBMClassifier(**param)
-                lgb_model.fit(train_x[train_index], train_y[train_index])
-                predictions = lgb_model.predict(train_x[test_index])
+
+                # Handle DataFrame vs ndarray
+                if isinstance(train_x, pd.DataFrame):
+                    X_train_fold = train_x.iloc[train_index]
+                    X_test_fold = train_x.iloc[test_index]
+                else:
+                    X_train_fold = train_x[train_index]
+                    X_test_fold = train_x[test_index]
+
+                if isinstance(train_y, (pd.Series, pd.DataFrame)):
+                    y_train_fold = train_y.iloc[train_index]
+                    y_test_fold = train_y.iloc[test_index]
+                else:
+                    y_train_fold = train_y[train_index]
+                    y_test_fold = train_y[test_index]
+
+                lgb_model.fit(X_train_fold, y_train_fold)
+                predictions = lgb_model.predict(X_test_fold)
                 predictions = np.rint(predictions)
-                actuals = train_y[test_index]
-                s = accuracy_score(actuals, predictions)
+                s = accuracy_score(y_test_fold, predictions)
                 scores.append(s)
 
         else:
@@ -101,8 +116,8 @@ class LGBMObjective(object):
                 param["metric"] = "l1"
 
                 lgb_model = lgb_core.LGBMRegressor(**param)
-                lgb_model.fit(train_x[train_index], train_y[train_index])
-                predictions = lgb_model.predict(train_x[test_index])
+                lgb_model.fit(train_x.iloc[train_index], train_y[train_index])
+                predictions = lgb_model.predict(train_x.iloc[test_index])
                 actuals = train_y[test_index]
                 s = mean_absolute_error(actuals, predictions)
                 print(s)
