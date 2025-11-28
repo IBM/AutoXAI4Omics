@@ -18,7 +18,7 @@ import scipy.stats as sp
 sk_random = {
     "rf": {
         "n_estimators": sp.randint(20, 200),
-        "max_features": ["auto", "sqrt"],
+        "max_features": ["sqrt", "log2", None],
         "max_depth": sp.randint(10, 70),
         "min_samples_split": [2, 5, 10],
         "min_samples_leaf": [1, 2, 4],
@@ -55,7 +55,7 @@ sk_random = {
 sk_grid = {
     "rf": {
         "n_estimators": range(50, 201, 50),
-        "max_features": ["auto", "sqrt"],
+        "max_features": ["sqrt", "log2", None],
         "max_depth": range(10, 71, 10),
         "min_samples_split": [2, 5, 10],
         "min_samples_leaf": [1, 2, 4],
@@ -91,7 +91,7 @@ sk_grid = {
 single_model = {
     "rf": {
         "n_estimators": 100,
-        "max_features": "auto",
+        "max_features": ["sqrt", "log2", None],
         "max_depth": None,
         "min_samples_split": 2,
         "min_samples_leaf": 1,
@@ -133,7 +133,7 @@ boaas_dict = {
             {"name": "min_samples_leaf", "min": 5, "max": 100, "step": 5},
         ],
         "bootstrap": True,
-        "max_features": "auto",
+        "max_features": ["sqrt", "log2", None],
     },
     "xgboost": {
         "domain": [
